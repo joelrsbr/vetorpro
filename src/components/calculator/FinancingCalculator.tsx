@@ -1,14 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, TrendingDown, Sparkles, Plus, Minus } from "lucide-react";
+import { Calculator, Plus, Minus } from "lucide-react";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
+import { ProposalGenerator } from "./ProposalGenerator";
 
 interface ScheduleItem {
   month: number;
@@ -347,6 +347,14 @@ export function FinancingCalculator() {
         <>
           <CalculationResults 
             calculations={calculations} 
+            amortizationType={amortizationType}
+          />
+          <ProposalGenerator
+            calculations={calculations}
+            propertyValue={parseCurrency(propertyValue)}
+            downPayment={parseCurrency(downPayment)}
+            interestRate={parseCurrency(interestRate)}
+            termMonths={parseInt(termMonths) || 360}
             amortizationType={amortizationType}
           />
           <AmortizationSchedule schedule={calculations.schedule} />
