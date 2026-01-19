@@ -1,0 +1,376 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Calculator, 
+  FileText, 
+  Crown, 
+  TrendingUp, 
+  Clock, 
+  User,
+  Loader2,
+  Sparkles,
+  Copy
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+
+interface Proposal {
+  id: string;
+  client_name: string;
+  property_description: string;
+  proposal_text: string;
+  interest_savings: number | null;
+  term_savings_months: number | null;
+  created_at: string;
+}
+
+interface Simulation {
+  id: string;
+  property_value: number;
+  down_payment: number;
+  interest_rate: number;
+  term_months: number;
+  amortization_type: string;
+  monthly_payment: number;
+  total_paid: number;
+  total_interest: number;
+  created_at: string;
+}
+
+export default function Dashboard() {
+  const { user, profile, usageLimits, loading } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [simulations, setSimulations] = useState<Simulation[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
+
+  const fetchData = async () => {
+    setLoadingData(true);
+    
+    const [proposalsRes, simulationsRes] = await Promise.all([
+      supabase
+        .from("proposals")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase
+        .from("simulations")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
+
+    if (proposalsRes.data) setProposals(proposalsRes.data);
+    if (simulationsRes.data) setSimulations(simulationsRes.data);
+    
+    setLoadingData(false);
+  };
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const handleCopyProposal = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copiado!",
+      description: "Proposta copiada para a área de transferência.",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      
+      <main className="flex-1 container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">
+              Olá, {profile?.full_name?.split(" ")[0] || "Corretor"}! 👋
+            </h1>
+            <p className="text-muted-foreground">
+              Bem-vindo ao seu painel de controle
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge 
+              variant={profile?.subscription_plan === "pro" ? "default" : "secondary"}
+              className={profile?.subscription_plan === "pro" 
+                ? "bg-gradient-to-r from-amber-500 to-orange-500" 
+                : ""}
+            >
+              {profile?.subscription_plan === "pro" ? (
+                <>
+                  <Crown className="h-3 w-3 mr-1" />
+                  Plano Pro
+                </>
+              ) : (
+                "Plano Gratuito"
+              )}
+            </Badge>
+            {profile?.subscription_plan !== "pro" && (
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/precos">
+                  <Crown className="h-4 w-4 mr-1" />
+                  Upgrade Pro
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Simulações</p>
+                  <p className="text-2xl font-bold">
+                    {usageLimits?.simulationsRemaining === 999999 
+                      ? "∞" 
+                      : `${10 - (usageLimits?.simulationsRemaining || 0)}/10`}
+                  </p>
+                </div>
+                <Calculator className="h-8 w-8 text-primary opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Propostas IA</p>
+                  <p className="text-2xl font-bold">
+                    {usageLimits?.proposalsRemaining === 999999 
+                      ? "∞" 
+                      : `${2 - (usageLimits?.proposalsRemaining || 0)}/2`}
+                  </p>
+                </div>
+                <Sparkles className="h-8 w-8 text-primary opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Propostas</p>
+                  <p className="text-2xl font-bold">{proposals.length}</p>
+                </div>
+                <FileText className="h-8 w-8 text-primary opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Plano</p>
+                  <p className="text-2xl font-bold capitalize">{profile?.subscription_plan || "Free"}</p>
+                </div>
+                <Crown className="h-8 w-8 text-primary opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/")}>
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
+                <Calculator className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Nova Simulação</h3>
+                <p className="text-sm text-muted-foreground">Calcule um novo financiamento</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                <Crown className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Ver Planos</h3>
+                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* History Tabs */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Histórico</CardTitle>
+            <CardDescription>Suas simulações e propostas recentes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="proposals">
+              <TabsList className="mb-4">
+                <TabsTrigger value="proposals">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Propostas
+                </TabsTrigger>
+                <TabsTrigger value="simulations">
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Simulações
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="proposals">
+                {loadingData ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : proposals.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">Nenhuma proposta gerada ainda</p>
+                    <Button variant="hero" className="mt-4" asChild>
+                      <Link to="/">Gerar Primeira Proposta</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {proposals.map((proposal) => (
+                      <Card key={proposal.id} className="bg-muted/30">
+                        <CardContent className="pt-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{proposal.client_name}</span>
+                                <span className="text-sm text-muted-foreground">•</span>
+                                <span className="text-sm text-muted-foreground">{proposal.property_description}</span>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatDate(proposal.created_at)}
+                                </span>
+                                {proposal.interest_savings && (
+                                  <span className="flex items-center gap-1 text-green-600">
+                                    <TrendingUp className="h-3 w-3" />
+                                    Economia: {formatCurrency(proposal.interest_savings)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleCopyProposal(proposal.proposal_text)}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="simulations">
+                {loadingData ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : simulations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">Nenhuma simulação salva ainda</p>
+                    <Button variant="hero" className="mt-4" asChild>
+                      <Link to="/">Fazer Primeira Simulação</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {simulations.map((sim) => (
+                      <Card key={sim.id} className="bg-muted/30">
+                        <CardContent className="pt-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-6">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Valor</p>
+                                <p className="font-medium">{formatCurrency(sim.property_value)}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Parcela</p>
+                                <p className="font-medium">{formatCurrency(sim.monthly_payment)}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Sistema</p>
+                                <Badge variant="outline">{sim.amortization_type.toUpperCase()}</Badge>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Prazo</p>
+                                <p className="font-medium">{sim.term_months} meses</p>
+                              </div>
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {formatDate(sim.created_at)}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+}

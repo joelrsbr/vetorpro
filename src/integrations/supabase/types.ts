@@ -14,16 +14,188 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          proposals_reset_at: string
+          proposals_used: number
+          simulations_reset_at: string
+          simulations_used: number
+          subscription_plan: Database["public"]["Enums"]["subscription_plan"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          proposals_reset_at?: string
+          proposals_used?: number
+          simulations_reset_at?: string
+          simulations_used?: number
+          subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          proposals_reset_at?: string
+          proposals_used?: number
+          simulations_reset_at?: string
+          simulations_used?: number
+          subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          client_name: string
+          created_at: string
+          id: string
+          interest_savings: number | null
+          property_description: string
+          proposal_text: string
+          simulation_id: string | null
+          term_savings_months: number | null
+          user_id: string
+        }
+        Insert: {
+          client_name: string
+          created_at?: string
+          id?: string
+          interest_savings?: number | null
+          property_description: string
+          proposal_text: string
+          simulation_id?: string | null
+          term_savings_months?: number | null
+          user_id: string
+        }
+        Update: {
+          client_name?: string
+          created_at?: string
+          id?: string
+          interest_savings?: number | null
+          property_description?: string
+          proposal_text?: string
+          simulation_id?: string | null
+          term_savings_months?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_simulation_id_fkey"
+            columns: ["simulation_id"]
+            isOneToOne: false
+            referencedRelation: "simulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulations: {
+        Row: {
+          amortization_type: Database["public"]["Enums"]["amortization_type"]
+          created_at: string
+          down_payment: number
+          extra_amortization: number | null
+          extra_amortization_strategy:
+            | Database["public"]["Enums"]["extra_amortization_strategy"]
+            | null
+          id: string
+          interest_rate: number
+          monthly_payment: number
+          property_value: number
+          reinforcement_frequency:
+            | Database["public"]["Enums"]["reinforcement_frequency"]
+            | null
+          reinforcement_value: number | null
+          term_months: number
+          total_interest: number
+          total_paid: number
+          user_id: string
+        }
+        Insert: {
+          amortization_type: Database["public"]["Enums"]["amortization_type"]
+          created_at?: string
+          down_payment: number
+          extra_amortization?: number | null
+          extra_amortization_strategy?:
+            | Database["public"]["Enums"]["extra_amortization_strategy"]
+            | null
+          id?: string
+          interest_rate: number
+          monthly_payment: number
+          property_value: number
+          reinforcement_frequency?:
+            | Database["public"]["Enums"]["reinforcement_frequency"]
+            | null
+          reinforcement_value?: number | null
+          term_months: number
+          total_interest: number
+          total_paid: number
+          user_id: string
+        }
+        Update: {
+          amortization_type?: Database["public"]["Enums"]["amortization_type"]
+          created_at?: string
+          down_payment?: number
+          extra_amortization?: number | null
+          extra_amortization_strategy?:
+            | Database["public"]["Enums"]["extra_amortization_strategy"]
+            | null
+          id?: string
+          interest_rate?: number
+          monthly_payment?: number
+          property_value?: number
+          reinforcement_frequency?:
+            | Database["public"]["Enums"]["reinforcement_frequency"]
+            | null
+          reinforcement_value?: number | null
+          term_months?: number
+          total_interest?: number
+          total_paid?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_and_reset_limits: {
+        Args: { p_user_id: string }
+        Returns: {
+          can_generate_proposal: boolean
+          can_simulate: boolean
+          proposals_remaining: number
+          simulations_remaining: number
+        }[]
+      }
+      increment_simulation_count: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      amortization_type: "sac" | "price"
+      extra_amortization_strategy: "reduce_term" | "reduce_payment"
+      reinforcement_frequency: "monthly" | "semiannual" | "annual"
+      subscription_plan: "free" | "pro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +322,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      amortization_type: ["sac", "price"],
+      extra_amortization_strategy: ["reduce_term", "reduce_payment"],
+      reinforcement_frequency: ["monthly", "semiannual", "annual"],
+      subscription_plan: ["free", "pro"],
+    },
   },
 } as const

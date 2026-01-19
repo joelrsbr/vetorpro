@@ -1,16 +1,30 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, User, Menu, X } from "lucide-react";
+import { Calculator, User, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, profile, signOut, loading } = useAuth();
 
   const navigation = [
     { name: "Calculadora", href: "/" },
     { name: "Preços", href: "/precos" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -39,18 +53,61 @@ export function Header() {
               {item.name}
             </Link>
           ))}
+          {user && (
+            <Link
+              to="/dashboard"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                location.pathname === "/dashboard"
+                  ? "text-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Dashboard
+            </Link>
+          )}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/login">Entrar</Link>
-          </Button>
-          <Button variant="hero" size="sm" asChild>
-            <Link to="/login">
-              <User className="h-4 w-4" />
-              Começar Grátis
-            </Link>
-          </Button>
+          {loading ? (
+            <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <User className="h-4 w-4" />
+                  {profile?.full_name?.split(" ")[0] || "Minha Conta"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="flex items-center gap-2">
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleSignOut}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Entrar</Link>
+              </Button>
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/login">
+                  <User className="h-4 w-4" />
+                  Começar Grátis
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -80,13 +137,40 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            {user && (
+              <Link
+                to="/dashboard"
+                className="block text-sm font-medium text-muted-foreground hover:text-primary"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+            )}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/login">Entrar</Link>
-              </Button>
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/login">Começar Grátis</Link>
-              </Button>
+              {user ? (
+                <>
+                  <p className="text-sm text-muted-foreground px-1">
+                    {profile?.email}
+                  </p>
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                      Entrar
+                    </Link>
+                  </Button>
+                  <Button variant="hero" size="sm" asChild>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                      Começar Grátis
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

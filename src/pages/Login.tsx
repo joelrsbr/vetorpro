@@ -1,21 +1,51 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, Mail, Lock, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Calculator, Mail, Lock, User, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  
+  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement authentication
-    setTimeout(() => setIsLoading(false), 1000);
+    
+    const { error } = await signIn(loginEmail, loginPassword);
+    
+    if (!error) {
+      navigate("/dashboard");
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const { error } = await signUp(registerEmail, registerPassword, registerName);
+    
+    if (!error) {
+      // Auto login after registration
+      await signIn(registerEmail, registerPassword);
+      navigate("/dashboard");
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -42,7 +72,7 @@ const Login = () => {
               </TabsList>
               
               <TabsContent value="login">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email-login">E-mail</Label>
                     <div className="relative">
@@ -52,6 +82,8 @@ const Login = () => {
                         type="email" 
                         placeholder="seu@email.com"
                         className="pl-10"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -71,6 +103,8 @@ const Login = () => {
                         type="password" 
                         placeholder="••••••••"
                         className="pl-10"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
                         required
                       />
                     </div>
@@ -83,13 +117,20 @@ const Login = () => {
                     size="lg"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Entrando..." : "Entrar"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Entrando...
+                      </>
+                    ) : (
+                      "Entrar"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
               
               <TabsContent value="register">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Nome Completo</Label>
                     <div className="relative">
@@ -99,6 +140,8 @@ const Login = () => {
                         type="text" 
                         placeholder="Seu nome"
                         className="pl-10"
+                        value={registerName}
+                        onChange={(e) => setRegisterName(e.target.value)}
                         required
                       />
                     </div>
@@ -113,6 +156,8 @@ const Login = () => {
                         type="email" 
                         placeholder="seu@email.com"
                         className="pl-10"
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -127,6 +172,8 @@ const Login = () => {
                         type="password" 
                         placeholder="Mínimo 8 caracteres"
                         className="pl-10"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
                         required
                         minLength={8}
                       />
@@ -140,7 +187,14 @@ const Login = () => {
                     size="lg"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Criando conta..." : "Criar Conta Grátis"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Criando conta...
+                      </>
+                    ) : (
+                      "Criar Conta Grátis"
+                    )}
                   </Button>
                   
                   <p className="text-xs text-muted-foreground text-center">
