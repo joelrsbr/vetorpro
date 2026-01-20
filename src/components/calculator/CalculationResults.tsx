@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingDown, DollarSign, Calendar, Sparkles, Clock, PiggyBank } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface CalculationsData {
   principal: number;
@@ -152,9 +153,12 @@ export function CalculationResults({ calculations, amortizationType }: Calculati
               variant="secondary" 
               size="lg" 
               className="w-full md:w-auto font-semibold"
+              asChild
             >
-              <Sparkles className="h-4 w-4 mr-2" />
-              Gerar Proposta com IA
+              <Link to="/precos">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Assine e Se Destaque da Concorrência
+              </Link>
             </Button>
           </div>
         </CardContent>
