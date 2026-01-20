@@ -21,9 +21,10 @@ interface ScheduleItem {
 }
 
 export function FinancingCalculator() {
-  const [propertyValue, setPropertyValue] = useState<string>("500000");
-  const [downPayment, setDownPayment] = useState<string>("100000");
+  const [propertyValue, setPropertyValue] = useState<string>("150000");
+  const [downPayment, setDownPayment] = useState<string>("30000");
   const [interestRate, setInterestRate] = useState<string>("10.5");
+  const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [termMonths, setTermMonths] = useState<string>("360");
   const [amortizationType, setAmortizationType] = useState<"SAC" | "PRICE">("SAC");
   
@@ -63,7 +64,10 @@ export function FinancingCalculator() {
     const maxPayment = parseCurrency(maxPaymentValue);
     const property = parseCurrency(propertyValue);
     const down = parseCurrency(downPayment);
-    const rate = parseCurrency(interestRate) / 100 / 12;
+    const annualRate = interestRateType === "monthly" 
+      ? parseCurrency(interestRate) * 12 
+      : parseCurrency(interestRate);
+    const rate = annualRate / 100 / 12;
     const months = parseInt(termMonths) || 360;
     
     if (maxPayment <= 0 || rate <= 0) return null;
@@ -128,11 +132,14 @@ export function FinancingCalculator() {
       maxAffordableProperty,
       minTermMonths,
     };
-  }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, termMonths, amortizationType]);
+  }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType]);
 
   const calculations = useMemo(() => {
     const principal = parseCurrency(propertyValue) - parseCurrency(downPayment);
-    const monthlyRate = parseCurrency(interestRate) / 100 / 12;
+    const annualRate = interestRateType === "monthly" 
+      ? parseCurrency(interestRate) * 12 
+      : parseCurrency(interestRate);
+    const monthlyRate = annualRate / 100 / 12;
     const months = parseInt(termMonths) || 360;
     const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
     const reinforcement = enableReinforcements ? parseCurrency(reinforcementValue) : 0;
@@ -241,7 +248,7 @@ export function FinancingCalculator() {
       monthsSaved,
       interestSaved,
     };
-  }, [propertyValue, downPayment, interestRate, termMonths, amortizationType, 
+  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, 
       enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
       enableReinforcements, reinforcementValue, reinforcementFrequency]);
 
@@ -255,33 +262,27 @@ export function FinancingCalculator() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Amortization Type Tabs */}
-          <Tabs 
-            value={amortizationType} 
-            onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="SAC" className="font-medium">
-                Sistema SAC
-              </TabsTrigger>
-              <TabsTrigger value="PRICE" className="font-medium">
-                Sistema PRICE
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="SAC" className="mt-4">
-              <p className="text-sm text-muted-foreground">
-                <strong>SAC (Sistema de Amortização Constante):</strong> Parcelas decrescentes. 
-                A amortização é constante e os juros diminuem ao longo do tempo.
-              </p>
-            </TabsContent>
-            <TabsContent value="PRICE" className="mt-4">
-              <p className="text-sm text-muted-foreground">
-                <strong>PRICE (Tabela Price):</strong> Parcelas fixas durante todo o financiamento. 
-                No início, a maior parte é juros; no final, é amortização.
-              </p>
-            </TabsContent>
-          </Tabs>
+          {/* Amortization Type Selection */}
+          <div className="space-y-2">
+            <Label>Sistema de Amortização</Label>
+            <Select
+              value={amortizationType}
+              onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
+            >
+              <SelectTrigger className="text-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="SAC">SAC - Parcelas decrescentes</SelectItem>
+                <SelectItem value="PRICE">Price - Parcelas fixas</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">
+              {amortizationType === "SAC" 
+                ? "SAC: A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes."
+                : "Price: Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização."}
+            </p>
+          </div>
 
           {/* Basic Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -306,16 +307,30 @@ export function FinancingCalculator() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="interestRate">Taxa de Juros Anual (%)</Label>
-              <Input
-                id="interestRate"
-                type="number"
-                step="0.1"
-                value={interestRate}
-                onChange={(e) => setInterestRate(e.target.value)}
-                placeholder="10.5"
-                className="text-lg"
-              />
+              <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="interestRate"
+                  type="number"
+                  step="0.1"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                  placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
+                  className="text-lg flex-1"
+                />
+                <Select
+                  value={interestRateType}
+                  onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
+                >
+                  <SelectTrigger className="w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="annual">Anual</SelectItem>
+                    <SelectItem value="monthly">Mensal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="termMonths">Prazo (meses)</Label>
