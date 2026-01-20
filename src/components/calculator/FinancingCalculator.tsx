@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, Plus, Minus, Wallet } from "lucide-react";
+import { Calculator, Plus, Minus, Wallet, DollarSign } from "lucide-react";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
@@ -262,86 +262,93 @@ export function FinancingCalculator() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Amortization Type Selection */}
-          <div className="space-y-2">
-            <Label>Sistema de Amortização</Label>
-            <Select
-              value={amortizationType}
-              onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
-            >
-              <SelectTrigger className="text-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="SAC">SAC - Parcelas decrescentes</SelectItem>
-                <SelectItem value="PRICE">Price - Parcelas fixas</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground">
-              {amortizationType === "SAC" 
-                ? "SAC: A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes."
-                : "Price: Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização."}
-            </p>
-          </div>
-
-          {/* Basic Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="propertyValue">Valor do Imóvel (R$)</Label>
-              <Input
-                id="propertyValue"
-                value={formatCurrency(propertyValue)}
-                onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
-                placeholder="500.000"
-                className="text-lg"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
-              <Input
-                id="downPayment"
-                value={formatCurrency(downPayment)}
-                onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
-                placeholder="100.000"
-                className="text-lg"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
-              <div className="flex gap-2">
+          {/* Dados do Financiamento */}
+          <div className="border rounded-lg p-4 space-y-4 bg-card">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              Dados do Financiamento
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="propertyValue">Valor do Imóvel (R$)</Label>
                 <Input
-                  id="interestRate"
-                  type="number"
-                  step="0.1"
-                  value={interestRate}
-                  onChange={(e) => setInterestRate(e.target.value)}
-                  placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
-                  className="text-lg flex-1"
+                  id="propertyValue"
+                  value={formatCurrency(propertyValue)}
+                  onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
+                  placeholder="150.000"
+                  className="text-lg"
                 />
-                <Select
-                  value={interestRateType}
-                  onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
-                >
-                  <SelectTrigger className="w-28">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="annual">Anual</SelectItem>
-                    <SelectItem value="monthly">Mensal</SelectItem>
-                  </SelectContent>
-                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
+                <Input
+                  id="downPayment"
+                  value={formatCurrency(downPayment)}
+                  onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
+                  placeholder="30.000"
+                  className="text-lg"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="interestRate"
+                    type="number"
+                    step="0.1"
+                    value={interestRate}
+                    onChange={(e) => setInterestRate(e.target.value)}
+                    placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
+                    className="text-lg flex-1"
+                  />
+                  <Select
+                    value={interestRateType}
+                    onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
+                  >
+                    <SelectTrigger className="w-28">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="annual">Anual</SelectItem>
+                      <SelectItem value="monthly">Mensal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="termMonths">Prazo (meses)</Label>
+                <Input
+                  id="termMonths"
+                  type="number"
+                  value={termMonths}
+                  onChange={(e) => setTermMonths(e.target.value)}
+                  placeholder="360"
+                  className="text-lg"
+                />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="termMonths">Prazo (meses)</Label>
-              <Input
-                id="termMonths"
-                type="number"
-                value={termMonths}
-                onChange={(e) => setTermMonths(e.target.value)}
-                placeholder="360"
-                className="text-lg"
-              />
+            
+            {/* Amortization Type Selection */}
+            <div className="space-y-2 pt-2 border-t">
+              <Label>Sistema de Amortização</Label>
+              <Select
+                value={amortizationType}
+                onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
+              >
+                <SelectTrigger className="text-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SAC">SAC - Parcelas decrescentes</SelectItem>
+                  <SelectItem value="PRICE">Price - Parcelas fixas</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                {amortizationType === "SAC" 
+                  ? "SAC: A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes."
+                  : "Price: Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização."}
+              </p>
             </div>
           </div>
 
