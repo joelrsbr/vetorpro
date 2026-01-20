@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, Plus, Minus } from "lucide-react";
+import { Calculator, Plus, Minus, Wallet } from "lucide-react";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ScheduleItem {
   month: number;
@@ -25,6 +26,10 @@ export function FinancingCalculator() {
   const [interestRate, setInterestRate] = useState<string>("10.5");
   const [termMonths, setTermMonths] = useState<string>("360");
   const [amortizationType, setAmortizationType] = useState<"SAC" | "PRICE">("SAC");
+  
+  // Max affordable payment
+  const [enableMaxPayment, setEnableMaxPayment] = useState(false);
+  const [maxPaymentValue, setMaxPaymentValue] = useState<string>("3000");
   
   // Extra amortization
   const [enableExtraAmortization, setEnableExtraAmortization] = useState(false);
@@ -50,6 +55,80 @@ export function FinancingCalculator() {
     const numericValue = value.replace(/\D/g, "");
     setter(numericValue);
   };
+
+  // Calculate affordability analysis when max payment is enabled
+  const affordabilityAnalysis = useMemo(() => {
+    if (!enableMaxPayment) return null;
+    
+    const maxPayment = parseCurrency(maxPaymentValue);
+    const property = parseCurrency(propertyValue);
+    const down = parseCurrency(downPayment);
+    const rate = parseCurrency(interestRate) / 100 / 12;
+    const months = parseInt(termMonths) || 360;
+    
+    if (maxPayment <= 0 || rate <= 0) return null;
+    
+    const principal = property - down;
+    
+    // Calculate first payment based on amortization type
+    let firstPayment: number;
+    if (amortizationType === "SAC") {
+      const monthlyPrincipal = principal / months;
+      firstPayment = monthlyPrincipal + (principal * rate);
+    } else {
+      firstPayment = principal * (rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+    }
+    
+    const isAffordable = firstPayment <= maxPayment;
+    const difference = firstPayment - maxPayment;
+    
+    // Calculate max affordable property value
+    let maxAffordableProperty: number;
+    if (amortizationType === "PRICE") {
+      // For PRICE: PMT = P * r * (1+r)^n / ((1+r)^n - 1)
+      // Solving for P: P = PMT * ((1+r)^n - 1) / (r * (1+r)^n)
+      const maxPrincipal = maxPayment * (Math.pow(1 + rate, months) - 1) / (rate * Math.pow(1 + rate, months));
+      maxAffordableProperty = maxPrincipal + down;
+    } else {
+      // For SAC: First payment = P/n + P*r = P * (1/n + r)
+      // Solving for P: P = PMT / (1/n + r)
+      const maxPrincipal = maxPayment / (1/months + rate);
+      maxAffordableProperty = maxPrincipal + down;
+    }
+    
+    // Calculate minimum term for current property value
+    let minTermMonths: number | null = null;
+    if (!isAffordable && principal > 0) {
+      if (amortizationType === "PRICE") {
+        // PMT = P * r * (1+r)^n / ((1+r)^n - 1)
+        // This requires iterative solving
+        for (let n = 12; n <= 420; n += 12) {
+          const payment = principal * (rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1);
+          if (payment <= maxPayment) {
+            minTermMonths = n;
+            break;
+          }
+        }
+      } else {
+        // SAC: first payment = P/n + P*r
+        // P/n + P*r <= maxPayment
+        // P/n <= maxPayment - P*r
+        // n >= P / (maxPayment - P*r)
+        const interestPart = principal * rate;
+        if (maxPayment > interestPart) {
+          minTermMonths = Math.ceil(principal / (maxPayment - interestPart));
+        }
+      }
+    }
+    
+    return {
+      isAffordable,
+      firstPayment,
+      difference,
+      maxAffordableProperty,
+      minTermMonths,
+    };
+  }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, termMonths, amortizationType]);
 
   const calculations = useMemo(() => {
     const principal = parseCurrency(propertyValue) - parseCurrency(downPayment);
@@ -251,7 +330,74 @@ export function FinancingCalculator() {
             </div>
           </div>
 
-          {/* Extra Amortization */}
+          {/* Max Affordable Payment */}
+          <div className="border rounded-lg p-4 space-y-4 bg-accent/30 border-accent">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-accent-foreground" />
+                <Label htmlFor="maxPayment" className="font-medium">
+                  Parcela Máxima que Posso Pagar
+                </Label>
+              </div>
+              <Switch
+                id="maxPayment"
+                checked={enableMaxPayment}
+                onCheckedChange={setEnableMaxPayment}
+              />
+            </div>
+            {enableMaxPayment && (
+              <div className="space-y-4 animate-slide-up">
+                <div className="space-y-2">
+                  <Label>Valor Máximo da Parcela (R$)</Label>
+                  <Input
+                    value={formatCurrency(maxPaymentValue)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setMaxPaymentValue)}
+                    placeholder="3.000"
+                    className="text-lg"
+                  />
+                </div>
+                
+                {affordabilityAnalysis && (
+                  <div className="space-y-3">
+                    {affordabilityAnalysis.isAffordable ? (
+                      <Alert className="bg-success/10 border-success/30">
+                        <AlertDescription className="text-success">
+                          ✓ <strong>Parcela dentro do orçamento!</strong> A primeira parcela de{" "}
+                          <strong>R$ {affordabilityAnalysis.firstPayment.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>{" "}
+                          está abaixo do limite de R$ {parseCurrency(maxPaymentValue).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}.
+                        </AlertDescription>
+                      </Alert>
+                    ) : (
+                      <Alert className="bg-warning/10 border-warning/30">
+                        <AlertDescription className="text-warning space-y-2">
+                          <p>
+                            ⚠️ <strong>Parcela acima do orçamento.</strong> A primeira parcela seria de{" "}
+                            <strong>R$ {affordabilityAnalysis.firstPayment.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>{" "}
+                            (R$ {affordabilityAnalysis.difference.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} acima do limite).
+                          </p>
+                          <div className="mt-3 pt-3 border-t border-warning/30 space-y-2">
+                            <p className="font-medium">Sugestões para caber no orçamento:</p>
+                            <ul className="list-disc list-inside space-y-1 text-sm">
+                              <li>
+                                Imóvel de até <strong>R$ {affordabilityAnalysis.maxAffordableProperty.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</strong>
+                              </li>
+                              {affordabilityAnalysis.minTermMonths && (
+                                <li>
+                                  Prazo de pelo menos <strong>{affordabilityAnalysis.minTermMonths} meses</strong> ({(affordabilityAnalysis.minTermMonths / 12).toFixed(1)} anos)
+                                </li>
+                              )}
+                              <li>Aumentar o valor da entrada</li>
+                            </ul>
+                          </div>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
