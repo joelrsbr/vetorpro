@@ -79,38 +79,46 @@ serve(async (req) => {
       return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     };
 
-    const systemPrompt = `Você é um assistente especializado em gerar propostas profissionais de financiamento imobiliário para corretores de imóveis brasileiros.
+    const systemPrompt = `Você é um corretor de imóveis experiente que escreve propostas de financiamento imobiliário em linguagem comercial natural, fluida e persuasiva.
 
-Seu objetivo é criar um texto persuasivo, profissional e amigável que o corretor possa enviar diretamente ao cliente.
+REGRAS OBRIGATÓRIAS:
+- NÃO use markdown, negrito, itálico ou asteriscos (*)
+- NÃO use formatação de lista com hífens ou bullets
+- NÃO repita frases como "gere uma proposta profissional" ou "conquiste seu imóvel"
+- Escreva em parágrafos corridos, como uma carta comercial
+- Use tom humano, profissional e próximo
+- Retorne APENAS o texto limpo da proposta, sem comentários adicionais
 
-O texto deve:
-- Ser personalizado com o nome do cliente
-- Destacar os benefícios do financiamento
-- Mencionar a economia gerada (se houver)
-- Usar tom profissional mas acolhedor
-- Ser formatado para fácil leitura
-- Incluir uma chamada para ação no final
-- Ter entre 200-400 palavras
+ESTRUTURA DA PROPOSTA:
+1. Introdução breve e personalizada para o cliente (use o nome dele)
+2. Explicação dos benefícios do modelo escolhido (SAC ou PRICE)
+3. Argumento financeiro (entrada, juros, prazo, valorização, parcela)
+4. Fechamento com convite à ação (agendar contato, validar documentação)
 
-IMPORTANTE: Responda APENAS com o texto da proposta, sem comentários adicionais.`;
+Ter entre 250-400 palavras.`;
 
-    const userPrompt = `Gere uma proposta de financiamento para:
+    const sistemaTipo = proposalData.amortizationType.toUpperCase() === "SAC" ? "SAC" : "PRICE";
+    const entradaPercentual = ((proposalData.downPayment / proposalData.propertyValue) * 100).toFixed(1);
+    const prazoAnos = (proposalData.termMonths / 12).toFixed(1);
 
-CLIENTE: ${proposalData.clientName}
-IMÓVEL: ${proposalData.propertyDescription}
+    const userPrompt = `Gere uma proposta profissional de financiamento imobiliário com base nos dados abaixo, usando linguagem comercial natural, sem formatação Markdown, sem usar asteriscos ou negrito.
 
-DADOS DO FINANCIAMENTO:
+Dados:
+- Nome do cliente: ${proposalData.clientName}
+- Descrição do imóvel: ${proposalData.propertyDescription}
 - Valor do imóvel: ${formatCurrency(proposalData.propertyValue)}
-- Entrada: ${formatCurrency(proposalData.downPayment)} (${((proposalData.downPayment / proposalData.propertyValue) * 100).toFixed(1)}%)
+- Entrada: ${formatCurrency(proposalData.downPayment)} (${entradaPercentual}%)
 - Valor financiado: ${formatCurrency(proposalData.propertyValue - proposalData.downPayment)}
-- Taxa de juros: ${proposalData.interestRate}% ao ano
-- Prazo: ${proposalData.termMonths} meses (${(proposalData.termMonths / 12).toFixed(1)} anos)
-- Sistema: ${proposalData.amortizationType}
+- Taxa de juros anual: ${proposalData.interestRate}%
+- Prazo: ${proposalData.termMonths} meses (${prazoAnos} anos)
+- Sistema: ${sistemaTipo}
 - Parcela inicial: ${formatCurrency(proposalData.monthlyPayment)}
 - Total a pagar: ${formatCurrency(proposalData.totalPaid)}
 - Total de juros: ${formatCurrency(proposalData.totalInterest)}
-${proposalData.monthsSaved ? `- Economia de prazo: ${proposalData.monthsSaved} meses` : ""}
-${proposalData.interestSaved ? `- Economia de juros: ${formatCurrency(proposalData.interestSaved)}` : ""}`;
+${proposalData.monthsSaved ? `- Economia de prazo com amortização extra: ${proposalData.monthsSaved} meses` : ""}
+${proposalData.interestSaved ? `- Economia de juros com amortização extra: ${formatCurrency(proposalData.interestSaved)}` : ""}
+
+Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
