@@ -2,22 +2,18 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronDown, ChevronUp, List } from "lucide-react";
-
-interface ScheduleItem {
-  month: number;
-  payment: number;
-  principal: number;
-  interest: number;
-  balance: number;
-  extraPayment: number;
-}
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChevronDown, ChevronUp, List, Info } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import type { ScheduleItem } from "./FinancingCalculator";
 
 interface AmortizationScheduleProps {
   schedule: ScheduleItem[];
+  amortizationType: "SAC" | "PRICE";
 }
 
-export function AmortizationSchedule({ schedule }: AmortizationScheduleProps) {
+export function AmortizationSchedule({ schedule, amortizationType }: AmortizationScheduleProps) {
   const [expanded, setExpanded] = useState(false);
   const displayedItems = expanded ? schedule : schedule.slice(0, 12);
 
@@ -29,71 +25,116 @@ export function AmortizationSchedule({ schedule }: AmortizationScheduleProps) {
     }).format(value);
   };
 
-  return (
-    <Card className="shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <List className="h-5 w-5 text-primary" />
-          Tabela de Amortização
-          <span className="text-sm font-normal text-muted-foreground ml-2">
-            ({schedule.length} parcelas)
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">Mês</TableHead>
-                <TableHead>Parcela</TableHead>
-                <TableHead>Amortização</TableHead>
-                <TableHead>Juros</TableHead>
-                <TableHead>Extra</TableHead>
-                <TableHead>Saldo Devedor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {displayedItems.map((item) => (
-                <TableRow key={item.month}>
-                  <TableCell className="font-medium">{item.month}</TableCell>
-                  <TableCell>{formatBRL(item.payment)}</TableCell>
-                  <TableCell>{formatBRL(item.principal)}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatBRL(item.interest)}
-                  </TableCell>
-                  <TableCell className={item.extraPayment > 0 ? "text-success font-medium" : "text-muted-foreground"}>
-                    {item.extraPayment > 0 ? formatBRL(item.extraPayment) : "-"}
-                  </TableCell>
-                  <TableCell className="font-medium">{formatBRL(item.balance)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+  const amortizationInfo = amortizationType === "SAC" 
+    ? "SAC: Amortização constante. Os juros diminuem ao longo do tempo, resultando em parcelas decrescentes."
+    : "PRICE: Parcelas fixas. No início, a maior parte é juros; no final, é amortização.";
 
-        {schedule.length > 12 && (
-          <div className="mt-4 flex justify-center">
-            <Button
-              variant="outline"
-              onClick={() => setExpanded(!expanded)}
-              className="w-full md:w-auto"
-            >
-              {expanded ? (
-                <>
-                  <ChevronUp className="h-4 w-4 mr-2" />
-                  Mostrar Menos
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-4 w-4 mr-2" />
-                  Ver Todas as {schedule.length} Parcelas
-                </>
-              )}
-            </Button>
+  return (
+    <TooltipProvider>
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <List className="h-5 w-5 text-primary" />
+            Tabela de Amortização
+            <span className="text-sm font-normal text-muted-foreground ml-2">
+              ({schedule.length} parcelas)
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-16">Mês</TableHead>
+                  <TableHead>Dívida</TableHead>
+                  <TableHead>Correção</TableHead>
+                  <TableHead>Dívida Corrigida</TableHead>
+                  <TableHead>Juros</TableHead>
+                  <TableHead>Amort. Mensal</TableHead>
+                  <TableHead>Taxas/Seguros</TableHead>
+                  <TableHead>Parcela</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      Amortização
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>{amortizationInfo}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TableHead>
+                  <TableHead>Saldo Residual</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {displayedItems.map((item) => (
+                  <TableRow 
+                    key={item.month} 
+                    className={item.hasReinforcement ? "bg-primary/5 font-semibold" : ""}
+                  >
+                    <TableCell className="font-medium">
+                      <div className="flex flex-col">
+                        <span>{item.month}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {format(item.date, "MMM/yy", { locale: ptBR })}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatBRL(item.debt)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {item.correction > 0 ? formatBRL(item.correction) : "-"}
+                    </TableCell>
+                    <TableCell>{formatBRL(item.correctedDebt)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatBRL(item.interest)}
+                    </TableCell>
+                    <TableCell>
+                      {formatBRL(item.principal - item.extraPayment)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {item.fees > 0 ? formatBRL(item.fees) : "-"}
+                    </TableCell>
+                    <TableCell className="font-medium">{formatBRL(item.payment)}</TableCell>
+                    <TableCell className={item.extraPayment > 0 ? "text-success font-medium" : ""}>
+                      {formatBRL(item.principal)}
+                      {item.hasReinforcement && (
+                        <span className="ml-1 text-xs text-primary">(+reforço)</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{formatBRL(item.balance)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {schedule.length > 12 && (
+            <div className="mt-4 flex justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setExpanded(!expanded)}
+                className="w-full md:w-auto"
+              >
+                {expanded ? (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-2" />
+                    Mostrar Menos
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                    Ver Todas as {schedule.length} Parcelas
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }
