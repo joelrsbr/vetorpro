@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, User, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,16 +54,29 @@ export function Header() {
             </Link>
           ))}
           {user && (
-            <Link
-              to="/dashboard"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                location.pathname === "/dashboard"
-                  ? "text-primary"
-                  : "text-muted-foreground"
-              }`}
-            >
-              Dashboard
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  location.pathname === "/dashboard"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/business"
+                className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1 ${
+                  location.pathname === "/business"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                Business
+              </Link>
+            </>
           )}
         </div>
 
@@ -138,13 +151,23 @@ export function Header() {
               </Link>
             ))}
             {user && (
-              <Link
-                to="/dashboard"
-                className="block text-sm font-medium text-muted-foreground hover:text-primary"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  className="block text-sm font-medium text-muted-foreground hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/business"
+                  className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  Business
+                </Link>
+              </>
             )}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
               {user ? (
