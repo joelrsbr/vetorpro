@@ -1,32 +1,75 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, Plus, Minus, Wallet, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield } from "lucide-react";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
+import { CalculationSummary } from "./CalculationSummary";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { format, addMonths } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
-interface ScheduleItem {
+export interface ScheduleItem {
   month: number;
   payment: number;
   principal: number;
   interest: number;
   balance: number;
   extraPayment: number;
+  debt: number;
+  correction: number;
+  correctedDebt: number;
+  fees: number;
+  hasReinforcement: boolean;
+  date: Date;
+}
+
+export interface FinancingData {
+  propertyValue: number;
+  downPayment: number;
+  interestRate: number;
+  interestRateType: "annual" | "monthly";
+  termMonths: number;
+  amortizationType: "SAC" | "PRICE";
+  startDate: Date;
+  feesInsurance: number;
+  extraAmortization: number;
+  enableExtraAmortization: boolean;
+  reinforcementValue: number;
+  enableReinforcements: boolean;
+  reinforcementFrequency: "monthly" | "semiannual" | "annual";
+  includeMonthlyPayment: boolean;
 }
 
 export function FinancingCalculator() {
+  // Refs for scrolling
+  const propertyValueRef = useRef<HTMLInputElement>(null);
+  const downPaymentRef = useRef<HTMLInputElement>(null);
+  const interestRateRef = useRef<HTMLInputElement>(null);
+  const termMonthsRef = useRef<HTMLInputElement>(null);
+  const startDateRef = useRef<HTMLButtonElement>(null);
+  const feesRef = useRef<HTMLInputElement>(null);
+  const amortizationRef = useRef<HTMLButtonElement>(null);
+  const extraAmortRef = useRef<HTMLDivElement>(null);
+  const reinforcementRef = useRef<HTMLDivElement>(null);
+
   const [propertyValue, setPropertyValue] = useState<string>("150000");
   const [downPayment, setDownPayment] = useState<string>("30000");
   const [interestRate, setInterestRate] = useState<string>("10.5");
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [termMonths, setTermMonths] = useState<string>("360");
   const [amortizationType, setAmortizationType] = useState<"SAC" | "PRICE">("SAC");
+  const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
+  const [feesInsurance, setFeesInsurance] = useState<string>("50");
   
   // Max affordable payment
   const [enableMaxPayment, setEnableMaxPayment] = useState(false);
@@ -34,6 +77,7 @@ export function FinancingCalculator() {
   
   // Extra amortization
   const [enableExtraAmortization, setEnableExtraAmortization] = useState(false);
+  const [extraAmortizationOption, setExtraAmortizationOption] = useState<"200" | "500" | "1000" | "other">("500");
   const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("500");
   const [extraAmortizationType, setExtraAmortizationType] = useState<"reduce-term" | "reduce-payment">("reduce-term");
   
@@ -41,6 +85,7 @@ export function FinancingCalculator() {
   const [enableReinforcements, setEnableReinforcements] = useState(false);
   const [reinforcementValue, setReinforcementValue] = useState<string>("5000");
   const [reinforcementFrequency, setReinforcementFrequency] = useState<"monthly" | "semiannual" | "annual">("annual");
+  const [includeMonthlyPayment, setIncludeMonthlyPayment] = useState(true);
 
   const formatCurrency = (value: string) => {
     const numericValue = value.replace(/\D/g, "");
@@ -55,6 +100,33 @@ export function FinancingCalculator() {
   const handleCurrencyInput = (value: string, setter: (v: string) => void) => {
     const numericValue = value.replace(/\D/g, "");
     setter(numericValue);
+  };
+
+  const handleExtraAmortizationOption = (option: "200" | "500" | "1000" | "other") => {
+    setExtraAmortizationOption(option);
+    if (option !== "other") {
+      setExtraAmortizationValue(option);
+    }
+  };
+
+  const scrollToField = (field: string) => {
+    const refs: Record<string, React.RefObject<any>> = {
+      propertyValue: propertyValueRef,
+      downPayment: downPaymentRef,
+      interestRate: interestRateRef,
+      termMonths: termMonthsRef,
+      startDate: startDateRef,
+      feesInsurance: feesRef,
+      amortizationType: amortizationRef,
+      extraAmortization: extraAmortRef,
+      reinforcement: reinforcementRef,
+    };
+    
+    const ref = refs[field];
+    if (ref?.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      ref.current.focus?.();
+    }
   };
 
   // Calculate affordability analysis when max payment is enabled
@@ -89,13 +161,9 @@ export function FinancingCalculator() {
     // Calculate max affordable property value
     let maxAffordableProperty: number;
     if (amortizationType === "PRICE") {
-      // For PRICE: PMT = P * r * (1+r)^n / ((1+r)^n - 1)
-      // Solving for P: P = PMT * ((1+r)^n - 1) / (r * (1+r)^n)
       const maxPrincipal = maxPayment * (Math.pow(1 + rate, months) - 1) / (rate * Math.pow(1 + rate, months));
       maxAffordableProperty = maxPrincipal + down;
     } else {
-      // For SAC: First payment = P/n + P*r = P * (1/n + r)
-      // Solving for P: P = PMT / (1/n + r)
       const maxPrincipal = maxPayment / (1/months + rate);
       maxAffordableProperty = maxPrincipal + down;
     }
@@ -104,8 +172,6 @@ export function FinancingCalculator() {
     let minTermMonths: number | null = null;
     if (!isAffordable && principal > 0) {
       if (amortizationType === "PRICE") {
-        // PMT = P * r * (1+r)^n / ((1+r)^n - 1)
-        // This requires iterative solving
         for (let n = 12; n <= 420; n += 12) {
           const payment = principal * (rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1);
           if (payment <= maxPayment) {
@@ -114,10 +180,6 @@ export function FinancingCalculator() {
           }
         }
       } else {
-        // SAC: first payment = P/n + P*r
-        // P/n + P*r <= maxPayment
-        // P/n <= maxPayment - P*r
-        // n >= P / (maxPayment - P*r)
         const interestPart = principal * rate;
         if (maxPayment > interestPart) {
           minTermMonths = Math.ceil(principal / (maxPayment - interestPart));
@@ -141,7 +203,10 @@ export function FinancingCalculator() {
       : parseCurrency(interestRate);
     const monthlyRate = annualRate / 100 / 12;
     const months = parseInt(termMonths) || 360;
-    const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
+    const fees = parseCurrency(feesInsurance);
+    const extraAmort = enableExtraAmortization 
+      ? (extraAmortizationOption === "other" ? parseCurrency(extraAmortizationValue) : parseInt(extraAmortizationOption))
+      : 0;
     const reinforcement = enableReinforcements ? parseCurrency(reinforcementValue) : 0;
 
     if (principal <= 0 || monthlyRate <= 0 || months <= 0) {
@@ -171,9 +236,14 @@ export function FinancingCalculator() {
       const monthlyPrincipal = principal / months;
       
       for (let month = 1; month <= months && balance > 0; month++) {
-        const interest = balance * monthlyRate;
-        let payment = monthlyPrincipal + interest;
-        let extraPayment = extraAmort + getReinforcementForMonth(month);
+        const currentDate = addMonths(startDate, month - 1);
+        const debt = balance;
+        const correction = 0; // Can be expanded for IPCA correction
+        const correctedDebt = debt + correction;
+        const interest = correctedDebt * monthlyRate;
+        let payment = monthlyPrincipal + interest + fees;
+        const reinforcementThisMonth = getReinforcementForMonth(month);
+        let extraPayment = extraAmort + reinforcementThisMonth;
         
         if (extraPayment > balance - monthlyPrincipal) {
           extraPayment = Math.max(0, balance - monthlyPrincipal);
@@ -192,6 +262,12 @@ export function FinancingCalculator() {
           interest,
           balance,
           extraPayment,
+          debt,
+          correction,
+          correctedDebt,
+          fees,
+          hasReinforcement: reinforcementThisMonth > 0,
+          date: currentDate,
         });
         
         if (balance <= 0) break;
@@ -202,9 +278,14 @@ export function FinancingCalculator() {
                           (Math.pow(1 + monthlyRate, months) - 1);
       
       for (let month = 1; month <= months && balance > 0; month++) {
-        const interest = balance * monthlyRate;
+        const currentDate = addMonths(startDate, month - 1);
+        const debt = balance;
+        const correction = 0;
+        const correctedDebt = debt + correction;
+        const interest = correctedDebt * monthlyRate;
         let principalPart = fixedPayment - interest;
-        let extraPayment = extraAmort + getReinforcementForMonth(month);
+        const reinforcementThisMonth = getReinforcementForMonth(month);
+        let extraPayment = extraAmort + reinforcementThisMonth;
         
         if (extraPayment > balance - principalPart) {
           extraPayment = Math.max(0, balance - principalPart);
@@ -213,16 +294,22 @@ export function FinancingCalculator() {
         const actualPrincipal = Math.min(principalPart + extraPayment, balance);
         balance = Math.max(0, balance - actualPrincipal);
         
-        totalPaid += fixedPayment + extraPayment;
+        totalPaid += fixedPayment + fees + extraPayment;
         totalInterest += interest;
         
         schedule.push({
           month,
-          payment: fixedPayment + extraPayment,
+          payment: fixedPayment + fees + extraPayment,
           principal: actualPrincipal,
           interest,
           balance,
           extraPayment,
+          debt,
+          correction,
+          correctedDebt,
+          fees,
+          hasReinforcement: reinforcementThisMonth > 0,
+          date: currentDate,
         });
         
         if (balance <= 0) break;
@@ -249,285 +336,410 @@ export function FinancingCalculator() {
       interestSaved,
     };
   }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, 
-      enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
-      enableReinforcements, reinforcementValue, reinforcementFrequency]);
+      enableExtraAmortization, extraAmortizationValue, extraAmortizationOption, extraAmortizationType,
+      enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
+
+  const financingData: FinancingData = {
+    propertyValue: parseCurrency(propertyValue),
+    downPayment: parseCurrency(downPayment),
+    interestRate: parseCurrency(interestRate),
+    interestRateType,
+    termMonths: parseInt(termMonths) || 360,
+    amortizationType,
+    startDate,
+    feesInsurance: parseCurrency(feesInsurance),
+    extraAmortization: enableExtraAmortization 
+      ? (extraAmortizationOption === "other" ? parseCurrency(extraAmortizationValue) : parseInt(extraAmortizationOption))
+      : 0,
+    enableExtraAmortization,
+    reinforcementValue: parseCurrency(reinforcementValue),
+    enableReinforcements,
+    reinforcementFrequency,
+    includeMonthlyPayment,
+  };
 
   return (
-    <div className="space-y-6">
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-primary" />
-            Simulador de Financiamento
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Dados do Financiamento */}
-          <div className="border rounded-lg p-4 space-y-4 bg-card">
-            <h3 className="font-semibold text-foreground flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-primary" />
-              Dados do Financiamento
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="propertyValue">Valor do Imóvel (R$)</Label>
-                <Input
-                  id="propertyValue"
-                  value={formatCurrency(propertyValue)}
-                  onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
-                  placeholder="150.000"
-                  className="text-lg"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
-                <Input
-                  id="downPayment"
-                  value={formatCurrency(downPayment)}
-                  onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
-                  placeholder="30.000"
-                  className="text-lg"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="interestRate"
-                    type="number"
-                    step="0.1"
-                    value={interestRate}
-                    onChange={(e) => setInterestRate(e.target.value)}
-                    placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
-                    className="text-lg flex-1"
-                  />
-                  <Select
-                    value={interestRateType}
-                    onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
-                  >
-                    <SelectTrigger className="w-28">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="annual">Anual</SelectItem>
-                      <SelectItem value="monthly">Mensal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="termMonths">Prazo (meses)</Label>
-                <Input
-                  id="termMonths"
-                  type="number"
-                  value={termMonths}
-                  onChange={(e) => setTermMonths(e.target.value)}
-                  placeholder="360"
-                  className="text-lg"
-                />
-              </div>
-            </div>
-            
-            {/* Amortization Type Selection */}
-            <div className="space-y-2 pt-2 border-t">
-              <Label>Sistema de Amortização</Label>
-              <Select
-                value={amortizationType}
-                onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
-              >
-                <SelectTrigger className="text-lg">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SAC">SAC - Parcelas decrescentes</SelectItem>
-                  <SelectItem value="PRICE">Price - Parcelas fixas</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground">
-                {amortizationType === "SAC" 
-                  ? "SAC: A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes."
-                  : "Price: Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização."}
-              </p>
-            </div>
-          </div>
-
-          {/* Max Affordable Payment */}
-          <div className="border rounded-lg p-4 space-y-4 bg-accent/30 border-accent">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-accent-foreground" />
-                <Label htmlFor="maxPayment" className="font-medium">
-                  Parcela Máxima que Posso Pagar
-                </Label>
-              </div>
-              <Switch
-                id="maxPayment"
-                checked={enableMaxPayment}
-                onCheckedChange={setEnableMaxPayment}
-              />
-            </div>
-            {enableMaxPayment && (
-              <div className="space-y-4 animate-slide-up">
+    <TooltipProvider>
+      <div className="space-y-6">
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-primary" />
+              Simulador de Financiamento
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Dados do Financiamento */}
+            <div className="border rounded-lg p-4 space-y-4 bg-card">
+              <h3 className="font-semibold text-foreground">
+                Dados do Financiamento
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Valor Máximo da Parcela (R$)</Label>
+                  <Label htmlFor="propertyValue">Valor do Imóvel (R$)</Label>
                   <Input
-                    value={formatCurrency(maxPaymentValue)}
-                    onChange={(e) => handleCurrencyInput(e.target.value, setMaxPaymentValue)}
-                    placeholder="3.000"
+                    ref={propertyValueRef}
+                    id="propertyValue"
+                    value={formatCurrency(propertyValue)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
+                    placeholder="150.000"
                     className="text-lg"
                   />
                 </div>
-                
-                {affordabilityAnalysis && (
-                  <div className="space-y-3">
-                    {affordabilityAnalysis.isAffordable ? (
-                      <Alert className="bg-success/10 border-success/30">
-                        <AlertDescription className="text-success">
-                          ✓ <strong>Parcela dentro do orçamento!</strong> A primeira parcela de{" "}
-                          <strong>R$ {affordabilityAnalysis.firstPayment.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>{" "}
-                          está abaixo do limite de R$ {parseCurrency(maxPaymentValue).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}.
-                        </AlertDescription>
-                      </Alert>
-                    ) : (
-                      <Alert className="bg-warning/10 border-warning/30">
-                        <AlertDescription className="text-warning space-y-2">
-                          <p>
-                            ⚠️ <strong>Parcela acima do orçamento.</strong> A primeira parcela seria de{" "}
+                <div className="space-y-2">
+                  <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
+                  <Input
+                    ref={downPaymentRef}
+                    id="downPayment"
+                    value={formatCurrency(downPayment)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
+                    placeholder="30.000"
+                    className="text-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      ref={interestRateRef}
+                      id="interestRate"
+                      type="number"
+                      step="0.1"
+                      value={interestRate}
+                      onChange={(e) => setInterestRate(e.target.value)}
+                      placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
+                      className="text-lg flex-1"
+                    />
+                    <Select
+                      value={interestRateType}
+                      onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
+                    >
+                      <SelectTrigger className="w-28">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="annual">Anual</SelectItem>
+                        <SelectItem value="monthly">Mensal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Data de Início (1ª Parcela)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        ref={startDateRef}
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal text-lg",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecione"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={(date) => date && setStartDate(date)}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="termMonths">Prazo (meses)</Label>
+                  <Input
+                    ref={termMonthsRef}
+                    id="termMonths"
+                    type="number"
+                    value={termMonths}
+                    onChange={(e) => setTermMonths(e.target.value)}
+                    placeholder="360"
+                    className="text-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="feesInsurance">Taxas/Seguros (R$)</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Valor mensal de taxas administrativas e seguros obrigatórios (MIP, DFI, etc.)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    ref={feesRef}
+                    id="feesInsurance"
+                    value={formatCurrency(feesInsurance)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setFeesInsurance)}
+                    placeholder="50"
+                    className="text-lg"
+                  />
+                </div>
+              </div>
+              
+              {/* Amortization Type Selection */}
+              <div className="space-y-2 pt-2 border-t">
+                <div className="flex items-center gap-2">
+                  <Label>Sistema de Amortização</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm">
+                      <p className="font-semibold mb-1">SAC (Sistema de Amortização Constante)</p>
+                      <p className="text-sm mb-2">A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes.</p>
+                      <p className="font-semibold mb-1">PRICE (Tabela Price)</p>
+                      <p className="text-sm">Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Select
+                  value={amortizationType}
+                  onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
+                >
+                  <SelectTrigger ref={amortizationRef} className="text-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SAC">SAC</SelectItem>
+                    <SelectItem value="PRICE">PRICE</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Max Affordable Payment */}
+            <div className="border rounded-lg p-4 space-y-4 bg-accent/30 border-accent">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-accent-foreground" />
+                  <Label htmlFor="maxPayment" className="font-medium">
+                    Parcela Máxima que Posso Pagar
+                  </Label>
+                </div>
+                <Switch
+                  id="maxPayment"
+                  checked={enableMaxPayment}
+                  onCheckedChange={setEnableMaxPayment}
+                />
+              </div>
+              {enableMaxPayment && (
+                <div className="space-y-4 animate-slide-up">
+                  <div className="space-y-2">
+                    <Label>Valor Máximo da Parcela (R$)</Label>
+                    <Input
+                      value={formatCurrency(maxPaymentValue)}
+                      onChange={(e) => handleCurrencyInput(e.target.value, setMaxPaymentValue)}
+                      placeholder="3.000"
+                      className="text-lg"
+                    />
+                  </div>
+                  
+                  {affordabilityAnalysis && (
+                    <div className="space-y-3">
+                      {affordabilityAnalysis.isAffordable ? (
+                        <Alert className="bg-success/10 border-success/30">
+                          <AlertDescription className="text-success">
+                            ✓ <strong>Parcela dentro do orçamento!</strong> A primeira parcela de{" "}
                             <strong>R$ {affordabilityAnalysis.firstPayment.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>{" "}
-                            (R$ {affordabilityAnalysis.difference.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} acima do limite).
-                          </p>
-                          <div className="mt-3 pt-3 border-t border-warning/30 space-y-2">
-                            <p className="font-medium">Sugestões para caber no orçamento:</p>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                              <li>
-                                Imóvel de até <strong>R$ {affordabilityAnalysis.maxAffordableProperty.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</strong>
-                              </li>
-                              {affordabilityAnalysis.minTermMonths && (
+                            está abaixo do limite de R$ {parseCurrency(maxPaymentValue).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}.
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <Alert className="bg-warning/10 border-warning/30">
+                          <AlertDescription className="text-warning space-y-2">
+                            <p>
+                              ⚠️ <strong>Parcela acima do orçamento.</strong> A primeira parcela seria de{" "}
+                              <strong>R$ {affordabilityAnalysis.firstPayment.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>{" "}
+                              (R$ {affordabilityAnalysis.difference.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} acima do limite).
+                            </p>
+                            <div className="mt-3 pt-3 border-t border-warning/30 space-y-2">
+                              <p className="font-medium">Sugestões para caber no orçamento:</p>
+                              <ul className="list-disc list-inside space-y-1 text-sm">
                                 <li>
-                                  Prazo de pelo menos <strong>{affordabilityAnalysis.minTermMonths} meses</strong> ({(affordabilityAnalysis.minTermMonths / 12).toFixed(1)} anos)
+                                  Imóvel de até <strong>R$ {affordabilityAnalysis.maxAffordableProperty.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</strong>
                                 </li>
-                              )}
-                              <li>Aumentar o valor da entrada</li>
-                            </ul>
-                          </div>
-                        </AlertDescription>
-                      </Alert>
+                                {affordabilityAnalysis.minTermMonths && (
+                                  <li>
+                                    Prazo de pelo menos <strong>{affordabilityAnalysis.minTermMonths} meses</strong> ({(affordabilityAnalysis.minTermMonths / 12).toFixed(1)} anos)
+                                  </li>
+                                )}
+                                <li>Aumentar o valor da entrada</li>
+                              </ul>
+                            </div>
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Extra Amortization */}
+            <div ref={extraAmortRef} className="border rounded-lg p-4 space-y-4 bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Minus className="h-4 w-4 text-primary" />
+                  <Label htmlFor="extraAmortization" className="font-medium">
+                    Amortização Extra Mensal
+                  </Label>
+                </div>
+                <Switch
+                  id="extraAmortization"
+                  checked={enableExtraAmortization}
+                  onCheckedChange={setEnableExtraAmortization}
+                />
+              </div>
+              {enableExtraAmortization && (
+                <div className="space-y-4 animate-slide-up">
+                  <div className="space-y-2">
+                    <Label>Valor da Amortização Extra</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {(["200", "500", "1000"] as const).map((value) => (
+                        <Button
+                          key={value}
+                          type="button"
+                          variant={extraAmortizationOption === value ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleExtraAmortizationOption(value)}
+                        >
+                          R$ {parseInt(value).toLocaleString("pt-BR")}
+                        </Button>
+                      ))}
+                      <Button
+                        type="button"
+                        variant={extraAmortizationOption === "other" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleExtraAmortizationOption("other")}
+                      >
+                        Outro valor
+                      </Button>
+                    </div>
+                    {extraAmortizationOption === "other" && (
+                      <Input
+                        value={formatCurrency(extraAmortizationValue)}
+                        onChange={(e) => handleCurrencyInput(e.target.value, setExtraAmortizationValue)}
+                        placeholder="Digite o valor"
+                        className="mt-2"
+                      />
                     )}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Minus className="h-4 w-4 text-primary" />
-                <Label htmlFor="extraAmortization" className="font-medium">
-                  Amortização Extra Mensal
-                </Label>
-              </div>
-              <Switch
-                id="extraAmortization"
-                checked={enableExtraAmortization}
-                onCheckedChange={setEnableExtraAmortization}
-              />
+                  <div className="space-y-2">
+                    <Label>Tipo de Redução</Label>
+                    <Select
+                      value={extraAmortizationType}
+                      onValueChange={(v) => setExtraAmortizationType(v as "reduce-term" | "reduce-payment")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="reduce-term">Reduzir Prazo</SelectItem>
+                        <SelectItem value="reduce-payment">Reduzir Parcela</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
-            {enableExtraAmortization && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slide-up">
-                <div className="space-y-2">
-                  <Label>Valor da Amortização Extra (R$)</Label>
-                  <Input
-                    value={formatCurrency(extraAmortizationValue)}
-                    onChange={(e) => handleCurrencyInput(e.target.value, setExtraAmortizationValue)}
-                    placeholder="500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Tipo de Redução</Label>
-                  <Select
-                    value={extraAmortizationType}
-                    onValueChange={(v) => setExtraAmortizationType(v as "reduce-term" | "reduce-payment")}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reduce-term">Reduzir Prazo</SelectItem>
-                      <SelectItem value="reduce-payment">Reduzir Parcela</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Scheduled Reinforcements */}
-          <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Plus className="h-4 w-4 text-primary" />
-                <Label htmlFor="reinforcements" className="font-medium">
-                  Reforços Programados
-                </Label>
+            {/* Scheduled Reinforcements */}
+            <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-4 bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Plus className="h-4 w-4 text-primary" />
+                  <Label htmlFor="reinforcements" className="font-medium">
+                    Reforços Programados
+                  </Label>
+                </div>
+                <Switch
+                  id="reinforcements"
+                  checked={enableReinforcements}
+                  onCheckedChange={setEnableReinforcements}
+                />
               </div>
-              <Switch
-                id="reinforcements"
-                checked={enableReinforcements}
-                onCheckedChange={setEnableReinforcements}
-              />
+              {enableReinforcements && (
+                <div className="space-y-4 animate-slide-up">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Valor do Reforço (R$)</Label>
+                      <Input
+                        value={formatCurrency(reinforcementValue)}
+                        onChange={(e) => handleCurrencyInput(e.target.value, setReinforcementValue)}
+                        placeholder="5.000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Frequência</Label>
+                      <Select
+                        value={reinforcementFrequency}
+                        onValueChange={(v) => setReinforcementFrequency(v as "monthly" | "semiannual" | "annual")}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">Mensal</SelectItem>
+                          <SelectItem value="semiannual">Semestral</SelectItem>
+                          <SelectItem value="annual">Anual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="includeMonthlyPayment"
+                      checked={includeMonthlyPayment}
+                      onCheckedChange={setIncludeMonthlyPayment}
+                    />
+                    <Label htmlFor="includeMonthlyPayment" className="text-sm">
+                      Incluir parcela do mês junto com o reforço
+                    </Label>
+                  </div>
+                </div>
+              )}
             </div>
-            {enableReinforcements && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slide-up">
-                <div className="space-y-2">
-                  <Label>Valor do Reforço (R$)</Label>
-                  <Input
-                    value={formatCurrency(reinforcementValue)}
-                    onChange={(e) => handleCurrencyInput(e.target.value, setReinforcementValue)}
-                    placeholder="5.000"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Frequência</Label>
-                  <Select
-                    value={reinforcementFrequency}
-                    onValueChange={(v) => setReinforcementFrequency(v as "monthly" | "semiannual" | "annual")}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Mensal</SelectItem>
-                      <SelectItem value="semiannual">Semestral</SelectItem>
-                      <SelectItem value="annual">Anual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Results */}
-      {calculations && (
-        <>
-          <CalculationResults 
-            calculations={calculations} 
-            amortizationType={amortizationType}
-          />
-          <ProposalGenerator
-            calculations={calculations}
-            propertyValue={parseCurrency(propertyValue)}
-            downPayment={parseCurrency(downPayment)}
-            interestRate={parseCurrency(interestRate)}
-            termMonths={parseInt(termMonths) || 360}
-            amortizationType={amortizationType}
-          />
-          <AmortizationSchedule schedule={calculations.schedule} />
-        </>
-      )}
-    </div>
+        {/* Results */}
+        {calculations && (
+          <>
+            <CalculationResults 
+              calculations={calculations} 
+              amortizationType={amortizationType}
+            />
+            <CalculationSummary
+              financingData={financingData}
+              calculations={calculations}
+              onFieldClick={scrollToField}
+            />
+            <ProposalGenerator
+              calculations={calculations}
+              propertyValue={parseCurrency(propertyValue)}
+              downPayment={parseCurrency(downPayment)}
+              interestRate={parseCurrency(interestRate)}
+              termMonths={parseInt(termMonths) || 360}
+              amortizationType={amortizationType}
+            />
+            <AmortizationSchedule 
+              schedule={calculations.schedule} 
+              amortizationType={amortizationType}
+            />
+          </>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
