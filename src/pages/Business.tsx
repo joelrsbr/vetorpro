@@ -6,6 +6,7 @@ import { BusinessHeader } from "@/components/business/BusinessHeader";
 import { BusinessCustomization } from "@/components/business/BusinessCustomization";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
 import { HP12CCalculator } from "@/components/calculator/HP12CCalculator";
+import { QuotesPanel } from "@/components/business/QuotesPanel";
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,14 +38,17 @@ function BusinessContent() {
       <BusinessHeader />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Building2 className="h-8 w-8 text-primary" />
-            ImobCalc Business/TEAM
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Simulador financeiro personalizado para sua empresa
-          </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Building2 className="h-8 w-8 text-primary" />
+              ImobCalc Business/TEAM
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Simulador financeiro personalizado para sua empresa
+            </p>
+          </div>
+          <QuotesPanel />
         </div>
 
         <Tabs defaultValue="simulator" className="space-y-6">
