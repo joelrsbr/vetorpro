@@ -720,11 +720,6 @@ export function FinancingCalculator() {
               calculations={calculations} 
               amortizationType={amortizationType}
             />
-            <CalculationSummary
-              financingData={financingData}
-              calculations={calculations}
-              onFieldClick={scrollToField}
-            />
             <ProposalGenerator
               calculations={calculations}
               propertyValue={parseCurrency(propertyValue)}
@@ -736,6 +731,11 @@ export function FinancingCalculator() {
             <AmortizationSchedule 
               schedule={calculations.schedule} 
               amortizationType={amortizationType}
+            />
+            <CalculationSummary
+              financingData={financingData}
+              calculations={calculations}
+              onFieldClick={scrollToField}
             />
           </>
         )}
