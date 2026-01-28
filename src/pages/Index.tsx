@@ -1,14 +1,19 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BusinessTeamHeader } from "@/components/layout/BusinessTeamHeader";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
+import { useSession } from "@/contexts/SessionContext";
 
 const Index = () => {
+  const { session } = useSession();
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <div className="min-h-screen flex flex-col animate-fade-in">
+      {/* Show BusinessTeamHeader if logged in via session, otherwise show regular Header */}
+      {session.isLoggedIn ? <BusinessTeamHeader /> : <Header />}
       
       <main className="flex-1">
         <HeroSection />
