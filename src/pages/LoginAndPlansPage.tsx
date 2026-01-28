@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { 
   Check, 
   X, 
@@ -15,15 +22,12 @@ import {
   Mail,
   Chrome,
   Monitor,
-  Users,
-  FileText,
   Calculator,
   TrendingUp,
-  Palette,
-  History,
-  Headphones,
   BarChart3,
-  Loader2
+  Loader2,
+  CheckCircle2,
+  FileText
 } from "lucide-react";
 
 const plans = [
@@ -93,36 +97,40 @@ export default function LoginAndPlansPage() {
   const [showEmailLogin, setShowEmailLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [loginMethod, setLoginMethod] = useState("");
 
+  // Auto-redirect after showing welcome modal
+  useEffect(() => {
+    if (showWelcomeModal) {
+      const timer = setTimeout(() => {
+        navigate("/home");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showWelcomeModal, navigate]);
   // Redirect if already logged in
   if (user) {
     navigate("/business");
   }
 
-  const handleGoogleLogin = async () => {
+  const handleSimulatedLogin = (method: string) => {
     setIsLoading(true);
-    try {
-      // Placeholder for Google OAuth integration
-      toast({
-        title: "Login com Google",
-        description: "Funcionalidade em integração. Use o login por e-mail.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Falha ao conectar com Google.",
-        variant: "destructive",
-      });
-    } finally {
+    setLoginMethod(method);
+    
+    // Simulate loading time
+    setTimeout(() => {
       setIsLoading(false);
-    }
+      setShowWelcomeModal(true);
+    }, 500);
+  };
+
+  const handleGoogleLogin = async () => {
+    handleSimulatedLogin("Google");
   };
 
   const handleWindowsLogin = async () => {
-    toast({
-      title: "Login com Windows",
-      description: "Funcionalidade em desenvolvimento.",
-    });
+    handleSimulatedLogin("Windows");
   };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -136,13 +144,7 @@ export default function LoginAndPlansPage() {
       return;
     }
 
-    setIsLoading(true);
-    const { error } = await signIn(email, password);
-    setIsLoading(false);
-
-    if (!error) {
-      navigate("/business");
-    }
+    handleSimulatedLogin("E-mail");
   };
 
   const handlePlanSelect = (planId: string) => {
@@ -169,7 +171,33 @@ export default function LoginAndPlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
+    <>
+      {/* Welcome Modal */}
+      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader className="items-center">
+            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-success/20 flex items-center justify-center">
+              <CheckCircle2 className="h-10 w-10 text-success" />
+            </div>
+            <DialogTitle className="text-xl">Login simulado com sucesso!</DialogTitle>
+            <DialogDescription className="text-base pt-2">
+              Bem-vindo ao <strong>ImobCalcBR Business/TEAM</strong>
+              <br />
+              <span className="text-muted-foreground text-sm mt-2 block">
+                Redirecionando para a página inicial...
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center pt-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Aguarde um momento</span>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
       {/* Header */}
       <header className="py-6 px-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container max-w-6xl mx-auto flex items-center justify-between">
@@ -415,6 +443,7 @@ export default function LoginAndPlansPage() {
           </p>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
