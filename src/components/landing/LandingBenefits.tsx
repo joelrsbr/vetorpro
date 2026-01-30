@@ -44,7 +44,7 @@ export function LandingBenefits() {
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Tudo o que você precisa em um só lugar
           </h2>
@@ -57,10 +57,11 @@ export function LandingBenefits() {
           {benefits.map((benefit, idx) => (
             <div
               key={idx}
-              className="group p-6 rounded-xl bg-background border shadow-sm hover:shadow-lg hover:border-primary/50 transition-all duration-300 hover:-translate-y-1"
+              className="group p-6 rounded-xl bg-background border shadow-sm card-shadow-animated cursor-pointer"
+              style={{ animationDelay: `${idx * 100}ms` }}
             >
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <benefit.icon className="h-6 w-6 text-primary" />
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 hover-grow group-hover:bg-primary/20 transition-colors">
+                <benefit.icon className="h-6 w-6 text-primary transition-transform group-hover:scale-110" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 {benefit.title}

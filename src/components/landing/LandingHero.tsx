@@ -1,44 +1,71 @@
-import { Calculator, Building2, TrendingUp } from "lucide-react";
+import { Calculator } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import heroVideo from "@/assets/hero-background.mp4";
+import heroImageMobile from "@/assets/hero-background-mobile.jpg";
 
 export function LandingHero() {
+  const isMobile = useIsMobile();
+
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-muted/30" />
-      <div className="absolute top-20 right-10 opacity-10">
-        <Building2 className="h-64 w-64 text-primary" />
-      </div>
-      <div className="absolute bottom-10 left-10 opacity-10">
-        <TrendingUp className="h-48 w-48 text-primary" />
-      </div>
+    <section className="relative py-20 md:py-32 overflow-hidden min-h-[600px] md:min-h-[700px]">
+      {/* Video Background - Desktop */}
+      {!isMobile && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          poster={heroImageMobile}
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+      )}
       
-      <div className="container relative max-w-4xl mx-auto text-center px-4">
+      {/* Static Image Background - Mobile */}
+      {isMobile && (
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImageMobile})` }}
+        />
+      )}
+      
+      {/* Blue Corporate Overlay - 60% opacity */}
+      <div 
+        className="absolute inset-0"
+        style={{ 
+          backgroundColor: 'hsla(210, 79%, 46%, 0.6)',
+          backdropFilter: 'blur(2px)'
+        }} 
+      />
+      
+      <div className="container relative max-w-4xl mx-auto text-center px-4 z-10">
         {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <div className="h-20 w-20 rounded-2xl bg-primary flex items-center justify-center shadow-xl">
-            <Calculator className="h-10 w-10 text-primary-foreground" />
+        <div className="flex justify-center mb-8 animate-fade-in-up">
+          <div className="h-20 w-20 rounded-2xl bg-background/95 flex items-center justify-center shadow-xl backdrop-blur-sm">
+            <Calculator className="h-10 w-10 text-primary" />
           </div>
         </div>
         
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in-up drop-shadow-lg">
           Simulador Imobiliário Profissional para{" "}
-          <span className="text-primary">Corretores e Investidores</span>
+          <span className="text-primary-foreground/90">Corretores e Investidores</span>
         </h1>
         
         {/* Subtitle */}
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed animate-fade-in-up-delay drop-shadow-md">
           Simule, compare e personalize financiamentos com precisão e design profissional. 
           A ferramenta definitiva para fechar mais negócios.
         </p>
         
         {/* Brand name */}
-        <div className="mt-8">
-          <span className="text-sm font-medium text-muted-foreground">
+        <div className="mt-8 animate-fade-in-up-delay">
+          <span className="text-sm font-medium text-white/80">
             Desenvolvido por
           </span>
-          <h2 className="text-2xl font-bold text-foreground mt-1">
-            ImobCalcBR <span className="text-primary">Business/TEAM</span>
+          <h2 className="text-2xl font-bold text-white mt-1 drop-shadow-md">
+            ImobCalcBR <span className="text-primary-foreground">Business/TEAM</span>
           </h2>
         </div>
       </div>

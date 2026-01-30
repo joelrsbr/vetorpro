@@ -72,7 +72,7 @@ export function LoginModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md animate-fade-in">
         <DialogHeader className="text-center">
           <DialogTitle className="text-2xl">Assinar plano {getPlanName()}</DialogTitle>
           <DialogDescription className="text-base">
@@ -85,7 +85,7 @@ export function LoginModal({
             <>
               {/* Google Login */}
               <Button
-                className="w-full h-12 text-base gap-3 bg-[#4285F4] hover:bg-[#3574E3] text-white shadow-md hover:shadow-lg transition-all duration-200"
+                className="w-full h-12 text-base gap-3 bg-[#4285F4] hover:bg-[#3574E3] text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
                 onClick={() => onLogin("Google")}
                 disabled={isLoading}
               >
@@ -100,7 +100,7 @@ export function LoginModal({
               {/* Windows Login */}
               <Button
                 variant="outline"
-                className="w-full h-12 text-base gap-3 border-2 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-muted"
+                className="w-full h-12 text-base gap-3 border-2 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-muted hover:scale-[1.02]"
                 onClick={() => onLogin("Windows")}
                 disabled={isLoading}
               >
