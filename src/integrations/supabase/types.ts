@@ -172,6 +172,42 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan: Database["public"]["Enums"]["subscription_plan_v2"]
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan_v2"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan_v2"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -186,6 +222,15 @@ export type Database = {
           simulations_remaining: number
         }[]
       }
+      get_user_subscription: {
+        Args: { p_user_id: string }
+        Returns: {
+          expires_at: string
+          is_active: boolean
+          plan: Database["public"]["Enums"]["subscription_plan_v2"]
+          status: Database["public"]["Enums"]["subscription_status"]
+        }[]
+      }
       increment_simulation_count: {
         Args: { p_user_id: string }
         Returns: undefined
@@ -196,6 +241,8 @@ export type Database = {
       extra_amortization_strategy: "reduce_term" | "reduce_payment"
       reinforcement_frequency: "monthly" | "semiannual" | "annual"
       subscription_plan: "free" | "pro"
+      subscription_plan_v2: "basic" | "pro" | "business"
+      subscription_status: "active" | "inactive" | "canceled" | "past_due"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -327,6 +374,8 @@ export const Constants = {
       extra_amortization_strategy: ["reduce_term", "reduce_payment"],
       reinforcement_frequency: ["monthly", "semiannual", "annual"],
       subscription_plan: ["free", "pro"],
+      subscription_plan_v2: ["basic", "pro", "business"],
+      subscription_status: ["active", "inactive", "canceled", "past_due"],
     },
   },
 } as const
