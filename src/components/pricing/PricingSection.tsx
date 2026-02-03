@@ -5,45 +5,62 @@ import { Link } from "react-router-dom";
 
 const plans = [
   {
-    name: "Free",
-    price: "R$0",
+    name: "Basic",
+    price: "R$9,90",
     period: "/mês",
-    description: "Perfeito para começar",
+    description: "Para corretores autônomos",
     features: [
-      "10 simulações por mês",
-      "2 propostas com IA por mês",
-      "Sistemas SAC e PRICE",
-      "Exportação básica",
+      "Simulador Financeiro SAC/PRICE",
+      "Painel de Cotações",
+      "Calculadora HP12C",
       "Suporte por email",
     ],
     limitations: [
-      "Sem amortizações avançadas",
-      "Sem reforços programados",
+      "Sem exportação PDF",
+      "Sem histórico de simulações",
+      "Sem personalização de marca",
     ],
-    cta: "Começar Grátis",
+    cta: "Assinar Basic",
     variant: "outline" as const,
     popular: false,
   },
   {
     name: "Pro",
-    price: "R$49",
+    price: "R$49,90",
     period: "/mês",
-    description: "Para corretores profissionais",
+    description: "Para consultores profissionais",
     features: [
+      "Tudo do Basic",
       "Simulações ilimitadas",
       "Propostas com IA ilimitadas",
-      "Sistemas SAC e PRICE",
-      "Amortizações avançadas",
-      "Reforços programados",
       "Exportação premium em PDF",
-      "Dashboard completo",
       "Histórico ilimitado",
+      "Personalização de Tema",
       "Suporte prioritário",
     ],
     limitations: [],
     cta: "Assinar Pro",
     variant: "hero" as const,
     popular: true,
+  },
+  {
+    name: "Business/TEAM",
+    price: "R$149,90",
+    period: "/mês",
+    description: "Para imobiliárias e construtoras",
+    features: [
+      "Tudo do Pro",
+      "Multiusuário (até 5 usuários)",
+      "Dashboard corporativo",
+      "Relatórios avançados",
+      "Integração via API",
+      "Suporte dedicado",
+    ],
+    limitations: [],
+    cta: "Assinar Business",
+    variant: "default" as const,
+    popular: false,
+    highlight: true,
   },
 ];
 
@@ -60,11 +77,11 @@ export function PricingSection() {
             Escolha o plano ideal para você
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Comece grátis e faça upgrade quando precisar de mais recursos.
+            Planos pensados para cada etapa do seu negócio imobiliário.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((plan) => (
             <Card 
               key={plan.name}
