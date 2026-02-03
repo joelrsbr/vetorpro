@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSession, PlanType } from "@/contexts/SessionContext";
 
+import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingBenefits } from "@/components/landing/LandingBenefits";
 import { LandingPlans } from "@/components/landing/LandingPlans";
@@ -66,6 +67,9 @@ export default function LoginAndPlansPage() {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      {/* Sticky Header */}
+      <LandingHeader />
+
       {/* Hero Section */}
       <LandingHero />
 
