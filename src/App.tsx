@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SessionProvider } from "@/contexts/SessionContext";
 import { BusinessProvider } from "@/contexts/BusinessContext";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import LoginAndPlansPage from "./pages/LoginAndPlansPage";
 import Index from "./pages/Index";
 import Precos from "./pages/Precos";
@@ -31,8 +32,13 @@ const App = () => (
                 <Route path="/home" element={<Index />} />
                 <Route path="/precos" element={<Precos />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/business" element={<Business />} />
+                
+                {/* Rotas protegidas - requerem autenticação e assinatura ativa */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/business" element={<Business />} />
+                </Route>
+                
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
