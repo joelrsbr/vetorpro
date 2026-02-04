@@ -116,7 +116,7 @@ export function Header() {
               <Button variant="hero" size="sm" asChild>
                 <Link to="/login">
                   <User className="h-4 w-4" />
-                  Começar Grátis
+                  Assinar Agora
                 </Link>
               </Button>
             </>
@@ -189,7 +189,7 @@ export function Header() {
                   </Button>
                   <Button variant="hero" size="sm" asChild>
                     <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                      Começar Grátis
+                      Assinar Agora
                     </Link>
                   </Button>
                 </>
