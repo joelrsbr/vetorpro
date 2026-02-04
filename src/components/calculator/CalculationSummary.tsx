@@ -8,6 +8,7 @@ import {
   Calendar, 
   Shield, 
   TrendingDown,
+  TrendingUp,
   CalendarCheck,
   Repeat,
   ArrowRight,
@@ -17,7 +18,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { FinancingData } from "./FinancingCalculator";
+import type { FinancingData, CorrectionIndexType } from "./FinancingCalculator";
 
 interface CalculationsData {
   principal: number;
@@ -25,6 +26,7 @@ interface CalculationsData {
   lastPayment: number;
   totalPaid: number;
   totalInterest: number;
+  totalCorrection: number;
   actualTermMonths: number;
   monthsSaved: number;
   interestSaved: number;
@@ -65,6 +67,13 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
   const entryPercentage = financingData.propertyValue > 0 
     ? ((financingData.downPayment / financingData.propertyValue) * 100).toFixed(1) 
     : "0";
+
+  const correctionIndexLabels: Record<CorrectionIndexType, string> = {
+    isento: "Isento (0%)",
+    tr: "TR",
+    ipca: "IPCA",
+    igpm: "IGP-M",
+  };
 
   const summaryItems: SummaryItem[] = [
     {
@@ -129,6 +138,15 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
       label: "Taxas/Seguros",
       value: formatBRL(financingData.feesInsurance) + "/mês",
       tooltip: "Valor mensal de taxas e seguros obrigatórios",
+    },
+    {
+      field: "correctionIndex",
+      icon: TrendingUp,
+      label: "Indexador",
+      value: correctionIndexLabels[financingData.correctionIndex],
+      secondary: calculations.totalCorrection > 0 ? `+${formatBRL(calculations.totalCorrection)} acum.` : undefined,
+      tooltip: "Indexador de correção monetária aplicado ao saldo devedor",
+      highlight: financingData.correctionIndex !== "isento",
     },
   ];
 
@@ -215,7 +233,7 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
           </div>
 
           {/* Financial Summary Stats */}
-          <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
               <p className="text-sm text-muted-foreground mb-1">Primeira Parcela</p>
               <p className="text-xl font-bold text-primary">{formatBRL(calculations.firstPayment)}</p>
@@ -224,6 +242,12 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
               <p className="text-sm text-muted-foreground mb-1">Total de Juros</p>
               <p className="text-xl font-bold text-foreground">{formatBRL(calculations.totalInterest)}</p>
             </div>
+            {calculations.totalCorrection > 0 && (
+              <div className="text-center p-4 rounded-lg bg-warning/10 border border-warning/30">
+                <p className="text-sm text-muted-foreground mb-1">Correção Acumulada</p>
+                <p className="text-xl font-bold text-warning">{formatBRL(calculations.totalCorrection)}</p>
+              </div>
+            )}
             <div className="text-center p-4 rounded-lg bg-muted/50">
               <p className="text-sm text-muted-foreground mb-1">Total a Pagar</p>
               <p className="text-xl font-bold text-foreground">{formatBRL(calculations.totalPaid)}</p>
