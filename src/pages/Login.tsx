@@ -40,9 +40,9 @@ const Login = () => {
     const { error } = await signUp(registerEmail, registerPassword, registerName);
     
     if (!error) {
-      // Auto login after registration
+      // Auto login after registration and redirect to plans selection
       await signIn(registerEmail, registerPassword);
-      navigate("/dashboard");
+      navigate("/loginandplans#planos");
     }
     
     setIsLoading(false);
@@ -58,9 +58,9 @@ const Login = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary">
               <Calculator className="h-6 w-6 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl">Bem-vindo ao ImobCalc Pro</CardTitle>
+          <CardTitle className="text-2xl">Bem-vindo ao ImobCalc Pro</CardTitle>
             <CardDescription>
-              Entre ou crie sua conta para começar
+              Crie sua conta para acessar o simulador profissional
             </CardDescription>
           </CardHeader>
           
@@ -193,7 +193,7 @@ const Login = () => {
                         Criando conta...
                       </>
                     ) : (
-                      "Criar Conta Grátis"
+                      "Criar minha Conta"
                     )}
                   </Button>
                   
