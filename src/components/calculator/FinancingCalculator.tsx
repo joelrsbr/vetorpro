@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield } from "lucide-react";
+import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp } from "lucide-react";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
@@ -33,6 +33,8 @@ export interface ScheduleItem {
   date: Date;
 }
 
+export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm";
+
 export interface FinancingData {
   propertyValue: number;
   downPayment: number;
@@ -40,6 +42,7 @@ export interface FinancingData {
   interestRateType: "annual" | "monthly";
   termMonths: number;
   amortizationType: "SAC" | "PRICE";
+  correctionIndex: CorrectionIndexType;
   startDate: Date;
   feesInsurance: number;
   extraAmortization: number;
@@ -68,6 +71,7 @@ export function FinancingCalculator() {
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [termMonths, setTermMonths] = useState<string>("360");
   const [amortizationType, setAmortizationType] = useState<"SAC" | "PRICE">("SAC");
+  const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("50");
   
@@ -196,6 +200,20 @@ export function FinancingCalculator() {
     };
   }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType]);
 
+  // Monthly correction rates (estimated annual rates converted to monthly)
+  const getCorrectionRate = (index: CorrectionIndexType): number => {
+    switch (index) {
+      case "tr":
+        return 0.10 / 12 / 100; // ~0.10% a.a. estimated
+      case "ipca":
+        return 4.50 / 12 / 100; // ~4.50% a.a. estimated
+      case "igpm":
+        return 5.00 / 12 / 100; // ~5.00% a.a. estimated
+      default:
+        return 0;
+    }
+  };
+
   const calculations = useMemo(() => {
     const principal = parseCurrency(propertyValue) - parseCurrency(downPayment);
     const annualRate = interestRateType === "monthly" 
@@ -208,6 +226,7 @@ export function FinancingCalculator() {
       ? (extraAmortizationOption === "other" ? parseCurrency(extraAmortizationValue) : parseInt(extraAmortizationOption))
       : 0;
     const reinforcement = enableReinforcements ? parseCurrency(reinforcementValue) : 0;
+    const correctionRate = getCorrectionRate(correctionIndex);
 
     if (principal <= 0 || monthlyRate <= 0 || months <= 0) {
       return null;
@@ -217,6 +236,7 @@ export function FinancingCalculator() {
     let balance = principal;
     let totalPaid = 0;
     let totalInterest = 0;
+    let totalCorrection = 0;
 
     const getReinforcementForMonth = (month: number): number => {
       if (!enableReinforcements) return 0;
@@ -238,8 +258,9 @@ export function FinancingCalculator() {
       for (let month = 1; month <= months && balance > 0; month++) {
         const currentDate = addMonths(startDate, month - 1);
         const debt = balance;
-        const correction = 0; // Can be expanded for IPCA correction
+        const correction = debt * correctionRate;
         const correctedDebt = debt + correction;
+        balance = correctedDebt; // Apply correction to balance
         const interest = correctedDebt * monthlyRate;
         let payment = monthlyPrincipal + interest + fees;
         const reinforcementThisMonth = getReinforcementForMonth(month);
@@ -254,6 +275,7 @@ export function FinancingCalculator() {
         
         totalPaid += payment + extraPayment;
         totalInterest += interest;
+        totalCorrection += correction;
         
         schedule.push({
           month,
@@ -280,8 +302,9 @@ export function FinancingCalculator() {
       for (let month = 1; month <= months && balance > 0; month++) {
         const currentDate = addMonths(startDate, month - 1);
         const debt = balance;
-        const correction = 0;
+        const correction = debt * correctionRate;
         const correctedDebt = debt + correction;
+        balance = correctedDebt; // Apply correction to balance
         const interest = correctedDebt * monthlyRate;
         let principalPart = fixedPayment - interest;
         const reinforcementThisMonth = getReinforcementForMonth(month);
@@ -296,6 +319,7 @@ export function FinancingCalculator() {
         
         totalPaid += fixedPayment + fees + extraPayment;
         totalInterest += interest;
+        totalCorrection += correction;
         
         schedule.push({
           month,
@@ -330,12 +354,13 @@ export function FinancingCalculator() {
       lastPayment,
       totalPaid,
       totalInterest,
+      totalCorrection,
       schedule,
       actualTermMonths,
       monthsSaved,
       interestSaved,
     };
-  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, 
+  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
       enableExtraAmortization, extraAmortizationValue, extraAmortizationOption, extraAmortizationType,
       enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
 
@@ -346,6 +371,7 @@ export function FinancingCalculator() {
     interestRateType,
     termMonths: parseInt(termMonths) || 360,
     amortizationType,
+    correctionIndex,
     startDate,
     feesInsurance: parseCurrency(feesInsurance),
     extraAmortization: enableExtraAmortization 
@@ -487,34 +513,67 @@ export function FinancingCalculator() {
                 </div>
               </div>
               
-              {/* Amortization Type Selection */}
-              <div className="space-y-2 pt-2 border-t">
-                <div className="flex items-center gap-2">
-                  <Label>Sistema de Amortização</Label>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-sm">
-                      <p className="font-semibold mb-1">SAC (Sistema de Amortização Constante)</p>
-                      <p className="text-sm mb-2">A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes.</p>
-                      <p className="font-semibold mb-1">PRICE (Tabela Price)</p>
-                      <p className="text-sm">Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização.</p>
-                    </TooltipContent>
-                  </Tooltip>
+              {/* Amortization Type and Correction Index Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label>Sistema de Amortização</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p className="font-semibold mb-1">SAC (Sistema de Amortização Constante)</p>
+                        <p className="text-sm mb-2">A amortização é constante e os juros diminuem ao longo do tempo, resultando em parcelas decrescentes.</p>
+                        <p className="font-semibold mb-1">PRICE (Tabela Price)</p>
+                        <p className="text-sm">Parcelas fixas durante todo o financiamento. No início, a maior parte é juros; no final, é amortização.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Select
+                    value={amortizationType}
+                    onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
+                  >
+                    <SelectTrigger ref={amortizationRef} className="text-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SAC">SAC - Parcelas decrescentes</SelectItem>
+                      <SelectItem value="PRICE">PRICE - Parcelas fixas</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Select
-                  value={amortizationType}
-                  onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
-                >
-                  <SelectTrigger ref={amortizationRef} className="text-lg">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SAC">SAC</SelectItem>
-                    <SelectItem value="PRICE">PRICE</SelectItem>
-                  </SelectContent>
-                </Select>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <Label>Indexador de Correção</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p className="font-semibold mb-1">Correção Monetária</p>
+                        <p className="text-sm mb-2">O indexador corrige o saldo devedor mensalmente, impactando o valor total pago.</p>
+                        <p className="text-xs text-muted-foreground">TR: ~0.10% a.a. | IPCA: ~4.50% a.a. | IGP-M: ~5.00% a.a.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Select
+                    value={correctionIndex}
+                    onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}
+                  >
+                    <SelectTrigger className="text-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="isento">Isento (0%)</SelectItem>
+                      <SelectItem value="tr">TR (estimada)</SelectItem>
+                      <SelectItem value="ipca">IPCA</SelectItem>
+                      <SelectItem value="igpm">IGP-M</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
