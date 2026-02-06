@@ -15,9 +15,16 @@ export function LandingHeader() {
     { name: "Recursos", href: "#recursos" },
   ];
 
+  // Mapping for section IDs that may differ from href
+  const getSectionId = (href: string) => {
+    if (href === "#recursos") return "#funcionalidades";
+    return href;
+  };
+
   const scrollToSection = (href: string) => {
     if (href.startsWith("#")) {
-      const element = document.querySelector(href);
+      const sectionId = getSectionId(href);
+      const element = document.querySelector(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }

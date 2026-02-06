@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2 } from "lucide-react";
+import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,11 +15,16 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, profile, signOut, loading } = useAuth();
+  
+  const isLoginPage = location.pathname === "/login";
 
-  const navigation = [
-    { name: "Calculadora", href: "/" },
-    { name: "Preços", href: "/precos" },
-  ];
+  // Navigation items - hide Calculadora on login page
+  const navigation = isLoginPage 
+    ? [{ name: "Assine e saia na frente", href: "/precos", highlight: true }]
+    : [
+        { name: "Calculadora", href: "/" },
+        { name: "Planos", href: "/precos" },
+      ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,11 +50,14 @@ export function Header() {
               key={item.name}
               to={item.href}
               className={`text-sm font-medium transition-colors hover:text-primary ${
-                location.pathname === item.href
-                  ? "text-primary"
-                  : "text-muted-foreground"
+                (item as any).highlight
+                  ? "text-primary font-semibold flex items-center gap-1.5"
+                  : location.pathname === item.href
+                    ? "text-primary"
+                    : "text-muted-foreground"
               }`}
             >
+              {(item as any).highlight && <Sparkles className="h-3.5 w-3.5" />}
               {item.name}
             </Link>
           ))}
@@ -144,9 +152,14 @@ export function Header() {
               <Link
                 key={item.name}
                 to={item.href}
-                className="block text-sm font-medium text-muted-foreground hover:text-primary"
+                className={`block text-sm font-medium transition-colors hover:text-primary ${
+                  (item as any).highlight
+                    ? "text-primary font-semibold flex items-center gap-1.5"
+                    : "text-muted-foreground"
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
+                {(item as any).highlight && <Sparkles className="h-3.5 w-3.5" />}
                 {item.name}
               </Link>
             ))}
