@@ -145,14 +145,14 @@ export default function Dashboard() {
                   Plano Pro
                 </>
               ) : (
-                "Plano Gratuito"
+                "Plano não ativo"
               )}
             </Badge>
             {profile?.subscription_plan !== "pro" && (
               <Button variant="hero" size="sm" asChild>
                 <Link to="/precos">
                   <Crown className="h-4 w-4 mr-1" />
-                  Upgrade Pro
+                  Ativar Assinatura
                 </Link>
               </Button>
             )}
@@ -210,7 +210,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Plano</p>
-                  <p className="text-2xl font-bold capitalize">{profile?.subscription_plan || "Free"}</p>
+                  <p className="text-2xl font-bold capitalize">{profile?.subscription_plan === "pro" ? "Pro" : "Não ativo"}</p>
                 </div>
                 <Crown className="h-8 w-8 text-primary opacity-80" />
               </div>

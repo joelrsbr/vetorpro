@@ -78,7 +78,7 @@ export function BusinessTeamHeader() {
       case "business":
         return "Business";
       default:
-        return "Free";
+        return "Não ativo";
     }
   };
 
