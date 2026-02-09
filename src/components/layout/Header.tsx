@@ -117,17 +117,12 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/login">Entrar</Link>
-              </Button>
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/login">
-                  <User className="h-4 w-4" />
-                  Assinar Agora
-                </Link>
-              </Button>
-            </>
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/login">
+                <User className="h-4 w-4" />
+                Assinar Agora
+              </Link>
+            </Button>
           )}
         </div>
 
@@ -194,18 +189,11 @@ export function Header() {
                   </Button>
                 </>
               ) : (
-                <>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                      Entrar
-                    </Link>
-                  </Button>
-                  <Button variant="hero" size="sm" asChild>
-                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                      Assinar Agora
-                    </Link>
-                  </Button>
-                </>
+                <Button variant="hero" size="sm" asChild>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                    Assinar Agora
+                  </Link>
+                </Button>
               )}
             </div>
           </div>
