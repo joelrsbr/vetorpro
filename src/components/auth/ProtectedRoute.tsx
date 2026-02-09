@@ -8,20 +8,29 @@ export const ProtectedRoute = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Verifica se existe uma assinatura ativa para este ID
-        const { data } = await supabase
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
           .from("subscriptions")
           .select("status")
           .eq("user_id", user.id)
           .eq("status", "active")
-          .single();
+          .maybeSingle();
 
-        if (data) setHasSubscription(true);
+        if (!error && data) {
+          setHasSubscription(true);
+        }
+      } catch (err) {
+        console.error("Erro ao verificar assinatura:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     checkAuth();
   }, []);
