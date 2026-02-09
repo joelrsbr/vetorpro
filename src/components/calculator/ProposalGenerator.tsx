@@ -194,9 +194,9 @@ export function ProposalGenerator({
         {!canGenerateProposal && (
           <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              Você atingiu o limite de propostas do plano gratuito.{" "}
+              Você atingiu o limite de propostas do seu plano atual.{" "}
               <Link to="/precos" className="font-medium underline">
-                Faça upgrade para o Pro
+                Faça upgrade do seu plano
               </Link>{" "}
               para propostas ilimitadas.
             </p>

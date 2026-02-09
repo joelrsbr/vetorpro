@@ -11,11 +11,11 @@ const faqs = [
   },
   {
     question: "Como funciona o período de teste?",
-    answer: "Você pode começar com o plano Free sem cartão de crédito. Se gostar, faça upgrade para o Pro e aproveite 7 dias de garantia de reembolso.",
+    answer: "Ao criar sua conta, você pode explorar o sistema e escolher o plano ideal. Aproveite 7 dias de garantia de reembolso em qualquer plano.",
   },
   {
-    question: "As simulações do plano Free são limitadas?",
-    answer: "No plano Free, você pode fazer até 10 simulações por mês e gerar 2 propostas com IA. Os contadores resetam todo mês.",
+    question: "As simulações do plano Basic são limitadas?",
+    answer: "No plano Basic, você pode fazer até 10 simulações por mês e gerar 2 propostas com IA. Os contadores resetam todo mês.",
   },
   {
     question: "O que são amortizações avançadas?",

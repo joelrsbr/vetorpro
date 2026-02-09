@@ -67,7 +67,7 @@ export function HeroSection() {
 
           {/* Trust indicator */}
           <p className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            ✓ Grátis para começar · ✓ Sem cartão de crédito · ✓ Cancele quando quiser
+            ✓ Teste agora · ✓ Planos acessíveis · ✓ Cancele quando quiser
           </p>
         </div>
       </div>
