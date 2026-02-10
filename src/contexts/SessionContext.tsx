@@ -40,7 +40,7 @@ const planDetailsMap: Record<string, PlanDetails> = {
   basic: {
     id: "basic",
     name: "Basic",
-    price: "R$ 9,90/mês",
+    price: "R$ 29,90/mês",
     color: "hsl(var(--muted-foreground))",
     badgeClass: "bg-muted-foreground text-background",
     features: ["Simulador Financeiro", "Painel de Cotações", "Calculadora HP12C"],
@@ -48,7 +48,7 @@ const planDetailsMap: Record<string, PlanDetails> = {
   pro: {
     id: "pro",
     name: "Pro",
-    price: "R$ 49,90/mês",
+    price: "R$ 59,90/mês",
     color: "hsl(var(--primary))",
     badgeClass: "bg-primary text-primary-foreground",
     features: ["Tudo do Basic", "Exportação PDF", "Histórico de simulações", "Personalização de Tema"],
