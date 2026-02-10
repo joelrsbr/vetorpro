@@ -9,6 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import { ReportConfiguration, type ReportConfig } from "./ReportConfiguration";
+import jsPDF from "jspdf";
 
 interface Calculations {
   principal: number;
@@ -36,12 +38,18 @@ export function ProposalGenerator({
   termMonths,
   amortizationType,
 }: ProposalGeneratorProps) {
-  const { user, usageLimits, session } = useAuth();
+  const { user, usageLimits } = useAuth();
   const { toast } = useToast();
   const [clientName, setClientName] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [reportConfig, setReportConfig] = useState<ReportConfig>({
+    logoUrl: null,
+    companyName: "",
+    creci: "",
+    isBusiness: false,
+  });
 
   const handleGenerateProposal = async () => {
     if (!clientName.trim() || !propertyDescription.trim()) {
@@ -109,22 +117,102 @@ export function ProposalGenerator({
     });
   };
 
-  const handleDownloadPDF = () => {
-    // Create a simple text file download for now
-    // A full PDF implementation would require a library like jsPDF
-    const blob = new Blob([proposalText], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `proposta-${clientName.replace(/\s+/g, "-").toLowerCase()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
+  const handleDownloadPDF = async () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let yPos = 20;
+
+    if (reportConfig.isBusiness && reportConfig.logoUrl) {
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = reject;
+          img.src = reportConfig.logoUrl!;
+        });
+        doc.addImage(img, "PNG", margin, yPos, 40, 20);
+        yPos += 25;
+      } catch {
+        // Skip logo if loading fails
+      }
+
+      if (reportConfig.companyName) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(reportConfig.companyName, pageWidth / 2, yPos, { align: "center" });
+        yPos += 7;
+      }
+      if (reportConfig.creci) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(reportConfig.creci, pageWidth / 2, yPos, { align: "center" });
+        yPos += 5;
+      }
+
+      // Separator line
+      doc.setDrawColor(200);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 10;
+    } else {
+      // Default branding for Basic/Pro
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(150);
+      const footerY = doc.internal.pageSize.getHeight() - 10;
+      doc.text("Gerado por ImobCalcBR • imobcalc.lovable.app", pageWidth / 2, footerY, {
+        align: "center",
+      });
+      doc.setTextColor(0);
+    }
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("Proposta de Financiamento", pageWidth / 2, yPos, { align: "center" });
+    yPos += 12;
+
+    // Client info
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Cliente: ${clientName}`, margin, yPos);
+    yPos += 6;
+    doc.text(`Imóvel: ${propertyDescription}`, margin, yPos);
+    yPos += 10;
+
+    // Proposal text
+    doc.setFontSize(10);
+    const lines = doc.splitTextToSize(proposalText, maxWidth);
+    for (const line of lines) {
+      if (yPos > doc.internal.pageSize.getHeight() - 20) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, margin, yPos);
+      yPos += 5;
+    }
+
+    // Business footer with logo
+    if (reportConfig.isBusiness) {
+      const footerY = doc.internal.pageSize.getHeight() - 10;
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(
+        `${reportConfig.companyName}${reportConfig.creci ? " • " + reportConfig.creci : ""}`,
+        pageWidth / 2,
+        footerY,
+        { align: "center" }
+      );
+      doc.setTextColor(0);
+    }
+
+    doc.save(`proposta-${clientName.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+
     toast({
-      title: "Download iniciado",
-      description: "A proposta foi baixada como arquivo de texto.",
+      title: "PDF gerado!",
+      description: "A proposta foi baixada como PDF.",
     });
   };
 
@@ -153,100 +241,106 @@ export function ProposalGenerator({
   const canGenerateProposal = usageLimits?.canGenerateProposal ?? false;
 
   return (
-    <Card className="shadow-card border-primary/20">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Gerar Proposta com IA
-          </div>
-          {usageLimits && (
-            <span className="text-sm font-normal text-muted-foreground">
-              {usageLimits.proposalsRemaining === 999999 
-                ? "Ilimitado" 
-                : `${usageLimits.proposalsRemaining} restantes`}
-            </span>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="clientName">Nome do Cliente</Label>
-            <Input
-              id="clientName"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              placeholder="João da Silva"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="propertyDescription">Descrição do Imóvel</Label>
-            <Input
-              id="propertyDescription"
-              value={propertyDescription}
-              onChange={(e) => setPropertyDescription(e.target.value)}
-              placeholder="Apartamento 3 quartos, 85m², Zona Sul"
-            />
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Report Configuration */}
+      <ReportConfiguration onConfigChange={setReportConfig} />
 
-        {!canGenerateProposal && (
-          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-            <p className="text-sm text-amber-800 dark:text-amber-200">
-              Você atingiu o limite de propostas do seu plano atual.{" "}
-              <Link to="/precos" className="font-medium underline">
-                Faça upgrade do seu plano
-              </Link>{" "}
-              para propostas ilimitadas.
-            </p>
-          </div>
-        )}
-
-        <Button
-          variant="hero"
-          size="lg"
-          className="w-full"
-          onClick={handleGenerateProposal}
-          disabled={isGenerating || !canGenerateProposal}
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Gerando proposta...
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-2 h-4 w-4" />
+      {/* Proposal Generator */}
+      <Card className="shadow-card border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
               Gerar Proposta com IA
-            </>
-          )}
-        </Button>
-
-        {proposalText && (
-          <div className="space-y-4 animate-slide-up">
-            <div className="flex items-center justify-between">
-              <Label>Proposta Gerada</Label>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleCopy}>
-                  <Copy className="h-4 w-4 mr-1" />
-                  Copiar
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
-                  <Download className="h-4 w-4 mr-1" />
-                  Baixar
-                </Button>
-              </div>
             </div>
-            <Textarea
-              value={proposalText}
-              onChange={(e) => setProposalText(e.target.value)}
-              className="min-h-[300px] text-sm"
-              placeholder="A proposta aparecerá aqui..."
-            />
+            {usageLimits && (
+              <span className="text-sm font-normal text-muted-foreground">
+                {usageLimits.proposalsRemaining === 999999
+                  ? "Ilimitado"
+                  : `${usageLimits.proposalsRemaining} restantes`}
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="clientName">Nome do Cliente</Label>
+              <Input
+                id="clientName"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                placeholder="João da Silva"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="propertyDescription">Descrição do Imóvel</Label>
+              <Input
+                id="propertyDescription"
+                value={propertyDescription}
+                onChange={(e) => setPropertyDescription(e.target.value)}
+                placeholder="Apartamento 3 quartos, 85m², Zona Sul"
+              />
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {!canGenerateProposal && (
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Você atingiu o limite de propostas do seu plano atual.{" "}
+                <Link to="/precos" className="font-medium underline">
+                  Faça upgrade do seu plano
+                </Link>{" "}
+                para propostas ilimitadas.
+              </p>
+            </div>
+          )}
+
+          <Button
+            variant="hero"
+            size="lg"
+            className="w-full"
+            onClick={handleGenerateProposal}
+            disabled={isGenerating || !canGenerateProposal}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Gerando proposta...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Gerar Proposta com IA
+              </>
+            )}
+          </Button>
+
+          {proposalText && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="flex items-center justify-between">
+                <Label>Proposta Gerada</Label>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleCopy}>
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copiar
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+                    <Download className="h-4 w-4 mr-1" />
+                    Baixar PDF
+                  </Button>
+                </div>
+              </div>
+              <Textarea
+                value={proposalText}
+                onChange={(e) => setProposalText(e.target.value)}
+                className="min-h-[300px] text-sm"
+                placeholder="A proposta aparecerá aqui..."
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

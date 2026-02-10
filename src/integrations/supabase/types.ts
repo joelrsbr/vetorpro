@@ -18,9 +18,11 @@ export type Database = {
         Row: {
           company: string | null
           created_at: string
+          creci: string | null
           email: string | null
           full_name: string | null
           id: string
+          logo_url: string | null
           phone: string | null
           proposals_reset_at: string
           proposals_used: number
@@ -33,9 +35,11 @@ export type Database = {
         Insert: {
           company?: string | null
           created_at?: string
+          creci?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          logo_url?: string | null
           phone?: string | null
           proposals_reset_at?: string
           proposals_used?: number
@@ -48,9 +52,11 @@ export type Database = {
         Update: {
           company?: string | null
           created_at?: string
+          creci?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          logo_url?: string | null
           phone?: string | null
           proposals_reset_at?: string
           proposals_used?: number
