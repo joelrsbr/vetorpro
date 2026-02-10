@@ -6,18 +6,20 @@ import { Link } from "react-router-dom";
 const plans = [
   {
     name: "Basic",
-    price: "R$9,90",
+    price: "R$29,90",
     period: "/mês",
+    priceId: "", // TODO: Stripe Price ID
     description: "Para corretores autônomos",
     features: [
       "Simulador Financeiro SAC/PRICE",
-      "Painel de Cotações",
+      "Painel de Cotações em tempo real",
       "Calculadora HP12C",
-      "Suporte por email",
+      "10 simulações/mês",
+      "2 propostas com IA/mês",
     ],
     limitations: [
       "Sem exportação PDF",
-      "Sem histórico de simulações",
+      "Sem amortizações avançadas",
       "Sem personalização de marca",
     ],
     cta: "Assinar Basic",
@@ -26,14 +28,16 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "R$49,90",
+    price: "R$59,90",
     period: "/mês",
+    priceId: "", // TODO: Stripe Price ID
     description: "Para consultores profissionais",
     features: [
       "Tudo do Basic",
       "Simulações ilimitadas",
       "Propostas com IA ilimitadas",
-      "Exportação premium em PDF",
+      "Amortizações avançadas (SAC/PRICE)",
+      "Exportação PDF profissional",
       "Histórico ilimitado",
       "Personalização de Tema",
       "Suporte prioritário",
@@ -47,12 +51,14 @@ const plans = [
     name: "Business/TEAM",
     price: "R$149,90",
     period: "/mês",
+    priceId: "", // TODO: Stripe Price ID
     description: "Para imobiliárias e construtoras",
     features: [
       "Tudo do Pro",
+      "Propostas com IA + branding personalizado",
+      "Upload de logo e CRECI no PDF",
       "Multiusuário (até 5 usuários)",
       "Dashboard corporativo",
-      "Relatórios avançados",
       "Integração via API",
       "Suporte dedicado",
     ],
