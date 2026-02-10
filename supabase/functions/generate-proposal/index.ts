@@ -19,6 +19,7 @@ interface ProposalRequest {
   totalInterest: number;
   monthsSaved?: number;
   interestSaved?: number;
+  businessMode?: boolean;
 }
 
 serve(async (req) => {
@@ -79,7 +80,27 @@ serve(async (req) => {
       return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     };
 
-    const systemPrompt = `Você é um corretor de imóveis experiente que escreve propostas de financiamento imobiliário em linguagem comercial natural, fluida e persuasiva.
+    const isBusinessMode = proposalData.businessMode === true;
+
+    const businessSystemPrompt = `Você é um estrategista financeiro imobiliário sênior. Gere propostas executivas curtas e impactantes.
+
+REGRAS OBRIGATÓRIAS:
+- NÃO use markdown, negrito, itálico ou asteriscos (*)
+- NÃO use formatação de lista com hífens ou bullets
+- Escreva em parágrafos corridos, como um documento executivo
+- Use tom de exclusividade e urgência para fechamento do negócio
+- Foque no impacto financeiro: quanto o cliente economiza em juros ao fazer as amortizações sugeridas
+- Retorne APENAS o texto limpo da proposta
+
+ESTRUTURA:
+1. Abertura executiva com dados-chave do investimento
+2. Análise estratégica de economia com amortizações
+3. Projeção de ganho patrimonial e redução de juros
+4. Fechamento com senso de urgência e exclusividade
+
+Ter entre 300-500 palavras. Formato elegante para PDF corporativo.`;
+
+    const standardSystemPrompt = `Você é um corretor de imóveis experiente que escreve propostas de financiamento imobiliário em linguagem comercial natural, fluida e persuasiva.
 
 REGRAS OBRIGATÓRIAS:
 - NÃO use markdown, negrito, itálico ou asteriscos (*)
@@ -101,7 +122,26 @@ Ter entre 250-400 palavras.`;
     const entradaPercentual = ((proposalData.downPayment / proposalData.propertyValue) * 100).toFixed(1);
     const prazoAnos = (proposalData.termMonths / 12).toFixed(1);
 
-    const userPrompt = `Gere uma proposta profissional de financiamento imobiliário com base nos dados abaixo, usando linguagem comercial natural, sem formatação Markdown, sem usar asteriscos ou negrito.
+    const userPrompt = isBusinessMode
+      ? `Com base nestes dados, gere uma proposta executiva curta. Foque no impacto financeiro: quanto o cliente economiza em juros ao fazer as amortizações sugeridas. Use um tom de exclusividade e urgência para o fechamento do negócio.
+
+Dados do Investimento:
+- Cliente: ${proposalData.clientName}
+- Imóvel: ${proposalData.propertyDescription}
+- Valor do Imóvel: ${formatCurrency(proposalData.propertyValue)}
+- Entrada: ${formatCurrency(proposalData.downPayment)} (${entradaPercentual}%)
+- Financiamento: ${formatCurrency(proposalData.propertyValue - proposalData.downPayment)}
+- Taxa de Juros: ${proposalData.interestRate}% a.a.
+- Prazo: ${proposalData.termMonths} meses (${prazoAnos} anos)
+- Sistema: ${sistemaTipo}
+- Parcela Inicial: ${formatCurrency(proposalData.monthlyPayment)}
+- Total Projetado: ${formatCurrency(proposalData.totalPaid)}
+- Juros Totais: ${formatCurrency(proposalData.totalInterest)}
+${proposalData.monthsSaved ? `- Redução de Prazo com Amortização Extra: ${proposalData.monthsSaved} meses` : ""}
+${proposalData.interestSaved ? `- Economia em Juros com Amortização Extra: ${formatCurrency(proposalData.interestSaved)}` : ""}
+
+Retorne apenas o texto executivo pronto para PDF corporativo.`
+      : `Gere uma proposta profissional de financiamento imobiliário com base nos dados abaixo, usando linguagem comercial natural, sem formatação Markdown, sem usar asteriscos ou negrito.
 
 Dados:
 - Nome do cliente: ${proposalData.clientName}
@@ -129,7 +169,7 @@ Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: isBusinessMode ? businessSystemPrompt : standardSystemPrompt },
           { role: "user", content: userPrompt },
         ],
       }),

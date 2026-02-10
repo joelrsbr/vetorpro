@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, FileText, Copy, Download, Loader2, Lock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, FileText, Copy, Download, Loader2, Lock, Crown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -39,11 +41,13 @@ export function ProposalGenerator({
   amortizationType,
 }: ProposalGeneratorProps) {
   const { user, usageLimits } = useAuth();
+  const { plan, isActive } = useSubscription();
   const { toast } = useToast();
   const [clientName, setClientName] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingBusiness, setIsGeneratingBusiness] = useState(false);
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
     logoUrl: null,
     companyName: "",
@@ -51,6 +55,7 @@ export function ProposalGenerator({
     isBusiness: false,
   });
 
+  const isBusiness = isActive && plan === "business";
   const handleGenerateProposal = async () => {
     if (!clientName.trim() || !propertyDescription.trim()) {
       toast({
@@ -106,6 +111,65 @@ export function ProposalGenerator({
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateBusinessProposal = async () => {
+    if (!clientName.trim() || !propertyDescription.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha o nome do cliente e a descrição do imóvel.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingBusiness(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-proposal", {
+        body: {
+          clientName,
+          propertyDescription,
+          propertyValue,
+          downPayment,
+          interestRate,
+          termMonths,
+          amortizationType,
+          monthlyPayment: calculations.firstPayment,
+          totalPaid: calculations.totalPaid,
+          totalInterest: calculations.totalInterest,
+          monthsSaved: calculations.monthsSaved || undefined,
+          interestSaved: calculations.interestSaved || undefined,
+          businessMode: true,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        toast({
+          title: "Erro",
+          description: data.message || data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setProposalText(data.proposalText);
+      toast({
+        title: "Proposta executiva gerada! 🏢",
+        description: "Proposta estratégica criada com tom de exclusividade.",
+      });
+    } catch (error) {
+      console.error("Error generating business proposal:", error);
+      toast({
+        title: "Erro ao gerar proposta",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingBusiness(false);
     }
   };
 
@@ -315,6 +379,54 @@ export function ProposalGenerator({
               </>
             )}
           </Button>
+
+          {/* Business AI Executive Proposal */}
+          <div className="relative rounded-xl border-2 border-dashed border-success/40 p-5 bg-success/5">
+            <div className="flex items-center gap-2 mb-3">
+              <Crown className="h-5 w-5 text-success" />
+              <span className="font-semibold text-foreground">Proposta Executiva com IA</span>
+              <Badge variant="outline" className="border-success text-success text-xs">
+                Business
+              </Badge>
+            </div>
+            {isBusiness ? (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Gere uma proposta estratégica com tom de exclusividade, focada no impacto financeiro e economia com amortizações.
+                </p>
+                <Button
+                  size="lg"
+                  className="w-full bg-success hover:bg-success/90 text-success-foreground"
+                  onClick={handleGenerateBusinessProposal}
+                  disabled={isGeneratingBusiness || !canGenerateProposal}
+                >
+                  {isGeneratingBusiness ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Gerando proposta executiva...
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="mr-2 h-4 w-4" />
+                      Gerar Proposta Executiva
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Gere propostas persuasivas com IA — Disponível no Business
+                </p>
+                <Button variant="outline" size="lg" className="w-full" asChild>
+                  <Link to="/precos">
+                    <Crown className="mr-2 h-4 w-4" />
+                    Fazer Upgrade para Business
+                  </Link>
+                </Button>
+              </>
+            )}
+          </div>
 
           {proposalText && (
             <div className="space-y-4 animate-slide-up">
