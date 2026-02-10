@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles } from "lucide-react";
+import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +16,31 @@ import {
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const location = useLocation();
   const { user, profile, signOut, loading } = useAuth();
+  const { isActive } = useSubscription();
+  const { toast } = useToast();
   
   const isLoginPage = location.pathname === "/login";
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else if (data?.error) {
+        toast({ title: "Erro", description: data.error, variant: "destructive" });
+      }
+    } catch (err) {
+      console.error("Portal error:", err);
+      toast({ title: "Erro", description: "Não foi possível abrir o portal.", variant: "destructive" });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   // Navigation items - hide Calculadora on login page
   const navigation = isLoginPage 
@@ -106,6 +130,19 @@ export function Header() {
                     Dashboard
                   </Link>
                 </DropdownMenuItem>
+                {isActive && (
+                  <>
+                    <DropdownMenuItem onClick={handleManageSubscription} disabled={portalLoading}>
+                      {portalLoading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <CreditCard className="h-4 w-4 mr-2" />
+                      )}
+                      Gerenciar Assinatura
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleSignOut}
@@ -183,6 +220,17 @@ export function Header() {
                   <p className="text-sm text-muted-foreground px-1">
                     {profile?.email}
                   </p>
+                  {isActive && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setMobileMenuOpen(false); handleManageSubscription(); }}
+                      disabled={portalLoading}
+                    >
+                      {portalLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CreditCard className="h-4 w-4 mr-2" />}
+                      Gerenciar Assinatura
+                    </Button>
+                  )}
                   <Button variant="outline" size="sm" onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sair
