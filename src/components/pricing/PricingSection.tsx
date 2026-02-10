@@ -1,14 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, Zap } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, Sparkles, Zap, Loader2 } from "lucide-react";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+
+type PlanKey = "basic" | "pro" | "business";
 
 const plans = [
   {
+    key: "basic" as PlanKey,
     name: "Basic",
     price: "R$29,90",
     period: "/mês",
-    priceId: "", // TODO: Stripe Price ID
     description: "Para corretores autônomos",
     features: [
       "Simulador Financeiro SAC/PRICE",
@@ -27,10 +34,10 @@ const plans = [
     popular: false,
   },
   {
+    key: "pro" as PlanKey,
     name: "Pro",
     price: "R$59,90",
     period: "/mês",
-    priceId: "", // TODO: Stripe Price ID
     description: "Para consultores profissionais",
     features: [
       "Tudo do Basic",
@@ -48,10 +55,10 @@ const plans = [
     popular: true,
   },
   {
+    key: "business" as PlanKey,
     name: "Business/TEAM",
     price: "R$149,90",
     period: "/mês",
-    priceId: "", // TODO: Stripe Price ID
     description: "Para imobiliárias e construtoras",
     features: [
       "Tudo do Pro",
@@ -71,6 +78,41 @@ const plans = [
 ];
 
 export function PricingSection() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (planKey: PlanKey) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    const stripePlan = STRIPE_PLANS[planKey];
+    if (!stripePlan) return;
+
+    setLoadingPlan(planKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: stripePlan.priceId },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast({
+        title: "Erro ao iniciar checkout",
+        description: err.message || "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container">
@@ -135,9 +177,13 @@ export function PricingSection() {
                   variant={plan.variant} 
                   size="lg" 
                   className="w-full"
-                  asChild
+                  disabled={loadingPlan === plan.key}
+                  onClick={() => handleSubscribe(plan.key)}
                 >
-                  <Link to="/login">{plan.cta}</Link>
+                  {loadingPlan === plan.key ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : null}
+                  {plan.cta}
                 </Button>
               </CardContent>
             </Card>
