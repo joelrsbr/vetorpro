@@ -1,7 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X, Crown, Rocket, Building2 } from "lucide-react";
+import { Check, X, Crown, Rocket, Building2, Loader2 } from "lucide-react";
 import { PlanType } from "@/contexts/SessionContext";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface LandingPlansProps {
   onSelectPlan: (planId: PlanType) => void;
@@ -14,7 +19,6 @@ const plans = [
     name: "Basic",
     price: "R$ 29,90",
     period: "/mês",
-    priceId: "", // TODO: Stripe Price ID
     description: "Para corretores autônomos",
     icon: Crown,
     color: "bg-muted",
@@ -35,7 +39,6 @@ const plans = [
     name: "Pro",
     price: "R$ 59,90",
     period: "/mês",
-    priceId: "", // TODO: Stripe Price ID
     description: "Para consultores profissionais",
     icon: Rocket,
     color: "bg-primary/10",
@@ -57,7 +60,6 @@ const plans = [
     name: "Business/TEAM",
     price: "R$ 149,90",
     period: "/mês",
-    priceId: "", // TODO: Stripe Price ID
     priceNote: "até 5 usuários",
     description: "Para imobiliárias e construtoras",
     icon: Building2,
@@ -77,6 +79,43 @@ const plans = [
 ];
 
 export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (planId: PlanType) => {
+    if (!planId) return;
+
+    if (!user) {
+      // Not logged in — open login modal via parent
+      onSelectPlan(planId);
+      return;
+    }
+
+    const stripePlan = STRIPE_PLANS[planId];
+    if (!stripePlan) return;
+
+    setLoadingPlan(planId);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: stripePlan.priceId },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast({
+        title: "Erro ao iniciar checkout",
+        description: err.message || "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <section id="planos" className="py-16 md:py-24 bg-background scroll-mt-20">
       <div className="container max-w-6xl mx-auto px-4">
@@ -160,11 +199,15 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                   variant={plan.buttonVariant}
                   size="lg"
                   className={`w-full shadow-md animate-pulse-button ${plan.buttonClass || ""}`}
+                  disabled={loadingPlan === plan.id}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onSelectPlan(plan.id);
+                    handleSubscribe(plan.id);
                   }}
                 >
+                  {loadingPlan === plan.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : null}
                   Assinar agora
                 </Button>
               </CardContent>
