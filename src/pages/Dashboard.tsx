@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -46,12 +46,34 @@ interface Simulation {
 }
 
 export default function Dashboard() {
-  const { user, profile, usageLimits, loading } = useAuth();
+  const { user, profile, usageLimits, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Sync subscription after Stripe checkout success
+  useEffect(() => {
+    if (user && searchParams.get("checkout") === "success") {
+      const syncSubscription = async () => {
+        try {
+          await supabase.functions.invoke("check-subscription");
+          await refreshProfile();
+          toast({
+            title: "Assinatura ativada! 🎉",
+            description: "Seu plano foi ativado com sucesso.",
+          });
+        } catch (err) {
+          console.error("Error syncing subscription:", err);
+        }
+        // Clean up URL
+        setSearchParams({}, { replace: true });
+      };
+      syncSubscription();
+    }
+  }, [user, searchParams]);
 
   useEffect(() => {
     if (!loading && !user) {
