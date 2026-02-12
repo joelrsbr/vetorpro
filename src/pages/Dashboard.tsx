@@ -7,17 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  Calculator, 
-  FileText, 
-  Crown, 
-  TrendingUp, 
-  Clock, 
-  User,
-  Loader2,
-  Sparkles,
-  Copy
+  Calculator, FileText, Crown, TrendingUp, Clock, User,
+  Loader2, Sparkles, Copy
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -47,12 +41,15 @@ interface Simulation {
 
 export default function Dashboard() {
   const { user, profile, usageLimits, loading, refreshProfile } = useAuth();
+  const { plan, isActive, loading: subLoading, refresh: refreshSub } = useSubscription();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  const planBadge = isActive ? getPlanBadge(plan) : null;
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
@@ -61,6 +58,7 @@ export default function Dashboard() {
         try {
           await supabase.functions.invoke("check-subscription");
           await refreshProfile();
+          await refreshSub();
           toast({
             title: "Assinatura ativada! 🎉",
             description: "Seu plano foi ativado com sucesso.",
@@ -68,7 +66,6 @@ export default function Dashboard() {
         } catch (err) {
           console.error("Error syncing subscription:", err);
         }
-        // Clean up URL
         setSearchParams({}, { replace: true });
       };
       syncSubscription();
@@ -82,54 +79,32 @@ export default function Dashboard() {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) {
-      fetchData();
-    }
+    if (user) fetchData();
   }, [user]);
 
   const fetchData = async () => {
     setLoadingData(true);
-    
     const [proposalsRes, simulationsRes] = await Promise.all([
-      supabase
-        .from("proposals")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10),
-      supabase
-        .from("simulations")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10),
+      supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(10),
+      supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(10),
     ]);
-
     if (proposalsRes.data) setProposals(proposalsRes.data);
     if (simulationsRes.data) setSimulations(simulationsRes.data);
-    
     setLoadingData(false);
   };
 
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  };
+  const formatCurrency = (value: number) =>
+    value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 
   const handleCopyProposal = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copiado!",
-      description: "Proposta copiada para a área de transferência.",
-    });
+    toast({ title: "Copiado!", description: "Proposta copiada para a área de transferência." });
   };
 
-  if (loading) {
+  if (loading || subLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -150,33 +125,24 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold">
               Olá, {profile?.full_name?.split(" ")[0] || "Corretor"}! 👋
             </h1>
-            <p className="text-muted-foreground">
-              Bem-vindo ao seu painel de controle
-            </p>
+            <p className="text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
           <div className="flex items-center gap-3">
-            <Badge 
-              variant={profile?.subscription_plan === "pro" ? "default" : "secondary"}
-              className={profile?.subscription_plan === "pro" 
-                ? "bg-gradient-to-r from-amber-500 to-orange-500" 
-                : ""}
-            >
-              {profile?.subscription_plan === "pro" ? (
-                <>
-                  <Crown className="h-3 w-3 mr-1" />
-                  Plano Pro
-                </>
-              ) : (
-                "Plano não ativo"
-              )}
-            </Badge>
-            {profile?.subscription_plan !== "pro" && (
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/precos">
-                  <Crown className="h-4 w-4 mr-1" />
-                  Ativar Assinatura
-                </Link>
-              </Button>
+            {planBadge ? (
+              <Badge className={planBadge.className}>
+                <Crown className="h-3 w-3 mr-1" />
+                {planBadge.label}
+              </Badge>
+            ) : (
+              <>
+                <Badge variant="secondary">Plano não ativo</Badge>
+                <Button variant="hero" size="sm" asChild>
+                  <Link to="/precos">
+                    <Crown className="h-4 w-4 mr-1" />
+                    Ativar Assinatura
+                  </Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -232,7 +198,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Plano</p>
-                  <p className="text-2xl font-bold capitalize">{profile?.subscription_plan === "pro" ? "Pro" : "Não ativo"}</p>
+                  <p className="text-2xl font-bold capitalize">
+                    {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
+                  </p>
                 </div>
                 <Crown className="h-8 w-8 text-primary opacity-80" />
               </div>
@@ -325,11 +293,7 @@ export default function Dashboard() {
                                 )}
                               </div>
                             </div>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleCopyProposal(proposal.proposal_text)}
-                            >
+                            <Button variant="outline" size="sm" onClick={() => handleCopyProposal(proposal.proposal_text)}>
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
@@ -377,9 +341,7 @@ export default function Dashboard() {
                                 <p className="font-medium">{sim.term_months} meses</p>
                               </div>
                             </div>
-                            <span className="text-sm text-muted-foreground">
-                              {formatDate(sim.created_at)}
-                            </span>
+                            <span className="text-sm text-muted-foreground">{formatDate(sim.created_at)}</span>
                           </div>
                         </CardContent>
                       </Card>
