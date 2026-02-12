@@ -11,20 +11,13 @@ export function LandingHeader() {
 
   const navigation = [
     { name: "Benefícios", href: "#beneficios" },
+    { name: "Recursos", href: "#funcionalidades" },
     { name: "Planos", href: "#planos" },
-    { name: "Recursos", href: "#recursos" },
   ];
-
-  // Mapping for section IDs that may differ from href
-  const getSectionId = (href: string) => {
-    if (href === "#recursos") return "#funcionalidades";
-    return href;
-  };
 
   const scrollToSection = (href: string) => {
     if (href.startsWith("#")) {
-      const sectionId = getSectionId(href);
-      const element = document.querySelector(sectionId);
+      const element = document.querySelector(href);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
