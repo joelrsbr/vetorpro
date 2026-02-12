@@ -103,16 +103,17 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <Link
-                to="/business"
-                className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1 ${
-                  location.pathname === "/business" ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                <Building2 className="h-3.5 w-3.5" />
-                Business
-                {!(isActive && plan === "business") && <Lock className="h-3 w-3 text-muted-foreground" />}
-              </Link>
+              {isActive && plan === "business" && (
+                <Link
+                  to="/business"
+                  className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1 ${
+                    location.pathname === "/business" ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  Business
+                </Link>
+              )}
             </>
           )}
         </div>
@@ -215,11 +216,12 @@ export function Header() {
                 <Link to="/dashboard" className="block text-sm font-medium text-muted-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
                   Dashboard
                 </Link>
-                <Link to="/business" className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  <Building2 className="h-3.5 w-3.5" />
-                  Business
-                  {!(isActive && plan === "business") && <Lock className="h-3 w-3 text-muted-foreground" />}
-                </Link>
+                {isActive && plan === "business" && (
+                  <Link to="/business" className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+                    <Building2 className="h-3.5 w-3.5" />
+                    Business
+                  </Link>
+                )}
               </>
             )}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
