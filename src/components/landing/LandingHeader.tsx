@@ -11,7 +11,6 @@ export function LandingHeader() {
 
   const navigation = [
     { name: "Benefícios", href: "#beneficios" },
-    { name: "Recursos", href: "#funcionalidades" },
     { name: "Planos", href: "#planos" },
   ];
 
