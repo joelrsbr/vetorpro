@@ -4,27 +4,28 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const ProtectedRoute = () => {
   const [loading, setLoading] = useState(true);
-  const [hasSubscription, setHasSubscription] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
-        
+
         if (authError || !user) {
+          setIsAuthenticated(false);
           setLoading(false);
           return;
         }
 
-        const { data, error } = await supabase
-          .from("subscriptions")
-          .select("status")
-          .eq("user_id", user.id)
-          .eq("status", "active")
-          .maybeSingle();
+        setIsAuthenticated(true);
 
-        if (!error && data) {
-          setHasSubscription(true);
+        const { data, error } = await supabase.rpc("get_user_subscription", {
+          p_user_id: user.id,
+        });
+
+        if (!error && data && data[0]?.is_active) {
+          setHasActiveSubscription(true);
         }
       } catch (err) {
         console.error("Erro ao verificar assinatura:", err);
@@ -46,6 +47,15 @@ export const ProtectedRoute = () => {
     );
   }
 
-  // Se não tiver assinatura ativa, manda para a página de preços
-  return hasSubscription ? <Outlet /> : <Navigate to="/login" replace />;
+  // Não logado → login
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Logado mas sem assinatura ativa → preços
+  if (!hasActiveSubscription) {
+    return <Navigate to="/precos" replace />;
+  }
+
+  return <Outlet />;
 };
