@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2, Crown } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription, getPlanLabel, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
   const { plan, isActive, loading: subLoading } = useSubscription();
   const { toast } = useToast();
@@ -55,6 +56,7 @@ export function Header() {
   const handleSignOut = async () => {
     await signOut();
     setMobileMenuOpen(false);
+    navigate("/");
   };
 
   // Split logo label into parts for styling

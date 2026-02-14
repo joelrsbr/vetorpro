@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useSession, PlanType } from "@/contexts/SessionContext";
+import { supabase } from "@/integrations/supabase/client";
 
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
@@ -13,8 +13,8 @@ import { WelcomeModal } from "@/components/landing/WelcomeModal";
 
 export default function LoginAndPlansPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { session, login } = useSession();
+  const [supaUser, setSupaUser] = useState<unknown>(null);
   
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("pro");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -22,12 +22,15 @@ export default function LoginAndPlansPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState("");
 
-  // Redirect if already logged in (via Supabase auth)
+  // Check supabase auth directly (no useAuth dependency)
   useEffect(() => {
-    if (user) {
-      navigate("/business");
-    }
-  }, [user, navigate]);
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        setSupaUser(data.user);
+        navigate("/business");
+      }
+    });
+  }, [navigate]);
 
   // Redirect if already logged in via session
   useEffect(() => {
