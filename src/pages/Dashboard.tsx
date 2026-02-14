@@ -210,7 +210,7 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/")}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/home")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
                 <Calculator className="h-6 w-6 text-primary-foreground" />
@@ -264,7 +264,7 @@ export default function Dashboard() {
                     <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">Nenhuma proposta gerada ainda</p>
                     <Button variant="hero" className="mt-4" asChild>
-                      <Link to="/">Gerar Primeira Proposta</Link>
+                      <Link to="/home">Gerar Primeira Proposta</Link>
                     </Button>
                   </div>
                 ) : (
@@ -314,7 +314,7 @@ export default function Dashboard() {
                     <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">Nenhuma simulação salva ainda</p>
                     <Button variant="hero" className="mt-4" asChild>
-                      <Link to="/">Fazer Primeira Simulação</Link>
+                      <Link to="/home">Fazer Primeira Simulação</Link>
                     </Button>
                   </div>
                 ) : (
