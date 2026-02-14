@@ -215,6 +215,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       title: "Até logo!",
       description: "Você saiu da sua conta.",
     });
+    // Redirecionar para a landing page
+    window.location.href = "/";
   };
 
   return (

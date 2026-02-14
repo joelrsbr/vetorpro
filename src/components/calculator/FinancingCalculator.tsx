@@ -544,13 +544,13 @@ export function FinancingCalculator() {
                   </Select>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 rounded-lg border-2 border-primary/40 bg-primary/5 p-3">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                    <Label>Indexador de Correção</Label>
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <Label className="text-primary font-semibold">Indexador de Correção</Label>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        <Info className="h-4 w-4 text-primary/60 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-sm">
                         <p className="font-semibold mb-1">Correção Monetária</p>
@@ -563,7 +563,7 @@ export function FinancingCalculator() {
                     value={correctionIndex}
                     onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}
                   >
-                    <SelectTrigger className="text-lg">
+                    <SelectTrigger className="text-lg border-primary/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
