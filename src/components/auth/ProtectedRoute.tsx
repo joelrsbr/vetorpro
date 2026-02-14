@@ -47,5 +47,5 @@ export const ProtectedRoute = () => {
   }
 
   // Se não tiver assinatura ativa, manda para a página de preços
-  return hasSubscription ? <Outlet /> : <Navigate to="/loginandplans" replace />;
+  return hasSubscription ? <Outlet /> : <Navigate to="/login" replace />;
 };
