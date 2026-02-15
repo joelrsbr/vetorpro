@@ -245,8 +245,8 @@ interface QuoteCardProps {
 function QuoteCard({ quote, isFavorite, onToggleFavorite }: QuoteCardProps) {
   return (
     <Card
-      className={`transition-all duration-200 hover:shadow-md ${
-        isFavorite ? "border-primary/30 bg-primary/5" : ""
+      className={`transition-all duration-200 hover:shadow-md border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/30 ${
+        isFavorite ? "border-primary/50 bg-primary/5" : ""
       }`}
     >
       <CardContent className="p-3">
@@ -255,14 +255,14 @@ function QuoteCard({ quote, isFavorite, onToggleFavorite }: QuoteCardProps) {
             className={`p-2 rounded-lg ${
               isFavorite
                 ? "bg-primary/10 text-primary"
-                : "bg-muted text-muted-foreground"
+                : "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
             }`}
           >
             {quote.icon}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-medium text-sm truncate">{quote.name}</span>
+              <span className="font-semibold text-sm truncate">{quote.name}</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button className="text-muted-foreground hover:text-foreground transition-colors">
@@ -271,6 +271,7 @@ function QuoteCard({ quote, isFavorite, onToggleFavorite }: QuoteCardProps) {
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[250px]">
                   <p className="text-xs">{quote.tooltip}</p>
+                  <p className="text-xs text-muted-foreground mt-1 italic">Dados atualizados automaticamente via API de mercado</p>
                 </TooltipContent>
               </Tooltip>
             </div>
