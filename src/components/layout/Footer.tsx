@@ -1,7 +1,13 @@
 import { Calculator } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Footer() {
+  const { user } = useAuth();
+  const { plan, isActive } = useSubscription();
+  const brandLabel = user ? getPlanLabel(plan, isActive) : "ImobCalc";
+
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-12">
@@ -12,7 +18,7 @@ export function Footer() {
                 <Calculator className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="text-lg font-bold">
-                Imob<span className="text-gradient">Calc</span> Pro
+                {brandLabel}
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -76,7 +82,7 @@ export function Footer() {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 ImobCalc Pro. Todos os direitos reservados.
+            © 2026 {brandLabel}. Todos os direitos reservados.
           </p>
           <div className="flex gap-4 text-sm text-muted-foreground">
             <span className="hover:text-primary transition-colors cursor-pointer">

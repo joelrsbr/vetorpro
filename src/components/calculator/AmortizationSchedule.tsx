@@ -42,7 +42,7 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto px-1 sm:px-0">
             <Table>
               <TableHeader>
                 <TableRow>
