@@ -35,7 +35,7 @@ export default function LoginAndPlansPage() {
   // Redirect if already logged in via session
   useEffect(() => {
     if (session.isLoggedIn) {
-      navigate("/home");
+      navigate("/calculadora");
     }
   }, [session.isLoggedIn, navigate]);
 
@@ -43,7 +43,7 @@ export default function LoginAndPlansPage() {
   useEffect(() => {
     if (showWelcomeModal) {
       const timer = setTimeout(() => {
-        navigate("/home");
+        navigate("/calculadora");
       }, 2000);
       return () => clearTimeout(timer);
     }

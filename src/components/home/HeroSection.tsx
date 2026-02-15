@@ -56,7 +56,7 @@ export function HeroSection() {
             <Button variant="hero" size="xl" asChild>
               <Link to="/login">
                 <Calculator className="h-5 w-5 mr-2" />
-                Começar Gratuitamente
+                Começar Agora
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
             </Button>
