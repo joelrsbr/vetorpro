@@ -15,7 +15,7 @@ interface AmortizationScheduleProps {
 
 export function AmortizationSchedule({ schedule, amortizationType }: AmortizationScheduleProps) {
   const [expanded, setExpanded] = useState(false);
-  const displayedItems = expanded ? schedule : schedule.slice(0, 12);
+  const displayedItems = expanded ? schedule : schedule.slice(0, 3);
 
   const formatBRL = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
