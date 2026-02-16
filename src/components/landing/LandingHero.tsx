@@ -59,15 +59,6 @@ export function LandingHero() {
           A ferramenta definitiva para fechar mais negócios.
         </p>
         
-        {/* Brand name */}
-        <div className="mt-8 animate-fade-in-up-delay">
-          <span className="text-sm font-medium text-white/80">
-            Desenvolvido por
-          </span>
-          <h2 className="text-2xl font-bold text-white mt-1 drop-shadow-md">
-            ImobCalcBR <span className="text-primary-foreground">Business/TEAM</span>
-          </h2>
-        </div>
       </div>
     </section>
   );
