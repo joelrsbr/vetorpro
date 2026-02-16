@@ -505,9 +505,11 @@ export function FinancingCalculator() {
                   <Input
                     ref={feesRef}
                     id="feesInsurance"
-                    value={formatCurrency(feesInsurance)}
-                    onChange={(e) => handleCurrencyInput(e.target.value, setFeesInsurance)}
-                    placeholder="50"
+                    type="number"
+                    step="0.01"
+                    value={feesInsurance}
+                    onChange={(e) => setFeesInsurance(e.target.value)}
+                    placeholder="50,00"
                     className="text-lg"
                   />
                 </div>
@@ -534,12 +536,12 @@ export function FinancingCalculator() {
                     value={amortizationType}
                     onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
                   >
-                    <SelectTrigger ref={amortizationRef} className="text-lg">
+                    <SelectTrigger ref={amortizationRef} className="text-base">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SAC">SAC - Parcelas decrescentes</SelectItem>
-                      <SelectItem value="PRICE">PRICE - Parcelas fixas</SelectItem>
+                      <SelectItem value="SAC" className="text-sm">SAC - Parcelas decrescentes</SelectItem>
+                      <SelectItem value="PRICE" className="text-sm">PRICE - Parcelas fixas</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -563,14 +565,14 @@ export function FinancingCalculator() {
                     value={correctionIndex}
                     onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}
                   >
-                    <SelectTrigger className="text-lg border-primary/30">
+                    <SelectTrigger className="text-base border-primary/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="isento">Isento (0%)</SelectItem>
-                      <SelectItem value="tr">TR (estimada)</SelectItem>
-                      <SelectItem value="ipca">IPCA</SelectItem>
-                      <SelectItem value="igpm">IGP-M</SelectItem>
+                      <SelectItem value="isento" className="text-sm">Isento (0%)</SelectItem>
+                      <SelectItem value="tr" className="text-sm">TR (estimada)</SelectItem>
+                      <SelectItem value="ipca" className="text-sm">IPCA</SelectItem>
+                      <SelectItem value="igpm" className="text-sm">IGP-M</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
