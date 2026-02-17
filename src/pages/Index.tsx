@@ -6,17 +6,22 @@ import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
 import { useSession } from "@/contexts/SessionContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const { session } = useSession();
+  const { user } = useAuth();
+
+  // User is logged in if either Supabase auth OR session context says so
+  const isLoggedIn = !!user || session.isLoggedIn;
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       {/* Show BusinessTeamHeader if logged in via session, otherwise show regular Header */}
-      {session.isLoggedIn ? <BusinessTeamHeader /> : <Header />}
+      {isLoggedIn ? <BusinessTeamHeader /> : <Header />}
       
       <main className="flex-1">
-        {session.isLoggedIn ? (
+        {isLoggedIn ? (
           <>
             {/* Logged-in: Calculator first, NO Hero */}
             <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-background">
