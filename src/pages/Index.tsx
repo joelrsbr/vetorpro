@@ -17,8 +17,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
-      {/* Show BusinessTeamHeader if logged in via session, otherwise show regular Header */}
-      {isLoggedIn ? <BusinessTeamHeader /> : <Header />}
+      {/* Show BusinessTeamHeader for session-based login, Header for Supabase auth or visitors */}
+      {session.isLoggedIn ? <BusinessTeamHeader /> : <Header />}
       
       <main className="flex-1">
         {isLoggedIn ? (
