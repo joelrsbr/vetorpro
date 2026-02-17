@@ -122,7 +122,14 @@ export function QuotesPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>(["selic", "ipca", "tr"]);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("quotes-favorites");
+      return saved ? JSON.parse(saved) : ["selic", "ipca", "tr"];
+    } catch {
+      return ["selic", "ipca", "tr"];
+    }
+  });
 
   const handleUpdate = () => {
     setIsUpdating(true);
@@ -133,9 +140,11 @@ export function QuotesPanel() {
   };
 
   const toggleFavorite = (id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
+    setFavorites((prev) => {
+      const next = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id];
+      localStorage.setItem("quotes-favorites", JSON.stringify(next));
+      return next;
+    });
   };
 
   const sortedQuotes = [...defaultQuotes].sort((a, b) => {

@@ -18,12 +18,12 @@ const Index = () => {
       <main className="flex-1">
         {session.isLoggedIn ? (
           <>
-            {/* Logged-in: Calculator first */}
+            {/* Logged-in: Calculator first, NO Hero */}
             <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-background">
               <div className="container">
                 <div className="text-center space-y-4 mb-12">
                   <h2 className="text-3xl md:text-4xl font-bold">
-                    Experimente Agora
+                    Simulador de Financiamento
                   </h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                     Faça uma simulação completa de financiamento imobiliário em segundos.
@@ -34,10 +34,6 @@ const Index = () => {
                 </div>
               </div>
             </section>
-
-            <div className="mt-8">
-              <HeroSection />
-            </div>
           </>
         ) : (
           <>

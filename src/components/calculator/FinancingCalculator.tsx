@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp } from "lucide-react";
+import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu } from "lucide-react";
+import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
@@ -388,11 +389,12 @@ export function FinancingCalculator() {
     <TooltipProvider>
       <div className="space-y-6">
         <Card className="shadow-card">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />
               Simulador de Financiamento
             </CardTitle>
+            <HP12CCalculator />
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Dados do Financiamento */}
