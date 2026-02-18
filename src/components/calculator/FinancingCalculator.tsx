@@ -66,8 +66,8 @@ export function FinancingCalculator() {
   const extraAmortRef = useRef<HTMLDivElement>(null);
   const reinforcementRef = useRef<HTMLDivElement>(null);
 
-  const [propertyValue, setPropertyValue] = useState<string>("150000");
-  const [downPayment, setDownPayment] = useState<string>("30000");
+  const [propertyValue, setPropertyValue] = useState<string>("15000000");
+  const [downPayment, setDownPayment] = useState<string>("3000000");
   const [interestRate, setInterestRate] = useState<string>("10.5");
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [termMonths, setTermMonths] = useState<string>("360");
@@ -78,28 +78,29 @@ export function FinancingCalculator() {
   
   // Max affordable payment
   const [enableMaxPayment, setEnableMaxPayment] = useState(false);
-  const [maxPaymentValue, setMaxPaymentValue] = useState<string>("3000");
+  const [maxPaymentValue, setMaxPaymentValue] = useState<string>("300000");
   
   // Extra amortization
   const [enableExtraAmortization, setEnableExtraAmortization] = useState(false);
   const [extraAmortizationOption, setExtraAmortizationOption] = useState<"200" | "500" | "1000" | "other">("500");
-  const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("500");
+  const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("50000");
   const [extraAmortizationType, setExtraAmortizationType] = useState<"reduce-term" | "reduce-payment">("reduce-term");
   
   // Scheduled reinforcements
   const [enableReinforcements, setEnableReinforcements] = useState(false);
-  const [reinforcementValue, setReinforcementValue] = useState<string>("5000");
+  const [reinforcementValue, setReinforcementValue] = useState<string>("500000");
   const [reinforcementFrequency, setReinforcementFrequency] = useState<"monthly" | "semiannual" | "annual">("annual");
   const [includeMonthlyPayment, setIncludeMonthlyPayment] = useState(true);
 
   const formatCurrency = (value: string) => {
     const numericValue = value.replace(/\D/g, "");
     const number = parseInt(numericValue) || 0;
-    return number.toLocaleString("pt-BR");
+    return (number / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const parseCurrency = (value: string) => {
-    return parseFloat(value.replace(/\./g, "").replace(",", ".")) || 0;
+    const numericValue = value.replace(/\D/g, "");
+    return (parseInt(numericValue) || 0) / 100;
   };
 
   const handleCurrencyInput = (value: string, setter: (v: string) => void) => {
@@ -411,8 +412,8 @@ export function FinancingCalculator() {
                     id="propertyValue"
                     value={formatCurrency(propertyValue)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
-                    placeholder="150.000"
-                    className="text-lg"
+                    placeholder="150.000,00"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -422,8 +423,8 @@ export function FinancingCalculator() {
                     id="downPayment"
                     value={formatCurrency(downPayment)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
-                    placeholder="30.000"
-                    className="text-lg"
+                    placeholder="30.000,00"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -437,7 +438,7 @@ export function FinancingCalculator() {
                       value={interestRate}
                       onChange={(e) => setInterestRate(e.target.value)}
                       placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
-                      className="text-lg flex-1"
+                      className="text-sm flex-1"
                     />
                     <Select
                       value={interestRateType}
@@ -461,7 +462,7 @@ export function FinancingCalculator() {
                         ref={startDateRef}
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal text-lg",
+                          "w-full justify-start text-left font-normal text-sm",
                           !startDate && "text-muted-foreground"
                         )}
                       >
@@ -489,7 +490,7 @@ export function FinancingCalculator() {
                     value={termMonths}
                     onChange={(e) => setTermMonths(e.target.value)}
                     placeholder="360"
-                    className="text-lg"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -512,7 +513,7 @@ export function FinancingCalculator() {
                     value={feesInsurance}
                     onChange={(e) => setFeesInsurance(e.target.value)}
                     placeholder="50,00"
-                    className="text-lg"
+                    className="text-sm"
                   />
                 </div>
               </div>
@@ -538,7 +539,7 @@ export function FinancingCalculator() {
                     value={amortizationType}
                     onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
                   >
-                    <SelectTrigger ref={amortizationRef} className="h-10 text-base">
+                    <SelectTrigger ref={amortizationRef} className="h-10 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -567,7 +568,7 @@ export function FinancingCalculator() {
                     value={correctionIndex}
                     onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}
                   >
-                    <SelectTrigger className="h-10 text-base border-primary/30">
+                    <SelectTrigger className="h-10 text-sm border-primary/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -603,8 +604,8 @@ export function FinancingCalculator() {
                     <Input
                       value={formatCurrency(maxPaymentValue)}
                       onChange={(e) => handleCurrencyInput(e.target.value, setMaxPaymentValue)}
-                      placeholder="3.000"
-                      className="text-lg"
+                      placeholder="3.000,00"
+                      className="text-sm"
                     />
                   </div>
                   
