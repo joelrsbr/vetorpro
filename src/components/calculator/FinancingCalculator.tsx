@@ -13,7 +13,7 @@ import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
-import { CalculationSummary } from "./CalculationSummary";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format, addMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -778,7 +778,7 @@ export function FinancingCalculator() {
 
         {/* Results */}
         {calculations && (
-          <>
+          <div className="space-y-8">
             <CalculationResults 
               calculations={calculations} 
               amortizationType={amortizationType}
@@ -786,11 +786,6 @@ export function FinancingCalculator() {
             <AmortizationSchedule 
               schedule={calculations.schedule} 
               amortizationType={amortizationType}
-            />
-            <CalculationSummary
-              financingData={financingData}
-              calculations={calculations}
-              onFieldClick={scrollToField}
             />
             <ProposalGenerator
               calculations={calculations}
@@ -800,7 +795,7 @@ export function FinancingCalculator() {
               termMonths={parseInt(termMonths) || 360}
               amortizationType={amortizationType}
             />
-          </>
+          </div>
         )}
       </div>
     </TooltipProvider>
