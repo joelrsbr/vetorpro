@@ -234,23 +234,23 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
 
           {/* Financial Summary Stats */}
           <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <p className="text-sm text-muted-foreground mb-1">Primeira Parcela</p>
-              <p className="text-xl font-bold text-primary">{formatBRL(calculations.firstPayment)}</p>
+            <div className="text-center p-5 rounded-xl bg-primary/10 border-2 border-primary/30 shadow-sm">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Primeira Parcela</p>
+              <p className="text-2xl font-extrabold text-primary">{formatBRL(calculations.firstPayment)}</p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground mb-1">Total de Juros</p>
-              <p className="text-xl font-bold text-foreground">{formatBRL(calculations.totalInterest)}</p>
+            <div className="text-center p-5 rounded-xl bg-muted/50 border border-border shadow-sm">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Total de Juros</p>
+              <p className="text-2xl font-extrabold text-foreground">{formatBRL(calculations.totalInterest)}</p>
             </div>
             {calculations.totalCorrection > 0 && (
-              <div className="text-center p-4 rounded-lg bg-warning/10 border border-warning/30">
-                <p className="text-sm text-muted-foreground mb-1">Correção Acumulada</p>
-                <p className="text-xl font-bold text-warning">{formatBRL(calculations.totalCorrection)}</p>
+              <div className="text-center p-5 rounded-xl bg-warning/10 border-2 border-warning/30 shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Correção Acumulada</p>
+                <p className="text-2xl font-extrabold text-warning">{formatBRL(calculations.totalCorrection)}</p>
               </div>
             )}
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground mb-1">Total a Pagar</p>
-              <p className="text-xl font-bold text-foreground">{formatBRL(calculations.totalPaid)}</p>
+            <div className="text-center p-5 rounded-xl bg-muted/50 border border-border shadow-sm">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Total a Pagar</p>
+              <p className="text-2xl font-extrabold text-foreground">{formatBRL(calculations.totalPaid)}</p>
             </div>
           </div>
 
