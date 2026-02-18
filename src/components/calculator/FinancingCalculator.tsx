@@ -538,7 +538,7 @@ export function FinancingCalculator() {
                     value={amortizationType}
                     onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
                   >
-                    <SelectTrigger ref={amortizationRef} className="text-base">
+                    <SelectTrigger ref={amortizationRef} className="h-10 text-base">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -567,7 +567,7 @@ export function FinancingCalculator() {
                     value={correctionIndex}
                     onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}
                   >
-                    <SelectTrigger className="text-base border-primary/30">
+                    <SelectTrigger className="h-10 text-base border-primary/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -783,14 +783,6 @@ export function FinancingCalculator() {
               calculations={calculations} 
               amortizationType={amortizationType}
             />
-            <ProposalGenerator
-              calculations={calculations}
-              propertyValue={parseCurrency(propertyValue)}
-              downPayment={parseCurrency(downPayment)}
-              interestRate={parseCurrency(interestRate)}
-              termMonths={parseInt(termMonths) || 360}
-              amortizationType={amortizationType}
-            />
             <AmortizationSchedule 
               schedule={calculations.schedule} 
               amortizationType={amortizationType}
@@ -799,6 +791,14 @@ export function FinancingCalculator() {
               financingData={financingData}
               calculations={calculations}
               onFieldClick={scrollToField}
+            />
+            <ProposalGenerator
+              calculations={calculations}
+              propertyValue={parseCurrency(propertyValue)}
+              downPayment={parseCurrency(downPayment)}
+              interestRate={parseCurrency(interestRate)}
+              termMonths={parseInt(termMonths) || 360}
+              amortizationType={amortizationType}
             />
           </>
         )}
