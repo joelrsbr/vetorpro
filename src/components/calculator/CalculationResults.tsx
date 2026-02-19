@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingDown, DollarSign, Calendar, Sparkles, Clock, PiggyBank } from "lucide-react";
+import { TrendingDown, Calendar, Sparkles, Clock, PiggyBank } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface CalculationsData {
@@ -42,7 +42,7 @@ export function CalculationResults({ calculations, amortizationType }: Calculati
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
-                <DollarSign className="h-5 w-5 text-primary" />
+                <span className="text-sm font-bold text-primary">R$</span>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -122,7 +122,7 @@ export function CalculationResults({ calculations, amortizationType }: Calculati
               )}
               {calculations.interestSaved > 0 && (
                 <div className="flex items-center gap-3">
-                  <DollarSign className="h-4 w-4 text-success" />
+                  <span className="text-xs font-bold text-success">R$</span>
                   <div>
                     <p className="text-sm text-muted-foreground">Economia em Juros</p>
                     <p className="font-semibold text-success">
