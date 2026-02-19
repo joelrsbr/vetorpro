@@ -508,10 +508,8 @@ export function FinancingCalculator() {
                   <Input
                     ref={feesRef}
                     id="feesInsurance"
-                    type="number"
-                    step="0.01"
-                    value={feesInsurance}
-                    onChange={(e) => setFeesInsurance(e.target.value)}
+                    value={formatCurrency(feesInsurance)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setFeesInsurance)}
                     placeholder="50,00"
                     className="text-sm"
                   />

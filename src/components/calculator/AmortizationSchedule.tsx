@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDown, ChevronUp, List, Info } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { ScheduleItem } from "./FinancingCalculator";
-
 interface AmortizationScheduleProps {
   schedule: ScheduleItem[];
   amortizationType: "SAC" | "PRICE";
@@ -24,6 +23,17 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
       minimumFractionDigits: 2,
     }).format(value);
   };
+
+  const totals = useMemo(() => {
+    return schedule.reduce(
+      (acc, item) => ({
+        totalInterest: acc.totalInterest + item.interest,
+        totalFees: acc.totalFees + item.fees,
+        totalExtraAmortization: acc.totalExtraAmortization + item.extraPayment,
+      }),
+      { totalInterest: 0, totalFees: 0, totalExtraAmortization: 0 }
+    );
+  }, [schedule]);
 
   const amortizationInfo = amortizationType === "SAC" 
     ? "SAC: Amortização constante. Os juros diminuem ao longo do tempo, resultando em parcelas decrescentes."
@@ -99,7 +109,7 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
                       {item.fees > 0 ? formatBRL(item.fees) : "-"}
                     </TableCell>
                     <TableCell className="font-medium">{formatBRL(item.payment)}</TableCell>
-                    <TableCell className={item.extraPayment > 0 ? "text-success font-medium" : ""}>
+                    <TableCell className={item.extraPayment > 0 ? "bg-success/10 text-success font-medium" : ""}>
                       {formatBRL(item.principal)}
                       {item.hasReinforcement && (
                         <span className="ml-1 text-xs text-primary">(+reforço)</span>
@@ -109,6 +119,19 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
                   </TableRow>
                 ))}
               </TableBody>
+              <TableFooter>
+                <TableRow className="bg-muted/60 font-semibold">
+                  <TableCell colSpan={4} className="text-right">Totais</TableCell>
+                  <TableCell>{formatBRL(totals.totalInterest)}</TableCell>
+                  <TableCell>—</TableCell>
+                  <TableCell>{formatBRL(totals.totalFees)}</TableCell>
+                  <TableCell>—</TableCell>
+                  <TableCell className="bg-success/15 text-success font-bold rounded">
+                    {formatBRL(totals.totalExtraAmortization)}
+                  </TableCell>
+                  <TableCell>—</TableCell>
+                </TableRow>
+              </TableFooter>
             </Table>
           </div>
 
