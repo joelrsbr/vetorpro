@@ -74,7 +74,7 @@ export function FinancingCalculator() {
   const [amortizationType, setAmortizationType] = useState<"SAC" | "PRICE">("SAC");
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
-  const [feesInsurance, setFeesInsurance] = useState<string>("50");
+  const [feesInsurance, setFeesInsurance] = useState<string>("5000");
   
   // Max affordable payment
   const [enableMaxPayment, setEnableMaxPayment] = useState(false);
