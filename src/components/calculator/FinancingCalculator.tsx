@@ -82,8 +82,8 @@ export function FinancingCalculator() {
   
   // Extra amortization
   const [enableExtraAmortization, setEnableExtraAmortization] = useState(false);
-  const [extraAmortizationOption, setExtraAmortizationOption] = useState<"200" | "500" | "1000" | "other">("500");
-  const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("50000");
+  
+  const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("100000");
   const [extraAmortizationType, setExtraAmortizationType] = useState<"reduce-term" | "reduce-payment">("reduce-term");
   
   // Scheduled reinforcements
@@ -108,12 +108,6 @@ export function FinancingCalculator() {
     setter(numericValue);
   };
 
-  const handleExtraAmortizationOption = (option: "200" | "500" | "1000" | "other") => {
-    setExtraAmortizationOption(option);
-    if (option !== "other") {
-      setExtraAmortizationValue(option);
-    }
-  };
 
   const scrollToField = (field: string) => {
     const refs: Record<string, React.RefObject<any>> = {
@@ -224,9 +218,7 @@ export function FinancingCalculator() {
     const monthlyRate = annualRate / 100 / 12;
     const months = parseInt(termMonths) || 360;
     const fees = parseCurrency(feesInsurance);
-    const extraAmort = enableExtraAmortization 
-      ? (extraAmortizationOption === "other" ? parseCurrency(extraAmortizationValue) : parseInt(extraAmortizationOption))
-      : 0;
+    const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
     const reinforcement = enableReinforcements ? parseCurrency(reinforcementValue) : 0;
     const correctionRate = getCorrectionRate(correctionIndex);
 
@@ -363,7 +355,7 @@ export function FinancingCalculator() {
       interestSaved,
     };
   }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
-      enableExtraAmortization, extraAmortizationValue, extraAmortizationOption, extraAmortizationType,
+      enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
       enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
 
   const financingData: FinancingData = {
@@ -376,9 +368,7 @@ export function FinancingCalculator() {
     correctionIndex,
     startDate,
     feesInsurance: parseCurrency(feesInsurance),
-    extraAmortization: enableExtraAmortization 
-      ? (extraAmortizationOption === "other" ? parseCurrency(extraAmortizationValue) : parseInt(extraAmortizationOption))
-      : 0,
+    extraAmortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0,
     enableExtraAmortization,
     reinforcementValue: parseCurrency(reinforcementValue),
     enableReinforcements,
@@ -667,35 +657,11 @@ export function FinancingCalculator() {
                 <div className="space-y-4 animate-slide-up">
                   <div className="space-y-2">
                     <Label>Valor da Amortização Extra</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {(["200", "500", "1000"] as const).map((value) => (
-                        <Button
-                          key={value}
-                          type="button"
-                          variant={extraAmortizationOption === value ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handleExtraAmortizationOption(value)}
-                        >
-                          R$ {parseInt(value).toLocaleString("pt-BR")}
-                        </Button>
-                      ))}
-                      <Button
-                        type="button"
-                        variant={extraAmortizationOption === "other" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleExtraAmortizationOption("other")}
-                      >
-                        Outro valor
-                      </Button>
-                    </div>
-                    {extraAmortizationOption === "other" && (
-                      <Input
-                        value={formatCurrency(extraAmortizationValue)}
-                        onChange={(e) => handleCurrencyInput(e.target.value, setExtraAmortizationValue)}
-                        placeholder="Digite o valor"
-                        className="mt-2"
-                      />
-                    )}
+                    <Input
+                      value={formatCurrency(extraAmortizationValue)}
+                      onChange={(e) => handleCurrencyInput(e.target.value, setExtraAmortizationValue)}
+                      placeholder="1.000,00"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Tipo de Redução</Label>
