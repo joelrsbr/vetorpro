@@ -378,8 +378,8 @@ export function FinancingCalculator() {
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
-        <Card className="shadow-card">
+      <div className="space-y-8 pb-16">
+        <Card className="shadow-card p-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />
@@ -387,7 +387,7 @@ export function FinancingCalculator() {
             </CardTitle>
             <HP12CCalculator />
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-6 space-y-6">
             {/* Dados do Financiamento */}
             <div className="border rounded-lg p-4 space-y-4 bg-card">
               <h3 className="font-semibold text-foreground">
