@@ -452,7 +452,7 @@ export function FinancingCalculator() {
                         ref={startDateRef}
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal text-sm",
+                          "w-full h-[42px] justify-start text-left font-normal text-sm",
                           !startDate && "text-muted-foreground"
                         )}
                       >
