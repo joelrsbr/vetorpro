@@ -109,7 +109,7 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
                       {item.fees > 0 ? formatBRL(item.fees) : "-"}
                     </TableCell>
                     <TableCell className="font-medium">{formatBRL(item.payment)}</TableCell>
-                    <TableCell className={item.extraPayment > 0 ? "bg-success/10 text-success font-medium" : ""}>
+                    <TableCell className={item.extraPayment > 0 ? "bg-primary/8 text-primary font-medium" : ""}>
                       {formatBRL(item.principal)}
                       {item.hasReinforcement && (
                         <span className="ml-1 text-xs text-primary">(+reforço)</span>
@@ -126,7 +126,7 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
                   <TableCell>—</TableCell>
                   <TableCell>{formatBRL(totals.totalFees)}</TableCell>
                   <TableCell>—</TableCell>
-                  <TableCell className="bg-success/15 text-success font-bold rounded">
+                  <TableCell className="bg-primary/10 text-primary font-bold rounded">
                     {formatBRL(totals.totalExtraAmortization)}
                   </TableCell>
                   <TableCell>—</TableCell>
