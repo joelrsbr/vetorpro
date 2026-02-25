@@ -1,73 +1,40 @@
-# Welcome to your Lovable project
+# 🚀 VetorPro: Inteligência em Cálculos e Estratégias Imobiliárias
 
-## Project info
+**VetorPro** é uma plataforma SaaS de alta performance desenvolvida para corretores de elite e investidores imobiliários. A ferramenta transforma dados complexos de financiamento em relatórios de autoridade, focando em lucratividade e estratégias de amortização.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## 💎 Diferenciais Estratégicos
 
-There are several ways of editing your application.
+* **Exatidão Matemática**: Cálculos precisos nas tabelas SAC e PRICE.
+* **Foco em Amortização**: Visualização clara da economia real de juros e prazo.
+* **Relatórios Premium**: PDFs profissionais customizados para entrega ao cliente final.
+* **Interface de Elite**: Design focado na experiência do usuário e agilidade de fechamento.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🚀 Roadmap de Futuro (Versão Enterprise)
 
-Changes made via Lovable will be committed automatically to this repo.
+Estamos construindo a próxima fronteira da inteligência imobiliária para o mercado **High Ticket**:
 
-**Use your preferred IDE**
+1. **Hub Comparativo Interbancário**: Quadro comparativo em tempo real entre os principais players (Caixa, Itaú, Bradesco, Santander).
+2. **Sales Intelligence & Insights**: 
+   - Campo para gestão de relacionamento e peculiaridades do investidor.
+   - **Argumentação via IA**: Geração de propostas personalizadas baseadas nas dores e objetivos específicos do cliente.
+3. **Ata de Negociação**: Registro histórico (estilo Tactic) de pontos tratados, garantindo transparência e profissionalismo no fechamento.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Tecnologias de Base
 
-Follow these steps:
+* **Frontend**: React.js / Tailwind CSS / shadcn/ui
+* **Backend**: Supabase (Gestão de dados e usuários)
+* **Intelligence**: Integração com modelos de linguagem para auxílio em vendas.
+* **Infra**: Deploy contínuo via GitHub para máxima estabilidade.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## ⚖️ Propriedade Intelectual
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+O código-fonte, a marca e a metodologia **VetorPro** são propriedade exclusiva de **Joel Farias da Silveira**. 
+Todos os direitos reservados.
