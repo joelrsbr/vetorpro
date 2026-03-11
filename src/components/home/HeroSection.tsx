@@ -34,8 +34,8 @@ export function HeroSection() {
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            A ferramenta definitiva para corretores de imóveis: simulações SAC e PRICE, 
-            amortizações inteligentes e propostas personalizadas com IA.
+            Transforme dados complexos de financiamento em relatórios de autoridade. 
+            Simulações SAC e PRICE, amortizações inteligentes e propostas com IA.
           </p>
 
           {/* Feature pills */}
