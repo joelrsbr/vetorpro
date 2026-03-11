@@ -1,4 +1,4 @@
-import { Calculator } from "lucide-react";
+import { Landmark, TrendingUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import heroVideo from "@/assets/hero-background.mp4";
 import heroImageMobile from "@/assets/hero-background-mobile.jpg";
