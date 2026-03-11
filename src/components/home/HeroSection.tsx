@@ -22,7 +22,7 @@ export function HeroSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium animate-fade-in">
             <Sparkles className="h-4 w-4" />
-            A ferramenta #1 para corretores de imóveis
+            A plataforma #1 para corretores de elite
           </div>
 
           {/* Title */}
