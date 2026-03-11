@@ -27,9 +27,7 @@ const plans = [
   { text: "Painel de Cotações em tempo real", included: true },
   { text: "Calculadora HP12C", included: true },
   { text: "10 simulações/mês", included: true },
-  { text: "2 propostas com IA/mês", included: true },
-  { text: "Amortizações avançadas", included: false },
-  { text: "Personalização de marca", included: false }]
+  { text: "2 propostas com IA/mês", included: true }]
 
 },
 {
@@ -46,8 +44,7 @@ const plans = [
   { text: "Propostas com IA ilimitadas", included: true },
   { text: "Amortizações avançadas (SAC/PRICE)", included: true },
   { text: "Exportação PDF profissional", included: true },
-  { text: "Histórico ilimitado", included: true },
-  { text: "Suporte prioritário", included: true }]
+  { text: "Histórico ilimitado", included: true }]
 
 },
 {
@@ -65,8 +62,7 @@ const plans = [
   { text: "IA + branding personalizado no PDF", included: true },
   { text: "Upload de logo e CRECI", included: true },
   { text: "Multiusuário e Dashboard", included: true },
-  { text: "Integração via API", included: true },
-  { text: "Suporte dedicado", included: true }]
+  { text: "Integração via API", included: true }]
 
 }];
 
