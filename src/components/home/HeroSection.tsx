@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, Sparkles, ArrowRight, Check } from "lucide-react";
+import { Landmark, TrendingUp, Sparkles, ArrowRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function HeroSection() {
