@@ -14,62 +14,62 @@ interface LandingPlansProps {
 }
 
 const plans = [
-  {
-    id: "basic" as PlanType,
-    name: "Basic",
-    price: "R$ 29,90",
-    period: "/mês",
-    description: "Para corretores autônomos",
-    icon: Crown,
-    buttonVariant: "outline" as const,
-    features: [
-      { text: "Simulador Financeiro SAC/PRICE", included: true },
-      { text: "Painel de Cotações em tempo real", included: true },
-      { text: "Calculadora HP12C", included: true },
-      { text: "10 simulações/mês", included: true },
-      { text: "2 propostas com IA/mês", included: true },
-      { text: "Amortizações avançadas", included: false },
-      { text: "Personalização de marca", included: false },
-    ],
-  },
-  {
-    id: "pro" as PlanType,
-    name: "Pro",
-    price: "R$ 59,90",
-    period: "/mês",
-    description: "Para consultores profissionais",
-    icon: Rocket,
-    buttonVariant: "default" as const,
-    features: [
-      { text: "Tudo do Basic", included: true },
-      { text: "Simulações ilimitadas", included: true },
-      { text: "Propostas com IA ilimitadas", included: true },
-      { text: "Amortizações avançadas (SAC/PRICE)", included: true },
-      { text: "Exportação PDF profissional", included: true },
-      { text: "Histórico ilimitado", included: true },
-      { text: "Suporte prioritário", included: true },
-    ],
-  },
-  {
-    id: "business" as PlanType,
-    name: "Business/TEAM",
-    price: "R$ 149,90",
-    period: "/mês",
-    priceNote: "até 5 usuários",
-    description: "Máxima economia e controle total",
-    icon: Building2,
-    buttonVariant: "hero" as const,
-    recommended: true,
-    features: [
-      { text: "Tudo do Pro", included: true },
-      { text: "IA + branding personalizado no PDF", included: true },
-      { text: "Upload de logo e CRECI", included: true },
-      { text: "Multiusuário e Dashboard", included: true },
-      { text: "Integração via API", included: true },
-      { text: "Suporte dedicado", included: true },
-    ],
-  },
-];
+{
+  id: "basic" as PlanType,
+  name: "Basic",
+  price: "R$ 29,90",
+  period: "/mês",
+  description: "Para corretores autônomos",
+  icon: Crown,
+  buttonVariant: "outline" as const,
+  features: [
+  { text: "Simulador Financeiro SAC/PRICE", included: true },
+  { text: "Painel de Cotações em tempo real", included: true },
+  { text: "Calculadora HP12C", included: true },
+  { text: "10 simulações/mês", included: true },
+  { text: "2 propostas com IA/mês", included: true },
+  { text: "Amortizações avançadas", included: false },
+  { text: "Personalização de marca", included: false }]
+
+},
+{
+  id: "pro" as PlanType,
+  name: "Pro",
+  price: "R$ 59,90",
+  period: "/mês",
+  description: "Para consultores profissionais",
+  icon: Rocket,
+  buttonVariant: "default" as const,
+  features: [
+  { text: "Tudo do Basic", included: true },
+  { text: "Simulações ilimitadas", included: true },
+  { text: "Propostas com IA ilimitadas", included: true },
+  { text: "Amortizações avançadas (SAC/PRICE)", included: true },
+  { text: "Exportação PDF profissional", included: true },
+  { text: "Histórico ilimitado", included: true },
+  { text: "Suporte prioritário", included: true }]
+
+},
+{
+  id: "business" as PlanType,
+  name: "Business/TEAM",
+  price: "R$ 149,90",
+  period: "/mês",
+  priceNote: "até 5 usuários",
+  description: "Máxima economia e controle total",
+  icon: Building2,
+  buttonVariant: "hero" as const,
+  recommended: true,
+  features: [
+  { text: "Tudo do Pro", included: true },
+  { text: "IA + branding personalizado no PDF", included: true },
+  { text: "Upload de logo e CRECI", included: true },
+  { text: "Multiusuário e Dashboard", included: true },
+  { text: "Integração via API", included: true },
+  { text: "Suporte dedicado", included: true }]
+
+}];
+
 
 export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) {
   const { user } = useAuth();
@@ -90,7 +90,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
     setLoadingPlan(planId);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: stripePlan.priceId },
+        body: { priceId: stripePlan.priceId }
       });
 
       if (error) throw error;
@@ -101,7 +101,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
       toast({
         title: "Erro ao iniciar checkout",
         description: err.message || "Tente novamente.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoadingPlan(null);
@@ -127,28 +127,28 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
               <Card
                 key={plan.id}
                 className={`relative card-shadow-animated cursor-pointer transition-all duration-300 ${
-                  isRecommended
-                    ? "border-primary border-2 shadow-xl md:scale-105 z-10"
-                    : "border hover:border-primary/50"
-                } ${selectedPlan === plan.id ? "ring-2 ring-offset-2 ring-primary" : ""}`}
+                isRecommended ?
+                "border-primary border-2 shadow-xl md:scale-105 z-10" :
+                "border hover:border-primary/50"} ${
+                selectedPlan === plan.id ? "ring-2 ring-offset-2 ring-primary" : ""}`}
                 onClick={() => onSelectPlan(plan.id)}
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                {isRecommended && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                style={{ animationDelay: `${index * 150}ms` }}>
+                
+                {isRecommended &&
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="px-4 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
                       Recomendado
                     </span>
                   </div>
-                )}
+                }
 
-                {selectedPlan === plan.id && (
-                  <div className="absolute top-4 right-4">
+                {selectedPlan === plan.id &&
+                <div className="absolute top-4 right-4">
                     <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
                       <Check className="h-4 w-4 text-primary-foreground" />
                     </div>
                   </div>
-                )}
+                }
 
                 <CardHeader className={`rounded-t-lg transition-all duration-300 pt-8 ${isRecommended ? "bg-primary/5" : ""}`}>
                   <div className="flex items-center gap-3 mb-3">
@@ -159,9 +159,9 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     <span className="text-4xl font-bold">{plan.price}</span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
-                  {plan.priceNote && (
-                    <p className="text-xs text-muted-foreground mt-1">{plan.priceNote}</p>
-                  )}
+                  {plan.priceNote &&
+                  <p className="text-xs text-muted-foreground mt-1">{plan.priceNote}</p>
+                  }
                   <CardDescription className="mt-2 text-sm">
                     {plan.description}
                   </CardDescription>
@@ -169,18 +169,18 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
 
                 <CardContent className="pt-6">
                   <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-3">
-                        {feature.included ? (
-                          <Check className="h-4 w-4 text-success shrink-0" />
-                        ) : (
-                          <X className="h-4 w-4 text-muted-foreground/40 shrink-0" />
-                        )}
+                    {plan.features.map((feature, idx) =>
+                    <li key={idx} className="flex items-center gap-3">
+                        {feature.included ?
+                      <Check className="h-4 w-4 text-success shrink-0" /> :
+
+                      <X className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+                      }
                         <span className={`text-sm ${feature.included ? "text-foreground" : "text-muted-foreground/50"}`}>
                           {feature.text}
                         </span>
                       </li>
-                    ))}
+                    )}
                   </ul>
 
                   <Button
@@ -191,17 +191,17 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     onClick={(e) => {
                       e.stopPropagation();
                       handleSubscribe(plan.id);
-                    }}
-                  >
-                    {loadingPlan === plan.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
+                    }}>
+                    
+                    {loadingPlan === plan.id ?
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
+                    null}
                     Assinar Agora
                     {isRecommended && <ArrowRight className="h-4 w-4 ml-2" />}
                   </Button>
                 </CardContent>
-              </Card>
-            );
+              </Card>);
+
           })}
         </div>
 
@@ -211,12 +211,12 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
             <p className="text-sm font-medium text-foreground">
               O VetorPro é uma plataforma profissional exclusiva.
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Não há versão gratuita. Planos corporativos acima de 10 usuários sob consulta.
+            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Planos corporativos acima de 5 usuários sob consulta.
+
             </p>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
