@@ -1,4 +1,4 @@
-import { Calculator } from "lucide-react";
+import { Landmark, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
