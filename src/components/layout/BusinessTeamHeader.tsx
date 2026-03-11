@@ -18,7 +18,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { 
-  Calculator, 
+  Landmark, 
   MoreVertical, 
   ClipboardList, 
   LogOut, 
