@@ -27,9 +27,9 @@ export function HeroSection() {
 
           {/* Title */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight animate-slide-up">
-            Calcule Financiamentos e Gere{" "}
-            <span className="text-gradient">Propostas Profissionais</span>{" "}
-            em Segundos
+            VetorPro:{" "}
+            <span className="text-gradient">Inteligência Patrimonial</span>{" "}
+            e Estratégias de Amortização
           </h1>
 
           {/* Subtitle */}
