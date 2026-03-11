@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2, Crown } from "lucide-react";
+import { Landmark, TrendingUp, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2, Crown } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -61,18 +61,19 @@ export function Header() {
 
   // Split logo label into parts for styling
   const labelParts = logoLabel.split(" ");
-  const brandName = labelParts.slice(0, 1).join(" "); // "ImobCalc"
+  const brandName = labelParts.slice(0, 1).join(" "); // "VetorPro"
   const planSuffix = labelParts.slice(1).join(" "); // "Basic" / "Pro" / "Business" / ""
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary">
-            <Calculator className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary relative">
+            <Landmark className="h-5 w-5 text-primary-foreground" />
+            <TrendingUp className="h-3 w-3 text-primary-foreground absolute -top-0.5 -right-0.5" />
           </div>
           <span className="text-xl font-bold text-foreground">
-            Imob<span className="text-gradient">Calc</span>
+            Vetor<span className="text-gradient">Pro</span>
             {planSuffix && <span className="text-primary ml-1 text-base font-semibold">{planSuffix}</span>}
           </span>
         </Link>

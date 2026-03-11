@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, Mail, Lock, User, Loader2 } from "lucide-react";
+import { Landmark, TrendingUp, Mail, Lock, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
@@ -55,10 +55,11 @@ const Login = () => {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary">
-              <Calculator className="h-6 w-6 text-primary-foreground" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary relative">
+              <Landmark className="h-6 w-6 text-primary-foreground" />
+              <TrendingUp className="h-3.5 w-3.5 text-primary-foreground absolute -top-0.5 -right-0.5" />
             </div>
-          <CardTitle className="text-2xl">Bem-vindo ao ImobCalc Pro</CardTitle>
+          <CardTitle className="text-2xl">Bem-vindo ao VetorPro</CardTitle>
             <CardDescription>
               Crie sua conta para acessar o simulador profissional
             </CardDescription>

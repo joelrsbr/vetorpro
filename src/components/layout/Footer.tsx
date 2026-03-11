@@ -1,4 +1,4 @@
-import { Calculator } from "lucide-react";
+import { Landmark, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export function Footer() {
   const { user } = useAuth();
   const { plan, isActive } = useSubscription();
-  const brandLabel = user ? getPlanLabel(plan, isActive) : "ImobCalc";
+  const brandLabel = user ? getPlanLabel(plan, isActive) : "VetorPro";
 
   return (
     <footer className="border-t border-border bg-muted/30">
@@ -14,15 +14,16 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
-                <Calculator className="h-4 w-4 text-primary-foreground" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary relative">
+                <Landmark className="h-4 w-4 text-primary-foreground" />
+                <TrendingUp className="h-2.5 w-2.5 text-primary-foreground absolute -top-0.5 -right-0.5" />
               </div>
               <span className="text-lg font-bold">
                 {brandLabel}
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              A ferramenta definitiva para corretores de imóveis brasileiros.
+              Inteligência em cálculos e estratégias imobiliárias.
             </p>
           </div>
 

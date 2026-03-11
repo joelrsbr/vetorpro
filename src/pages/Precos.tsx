@@ -22,8 +22,8 @@ const faqs = [
     answer: "São recursos exclusivos do plano Pro que permitem simular amortizações extras mensais e reforços programados (mensais, semestrais ou anuais) para mostrar ao cliente como economizar juros.",
   },
   {
-    question: "Posso usar o ImobCalc Pro no celular?",
-    answer: "Sim! O ImobCalc Pro é totalmente responsivo e funciona perfeitamente em smartphones e tablets.",
+    question: "Posso usar o VetorPro no celular?",
+    answer: "Sim! O VetorPro é totalmente responsivo e funciona perfeitamente em smartphones e tablets.",
   },
 ];
 

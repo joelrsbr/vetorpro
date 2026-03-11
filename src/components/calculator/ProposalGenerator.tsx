@@ -226,7 +226,7 @@ export function ProposalGenerator({
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
       const footerY = doc.internal.pageSize.getHeight() - 10;
-      doc.text("Gerado por ImobCalcBR • imobcalc.lovable.app", pageWidth / 2, footerY, {
+      doc.text("Gerado por VetorPro • vetorpro.com.br", pageWidth / 2, footerY, {
         align: "center",
       });
       doc.setTextColor(0);

@@ -13,7 +13,7 @@ export interface SessionData {
 const defaultSession: SessionData = {
   isLoggedIn: false,
   consultantName: "Joel Farias",
-  teamName: "ImobCalcBR Business/TEAM",
+  teamName: "VetorPro Business/TEAM",
   plan: null,
   loginMethod: "",
 };
@@ -65,7 +65,7 @@ const planDetailsMap: Record<string, PlanDetails> = {
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
-const STORAGE_KEY = "imobcalc-session";
+const STORAGE_KEY = "vetorpro-session";
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SessionData>(() => {

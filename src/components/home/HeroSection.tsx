@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, Sparkles, ArrowRight, Check } from "lucide-react";
+import { Landmark, TrendingUp, Sparkles, ArrowRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function HeroSection() {
@@ -22,20 +22,20 @@ export function HeroSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium animate-fade-in">
             <Sparkles className="h-4 w-4" />
-            A ferramenta #1 para corretores de imóveis
+            A plataforma #1 para corretores de elite
           </div>
 
           {/* Title */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight animate-slide-up">
-            Calcule Financiamentos e Gere{" "}
-            <span className="text-gradient">Propostas Profissionais</span>{" "}
-            em Segundos
+            VetorPro:{" "}
+            <span className="text-gradient">Inteligência Patrimonial</span>{" "}
+            e Estratégias de Amortização
           </h1>
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            A ferramenta definitiva para corretores de imóveis: simulações SAC e PRICE, 
-            amortizações inteligentes e propostas personalizadas com IA.
+            Transforme dados complexos de financiamento em relatórios de autoridade. 
+            Simulações SAC e PRICE, amortizações inteligentes e propostas com IA.
           </p>
 
           {/* Feature pills */}
@@ -55,7 +55,7 @@ export function HeroSection() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.3s" }}>
             <Button variant="hero" size="xl" asChild>
               <Link to="/login">
-                <Calculator className="h-5 w-5 mr-2" />
+                <Landmark className="h-5 w-5 mr-2" />
                 Começar Agora
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>

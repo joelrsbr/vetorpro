@@ -36,7 +36,7 @@ export function WelcomeModal({ open, planId }: WelcomeModalProps) {
           </div>
           <DialogTitle className="text-xl">Login realizado com sucesso!</DialogTitle>
           <DialogDescription className="text-base pt-2">
-            Bem-vindo ao <strong>ImobCalcBR Business/TEAM</strong>
+            Bem-vindo ao <strong>VetorPro Business/TEAM</strong>
             <br />
             <span className="text-primary font-medium mt-2 block">
               Plano {getPlanName()} ativado
