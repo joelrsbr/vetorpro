@@ -61,7 +61,7 @@ export function Header() {
 
   // Split logo label into parts for styling
   const labelParts = logoLabel.split(" ");
-  const brandName = labelParts.slice(0, 1).join(" "); // "ImobCalc"
+  const brandName = labelParts.slice(0, 1).join(" "); // "VetorPro"
   const planSuffix = labelParts.slice(1).join(" "); // "Basic" / "Pro" / "Business" / ""
 
   return (

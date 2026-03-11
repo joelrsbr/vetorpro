@@ -42,21 +42,22 @@ export function LandingHero() {
       <div className="container relative max-w-4xl mx-auto text-center px-4 z-10">
         {/* Logo */}
         <div className="flex justify-center mb-8 animate-fade-in-up">
-          <div className="h-20 w-20 rounded-2xl bg-background/95 flex items-center justify-center shadow-xl backdrop-blur-sm">
-            <Calculator className="h-10 w-10 text-primary" />
+          <div className="h-20 w-20 rounded-2xl bg-background/95 flex items-center justify-center shadow-xl backdrop-blur-sm relative">
+            <Landmark className="h-10 w-10 text-primary" />
+            <TrendingUp className="h-5 w-5 text-primary absolute -top-1 -right-1" />
           </div>
         </div>
         
         {/* Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in-up drop-shadow-lg">
-          Simulador Imobiliário Profissional para{" "}
-          <span className="text-primary-foreground/90">Corretores e Investidores</span>
+          VetorPro: Inteligência Patrimonial e{" "}
+          <span className="text-primary-foreground/90">Estratégias de Amortização</span>
         </h1>
         
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed animate-fade-in-up-delay drop-shadow-md">
-          Simule, compare e personalize financiamentos com precisão e design profissional. 
-          A ferramenta definitiva para fechar mais negócios.
+          Transforme dados complexos de financiamento em relatórios de autoridade. 
+          A plataforma definitiva para corretores de elite e investidores.
         </p>
         
       </div>

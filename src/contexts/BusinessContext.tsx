@@ -27,7 +27,7 @@ interface BusinessContextType {
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
 
-const STORAGE_KEY = "imobcalc-business-settings";
+const STORAGE_KEY = "vetorpro-business-settings";
 
 export function BusinessProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<BusinessSettings>(() => {

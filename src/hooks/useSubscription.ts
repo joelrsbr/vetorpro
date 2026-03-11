@@ -47,12 +47,12 @@ export function useSubscription(): SubscriptionInfo {
 
 /** Returns the display label for the logo based on plan */
 export function getPlanLabel(plan: SubscriptionPlan, isActive: boolean): string {
-  if (!isActive) return "ImobCalc";
+  if (!isActive) return "VetorPro";
   switch (plan) {
-    case "basic": return "ImobCalc Basic";
-    case "pro": return "ImobCalc Pro";
-    case "business": return "ImobCalc Business";
-    default: return "ImobCalc";
+    case "basic": return "VetorPro Basic";
+    case "pro": return "VetorPro Pro";
+    case "business": return "VetorPro Business";
+    default: return "VetorPro";
   }
 }
 

@@ -23,7 +23,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              A ferramenta definitiva para corretores de imóveis brasileiros.
+              Inteligência em cálculos e estratégias imobiliárias.
             </p>
           </div>
 

@@ -222,8 +222,8 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
               🚫 <strong>Não há versão gratuita.</strong>
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              O ImobCalcBR é uma ferramenta profissional exclusiva para corretores e investidores 
-              que buscam excelência nas simulações imobiliárias.
+              O VetorPro é uma plataforma profissional exclusiva para corretores de elite e investidores 
+              que buscam excelência em estratégias imobiliárias.
             </p>
           </div>
         </div>

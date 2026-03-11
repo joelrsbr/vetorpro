@@ -55,7 +55,7 @@ export function HeroSection() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.3s" }}>
             <Button variant="hero" size="xl" asChild>
               <Link to="/login">
-                <Calculator className="h-5 w-5 mr-2" />
+                <Landmark className="h-5 w-5 mr-2" />
                 Começar Agora
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
