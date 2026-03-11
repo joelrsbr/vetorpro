@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calculator, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2, Crown } from "lucide-react";
+import { Landmark, TrendingUp, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2, Crown } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
