@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export function Footer() {
   const { user } = useAuth();
   const { plan, isActive } = useSubscription();
-  const brandLabel = user ? getPlanLabel(plan, isActive) : "ImobCalc";
+  const brandLabel = user ? getPlanLabel(plan, isActive) : "VetorPro";
 
   return (
     <footer className="border-t border-border bg-muted/30">
