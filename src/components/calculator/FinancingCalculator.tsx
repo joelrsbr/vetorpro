@@ -383,7 +383,8 @@ export function FinancingCalculator() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />
-              Simulador de Financiamento
+              Simulador Financeiro
+              <span className="text-xs font-medium text-muted-foreground border border-border rounded px-1.5 py-0.5">HP-12C</span>
             </CardTitle>
             <HP12CCalculator />
           </CardHeader>
