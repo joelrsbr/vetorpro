@@ -11,9 +11,10 @@ import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
-  Loader2, Sparkles, Copy, GitCompareArrows, Building2
+  Loader2, Sparkles, Copy, GitCompareArrows, Building2, Info
 } from "lucide-react";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
