@@ -25,8 +25,8 @@ const benefits = [
   },
   {
     icon: TrendingUp,
-    title: "Indexadores Atualizados",
-    description: "CDI, IPCA, Selic, TR e câmbio disponíveis para consulta nas simulações.",
+    title: "Atualização Automatizada",
+    description: "Conectado às fontes oficiais para refletir as oscilações de CDI, IPCA, Selic e TR em tempo real.",
   },
   {
     icon: FileText,
@@ -50,6 +50,9 @@ export function LandingBenefits() {
           </h2>
           <p className="text-base text-muted-foreground max-w-xl mx-auto">
             Ferramentas de suporte técnico para o profissional imobiliário.
+          </p>
+          <p className="mt-4 text-xs tracking-wide text-muted-foreground/80 uppercase">
+            Aprimoramento Constante: Evoluímos diariamente para que você esteja sempre à frente do mercado.
           </p>
         </div>
         
