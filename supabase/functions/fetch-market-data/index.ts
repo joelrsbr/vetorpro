@@ -56,7 +56,8 @@ async function fetchBCBRate(seriesId: number): Promise<number | null> {
 async function fetchCurrencies(): Promise<Record<string, { value: number; variation: number }>> {
   try {
     const res = await fetch(
-      "https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL"
+      "https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL",
+      { headers: { "User-Agent": "VetorPro/1.0", Accept: "application/json" } }
     );
     if (!res.ok) {
       console.error(`AwesomeAPI error: ${res.status}`);
