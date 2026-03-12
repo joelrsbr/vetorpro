@@ -11,9 +11,10 @@ import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
-  Loader2, Sparkles, Copy, GitCompareArrows, Building2
+  Loader2, Sparkles, Copy, GitCompareArrows, Building2, Info
 } from "lucide-react";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -238,14 +239,26 @@ export default function Dashboard() {
               <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
                 <GitCompareArrows className="h-6 w-6 text-white" />
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-semibold">Comparativo 6 Bancos</h3>
                 <p className="text-sm text-muted-foreground">
                   {plan === "business" ? "Simulação multi-bancos" : "Exclusivo Business"}
                 </p>
               </div>
               {plan !== "business" && (
-                <Badge variant="outline" className="ml-auto text-[10px]">Business</Badge>
+                <div className="ml-auto flex items-center gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[260px] text-xs">
+                        Este recurso está disponível no plano Business. Migre agora e aproveite o abatimento proporcional da sua assinatura atual.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <Badge variant="outline" className="text-[10px]">Business</Badge>
+                </div>
               )}
             </CardContent>
           </Card>
