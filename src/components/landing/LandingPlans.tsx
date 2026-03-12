@@ -23,11 +23,11 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulador Financeiro SAC/PRICE", included: true },
-  { text: "Painel de Cotações em tempo real", included: true },
+  { text: "Simulação simples SAC/PRICE", included: true },
   { text: "Calculadora HP12C", included: true },
   { text: "10 simulações/mês", included: true },
-  { text: "2 propostas com IA/mês", included: true }]
+  { text: "2 propostas com IA/mês", included: true },
+  { text: "Comparativo Multi-Bancos", included: false }]
 
 },
 {
