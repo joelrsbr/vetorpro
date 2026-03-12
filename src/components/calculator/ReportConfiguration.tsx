@@ -32,6 +32,8 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const [uploading, setUploading] = useState(false);
 
   const isBusiness = plan === "business" && isActive;
+  const isPro = plan === "pro" && isActive;
+  const canEditProfile = isBusiness || isPro;
 
   // Load saved values from profile
   useEffect(() => {
