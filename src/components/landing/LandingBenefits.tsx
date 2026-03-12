@@ -52,7 +52,7 @@ export function LandingBenefits() {
             Ferramentas de suporte técnico para o profissional imobiliário.
           </p>
           <p className="mt-4 text-xs tracking-wide text-muted-foreground/80 uppercase">
-            Aprimoramento Constante: Evoluímos diariamente para que você esteja sempre à frente do mercado.
+            Aprimoramento Contínuo: Uma infraestrutura em evolução diária para manter você à frente do mercado.
           </p>
         </div>
         
