@@ -25,8 +25,8 @@ const benefits = [
   },
   {
     icon: TrendingUp,
-    title: "Atualização Automatizada",
-    description: "Conectado às fontes oficiais para refletir as oscilações de CDI, IPCA, Selic e TR em tempo real.",
+    title: "Dados Estruturados",
+    description: "Conexão direta com fontes oficiais para atualização de Selic, IPCA e TR, garantindo a fidelidade técnica das simulações.",
   },
   {
     icon: FileText,
