@@ -16,9 +16,9 @@ interface MarketData {
 // BCB SGS series IDs
 const BCB_SERIES: Record<string, { id: number; name: string; period: string }> = {
   selic: { id: 432, name: "Selic", period: "a.a." },
-  ipca: { id: 433, name: "IPCA", period: "a.a." },
+  ipca: { id: 13522, name: "IPCA", period: "a.a." },
   tr: { id: 226, name: "TR", period: "a.m." },
-  cdi: { id: 12, name: "CDI", period: "a.a." },
+  cdi: { id: 4389, name: "CDI", period: "a.a." },
   poupanca: { id: 196, name: "Poupança", period: "a.m." },
 };
 
