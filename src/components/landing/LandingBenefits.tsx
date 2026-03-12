@@ -46,10 +46,10 @@ export function LandingBenefits() {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Recursos Técnicos
+            Recursos da Plataforma
           </h2>
           <p className="text-base text-muted-foreground max-w-xl mx-auto">
-            Ferramentas de precisão para o mercado imobiliário profissional.
+            Ferramentas de suporte técnico para o profissional imobiliário.
           </p>
         </div>
         

@@ -63,7 +63,7 @@ export function LandingHero() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">Pilares de Confiança</p>
-                  <p className="text-xs text-muted-foreground">Base técnica da plataforma</p>
+                  <p className="text-xs text-muted-foreground">Conformidade, clareza e facilitação</p>
                 </div>
               </div>
 
