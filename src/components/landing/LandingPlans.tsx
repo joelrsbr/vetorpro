@@ -59,8 +59,9 @@ const plans = [
   recommended: true,
   features: [
   { text: "Tudo do Pro", included: true },
-  { text: "IA + branding personalizado no PDF", included: true },
-  { text: "Upload de logo e CRECI", included: true },
+  { text: "Comparativo Multi-Bancos (6 bancos)", included: true },
+  { text: "APIs de Moedas e Indexadores Live", included: true },
+  { text: "PDFs Premium com branding", included: true },
   { text: "Multiusuário e Dashboard", included: true },
   { text: "Integração via API", included: true }]
 
