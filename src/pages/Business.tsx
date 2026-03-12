@@ -12,7 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calculator, Settings, Loader2, Building2 } from "lucide-react";
+import { Calculator, Settings, Loader2, Building2, GitCompareArrows } from "lucide-react";
+import { BankComparisonModule } from "@/components/business/BankComparisonModule";
 
 // BusinessPaywall removed — non-Business users are redirected to /precos
 
@@ -68,6 +69,10 @@ function BusinessContent() {
               <Calculator className="h-4 w-4" />
               Simulador
             </TabsTrigger>
+            <TabsTrigger value="comparison" className="gap-2">
+              <GitCompareArrows className="h-4 w-4" />
+              Comparativo 6 Bancos
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
               Personalização
@@ -76,6 +81,10 @@ function BusinessContent() {
 
           <TabsContent value="simulator" className="space-y-6">
             <FinancingCalculator />
+          </TabsContent>
+
+          <TabsContent value="comparison" className="space-y-6">
+            <BankComparisonModule />
           </TabsContent>
 
           <TabsContent value="settings">

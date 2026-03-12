@@ -23,11 +23,11 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulador Financeiro SAC/PRICE", included: true },
-  { text: "Painel de Cotações em tempo real", included: true },
+  { text: "Simulação simples SAC/PRICE", included: true },
   { text: "Calculadora HP12C", included: true },
   { text: "10 simulações/mês", included: true },
-  { text: "2 propostas com IA/mês", included: true }]
+  { text: "2 propostas com IA/mês", included: true },
+  { text: "Comparativo Multi-Bancos", included: false }]
 
 },
 {
@@ -42,9 +42,9 @@ const plans = [
   { text: "Tudo do Basic", included: true },
   { text: "Simulações ilimitadas", included: true },
   { text: "Propostas com IA ilimitadas", included: true },
-  { text: "Amortizações avançadas (SAC/PRICE)", included: true },
-  { text: "Exportação PDF profissional", included: true },
-  { text: "Histórico ilimitado", included: true }]
+  { text: "Exportação PDF básica", included: true },
+  { text: "Visualização de indexadores", included: true },
+  { text: "Comparativo Multi-Bancos", included: false }]
 
 },
 {
@@ -59,8 +59,9 @@ const plans = [
   recommended: true,
   features: [
   { text: "Tudo do Pro", included: true },
-  { text: "IA + branding personalizado no PDF", included: true },
-  { text: "Upload de logo e CRECI", included: true },
+  { text: "Comparativo Multi-Bancos (6 bancos)", included: true },
+  { text: "APIs de Moedas e Indexadores Live", included: true },
+  { text: "PDFs Premium com branding", included: true },
   { text: "Multiusuário e Dashboard", included: true },
   { text: "Integração via API", included: true }]
 

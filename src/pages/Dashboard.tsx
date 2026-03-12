@@ -11,8 +11,9 @@ import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
-  Loader2, Sparkles, Copy
+  Loader2, Sparkles, Copy, GitCompareArrows, Building2
 } from "lucide-react";
+import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -48,6 +49,7 @@ export default function Dashboard() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const planBadge = isActive ? getPlanBadge(plan) : null;
 
@@ -209,7 +211,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
@@ -222,6 +224,32 @@ export default function Dashboard() {
             </CardContent>
           </Card>
           
+          <Card 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              if (plan === "business") {
+                navigate("/business");
+              } else {
+                setShowPaywall(true);
+              }
+            }}
+          >
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
+                <GitCompareArrows className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Comparativo 6 Bancos</h3>
+                <p className="text-sm text-muted-foreground">
+                  {plan === "business" ? "Simulação multi-bancos" : "Exclusivo Business"}
+                </p>
+              </div>
+              {plan !== "business" && (
+                <Badge variant="outline" className="ml-auto text-[10px]">Business</Badge>
+              )}
+            </CardContent>
+          </Card>
+
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
@@ -234,6 +262,8 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
 
         {/* History Tabs */}
         <Card>
