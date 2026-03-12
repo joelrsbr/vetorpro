@@ -210,7 +210,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
@@ -223,6 +223,32 @@ export default function Dashboard() {
             </CardContent>
           </Card>
           
+          <Card 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              if (plan === "business") {
+                navigate("/business");
+              } else {
+                setShowPaywall(true);
+              }
+            }}
+          >
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
+                <GitCompareArrows className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Comparativo 6 Bancos</h3>
+                <p className="text-sm text-muted-foreground">
+                  {plan === "business" ? "Simulação multi-bancos" : "Exclusivo Business"}
+                </p>
+              </div>
+              {plan !== "business" && (
+                <Badge variant="outline" className="ml-auto text-[10px]">Business</Badge>
+              )}
+            </CardContent>
+          </Card>
+
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
@@ -235,6 +261,8 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
 
         {/* History Tabs */}
         <Card>
