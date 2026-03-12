@@ -7,8 +7,8 @@ export function LandingFooter() {
 
         </p>
         <div className="w-12 h-px bg-[hsl(215_20%_25%)] mx-auto" />
-        <p className="text-[10px] opacity-50">
-          © 2026 VetorPro – Desenvolvido por Joel Farias da Silveira.
+        <p className="text-[10px] opacity-50">© 2026 VetorPro – Desenvolvido por J-RSBR Ltda.
+
         </p>
       </div>
     </footer>);
