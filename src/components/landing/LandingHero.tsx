@@ -5,18 +5,18 @@ export function LandingHero() {
   const pillars = [
     {
       icon: Scale,
-      title: "Fidelidade Normativa",
-      description: "Cálculos rigorosos baseados nas metodologias oficiais SAC e PRICE.",
+      title: "Simulações em Nível de Fidelidade",
+      description: "Cálculos estruturados com base nos modelos SAC e PRICE.",
     },
     {
       icon: Eye,
-      title: "Transparência de Taxas",
-      description: "Inclusão de custos de seguros e taxas de administração para um Custo Efetivo Total (CET) real.",
+      title: "Transparência Operacional",
+      description: "Visualização clara de seguros e taxas que compõem o contrato.",
     },
     {
       icon: Target,
-      title: "Estratégias de Antecipação",
-      description: "Algoritmos focados em encontrar o ponto ótimo de amortização para maximizar a economia do investidor.",
+      title: "Apoio à Decisão",
+      description: "Uma ferramenta de suporte para tornar a jornada de financiamento mais compreensível.",
     },
   ];
 
