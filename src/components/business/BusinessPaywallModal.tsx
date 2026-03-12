@@ -60,9 +60,9 @@ export function BusinessPaywallModal({ open, onOpenChange }: BusinessPaywallModa
             Migrar para Business agora
             <ArrowRight className="h-4 w-4" />
           </Button>
-          <p className="text-xs text-muted-foreground text-center flex items-center gap-1.5">
-            <Info className="h-3.5 w-3.5 shrink-0 text-primary/70" />
-            <span>Upgrade Inteligente: Ao migrar, você recebe um desconto proporcional ao valor já pago no seu plano atual.</span>
+          <p className="text-[11px] text-muted-foreground/70 text-center flex items-center justify-center gap-1">
+            <Info className="h-3 w-3 shrink-0" />
+            <span>Upgrade Inteligente: Ao migrar, o valor do seu plano atual será descontado proporcionalmente da primeira mensalidade.</span>
           </p>
         </DialogFooter>
       </DialogContent>
