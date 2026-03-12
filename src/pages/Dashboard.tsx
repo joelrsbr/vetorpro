@@ -49,6 +49,7 @@ export default function Dashboard() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const planBadge = isActive ? getPlanBadge(plan) : null;
 
