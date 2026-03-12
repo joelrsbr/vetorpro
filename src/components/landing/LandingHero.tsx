@@ -29,17 +29,16 @@ export function LandingHero() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/8 border border-primary/15">
               <Landmark className="h-4 w-4 text-primary" />
               <span className="text-xs font-medium tracking-wide text-primary uppercase">
-                Consultoria Patrimonial
+                Suporte Técnico Imobiliário
               </span>
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold leading-tight text-foreground tracking-tight">
-              VetorPro: Gestão Estratégica de Amortização Imobiliária
+              VetorPro: Simulação Estruturada de Cenários Imobiliários
             </h1>
 
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
-              Transforme cálculos complexos em decisões patrimoniais sólidas. 
-              Precisão técnica para consultores e investidores.
+              Desenvolvida para apoiar profissionais do mercado imobiliário, a VetorPro organiza variáveis complexas em simulações estruturadas, oferecendo suporte técnico para o dia a dia de negociações.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
