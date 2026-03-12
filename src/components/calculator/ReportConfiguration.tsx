@@ -132,10 +132,15 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
               <Crown className="h-3 w-3 mr-1" />
               Business
             </Badge>
+          ) : isPro ? (
+            <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+              <Crown className="h-3 w-3 mr-1" />
+              Pro
+            </Badge>
           ) : (
             <Badge variant="outline" className="text-muted-foreground">
               <Lock className="h-3 w-3 mr-1" />
-              Exclusivo Plano Business
+              Exclusivo Pro / Business
             </Badge>
           )}
         </CardTitle>
