@@ -188,6 +188,8 @@ export function ProposalGenerator({
     const maxWidth = pageWidth - margin * 2;
     let yPos = 20;
 
+    const isPro = isActive && plan === "pro";
+
     if (reportConfig.isBusiness && reportConfig.logoUrl) {
       try {
         const img = new Image();
