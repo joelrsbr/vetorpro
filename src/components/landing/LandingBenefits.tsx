@@ -51,6 +51,9 @@ export function LandingBenefits() {
           <p className="text-base text-muted-foreground max-w-xl mx-auto">
             Ferramentas de suporte técnico para o profissional imobiliário.
           </p>
+          <p className="mt-4 text-xs tracking-wide text-muted-foreground/80 uppercase">
+            Aprimoramento Constante: Evoluímos diariamente para que você esteja sempre à frente do mercado.
+          </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
