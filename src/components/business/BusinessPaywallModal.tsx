@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowRight, Shield } from "lucide-react";
+import { Building2, ArrowRight, Shield, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface BusinessPaywallModalProps {
