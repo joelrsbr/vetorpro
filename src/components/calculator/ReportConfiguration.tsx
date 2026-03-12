@@ -32,6 +32,8 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const [uploading, setUploading] = useState(false);
 
   const isBusiness = plan === "business" && isActive;
+  const isPro = plan === "pro" && isActive;
+  const canEditProfile = isBusiness || isPro;
 
   // Load saved values from profile
   useEffect(() => {
@@ -130,10 +132,15 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
               <Crown className="h-3 w-3 mr-1" />
               Business
             </Badge>
+          ) : isPro ? (
+            <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+              <Crown className="h-3 w-3 mr-1" />
+              Pro
+            </Badge>
           ) : (
             <Badge variant="outline" className="text-muted-foreground">
               <Lock className="h-3 w-3 mr-1" />
-              Exclusivo Plano Business
+              Exclusivo Pro / Business
             </Badge>
           )}
         </CardTitle>
@@ -142,7 +149,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
         {/* Logo Upload */}
         <div className="space-y-2">
           <Label className={!isBusiness ? "text-muted-foreground" : ""}>
-            Logo da Imobiliária
+            Logo da Imobiliária {!isBusiness && isPro && <span className="text-xs text-muted-foreground">(Exclusivo Business)</span>}
           </Label>
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/30 overflow-hidden">
@@ -184,24 +191,24 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
           </div>
         </div>
 
-        {/* Company Name */}
+        {/* Company Name / Nome Profissional */}
         <div className="space-y-2">
-          <Label htmlFor="companyName" className={!isBusiness ? "text-muted-foreground" : ""}>
-            Nome da Imobiliária
+          <Label htmlFor="companyName" className={!canEditProfile ? "text-muted-foreground" : ""}>
+            {isPro ? "Nome Profissional" : "Nome da Imobiliária"}
           </Label>
           <Input
             id="companyName"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="Imobiliária Exemplo LTDA"
-            disabled={!isBusiness}
-            className={!isBusiness ? "opacity-50" : ""}
+            placeholder={isPro ? "João da Silva — Corretor" : "Imobiliária Exemplo LTDA"}
+            disabled={!canEditProfile}
+            className={!canEditProfile ? "opacity-50" : ""}
           />
         </div>
 
         {/* CRECI */}
         <div className="space-y-2">
-          <Label htmlFor="creci" className={!isBusiness ? "text-muted-foreground" : ""}>
+          <Label htmlFor="creci" className={!canEditProfile ? "text-muted-foreground" : ""}>
             CRECI
           </Label>
           <Input
@@ -209,26 +216,33 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
             value={creci}
             onChange={(e) => setCreci(e.target.value)}
             placeholder="CRECI 12345-F"
-            disabled={!isBusiness}
-            className={!isBusiness ? "opacity-50" : ""}
+            disabled={!canEditProfile}
+            className={!canEditProfile ? "opacity-50" : ""}
           />
         </div>
 
-        {isBusiness ? (
-          <Button variant="default" size="sm" onClick={handleSaveCompanyInfo} className="w-full">
-            Salvar Informações
-          </Button>
+        {canEditProfile ? (
+          <div className="space-y-2">
+            <Button variant="default" size="sm" onClick={handleSaveCompanyInfo} className="w-full">
+              Salvar Informações
+            </Button>
+            {isPro && (
+              <p className="text-xs text-muted-foreground text-center">
+                Seu nome e CRECI aparecerão no rodapé do PDF gerado.
+              </p>
+            )}
+          </div>
         ) : (
           <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center">
             <Lock className="h-8 w-8 text-amber-500 mx-auto mb-2" />
             <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
-              Personalize seus relatórios com a marca da sua empresa.
-              Disponível exclusivamente no <strong>Plano Business</strong>.
+              Personalize seus relatórios com seu nome e CRECI.
+              Disponível a partir do <strong>Plano Pro</strong>.
             </p>
             <Button variant="hero" size="sm" asChild>
               <Link to="/precos">
                 <Crown className="h-4 w-4 mr-1" />
-                Fazer Upgrade para Business
+                Fazer Upgrade
               </Link>
             </Button>
           </div>

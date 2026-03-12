@@ -160,7 +160,7 @@ export default function Dashboard() {
                   <p className="text-2xl font-bold">
                     {usageLimits?.simulationsRemaining === 999999 
                       ? "∞" 
-                      : `${10 - (usageLimits?.simulationsRemaining || 0)}/10`}
+                      : `${usageLimits?.simulationsRemaining ?? 0} restantes`}
                   </p>
                 </div>
                 <Calculator className="h-8 w-8 text-primary opacity-80" />
@@ -176,7 +176,7 @@ export default function Dashboard() {
                   <p className="text-2xl font-bold">
                     {usageLimits?.proposalsRemaining === 999999 
                       ? "∞" 
-                      : `${2 - (usageLimits?.proposalsRemaining || 0)}/2`}
+                      : `${usageLimits?.proposalsRemaining ?? 0} restantes`}
                   </p>
                 </div>
                 <Sparkles className="h-8 w-8 text-primary opacity-80" />

@@ -188,6 +188,8 @@ export function ProposalGenerator({
     const maxWidth = pageWidth - margin * 2;
     let yPos = 20;
 
+    const isPro = isActive && plan === "pro";
+
     if (reportConfig.isBusiness && reportConfig.logoUrl) {
       try {
         const img = new Image();
@@ -220,8 +222,17 @@ export function ProposalGenerator({
       doc.setDrawColor(200);
       doc.line(margin, yPos, pageWidth - margin, yPos);
       yPos += 10;
+    } else if (isPro && (reportConfig.companyName || reportConfig.creci)) {
+      // Pro branding: name and CRECI in footer
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100);
+      const footerY = doc.internal.pageSize.getHeight() - 10;
+      const proFooter = [reportConfig.companyName, reportConfig.creci].filter(Boolean).join(" • ");
+      doc.text(proFooter, pageWidth / 2, footerY, { align: "center" });
+      doc.setTextColor(0);
     } else {
-      // Default branding for Basic/Pro
+      // Default branding for Basic
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
