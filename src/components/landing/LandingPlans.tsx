@@ -42,9 +42,9 @@ const plans = [
   { text: "Tudo do Basic", included: true },
   { text: "Simulações ilimitadas", included: true },
   { text: "Propostas com IA ilimitadas", included: true },
-  { text: "Amortizações avançadas (SAC/PRICE)", included: true },
-  { text: "Exportação PDF profissional", included: true },
-  { text: "Histórico ilimitado", included: true }]
+  { text: "Exportação PDF básica", included: true },
+  { text: "Visualização de indexadores", included: true },
+  { text: "Comparativo Multi-Bancos", included: false }]
 
 },
 {
