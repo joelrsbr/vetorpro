@@ -83,6 +83,10 @@ function BusinessContent() {
             <FinancingCalculator />
           </TabsContent>
 
+          <TabsContent value="comparison" className="space-y-6">
+            <BankComparisonModule />
+          </TabsContent>
+
           <TabsContent value="settings">
             <BusinessCustomization />
           </TabsContent>
