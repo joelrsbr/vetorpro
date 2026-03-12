@@ -11,32 +11,32 @@ const benefits = [
   {
     icon: Calculator,
     title: "Simulação SAC & PRICE",
-    description: "Cálculos precisos com amortizações avançadas e reforços programados.",
+    description: "Cálculos estruturados nos modelos oficiais, com suporte a reforços programados.",
   },
   {
     icon: TableProperties,
     title: "Tabela de Amortização",
-    description: "Evolução mensal detalhada de saldo devedor, juros e parcelas.",
+    description: "Acompanhamento mensal de saldo devedor, juros e parcelas de forma organizada.",
   },
   {
     icon: BarChart3,
     title: "Calculadora HP12C",
-    description: "Funções financeiras completas integradas à plataforma.",
+    description: "Funções financeiras integradas para facilitar o dia a dia do profissional.",
   },
   {
     icon: TrendingUp,
-    title: "Indexadores em Tempo Real",
-    description: "CDI, IPCA, Selic, TR e câmbio atualizados automaticamente.",
+    title: "Indexadores Atualizados",
+    description: "CDI, IPCA, Selic, TR e câmbio disponíveis para consulta nas simulações.",
   },
   {
     icon: FileText,
-    title: "Relatórios Executivos",
-    description: "Propostas em PDF com identidade visual e branding corporativo.",
+    title: "Relatórios Profissionais",
+    description: "Documentos em PDF com identidade visual para apresentação ao cliente.",
   },
   {
     icon: ShieldCheck,
-    title: "Segurança Institucional",
-    description: "Dados protegidos com infraestrutura de nível empresarial.",
+    title: "Ambiente Seguro",
+    description: "Dados protegidos com infraestrutura confiável e de nível profissional.",
   },
 ];
 
@@ -46,10 +46,10 @@ export function LandingBenefits() {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Recursos Técnicos
+            Recursos da Plataforma
           </h2>
           <p className="text-base text-muted-foreground max-w-xl mx-auto">
-            Ferramentas de precisão para o mercado imobiliário profissional.
+            Ferramentas de suporte técnico para o profissional imobiliário.
           </p>
         </div>
         

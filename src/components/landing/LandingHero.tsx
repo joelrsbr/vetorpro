@@ -5,18 +5,18 @@ export function LandingHero() {
   const pillars = [
     {
       icon: Scale,
-      title: "Fidelidade Normativa",
-      description: "Cálculos rigorosos baseados nas metodologias oficiais SAC e PRICE.",
+      title: "Simulações em Nível de Fidelidade",
+      description: "Cálculos estruturados com base nos modelos SAC e PRICE.",
     },
     {
       icon: Eye,
-      title: "Transparência de Taxas",
-      description: "Inclusão de custos de seguros e taxas de administração para um Custo Efetivo Total (CET) real.",
+      title: "Transparência Operacional",
+      description: "Visualização clara de seguros e taxas que compõem o contrato.",
     },
     {
       icon: Target,
-      title: "Estratégias de Antecipação",
-      description: "Algoritmos focados em encontrar o ponto ótimo de amortização para maximizar a economia do investidor.",
+      title: "Apoio à Decisão",
+      description: "Uma ferramenta de suporte para tornar a jornada de financiamento mais compreensível.",
     },
   ];
 
@@ -29,17 +29,16 @@ export function LandingHero() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/8 border border-primary/15">
               <Landmark className="h-4 w-4 text-primary" />
               <span className="text-xs font-medium tracking-wide text-primary uppercase">
-                Consultoria Patrimonial
+                Suporte Técnico Imobiliário
               </span>
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold leading-tight text-foreground tracking-tight">
-              VetorPro: Gestão Estratégica de Amortização Imobiliária
+              VetorPro: Simulação Estruturada de Cenários Imobiliários
             </h1>
 
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
-              Transforme cálculos complexos em decisões patrimoniais sólidas. 
-              Precisão técnica para consultores e investidores.
+              Desenvolvida para apoiar profissionais do mercado imobiliário, a VetorPro organiza variáveis complexas em simulações estruturadas, oferecendo suporte técnico para o dia a dia de negociações.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -64,7 +63,7 @@ export function LandingHero() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">Pilares de Confiança</p>
-                  <p className="text-xs text-muted-foreground">Base técnica da plataforma</p>
+                  <p className="text-xs text-muted-foreground">Conformidade, clareza e facilitação</p>
                 </div>
               </div>
 
