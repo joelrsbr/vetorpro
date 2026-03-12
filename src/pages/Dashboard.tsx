@@ -158,8 +158,8 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Simulações</p>
                   <p className="text-2xl font-bold">
-                    {usageLimits?.simulationsRemaining === 999999 
-                      ? "∞" 
+                    {(plan === "pro" || plan === "business") && isActive
+                      ? "Liberado" 
                       : `${usageLimits?.simulationsRemaining ?? 0} restantes`}
                   </p>
                 </div>
@@ -174,8 +174,8 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Propostas IA</p>
                   <p className="text-2xl font-bold">
-                    {usageLimits?.proposalsRemaining === 999999 
-                      ? "∞" 
+                    {(plan === "pro" || plan === "business") && isActive
+                      ? "Liberado" 
                       : `${usageLimits?.proposalsRemaining ?? 0} restantes`}
                   </p>
                 </div>
