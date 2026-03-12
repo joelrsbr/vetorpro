@@ -4,11 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowRight, Shield, Info } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Building2, ArrowRight, Shield, Info, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
+import { useToast } from "@/hooks/use-toast";
 
 interface BusinessPaywallModalProps {
   open: boolean;
@@ -16,7 +19,33 @@ interface BusinessPaywallModalProps {
 }
 
 export function BusinessPaywallModal({ open, onOpenChange }: BusinessPaywallModalProps) {
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      toast({ title: "Erro", description: "Faça login para continuar.", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PLANS.business.priceId },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      console.error("Checkout error:", err);
+      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,13 +81,17 @@ export function BusinessPaywallModal({ open, onOpenChange }: BusinessPaywallModa
             variant="hero"
             size="lg"
             className="w-full gap-2"
-            onClick={() => {
-              onOpenChange(false);
-              navigate("/precos");
-            }}
+            disabled={isLoading}
+            onClick={handleUpgrade}
           >
-            Migrar para Business agora
-            <ArrowRight className="h-4 w-4" />
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Migrar para Business agora
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </Button>
           <p className="text-[12px] text-muted-foreground/60 text-center flex items-center justify-center gap-1.5">
             <Info className="h-3.5 w-3.5 shrink-0" />
