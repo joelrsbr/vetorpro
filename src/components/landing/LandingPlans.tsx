@@ -28,11 +28,10 @@ const plans = [
   { text: "10 simulações/mês", included: true },
   { text: "2 propostas com IA/mês", included: true },
   { text: "Comparativo Multi-Bancos", included: false }]
-
 },
 {
   id: "pro" as PlanType,
-  name: "Pro",
+  name: "Professional",
   price: "R$ 59,90",
   period: "/mês",
   description: "Para consultores profissionais",
@@ -40,12 +39,12 @@ const plans = [
   buttonVariant: "default" as const,
   features: [
   { text: "Tudo do Basic", included: true },
-  { text: "Simulações ilimitadas", included: true },
-  { text: "Propostas com IA ilimitadas", included: true },
-  { text: "Exportação PDF básica", included: true },
-  { text: "Visualização de indexadores", included: true },
+  { text: "Simulações: Liberado", included: true },
+  { text: "Propostas com IA: Liberado", included: true },
+  { text: "Exportação de PDF Básico", included: true },
+  { text: "Indexadores financeiros atualizados (via API Oficial - BACEN)", included: true },
+  { text: "Cotações de Moedas Live (Dólar/Euro)", included: true },
   { text: "Comparativo Multi-Bancos", included: false }]
-
 },
 {
   id: "business" as PlanType,
@@ -58,13 +57,12 @@ const plans = [
   buttonVariant: "hero" as const,
   recommended: true,
   features: [
-  { text: "Tudo do Pro", included: true },
-  { text: "Comparativo Multi-Bancos (6 bancos)", included: true },
+  { text: "Tudo do Plano Professional", included: true },
+  { text: "Comparativo Multi-Bancos (6 maiores bancos do Brasil)", included: true },
   { text: "APIs de Moedas e Indexadores Live", included: true },
-  { text: "PDFs Premium com branding", included: true },
+  { text: "PDFs Premium com Branding Personalizado (Logo e CRECI)", included: true },
   { text: "Multiusuário e Dashboard", included: true },
   { text: "Integração via API", included: true }]
-
 }];
 
 
