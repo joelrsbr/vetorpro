@@ -149,12 +149,12 @@ export function BankComparisonModule() {
                           <Input
                             type="number"
                             step="0.01"
-                            defaultValue={customRates[result.bankId] || String(BANKS.find(b => b.id === result.bankId)!.defaultRate)}
+                            defaultValue={customRates[result.bankId] || String(BANK_RATES.find(b => b.id === result.bankId)!.defaultRate)}
                             className="h-6 w-20 text-xs px-1"
                             autoFocus
                             onBlur={(e) => {
-                              const val = e.target.value;
-                              if (val) setCustomRates((prev) => ({ ...prev, [result.bankId]: val }));
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) setRate(result.bankId, val);
                               setEditingBank(null);
                             }}
                             onKeyDown={(e) => {
