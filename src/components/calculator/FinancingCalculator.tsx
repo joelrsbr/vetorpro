@@ -381,10 +381,12 @@ export function FinancingCalculator() {
       <div className="space-y-8 pb-16">
         <Card className="shadow-card p-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5 text-primary" />
-              Simulador Financeiro
-              <span className="text-xs font-medium border border-border rounded px-1.5 py-0.5 text-warning">Acesso HP-12C</span>
+            <CardTitle className="flex flex-col items-start gap-1">
+              <div className="flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-primary" />
+                Simulador Financeiro
+              </div>
+              <span className="text-xs font-medium border border-border rounded px-1.5 py-0.5 text-warning">HP-12C</span>
             </CardTitle>
             <HP12CCalculator />
           </CardHeader>
