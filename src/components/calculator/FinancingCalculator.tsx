@@ -75,17 +75,17 @@ export function FinancingCalculator() {
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
-  
+
   // Max affordable payment
   const [enableMaxPayment, setEnableMaxPayment] = useState(false);
   const [maxPaymentValue, setMaxPaymentValue] = useState<string>("300000");
-  
+
   // Extra amortization
   const [enableExtraAmortization, setEnableExtraAmortization] = useState(false);
-  
+
   const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("100000");
   const [extraAmortizationType, setExtraAmortizationType] = useState<"reduce-term" | "reduce-payment">("reduce-term");
-  
+
   // Scheduled reinforcements
   const [enableReinforcements, setEnableReinforcements] = useState(false);
   const [reinforcementValue, setReinforcementValue] = useState<string>("500000");
@@ -119,9 +119,9 @@ export function FinancingCalculator() {
       feesInsurance: feesRef,
       amortizationType: amortizationRef,
       extraAmortization: extraAmortRef,
-      reinforcement: reinforcementRef,
+      reinforcement: reinforcementRef
     };
-    
+
     const ref = refs[field];
     if (ref?.current) {
       ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -132,42 +132,42 @@ export function FinancingCalculator() {
   // Calculate affordability analysis when max payment is enabled
   const affordabilityAnalysis = useMemo(() => {
     if (!enableMaxPayment) return null;
-    
+
     const maxPayment = parseCurrency(maxPaymentValue);
     const property = parseCurrency(propertyValue);
     const down = parseCurrency(downPayment);
-    const annualRate = interestRateType === "monthly" 
-      ? parseCurrency(interestRate) * 12 
-      : parseCurrency(interestRate);
+    const annualRate = interestRateType === "monthly" ?
+    parseCurrency(interestRate) * 12 :
+    parseCurrency(interestRate);
     const rate = annualRate / 100 / 12;
     const months = parseInt(termMonths) || 360;
-    
+
     if (maxPayment <= 0 || rate <= 0) return null;
-    
+
     const principal = property - down;
-    
+
     // Calculate first payment based on amortization type
     let firstPayment: number;
     if (amortizationType === "SAC") {
       const monthlyPrincipal = principal / months;
-      firstPayment = monthlyPrincipal + (principal * rate);
+      firstPayment = monthlyPrincipal + principal * rate;
     } else {
       firstPayment = principal * (rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
     }
-    
+
     const isAffordable = firstPayment <= maxPayment;
     const difference = firstPayment - maxPayment;
-    
+
     // Calculate max affordable property value
     let maxAffordableProperty: number;
     if (amortizationType === "PRICE") {
       const maxPrincipal = maxPayment * (Math.pow(1 + rate, months) - 1) / (rate * Math.pow(1 + rate, months));
       maxAffordableProperty = maxPrincipal + down;
     } else {
-      const maxPrincipal = maxPayment / (1/months + rate);
+      const maxPrincipal = maxPayment / (1 / months + rate);
       maxAffordableProperty = maxPrincipal + down;
     }
-    
+
     // Calculate minimum term for current property value
     let minTermMonths: number | null = null;
     if (!isAffordable && principal > 0) {
@@ -186,13 +186,13 @@ export function FinancingCalculator() {
         }
       }
     }
-    
+
     return {
       isAffordable,
       firstPayment,
       difference,
       maxAffordableProperty,
-      minTermMonths,
+      minTermMonths
     };
   }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType]);
 
@@ -212,9 +212,9 @@ export function FinancingCalculator() {
 
   const calculations = useMemo(() => {
     const principal = parseCurrency(propertyValue) - parseCurrency(downPayment);
-    const annualRate = interestRateType === "monthly" 
-      ? parseCurrency(interestRate) * 12 
-      : parseCurrency(interestRate);
+    const annualRate = interestRateType === "monthly" ?
+    parseCurrency(interestRate) * 12 :
+    parseCurrency(interestRate);
     const monthlyRate = annualRate / 100 / 12;
     const months = parseInt(termMonths) || 360;
     const fees = parseCurrency(feesInsurance);
@@ -248,7 +248,7 @@ export function FinancingCalculator() {
 
     if (amortizationType === "SAC") {
       const monthlyPrincipal = principal / months;
-      
+
       for (let month = 1; month <= months && balance > 0; month++) {
         const currentDate = addMonths(startDate, month - 1);
         const debt = balance;
@@ -259,18 +259,18 @@ export function FinancingCalculator() {
         let payment = monthlyPrincipal + interest + fees;
         const reinforcementThisMonth = getReinforcementForMonth(month);
         let extraPayment = extraAmort + reinforcementThisMonth;
-        
+
         if (extraPayment > balance - monthlyPrincipal) {
           extraPayment = Math.max(0, balance - monthlyPrincipal);
         }
-        
+
         const actualPrincipal = Math.min(monthlyPrincipal + extraPayment, balance);
         balance = Math.max(0, balance - actualPrincipal);
-        
+
         totalPaid += payment + extraPayment;
         totalInterest += interest;
         totalCorrection += correction;
-        
+
         schedule.push({
           month,
           payment: payment + extraPayment,
@@ -283,16 +283,16 @@ export function FinancingCalculator() {
           correctedDebt,
           fees,
           hasReinforcement: reinforcementThisMonth > 0,
-          date: currentDate,
+          date: currentDate
         });
-        
+
         if (balance <= 0) break;
       }
     } else {
       // PRICE system
-      const fixedPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / 
-                          (Math.pow(1 + monthlyRate, months) - 1);
-      
+      const fixedPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (
+      Math.pow(1 + monthlyRate, months) - 1);
+
       for (let month = 1; month <= months && balance > 0; month++) {
         const currentDate = addMonths(startDate, month - 1);
         const debt = balance;
@@ -303,18 +303,18 @@ export function FinancingCalculator() {
         let principalPart = fixedPayment - interest;
         const reinforcementThisMonth = getReinforcementForMonth(month);
         let extraPayment = extraAmort + reinforcementThisMonth;
-        
+
         if (extraPayment > balance - principalPart) {
           extraPayment = Math.max(0, balance - principalPart);
         }
-        
+
         const actualPrincipal = Math.min(principalPart + extraPayment, balance);
         balance = Math.max(0, balance - actualPrincipal);
-        
+
         totalPaid += fixedPayment + fees + extraPayment;
         totalInterest += interest;
         totalCorrection += correction;
-        
+
         schedule.push({
           month,
           payment: fixedPayment + fees + extraPayment,
@@ -327,9 +327,9 @@ export function FinancingCalculator() {
           correctedDebt,
           fees,
           hasReinforcement: reinforcementThisMonth > 0,
-          date: currentDate,
+          date: currentDate
         });
-        
+
         if (balance <= 0) break;
       }
     }
@@ -338,9 +338,9 @@ export function FinancingCalculator() {
     const lastPayment = schedule[schedule.length - 1]?.payment || 0;
     const actualTermMonths = schedule.length;
     const monthsSaved = months - actualTermMonths;
-    const interestSaved = enableExtraAmortization || enableReinforcements 
-      ? (principal * monthlyRate * months) - totalInterest
-      : 0;
+    const interestSaved = enableExtraAmortization || enableReinforcements ?
+    principal * monthlyRate * months - totalInterest :
+    0;
 
     return {
       principal,
@@ -352,11 +352,11 @@ export function FinancingCalculator() {
       schedule,
       actualTermMonths,
       monthsSaved,
-      interestSaved,
+      interestSaved
     };
   }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
-      enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
-      enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
+  enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
+  enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
 
   const financingData: FinancingData = {
     propertyValue: parseCurrency(propertyValue),
@@ -373,7 +373,7 @@ export function FinancingCalculator() {
     reinforcementValue: parseCurrency(reinforcementValue),
     enableReinforcements,
     reinforcementFrequency,
-    includeMonthlyPayment,
+    includeMonthlyPayment
   };
 
   return (
@@ -384,7 +384,7 @@ export function FinancingCalculator() {
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />
               Simulador Financeiro
-              <span className="text-xs font-medium text-muted-foreground border border-border rounded px-1.5 py-0.5">HP-12C</span>
+              <span className="text-xs font-medium border border-border rounded px-1.5 py-0.5 text-warning">Acesso HP-12C</span>
             </CardTitle>
             <HP12CCalculator />
           </CardHeader>
@@ -404,8 +404,8 @@ export function FinancingCalculator() {
                     value={formatCurrency(propertyValue)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
                     placeholder="150.000,00"
-                    className="text-sm"
-                  />
+                    className="text-sm" />
+                  
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="downPayment">Valor de Entrada (R$)</Label>
@@ -415,8 +415,8 @@ export function FinancingCalculator() {
                     value={formatCurrency(downPayment)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
                     placeholder="30.000,00"
-                    className="text-sm"
-                  />
+                    className="text-sm" />
+                  
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
@@ -429,12 +429,12 @@ export function FinancingCalculator() {
                       value={interestRate}
                       onChange={(e) => setInterestRate(e.target.value)}
                       placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
-                      className="text-sm flex-1"
-                    />
+                      className="text-sm flex-1" />
+                    
                     <Select
                       value={interestRateType}
-                      onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
-                    >
+                      onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}>
+                      
                       <SelectTrigger className="w-28">
                         <SelectValue />
                       </SelectTrigger>
@@ -455,8 +455,8 @@ export function FinancingCalculator() {
                         className={cn(
                           "w-full h-[42px] justify-start text-left font-normal text-sm",
                           !startDate && "text-muted-foreground"
-                        )}
-                      >
+                        )}>
+                        
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {startDate ? format(startDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecione"}
                       </Button>
@@ -467,8 +467,8 @@ export function FinancingCalculator() {
                         selected={startDate}
                         onSelect={(date) => date && setStartDate(date)}
                         initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
+                        className="p-3 pointer-events-auto" />
+                      
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -481,8 +481,8 @@ export function FinancingCalculator() {
                     value={termMonths}
                     onChange={(e) => setTermMonths(e.target.value)}
                     placeholder="360"
-                    className="text-sm"
-                  />
+                    className="text-sm" />
+                  
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
@@ -502,8 +502,8 @@ export function FinancingCalculator() {
                     value={formatCurrency(feesInsurance)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setFeesInsurance)}
                     placeholder="50,00"
-                    className="text-sm"
-                  />
+                    className="text-sm" />
+                  
                 </div>
               </div>
               
@@ -526,8 +526,8 @@ export function FinancingCalculator() {
                   </div>
                   <Select
                     value={amortizationType}
-                    onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}
-                  >
+                    onValueChange={(v) => setAmortizationType(v as "SAC" | "PRICE")}>
+                    
                     <SelectTrigger ref={amortizationRef} className="h-10 text-sm">
                       <SelectValue />
                     </SelectTrigger>
@@ -555,8 +555,8 @@ export function FinancingCalculator() {
                   </div>
                   <Select
                     value={correctionIndex}
-                    onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}
-                  >
+                    onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}>
+                    
                     <SelectTrigger className="h-10 text-sm border-primary/30">
                       <SelectValue />
                     </SelectTrigger>
@@ -583,33 +583,33 @@ export function FinancingCalculator() {
                 <Switch
                   id="maxPayment"
                   checked={enableMaxPayment}
-                  onCheckedChange={setEnableMaxPayment}
-                />
+                  onCheckedChange={setEnableMaxPayment} />
+                
               </div>
-              {enableMaxPayment && (
-                <div className="space-y-4 animate-slide-up">
+              {enableMaxPayment &&
+              <div className="space-y-4 animate-slide-up">
                   <div className="space-y-2">
                     <Label>Valor Máximo da Parcela (R$)</Label>
                     <Input
-                      value={formatCurrency(maxPaymentValue)}
-                      onChange={(e) => handleCurrencyInput(e.target.value, setMaxPaymentValue)}
-                      placeholder="3.000,00"
-                      className="text-sm"
-                    />
+                    value={formatCurrency(maxPaymentValue)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setMaxPaymentValue)}
+                    placeholder="3.000,00"
+                    className="text-sm" />
+                  
                   </div>
                   
-                  {affordabilityAnalysis && (
-                    <div className="space-y-3">
-                      {affordabilityAnalysis.isAffordable ? (
-                        <Alert className="bg-success/10 border-success/30">
+                  {affordabilityAnalysis &&
+                <div className="space-y-3">
+                      {affordabilityAnalysis.isAffordable ?
+                  <Alert className="bg-success/10 border-success/30">
                           <AlertDescription className="text-success">
                             ✓ <strong>Parcela dentro do orçamento!</strong> A primeira parcela de{" "}
                             <strong>R$ {affordabilityAnalysis.firstPayment.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>{" "}
                             está abaixo do limite de R$ {parseCurrency(maxPaymentValue).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}.
                           </AlertDescription>
-                        </Alert>
-                      ) : (
-                        <Alert className="bg-warning/10 border-warning/30">
+                        </Alert> :
+
+                  <Alert className="bg-warning/10 border-warning/30">
                           <AlertDescription className="text-warning space-y-2">
                             <p>
                               ⚠️ <strong>Parcela acima do orçamento.</strong> A primeira parcela seria de{" "}
@@ -622,21 +622,21 @@ export function FinancingCalculator() {
                                 <li>
                                   Imóvel de até <strong>R$ {affordabilityAnalysis.maxAffordableProperty.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</strong>
                                 </li>
-                                {affordabilityAnalysis.minTermMonths && (
-                                  <li>
+                                {affordabilityAnalysis.minTermMonths &&
+                          <li>
                                     Prazo de pelo menos <strong>{affordabilityAnalysis.minTermMonths} meses</strong> ({(affordabilityAnalysis.minTermMonths / 12).toFixed(1)} anos)
                                   </li>
-                                )}
+                          }
                                 <li>Aumentar o valor da entrada</li>
                               </ul>
                             </div>
                           </AlertDescription>
                         </Alert>
-                      )}
+                  }
                     </div>
-                  )}
+                }
                 </div>
-              )}
+              }
             </div>
 
             {/* Extra Amortization */}
@@ -651,25 +651,25 @@ export function FinancingCalculator() {
                 <Switch
                   id="extraAmortization"
                   checked={enableExtraAmortization}
-                  onCheckedChange={setEnableExtraAmortization}
-                />
+                  onCheckedChange={setEnableExtraAmortization} />
+                
               </div>
-              {enableExtraAmortization && (
-                <div className="space-y-4 animate-slide-up">
+              {enableExtraAmortization &&
+              <div className="space-y-4 animate-slide-up">
                   <div className="space-y-2">
                     <Label>Valor da Amortização Extra</Label>
                     <Input
-                      value={formatCurrency(extraAmortizationValue)}
-                      onChange={(e) => handleCurrencyInput(e.target.value, setExtraAmortizationValue)}
-                      placeholder="1.000,00"
-                    />
+                    value={formatCurrency(extraAmortizationValue)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setExtraAmortizationValue)}
+                    placeholder="1.000,00" />
+                  
                   </div>
                   <div className="space-y-2">
                     <Label>Tipo de Redução</Label>
                     <Select
-                      value={extraAmortizationType}
-                      onValueChange={(v) => setExtraAmortizationType(v as "reduce-term" | "reduce-payment")}
-                    >
+                    value={extraAmortizationType}
+                    onValueChange={(v) => setExtraAmortizationType(v as "reduce-term" | "reduce-payment")}>
+                    
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -680,7 +680,7 @@ export function FinancingCalculator() {
                     </Select>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             {/* Scheduled Reinforcements */}
@@ -695,26 +695,26 @@ export function FinancingCalculator() {
                 <Switch
                   id="reinforcements"
                   checked={enableReinforcements}
-                  onCheckedChange={setEnableReinforcements}
-                />
+                  onCheckedChange={setEnableReinforcements} />
+                
               </div>
-              {enableReinforcements && (
-                <div className="space-y-4 animate-slide-up">
+              {enableReinforcements &&
+              <div className="space-y-4 animate-slide-up">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Valor do Reforço (R$)</Label>
                       <Input
-                        value={formatCurrency(reinforcementValue)}
-                        onChange={(e) => handleCurrencyInput(e.target.value, setReinforcementValue)}
-                        placeholder="5.000"
-                      />
+                      value={formatCurrency(reinforcementValue)}
+                      onChange={(e) => handleCurrencyInput(e.target.value, setReinforcementValue)}
+                      placeholder="5.000" />
+                    
                     </div>
                     <div className="space-y-2">
                       <Label>Frequência</Label>
                       <Select
-                        value={reinforcementFrequency}
-                        onValueChange={(v) => setReinforcementFrequency(v as "monthly" | "semiannual" | "annual")}
-                      >
+                      value={reinforcementFrequency}
+                      onValueChange={(v) => setReinforcementFrequency(v as "monthly" | "semiannual" | "annual")}>
+                      
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -728,42 +728,42 @@ export function FinancingCalculator() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      id="includeMonthlyPayment"
-                      checked={includeMonthlyPayment}
-                      onCheckedChange={setIncludeMonthlyPayment}
-                    />
+                    id="includeMonthlyPayment"
+                    checked={includeMonthlyPayment}
+                    onCheckedChange={setIncludeMonthlyPayment} />
+                  
                     <Label htmlFor="includeMonthlyPayment" className="text-sm">
                       Incluir parcela do mês junto com o reforço
                     </Label>
                   </div>
                 </div>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
 
         {/* Results */}
-        {calculations && (
-          <div className="space-y-8">
-            <CalculationResults 
-              calculations={calculations} 
-              amortizationType={amortizationType}
-            />
-            <AmortizationSchedule 
-              schedule={calculations.schedule} 
-              amortizationType={amortizationType}
-            />
+        {calculations &&
+        <div className="space-y-8">
+            <CalculationResults
+            calculations={calculations}
+            amortizationType={amortizationType} />
+          
+            <AmortizationSchedule
+            schedule={calculations.schedule}
+            amortizationType={amortizationType} />
+          
             <ProposalGenerator
-              calculations={calculations}
-              propertyValue={parseCurrency(propertyValue)}
-              downPayment={parseCurrency(downPayment)}
-              interestRate={parseCurrency(interestRate)}
-              termMonths={parseInt(termMonths) || 360}
-              amortizationType={amortizationType}
-            />
+            calculations={calculations}
+            propertyValue={parseCurrency(propertyValue)}
+            downPayment={parseCurrency(downPayment)}
+            interestRate={parseCurrency(interestRate)}
+            termMonths={parseInt(termMonths) || 360}
+            amortizationType={amortizationType} />
+          
           </div>
-        )}
+        }
       </div>
-    </TooltipProvider>
-  );
+    </TooltipProvider>);
+
 }
