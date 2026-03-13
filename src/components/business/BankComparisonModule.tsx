@@ -14,7 +14,6 @@ export function BankComparisonModule() {
   const [downPayment, setDownPayment] = useState("10000000");
   const [termMonths, setTermMonths] = useState("360");
   const [system, setSystem] = useState<"SAC" | "PRICE">("SAC");
-  const [customRates, setCustomRates] = useState<Record<string, string>>({});
   const [editingBank, setEditingBank] = useState<string | null>(null);
 
   const formatCurrency = (value: string) => {
