@@ -199,14 +199,12 @@ export function HP12CCalculator() {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl z-50 bg-amber-700 hover:bg-amber-600 border-amber-600 text-white"
+        <button
+          className="text-xs font-medium border border-border rounded px-1.5 py-0.5 text-warning hover:bg-warning/10 cursor-pointer transition-colors"
           title="Calculadora HP12C"
         >
-          <Calculator className="h-6 w-6" />
-        </Button>
+          HP-12C
+        </button>
       </DrawerTrigger>
       <DrawerContent className="max-h-[90vh]">
         <DrawerHeader className="text-center pb-2">
