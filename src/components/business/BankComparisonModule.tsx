@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,63 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator } from "lucide-react";
-
-interface BankConfig {
-  id: string;
-  name: string;
-  color: string;
-  defaultRate: number;
-}
-
-const BANKS: BankConfig[] = [
-  { id: "caixa", name: "Caixa Econômica", color: "hsl(210, 100%, 35%)", defaultRate: 8.99 },
-  { id: "itau", name: "Itaú", color: "hsl(30, 90%, 45%)", defaultRate: 9.99 },
-  { id: "bradesco", name: "Bradesco", color: "hsl(0, 80%, 45%)", defaultRate: 9.49 },
-  { id: "santander", name: "Santander", color: "hsl(0, 90%, 40%)", defaultRate: 9.79 },
-  { id: "bb", name: "Banco do Brasil", color: "hsl(50, 90%, 45%)", defaultRate: 9.19 },
-  { id: "inter", name: "Banco Inter", color: "hsl(25, 95%, 50%)", defaultRate: 9.29 },
-];
-
-interface SimulationResult {
-  bankId: string;
-  bankName: string;
-  bankColor: string;
-  rate: number;
-  firstPayment: number;
-  lastPayment: number;
-  totalPaid: number;
-  totalInterest: number;
-  isBestRate: boolean;
-  isLowestCost: boolean;
-}
-
-function calculateSimulation(
-  financedAmount: number,
-  annualRate: number,
-  termMonths: number,
-  system: "SAC" | "PRICE"
-): { firstPayment: number; lastPayment: number; totalPaid: number; totalInterest: number } {
-  const monthlyRate = Math.pow(1 + annualRate / 100, 1 / 12) - 1;
-
-  if (system === "SAC") {
-    const amort = financedAmount / termMonths;
-    const firstInterest = financedAmount * monthlyRate;
-    const firstPayment = amort + firstInterest;
-    const lastBalance = financedAmount - amort * (termMonths - 1);
-    const lastInterest = lastBalance * monthlyRate;
-    const lastPayment = amort + lastInterest;
-    let totalPaid = 0;
-    for (let i = 0; i < termMonths; i++) {
-      const balance = financedAmount - amort * i;
-      totalPaid += amort + balance * monthlyRate;
-    }
-    return { firstPayment, lastPayment, totalPaid, totalInterest: totalPaid - financedAmount };
-  } else {
-    const pmt = financedAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
-    const totalPaid = pmt * termMonths;
-    return { firstPayment: pmt, lastPayment: pmt, totalPaid, totalInterest: totalPaid - financedAmount };
-  }
-}
+import { BANK_RATES } from "@/lib/bank-rates";
+import { useBankComparison } from "@/hooks/useBankComparison";
 
 export function BankComparisonModule() {
   const [propertyValue, setPropertyValue] = useState("50000000");
