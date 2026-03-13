@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,70 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator } from "lucide-react";
-
-interface BankConfig {
-  id: string;
-  name: string;
-  color: string;
-  defaultRate: number;
-}
-
-const BANKS: BankConfig[] = [
-  { id: "caixa", name: "Caixa Econômica", color: "hsl(210, 100%, 35%)", defaultRate: 8.99 },
-  { id: "itau", name: "Itaú", color: "hsl(30, 90%, 45%)", defaultRate: 9.99 },
-  { id: "bradesco", name: "Bradesco", color: "hsl(0, 80%, 45%)", defaultRate: 9.49 },
-  { id: "santander", name: "Santander", color: "hsl(0, 90%, 40%)", defaultRate: 9.79 },
-  { id: "bb", name: "Banco do Brasil", color: "hsl(50, 90%, 45%)", defaultRate: 9.19 },
-  { id: "inter", name: "Banco Inter", color: "hsl(25, 95%, 50%)", defaultRate: 9.29 },
-];
-
-interface SimulationResult {
-  bankId: string;
-  bankName: string;
-  bankColor: string;
-  rate: number;
-  firstPayment: number;
-  lastPayment: number;
-  totalPaid: number;
-  totalInterest: number;
-  isBestRate: boolean;
-  isLowestCost: boolean;
-}
-
-function calculateSimulation(
-  financedAmount: number,
-  annualRate: number,
-  termMonths: number,
-  system: "SAC" | "PRICE"
-): { firstPayment: number; lastPayment: number; totalPaid: number; totalInterest: number } {
-  const monthlyRate = Math.pow(1 + annualRate / 100, 1 / 12) - 1;
-
-  if (system === "SAC") {
-    const amort = financedAmount / termMonths;
-    const firstInterest = financedAmount * monthlyRate;
-    const firstPayment = amort + firstInterest;
-    const lastBalance = financedAmount - amort * (termMonths - 1);
-    const lastInterest = lastBalance * monthlyRate;
-    const lastPayment = amort + lastInterest;
-    let totalPaid = 0;
-    for (let i = 0; i < termMonths; i++) {
-      const balance = financedAmount - amort * i;
-      totalPaid += amort + balance * monthlyRate;
-    }
-    return { firstPayment, lastPayment, totalPaid, totalInterest: totalPaid - financedAmount };
-  } else {
-    const pmt = financedAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
-    const totalPaid = pmt * termMonths;
-    return { firstPayment: pmt, lastPayment: pmt, totalPaid, totalInterest: totalPaid - financedAmount };
-  }
-}
+import { BANK_RATES } from "@/lib/bank-rates";
+import { useBankComparison } from "@/hooks/useBankComparison";
 
 export function BankComparisonModule() {
   const [propertyValue, setPropertyValue] = useState("50000000");
   const [downPayment, setDownPayment] = useState("10000000");
   const [termMonths, setTermMonths] = useState("360");
   const [system, setSystem] = useState<"SAC" | "PRICE">("SAC");
-  const [customRates, setCustomRates] = useState<Record<string, string>>({});
   const [editingBank, setEditingBank] = useState<string | null>(null);
 
   const formatCurrency = (value: string) => {
@@ -88,36 +32,7 @@ export function BankComparisonModule() {
   const financedAmount = parseCurrency(propertyValue) - parseCurrency(downPayment);
   const term = parseInt(termMonths) || 360;
 
-  const results: SimulationResult[] = useMemo(() => {
-    if (financedAmount <= 0) return [];
-
-    const sims = BANKS.map((bank) => {
-      const rate = customRates[bank.id] ? parseFloat(customRates[bank.id]) : bank.defaultRate;
-      const calc = calculateSimulation(financedAmount, rate, term, system);
-      return {
-        bankId: bank.id,
-        bankName: bank.name,
-        bankColor: bank.color,
-        rate,
-        ...calc,
-        isBestRate: false,
-        isLowestCost: false,
-      };
-    });
-
-    if (sims.length > 0) {
-      const minRate = Math.min(...sims.map((s) => s.rate));
-      const minCost = Math.min(...sims.map((s) => s.totalPaid));
-      sims.forEach((s) => {
-        if (s.rate === minRate) s.isBestRate = true;
-        if (s.totalPaid === minCost) s.isLowestCost = true;
-      });
-    }
-
-    return sims;
-  }, [financedAmount, term, system, customRates]);
-
-  const resetRates = () => setCustomRates({});
+  const { results, customRates, setRate, resetRates } = useBankComparison(financedAmount, term, system);
 
   const fmtBRL = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
@@ -234,12 +149,12 @@ export function BankComparisonModule() {
                           <Input
                             type="number"
                             step="0.01"
-                            defaultValue={customRates[result.bankId] || String(BANKS.find(b => b.id === result.bankId)!.defaultRate)}
+                            defaultValue={customRates[result.bankId] || String(BANK_RATES.find(b => b.id === result.bankId)!.defaultRate)}
                             className="h-6 w-20 text-xs px-1"
                             autoFocus
                             onBlur={(e) => {
-                              const val = e.target.value;
-                              if (val) setCustomRates((prev) => ({ ...prev, [result.bankId]: val }));
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) setRate(result.bankId, val);
                               setEditingBank(null);
                             }}
                             onKeyDown={(e) => {
