@@ -32,36 +32,7 @@ export function BankComparisonModule() {
   const financedAmount = parseCurrency(propertyValue) - parseCurrency(downPayment);
   const term = parseInt(termMonths) || 360;
 
-  const results: SimulationResult[] = useMemo(() => {
-    if (financedAmount <= 0) return [];
-
-    const sims = BANKS.map((bank) => {
-      const rate = customRates[bank.id] ? parseFloat(customRates[bank.id]) : bank.defaultRate;
-      const calc = calculateSimulation(financedAmount, rate, term, system);
-      return {
-        bankId: bank.id,
-        bankName: bank.name,
-        bankColor: bank.color,
-        rate,
-        ...calc,
-        isBestRate: false,
-        isLowestCost: false,
-      };
-    });
-
-    if (sims.length > 0) {
-      const minRate = Math.min(...sims.map((s) => s.rate));
-      const minCost = Math.min(...sims.map((s) => s.totalPaid));
-      sims.forEach((s) => {
-        if (s.rate === minRate) s.isBestRate = true;
-        if (s.totalPaid === minCost) s.isLowestCost = true;
-      });
-    }
-
-    return sims;
-  }, [financedAmount, term, system, customRates]);
-
-  const resetRates = () => setCustomRates({});
+  const { results, customRates, setRate, resetRates } = useBankComparison(financedAmount, term, system);
 
   const fmtBRL = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
