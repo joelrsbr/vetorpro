@@ -449,11 +449,18 @@ export function ProposalGenerator({
                 <p className="text-sm text-muted-foreground mb-4">
                   Gere propostas persuasivas com IA — Disponível no Business
                 </p>
-                <Button variant="outline" size="lg" className="w-full" asChild>
-                  <Link to="/precos">
+                <Button
+                  size="lg"
+                  className="w-full bg-success hover:bg-success/90 text-success-foreground"
+                  disabled={isRedirectingBusiness}
+                  onClick={handleUpgradeBusiness}
+                >
+                  {isRedirectingBusiness ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
                     <Crown className="mr-2 h-4 w-4" />
-                    Fazer Upgrade para Business
-                  </Link>
+                  )}
+                  Fazer Upgrade para Business
                 </Button>
               </>
             )}
