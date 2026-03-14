@@ -67,7 +67,7 @@ export function HeroSection() {
 
           {/* Trust indicator */}
           <p className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            ✓ Teste agora · ✓ Planos acessíveis · ✓ Cancele quando quiser
+            ✓ Planos acessíveis · ✓ Cancele quando quiser · ✓ Suporte dedicado
           </p>
         </div>
       </div>
