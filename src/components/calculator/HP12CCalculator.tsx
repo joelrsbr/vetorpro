@@ -207,29 +207,31 @@ export function HP12CCalculator() {
         </button>
       </DrawerTrigger>
       <DrawerContent className="max-h-[90vh]">
-        <DrawerHeader className="text-center pb-2">
+        <div className="relative">
+          <DrawerClose className="absolute right-4 top-2 z-10">
+            <X className="h-5 w-5" />
+          </DrawerClose>
+        </div>
+        <DrawerHeader className="text-center pb-1 pt-2 px-4">
           <DrawerTitle className="flex items-center justify-center gap-2 text-amber-700">
             <Calculator className="h-5 w-5" />
             HP 12C - Calculadora Financeira
           </DrawerTitle>
-          <DrawerDescription>
+          <DrawerDescription className="text-center">
             Calculadora financeira profissional
           </DrawerDescription>
-          <DrawerClose className="absolute right-4 top-4">
-            <X className="h-5 w-5" />
-          </DrawerClose>
         </DrawerHeader>
         
-        <div className="px-4 pb-6 overflow-y-auto">
-          <Card className="bg-gradient-to-b from-neutral-800 to-neutral-900 border-neutral-700 max-w-md mx-auto">
-            <CardHeader className="py-3">
+        <div className="px-4 pb-5 overflow-y-auto flex flex-col items-center">
+          <Card className="bg-gradient-to-b from-neutral-800 to-neutral-900 border-neutral-700 w-full max-w-xs">
+            <CardHeader className="py-3 px-3">
               <CardTitle className="sr-only">HP 12C</CardTitle>
               {/* Display */}
               <div className="bg-[#c8d4a2] rounded-lg p-3 font-mono text-right text-2xl text-neutral-800 shadow-inner border-2 border-neutral-600">
                 {display}
               </div>
               {/* Financial Register Indicators */}
-              <div className="flex justify-between text-xs text-amber-400/70 mt-2 px-1">
+              <div className="flex justify-between text-[10px] text-amber-400/70 mt-2 px-0.5">
                 <span>n:{financialValues.n.toFixed(0)}</span>
                 <span>i:{financialValues.i.toFixed(2)}%</span>
                 <span>PV:{financialValues.pv.toFixed(0)}</span>
@@ -237,7 +239,7 @@ export function HP12CCalculator() {
                 <span>FV:{financialValues.fv.toFixed(0)}</span>
               </div>
             </CardHeader>
-            <CardContent className="space-y-2 px-3 pb-4">
+            <CardContent className="space-y-1.5 px-3 pb-3">
               {/* Financial Keys Row */}
               <div className="grid grid-cols-5 gap-1">
                 {hp12cButton("n", () => handleFinancialStore("n"), "financial")}
@@ -301,13 +303,13 @@ export function HP12CCalculator() {
                   ENT
                 </Button>
                 {hp12cButton("+", () => handleOperator("+"), "operator")}
-                <div /> {/* Empty cell */}
+                <div />
               </div>
             </CardContent>
           </Card>
           
           {/* Instructions */}
-          <div className="mt-4 text-center text-xs text-muted-foreground max-w-md mx-auto">
+          <div className="mt-3 text-center text-xs text-muted-foreground max-w-xs">
             <p className="mb-1"><strong>Como usar:</strong></p>
             <p>Digite valores e pressione as teclas (n, i, PV, PMT, FV) para armazenar.</p>
             <p>Pressione →[tecla] para calcular o valor desejado.</p>
