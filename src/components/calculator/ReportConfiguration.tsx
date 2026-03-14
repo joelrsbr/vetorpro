@@ -233,19 +233,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
             )}
           </div>
         ) : (
-          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center">
-            <Lock className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-            <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
-              Personalize seus relatórios com seu nome e CRECI.
-              Disponível a partir do <strong>Plano Pro</strong>.
-            </p>
-            <Button variant="hero" size="sm" asChild>
-              <Link to="/precos">
-                <Crown className="h-4 w-4 mr-1" />
-                Fazer Upgrade
-              </Link>
-            </Button>
-          </div>
+          <UpgradeToProButton />
         )}
       </CardContent>
     </Card>
