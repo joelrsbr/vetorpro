@@ -48,6 +48,7 @@ export function ProposalGenerator({
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingBusiness, setIsGeneratingBusiness] = useState(false);
+  const [isRedirectingBusiness, setIsRedirectingBusiness] = useState(false);
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
     logoUrl: null,
     companyName: "",
