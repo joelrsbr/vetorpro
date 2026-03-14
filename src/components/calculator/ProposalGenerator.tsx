@@ -11,6 +11,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
+import { Link } from "react-router-dom";
 import { ReportConfiguration, type ReportConfig } from "./ReportConfiguration";
 import jsPDF from "jspdf";
 
