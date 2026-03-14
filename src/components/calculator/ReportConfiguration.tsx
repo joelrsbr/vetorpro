@@ -118,6 +118,23 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
     toast({ title: "Salvo!", description: "Informações da empresa atualizadas." });
   };
 
+  const handleUpgradePro = async () => {
+    if (!user) return;
+    setIsRedirectingPro(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PLANS.pro.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
+    } finally {
+      setIsRedirectingPro(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
