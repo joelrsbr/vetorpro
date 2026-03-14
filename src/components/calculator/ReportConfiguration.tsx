@@ -5,11 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Upload, Lock, Crown, Image as ImageIcon, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
 
 interface ReportConfigurationProps {
   onConfigChange: (config: ReportConfig) => void;
@@ -30,6 +30,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const [companyName, setCompanyName] = useState("");
   const [creci, setCreci] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [isRedirectingPro, setIsRedirectingPro] = useState(false);
 
   const isBusiness = plan === "business" && isActive;
   const isPro = plan === "pro" && isActive;
@@ -115,6 +116,23 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
       .eq("user_id", user.id);
 
     toast({ title: "Salvo!", description: "Informações da empresa atualizadas." });
+  };
+
+  const handleUpgradePro = async () => {
+    if (!user) return;
+    setIsRedirectingPro(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PLANS.pro.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
+    } finally {
+      setIsRedirectingPro(false);
+    }
   };
 
   if (!user) return null;
@@ -239,11 +257,18 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
               Personalize seus relatórios com seu nome e CRECI.
               Disponível a partir do <strong>Plano Pro</strong>.
             </p>
-            <Button variant="hero" size="sm" asChild>
-              <Link to="/precos">
+            <Button
+              variant="hero"
+              size="sm"
+              disabled={isRedirectingPro}
+              onClick={handleUpgradePro}
+            >
+              {isRedirectingPro ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
                 <Crown className="h-4 w-4 mr-1" />
-                Fazer Upgrade
-              </Link>
+              )}
+              Fazer Upgrade para Pro
             </Button>
           </div>
         )}

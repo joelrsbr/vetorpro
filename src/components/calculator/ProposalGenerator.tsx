@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
 import { Link } from "react-router-dom";
 import { ReportConfiguration, type ReportConfig } from "./ReportConfiguration";
 import jsPDF from "jspdf";
@@ -48,6 +49,7 @@ export function ProposalGenerator({
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingBusiness, setIsGeneratingBusiness] = useState(false);
+  const [isRedirectingBusiness, setIsRedirectingBusiness] = useState(false);
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
     logoUrl: null,
     companyName: "",
@@ -56,6 +58,24 @@ export function ProposalGenerator({
   });
 
   const isBusiness = isActive && plan === "business";
+
+  const handleUpgradeBusiness = async () => {
+    if (!user) return;
+    setIsRedirectingBusiness(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PLANS.business.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
+    } finally {
+      setIsRedirectingBusiness(false);
+    }
+  };
+
   const handleGenerateProposal = async () => {
     if (!clientName.trim() || !propertyDescription.trim()) {
       toast({
@@ -429,11 +449,18 @@ export function ProposalGenerator({
                 <p className="text-sm text-muted-foreground mb-4">
                   Gere propostas persuasivas com IA — Disponível no Business
                 </p>
-                <Button variant="outline" size="lg" className="w-full" asChild>
-                  <Link to="/precos">
+                <Button
+                  size="lg"
+                  className="w-full bg-success hover:bg-success/90 text-success-foreground"
+                  disabled={isRedirectingBusiness}
+                  onClick={handleUpgradeBusiness}
+                >
+                  {isRedirectingBusiness ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
                     <Crown className="mr-2 h-4 w-4" />
-                    Fazer Upgrade para Business
-                  </Link>
+                  )}
+                  Fazer Upgrade para Business
                 </Button>
               </>
             )}
