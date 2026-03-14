@@ -30,6 +30,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const [companyName, setCompanyName] = useState("");
   const [creci, setCreci] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [isRedirectingPro, setIsRedirectingPro] = useState(false);
 
   const isBusiness = plan === "business" && isActive;
   const isPro = plan === "pro" && isActive;
