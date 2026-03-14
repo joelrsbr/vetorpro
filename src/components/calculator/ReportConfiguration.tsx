@@ -5,11 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Upload, Lock, Crown, Image as ImageIcon, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
 
 interface ReportConfigurationProps {
   onConfigChange: (config: ReportConfig) => void;
