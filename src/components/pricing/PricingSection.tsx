@@ -49,8 +49,8 @@ const plans = [
       "Sem comparativo Multi-Bancos",
     ],
     cta: "Assinar Professional",
-    variant: "hero" as const,
-    popular: true,
+    variant: "outline" as const,
+    popular: false,
   },
   {
     key: "business" as PlanKey,
