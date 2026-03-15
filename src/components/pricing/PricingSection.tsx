@@ -69,7 +69,7 @@ const plans = [
     limitations: [],
     cta: "Assinar Business",
     variant: "default" as const,
-    popular: false,
+    popular: true,
     highlight: true,
   },
 ];
