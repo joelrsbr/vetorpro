@@ -173,7 +173,7 @@ export function PricingSection() {
                 <Button 
                   variant={plan.variant} 
                   size="lg" 
-                  className="w-full"
+                  className={`w-full ${plan.popular ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""}`}
                   disabled={loadingPlan === plan.key}
                   onClick={() => handleSubscribe(plan.key)}
                 >

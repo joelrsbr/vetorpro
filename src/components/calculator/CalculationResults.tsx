@@ -136,33 +136,6 @@ export function CalculationResults({ calculations, amortizationType }: Calculati
         </Card>
       )}
 
-      {/* Generate Proposal Button */}
-      <Card className="shadow-card gradient-primary text-primary-foreground">
-        <CardContent className="py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Sparkles className="h-6 w-6" />
-              <div>
-                <h3 className="font-semibold text-lg">Gere uma Proposta Profissional</h3>
-                <p className="text-sm opacity-90">
-                  Use IA para criar uma proposta persuasiva para seu cliente
-                </p>
-              </div>
-            </div>
-            <Button 
-              variant="secondary" 
-              size="lg" 
-              className="w-full md:w-auto font-semibold"
-              asChild
-            >
-              <Link to="/precos">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Assine e Se Destaque da Concorrência
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
