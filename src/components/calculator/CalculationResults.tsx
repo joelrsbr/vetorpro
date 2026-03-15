@@ -1,7 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { TrendingDown, Calendar, Sparkles, Clock, PiggyBank } from "lucide-react";
-import { Link } from "react-router-dom";
+import { TrendingDown, Calendar, Clock, PiggyBank } from "lucide-react";
 
 interface CalculationsData {
   principal: number;
