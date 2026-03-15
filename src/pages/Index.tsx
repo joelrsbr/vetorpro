@@ -13,9 +13,11 @@ import { useSubscription } from "@/hooks/useSubscription";
 const Index = () => {
   const { session } = useSession();
   const { user } = useAuth();
+  const { plan, isActive } = useSubscription();
 
   // User is logged in if either Supabase auth OR session context says so
   const isLoggedIn = !!user || session.isLoggedIn;
+  const showQuotes = isActive && (plan === "pro" || plan === "business");
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
