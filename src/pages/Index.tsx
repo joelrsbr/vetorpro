@@ -5,8 +5,10 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
+import { QuotesPanel } from "@/components/business/QuotesPanel";
 import { useSession } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const Index = () => {
   const { session } = useSession();
