@@ -167,7 +167,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
         {/* Logo Upload */}
         <div className="space-y-2">
           <Label className={!isBusiness ? "text-muted-foreground" : ""}>
-            Logo da Imobiliária {!isBusiness && isPro && <span className="text-xs text-muted-foreground">(Exclusivo Business)</span>}
+            Logo da Imobiliária {!isBusiness && <span className="text-xs text-muted-foreground">(Exclusivo Business)</span>}
           </Label>
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/30 overflow-hidden">
