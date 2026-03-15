@@ -31,10 +31,28 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const [creci, setCreci] = useState("");
   const [uploading, setUploading] = useState(false);
   const [isRedirectingPro, setIsRedirectingPro] = useState(false);
+  const [isRedirectingBusiness, setIsRedirectingBusiness] = useState(false);
 
   const isBusiness = plan === "business" && isActive;
   const isPro = plan === "pro" && isActive;
   const canEditProfile = isBusiness || isPro;
+
+  const handleUpgradeBusiness = async () => {
+    if (!user) return;
+    setIsRedirectingBusiness(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PLANS.business.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
+    } finally {
+      setIsRedirectingBusiness(false);
+    }
+  };
 
   // Load saved values from profile
   useEffect(() => {

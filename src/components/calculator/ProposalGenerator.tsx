@@ -350,8 +350,8 @@ export function ProposalGenerator({
             </div>
             {usageLimits && (
               <span className="text-sm font-normal text-muted-foreground">
-                {usageLimits.proposalsRemaining === 999999
-                  ? "Ilimitado"
+                {(plan === "pro" || plan === "business") && isActive
+                  ? "Liberado"
                   : `${usageLimits.proposalsRemaining} restantes`}
               </span>
             )}
