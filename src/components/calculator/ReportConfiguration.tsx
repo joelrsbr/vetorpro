@@ -31,10 +31,28 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const [creci, setCreci] = useState("");
   const [uploading, setUploading] = useState(false);
   const [isRedirectingPro, setIsRedirectingPro] = useState(false);
+  const [isRedirectingBusiness, setIsRedirectingBusiness] = useState(false);
 
   const isBusiness = plan === "business" && isActive;
   const isPro = plan === "pro" && isActive;
   const canEditProfile = isBusiness || isPro;
+
+  const handleUpgradeBusiness = async () => {
+    if (!user) return;
+    setIsRedirectingBusiness(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PLANS.business.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
+    } finally {
+      setIsRedirectingBusiness(false);
+    }
+  };
 
   // Load saved values from profile
   useEffect(() => {
@@ -167,7 +185,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
         {/* Logo Upload */}
         <div className="space-y-2">
           <Label className={!isBusiness ? "text-muted-foreground" : ""}>
-            Logo da Imobiliária {!isBusiness && isPro && <span className="text-xs text-muted-foreground">(Exclusivo Business)</span>}
+            Logo da Imobiliária {!isBusiness && <span className="text-xs text-muted-foreground">(Exclusivo Business)</span>}
           </Label>
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/30 overflow-hidden">
@@ -199,10 +217,25 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                   </Button>
                 </label>
               ) : (
+              <div className="space-y-2">
                 <Button variant="outline" size="sm" disabled className="opacity-50">
                   <Lock className="h-4 w-4 mr-1" />
                   Enviar Logo
                 </Button>
+                <Button
+                  size="sm"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  disabled={isRedirectingBusiness}
+                  onClick={handleUpgradeBusiness}
+                >
+                  {isRedirectingBusiness ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Crown className="h-4 w-4 mr-1" />
+                  )}
+                  Migrar para Business
+                </Button>
+              </div>
               )}
               <p className="text-xs text-muted-foreground mt-1">PNG ou JPG, máx. 2MB</p>
             </div>
