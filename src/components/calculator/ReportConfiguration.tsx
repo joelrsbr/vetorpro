@@ -199,10 +199,25 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                   </Button>
                 </label>
               ) : (
+              <div className="space-y-2">
                 <Button variant="outline" size="sm" disabled className="opacity-50">
                   <Lock className="h-4 w-4 mr-1" />
                   Enviar Logo
                 </Button>
+                <Button
+                  size="sm"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  disabled={isRedirectingBusiness}
+                  onClick={handleUpgradeBusiness}
+                >
+                  {isRedirectingBusiness ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Crown className="h-4 w-4 mr-1" />
+                  )}
+                  Migrar para Business
+                </Button>
+              </div>
               )}
               <p className="text-xs text-muted-foreground mt-1">PNG ou JPG, máx. 2MB</p>
             </div>
