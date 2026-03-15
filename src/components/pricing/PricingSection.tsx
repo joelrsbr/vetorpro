@@ -49,8 +49,8 @@ const plans = [
       "Sem comparativo Multi-Bancos",
     ],
     cta: "Assinar Professional",
-    variant: "hero" as const,
-    popular: true,
+    variant: "outline" as const,
+    popular: false,
   },
   {
     key: "business" as PlanKey,
@@ -69,7 +69,7 @@ const plans = [
     limitations: [],
     cta: "Assinar Business",
     variant: "default" as const,
-    popular: false,
+    popular: true,
     highlight: true,
   },
 ];
@@ -131,14 +131,14 @@ export function PricingSection() {
             <Card 
               key={plan.name}
               className={`relative shadow-card hover:shadow-lg transition-all duration-300 ${
-                plan.popular ? "border-primary border-2 scale-105" : ""
+                plan.popular ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-1 px-4 py-1 rounded-full gradient-primary text-primary-foreground text-sm font-medium">
+                  <div className="flex items-center gap-1 px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium">
                     <Sparkles className="h-3 w-3" />
-                    Mais Popular
+                    Recomendado
                   </div>
                 </div>
               )}
@@ -173,7 +173,7 @@ export function PricingSection() {
                 <Button 
                   variant={plan.variant} 
                   size="lg" 
-                  className="w-full"
+                  className={`w-full ${plan.popular ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""}`}
                   disabled={loadingPlan === plan.key}
                   onClick={() => handleSubscribe(plan.key)}
                 >

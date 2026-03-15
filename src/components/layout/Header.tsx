@@ -7,6 +7,7 @@ import { useSubscription, getPlanLabel, getPlanBadge } from "@/hooks/useSubscrip
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -126,12 +127,22 @@ export function Header() {
             <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
           ) : user ? (
             <div className="flex items-center gap-2">
-              {planBadge && (
-                <Badge className={planBadge.className}>
-                  <Crown className="h-3 w-3 mr-1" />
-                  {planBadge.label}
-                </Badge>
-              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge className="bg-muted text-muted-foreground border-border/60 hover:bg-muted/80 cursor-default text-[11px] font-medium px-2.5 py-0.5">
+                      Plano {plan === "basic" ? "Basic" : plan === "pro" ? "Pro" : plan === "business" ? "Business" : "—"}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[260px] text-center">
+                    <p className="text-xs">
+                      {plan === "business" 
+                        ? "Você está no Plano Business. Todos os recursos estão liberados!" 
+                        : `Você está no Plano ${plan === "basic" ? "Basic" : plan === "pro" ? "Pro" : "—"}. Faça o upgrade para o Business para liberar todos os bancos e taxas em tempo real.`}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {!isActive && (
                 <Button variant="hero" size="sm" asChild>
                   <Link to="/precos">
@@ -143,8 +154,8 @@ export function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-2">
-                    <User className="h-4 w-4" />
-                    {profile?.full_name?.split(" ")[0] || "Minha Conta"}
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <span className="font-semibold">{profile?.full_name?.split(" ")[0] || "Minha Conta"}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
