@@ -152,9 +152,6 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     <span className="text-4xl font-bold">{plan.price}</span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
-                  {plan.priceNote &&
-                  <p className="text-xs text-muted-foreground mt-1">{plan.priceNote}</p>
-                  }
                   <CardDescription className="mt-2 text-sm">
                     {plan.description}
                   </CardDescription>
