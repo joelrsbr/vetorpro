@@ -13,7 +13,7 @@ export interface SessionData {
 const defaultSession: SessionData = {
   isLoggedIn: false,
   consultantName: "Joel Farias",
-  teamName: "VetorPro Business/TEAM",
+  teamName: "VetorPro Business",
   plan: null,
   loginMethod: "",
 };
