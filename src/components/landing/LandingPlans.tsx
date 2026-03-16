@@ -48,21 +48,19 @@ const plans = [
 },
 {
   id: "business" as PlanType,
-  name: "Business/TEAM",
+  name: "Business",
   price: "R$ 149,90",
   period: "/mês",
-  priceNote: "até 5 usuários",
-  description: "Máxima economia e controle total",
+  description: "Ferramentas poderosas para o Corretor de Elite",
   icon: Building2,
   buttonVariant: "hero" as const,
   recommended: true,
   features: [
   { text: "Tudo do Plano Professional", included: true },
-  { text: "Comparativo Multi-Bancos (6 maiores bancos do Brasil)", included: true },
+  { text: "Comparativo Multi-Bancos (6 maiores bancos)", included: true },
   { text: "APIs de Moedas e Indexadores Live", included: true },
-  { text: "PDFs Premium com Branding Personalizado (Logo e CRECI)", included: true },
-  { text: "Multiusuário e Dashboard", included: true },
-  { text: "Integração via API", included: true }]
+  { text: "PDFs Premium com Branding (Logo e CRECI)", included: true },
+  { text: "Dashboard corporativo", included: true }]
 }];
 
 
