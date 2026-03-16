@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Landmark, TrendingUp, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Loader2, Crown } from "lucide-react";
+import { Landmark, TrendingUp, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Crown } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription, getPlanLabel, getPlanBadge } from "@/hooks/useSubscription";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -16,9 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_14AbJ15XI4OD5kl0ji4ko00";
+
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [portalLoading, setPortalLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
@@ -29,22 +29,8 @@ export function Header() {
   const logoLabel = getPlanLabel(plan, isActive);
   const planBadge = isActive ? getPlanBadge(plan) : null;
 
-  const handleManageSubscription = async () => {
-    setPortalLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      } else if (data?.error) {
-        toast({ title: "Erro", description: data.error, variant: "destructive" });
-      }
-    } catch (err) {
-      console.error("Portal error:", err);
-      toast({ title: "Erro", description: "Não foi possível abrir o portal.", variant: "destructive" });
-    } finally {
-      setPortalLoading(false);
-    }
+  const handleManageSubscription = () => {
+    window.open(STRIPE_PORTAL_URL, "_blank");
   };
 
   const navigation = isLoginPage 
@@ -60,10 +46,8 @@ export function Header() {
     navigate("/");
   };
 
-  // Split logo label into parts for styling
   const labelParts = logoLabel.split(" ");
-  const brandName = labelParts.slice(0, 1).join(" "); // "VetorPro"
-  const planSuffix = labelParts.slice(1).join(" "); // "Basic" / "Pro" / "Business" / ""
+  const planSuffix = labelParts.slice(1).join(" ");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -173,12 +157,8 @@ export function Header() {
                   </DropdownMenuItem>
                   {isActive && (
                     <>
-                      <DropdownMenuItem onClick={handleManageSubscription} disabled={portalLoading}>
-                        {portalLoading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <CreditCard className="h-4 w-4 mr-2" />
-                        )}
+                      <DropdownMenuItem onClick={handleManageSubscription}>
+                        <CreditCard className="h-4 w-4 mr-2" />
                         Gerenciar Assinatura
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -263,8 +243,8 @@ export function Header() {
                     </Button>
                   )}
                   {isActive && (
-                    <Button variant="outline" size="sm" onClick={() => { setMobileMenuOpen(false); handleManageSubscription(); }} disabled={portalLoading}>
-                      {portalLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CreditCard className="h-4 w-4 mr-2" />}
+                    <Button variant="outline" size="sm" onClick={() => { setMobileMenuOpen(false); handleManageSubscription(); }}>
+                      <CreditCard className="h-4 w-4 mr-2" />
                       Gerenciar Assinatura
                     </Button>
                   )}

@@ -17,6 +17,7 @@ export type Database = {
       profiles: {
         Row: {
           company: string | null
+          cpf_cnpj: string | null
           created_at: string
           creci: string | null
           email: string | null
@@ -34,6 +35,7 @@ export type Database = {
         }
         Insert: {
           company?: string | null
+          cpf_cnpj?: string | null
           created_at?: string
           creci?: string | null
           email?: string | null
@@ -51,6 +53,7 @@ export type Database = {
         }
         Update: {
           company?: string | null
+          cpf_cnpj?: string | null
           created_at?: string
           creci?: string | null
           email?: string | null

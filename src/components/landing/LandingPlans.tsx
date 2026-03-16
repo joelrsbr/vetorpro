@@ -48,21 +48,19 @@ const plans = [
 },
 {
   id: "business" as PlanType,
-  name: "Business/TEAM",
+  name: "Business",
   price: "R$ 149,90",
   period: "/mês",
-  priceNote: "até 5 usuários",
-  description: "Máxima economia e controle total",
+  description: "Ferramentas poderosas para o Corretor de Elite",
   icon: Building2,
   buttonVariant: "hero" as const,
   recommended: true,
   features: [
   { text: "Tudo do Plano Professional", included: true },
-  { text: "Comparativo Multi-Bancos (6 maiores bancos do Brasil)", included: true },
+  { text: "Comparativo Multi-Bancos (6 maiores bancos)", included: true },
   { text: "APIs de Moedas e Indexadores Live", included: true },
-  { text: "PDFs Premium com Branding Personalizado (Logo e CRECI)", included: true },
-  { text: "Multiusuário e Dashboard", included: true },
-  { text: "Integração via API", included: true }]
+  { text: "PDFs Premium com Branding (Logo e CRECI)", included: true },
+  { text: "Dashboard corporativo", included: true }]
 }];
 
 
@@ -154,9 +152,6 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     <span className="text-4xl font-bold">{plan.price}</span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
-                  {plan.priceNote &&
-                  <p className="text-xs text-muted-foreground mt-1">{plan.priceNote}</p>
-                  }
                   <CardDescription className="mt-2 text-sm">
                     {plan.description}
                   </CardDescription>
@@ -206,9 +201,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
             <p className="text-sm font-medium text-foreground">
               O VetorPro é uma plataforma profissional exclusiva.
             </p>
-            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Planos corporativos acima de 5 usuários sob consulta.
-
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Planos corporativos sob consulta.</p>
           </div>
         </div>
       </div>
