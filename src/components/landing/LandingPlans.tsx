@@ -202,8 +202,6 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
               O VetorPro é uma plataforma profissional exclusiva.
             </p>
             <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Planos corporativos sob consulta.</p>
-
-            </p>
           </div>
         </div>
       </div>
