@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, Zap, Loader2 } from "lucide-react";
+import { Check, Sparkles, Zap, Loader2, ShieldCheck } from "lucide-react";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +43,7 @@ const plans = [
       "Simulações: Liberado",
       "Propostas com IA: Liberado",
       "Exportação de PDF Básico",
-      "Visualização de indexadores financeiros atualizados (via API Oficial - BACEN)",
+      "Indexadores financeiros (BACEN)",
       "Cotações de Moedas Live (Dólar/Euro)",
     ],
     limitations: [
@@ -54,16 +55,15 @@ const plans = [
   },
   {
     key: "business" as PlanKey,
-    name: "Business/TEAM",
+    name: "Business",
     price: "R$149,90",
     period: "/mês",
-    description: "Para imobiliárias e construtoras",
+    description: "Ferramentas poderosas para o Corretor de Elite",
     features: [
       "Tudo do Plano Professional",
-      "Comparativo Multi-Bancos (6 maiores bancos do Brasil)",
+      "Comparativo Multi-Bancos (6 maiores bancos)",
       "APIs de Moedas e Indexadores Live",
-      "PDFs Premium com Branding Personalizado (Logo e CRECI)",
-      "Multiusuário (até 5 usuários)",
+      "PDFs Premium com Branding (Logo e CRECI)",
       "Dashboard corporativo",
     ],
     limitations: [],
@@ -76,6 +76,7 @@ const plans = [
 
 export function PricingSection() {
   const { user } = useAuth();
+  const { plan: currentPlan, isActive } = useSubscription();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -83,6 +84,14 @@ export function PricingSection() {
   const handleSubscribe = async (planKey: PlanKey) => {
     if (!user) {
       navigate("/login");
+      return;
+    }
+
+    if (isActive && currentPlan === planKey) {
+      toast({
+        title: "Seu Plano Atual",
+        description: "Você já está assinando este plano.",
+      });
       return;
     }
 
@@ -110,6 +119,8 @@ export function PricingSection() {
     }
   };
 
+  const isCurrentPlan = (planKey: PlanKey) => isActive && currentPlan === planKey;
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container">
@@ -127,64 +138,76 @@ export function PricingSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {plans.map((plan) => (
-            <Card 
-              key={plan.name}
-              className={`relative shadow-card hover:shadow-lg transition-all duration-300 ${
-                plan.popular ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-1 px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium">
-                    <Sparkles className="h-3 w-3" />
-                    Recomendado
+          {plans.map((plan) => {
+            const isCurrent = isCurrentPlan(plan.key);
+            return (
+              <Card 
+                key={plan.name}
+                className={`relative shadow-card hover:shadow-lg transition-all duration-300 ${
+                  plan.popular ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
+                } ${isCurrent ? "ring-2 ring-emerald-500/50" : ""}`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <div className="flex items-center gap-1 px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium">
+                      <Sparkles className="h-3 w-3" />
+                      Recomendado
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-2">
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
-                </div>
-              </CardHeader>
+                )}
 
-              <CardContent className="space-y-6">
-                <ul className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-success shrink-0 mt-0.5" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                  {plan.limitations.map((limitation) => (
-                    <li key={limitation} className="flex items-start gap-3 opacity-50">
-                      <span className="h-5 w-5 flex items-center justify-center shrink-0 mt-0.5">
-                        ✕
-                      </span>
-                      <span className="text-sm">{limitation}</span>
-                    </li>
-                  ))}
-                </ul>
+                {isCurrent && (
+                  <div className="absolute -top-4 right-4">
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-medium">
+                      <ShieldCheck className="h-3 w-3" />
+                      Seu Plano Atual
+                    </div>
+                  </div>
+                )}
+                
+                <CardHeader className="text-center pb-2">
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                </CardHeader>
 
-                <Button 
-                  variant={plan.variant} 
-                  size="lg" 
-                  className={`w-full ${plan.popular ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""}`}
-                  disabled={loadingPlan === plan.key}
-                  onClick={() => handleSubscribe(plan.key)}
-                >
-                  {loadingPlan === plan.key ? (
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  ) : null}
-                  {plan.cta}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                <CardContent className="space-y-6">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3">
+                        <Check className="h-5 w-5 text-success shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                    {plan.limitations.map((limitation) => (
+                      <li key={limitation} className="flex items-start gap-3 opacity-50">
+                        <span className="h-5 w-5 flex items-center justify-center shrink-0 mt-0.5">
+                          ✕
+                        </span>
+                        <span className="text-sm">{limitation}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button 
+                    variant={plan.variant} 
+                    size="lg" 
+                    className={`w-full ${plan.popular ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""} ${isCurrent ? "opacity-60" : ""}`}
+                    disabled={loadingPlan === plan.key || isCurrent}
+                    onClick={() => handleSubscribe(plan.key)}
+                  >
+                    {loadingPlan === plan.key ? (
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    ) : null}
+                    {isCurrent ? "Plano Ativo" : plan.cta}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="text-center mt-8 text-sm text-muted-foreground">

@@ -82,16 +82,21 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © 2026 {brandLabel}. Todos os direitos reservados.
-          </p>
+          <div className="text-center md:text-left space-y-1">
+            <p className="text-sm text-muted-foreground">
+              © 2026 {brandLabel}. Todos os direitos reservados.
+            </p>
+            <p className="text-[10px] text-muted-foreground/60">
+              Desenvolvido por J-RSBR Ltda.
+            </p>
+          </div>
           <div className="flex gap-4 text-sm text-muted-foreground">
-            <span className="hover:text-primary transition-colors cursor-pointer">
+            <a href="/termos" className="hover:text-primary transition-colors">
               Termos de Uso
-            </span>
-            <span className="hover:text-primary transition-colors cursor-pointer">
+            </a>
+            <a href="/privacidade" className="hover:text-primary transition-colors">
               Privacidade
-            </span>
+            </a>
           </div>
         </div>
       </div>
