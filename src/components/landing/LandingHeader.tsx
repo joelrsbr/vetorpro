@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Landmark, TrendingUp, Menu, X, LogIn, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogIn, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import vetorproLogo from "@/assets/vetorpro-logo.png";
 
 export function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,14 +29,8 @@ export function LandingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shadow-lg relative">
-            <Landmark className="h-5 w-5 text-primary-foreground" />
-            <TrendingUp className="h-3 w-3 text-primary-foreground absolute -top-0.5 -right-0.5" />
-          </div>
-          <span className="text-xl font-bold text-foreground">
-            Vetor<span className="text-gradient">Pro</span>
-          </span>
+        <Link to="/" className="flex items-center">
+          <img src={vetorproLogo} alt="VetorPro" className="h-10 w-auto object-contain" />
         </Link>
 
         {/* Desktop Navigation */}

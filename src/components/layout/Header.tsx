@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Landmark, TrendingUp, User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Crown } from "lucide-react";
+import { User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Crown, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import vetorproLogo from "@/assets/vetorpro-logo.png";
 
 const STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_14AbJ15XI4OD5kl0ji4ko00";
 
@@ -53,14 +54,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary relative">
-            <Landmark className="h-5 w-5 text-primary-foreground" />
-            <TrendingUp className="h-3 w-3 text-primary-foreground absolute -top-0.5 -right-0.5" />
-          </div>
-          <span className="text-xl font-bold text-foreground">
-            Vetor<span className="text-gradient">Pro</span>
-            {planSuffix && <span className="text-primary ml-1 text-base font-semibold">{planSuffix}</span>}
-          </span>
+          <img src={vetorproLogo} alt="VetorPro" className="h-10 w-auto object-contain" />
+          {planSuffix && <span className="text-primary text-sm font-semibold">{planSuffix}</span>}
         </Link>
 
         {/* Desktop Navigation */}
