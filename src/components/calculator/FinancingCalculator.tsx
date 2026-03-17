@@ -13,6 +13,7 @@ import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
+import { useMarketData } from "@/hooks/useMarketData";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format, addMonths } from "date-fns";
