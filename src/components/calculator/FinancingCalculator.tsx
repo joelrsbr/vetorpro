@@ -555,9 +555,14 @@ export function FinancingCalculator() {
                         <Info className="h-4 w-4 text-primary/60 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-sm">
-                        <p className="font-semibold mb-1">Correção Monetária</p>
+                        <p className="font-semibold mb-1">Correção Monetária {marketIsLive ? "(Live)" : ""}</p>
                         <p className="text-sm mb-2">O indexador corrige o saldo devedor mensalmente, impactando o valor total pago.</p>
-                        <p className="text-xs text-muted-foreground">TR: ~0.10% a.a. | IPCA: ~4.50% a.a. | IGP-M: ~5.00% a.a.</p>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <p>TR: {getLiveRateLabel("tr")} | IPCA: {getLiveRateLabel("ipca")}</p>
+                          <p>CDI: {getLiveRateLabel("cdi")} | Selic: {getLiveRateLabel("selic")}</p>
+                          <p>Poupança: {getLiveRateLabel("poupanca")} | IGP-M: ~5,00% a.a.</p>
+                        </div>
+                        {marketIsLive && <p className="text-[10px] text-emerald-500 mt-1">● Dados via API oficial BCB</p>}
                       </TooltipContent>
                     </Tooltip>
                   </div>

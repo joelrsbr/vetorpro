@@ -223,7 +223,7 @@ export function HP12CCalculator() {
         </DrawerHeader>
         
         <div className="px-4 pb-5 overflow-y-auto flex flex-col items-center">
-          <Card className="bg-gradient-to-b from-[#2a2d32] to-[#1e2024] border-[#3a3d42] w-full max-w-xs shadow-2xl">
+          <Card className="bg-[#1e2024] border-[#33363b] w-full max-w-xs shadow-2xl">
             <CardHeader className="py-3 px-3">
               <CardTitle className="sr-only">HP 12C</CardTitle>
               {/* Display */}

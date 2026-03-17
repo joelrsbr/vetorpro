@@ -59,10 +59,20 @@ function setCachedData(data: MarketData) {
 }
 
 export function useMarketData() {
-  const [data, setData] = useState<MarketData>(FALLBACK_DATA);
+  // Initialize from localStorage cache to avoid empty fields on load
+  const [data, setData] = useState<MarketData>(() => {
+    const cached = getCachedData();
+    return cached ? cached.data : FALLBACK_DATA;
+  });
   const [isLoading, setIsLoading] = useState(true);
-  const [isLive, setIsLive] = useState(false);
-  const [lastFetch, setLastFetch] = useState<Date | null>(null);
+  const [isLive, setIsLive] = useState(() => {
+    const cached = getCachedData();
+    return cached ? (Date.now() - cached.timestamp) < CURRENCY_CACHE_TTL : false;
+  });
+  const [lastFetch, setLastFetch] = useState<Date | null>(() => {
+    const cached = getCachedData();
+    return cached ? new Date(cached.timestamp) : null;
+  });
 
   const fetchData = useCallback(async (force = false) => {
     // Check cache first
