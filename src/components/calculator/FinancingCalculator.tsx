@@ -13,6 +13,7 @@ import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
+import { useMarketData } from "@/hooks/useMarketData";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format, addMonths } from "date-fns";
@@ -196,18 +197,26 @@ export function FinancingCalculator() {
     };
   }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType]);
 
-  // Monthly correction rates (estimated annual rates converted to monthly)
+  // Use live market data for correction rates when available
+  const { data: marketData, isLive: marketIsLive } = useMarketData();
+
   const getCorrectionRate = (index: CorrectionIndexType): number => {
     switch (index) {
       case "tr":
-        return 0.10 / 12 / 100; // ~0.10% a.a. estimated
+        return (marketData.rates.tr?.value ?? 0.10) / 12 / 100;
       case "ipca":
-        return 4.50 / 12 / 100; // ~4.50% a.a. estimated
+        return (marketData.rates.ipca?.value ?? 4.50) / 12 / 100;
       case "igpm":
-        return 5.00 / 12 / 100; // ~5.00% a.a. estimated
+        return 5.00 / 12 / 100; // IGP-M not in our API
       default:
         return 0;
     }
+  };
+
+  const getLiveRateLabel = (index: string): string => {
+    const rate = marketData.rates[index];
+    if (!rate) return "—";
+    return `${rate.value.toFixed(2).replace(".", ",")}% ${rate.period}`;
   };
 
   const calculations = useMemo(() => {
@@ -546,9 +555,14 @@ export function FinancingCalculator() {
                         <Info className="h-4 w-4 text-primary/60 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-sm">
-                        <p className="font-semibold mb-1">Correção Monetária</p>
+                        <p className="font-semibold mb-1">Correção Monetária {marketIsLive ? "(Live)" : ""}</p>
                         <p className="text-sm mb-2">O indexador corrige o saldo devedor mensalmente, impactando o valor total pago.</p>
-                        <p className="text-xs text-muted-foreground">TR: ~0.10% a.a. | IPCA: ~4.50% a.a. | IGP-M: ~5.00% a.a.</p>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <p>TR: {getLiveRateLabel("tr")} | IPCA: {getLiveRateLabel("ipca")}</p>
+                          <p>CDI: {getLiveRateLabel("cdi")} | Selic: {getLiveRateLabel("selic")}</p>
+                          <p>Poupança: {getLiveRateLabel("poupanca")} | IGP-M: ~5,00% a.a.</p>
+                        </div>
+                        {marketIsLive && <p className="text-[10px] text-emerald-500 mt-1">● Dados via API oficial BCB</p>}
                       </TooltipContent>
                     </Tooltip>
                   </div>
