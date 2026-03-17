@@ -197,18 +197,26 @@ export function FinancingCalculator() {
     };
   }, [enableMaxPayment, maxPaymentValue, propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType]);
 
-  // Monthly correction rates (estimated annual rates converted to monthly)
+  // Use live market data for correction rates when available
+  const { data: marketData, isLive: marketIsLive } = useMarketData();
+
   const getCorrectionRate = (index: CorrectionIndexType): number => {
     switch (index) {
       case "tr":
-        return 0.10 / 12 / 100; // ~0.10% a.a. estimated
+        return (marketData.rates.tr?.value ?? 0.10) / 12 / 100;
       case "ipca":
-        return 4.50 / 12 / 100; // ~4.50% a.a. estimated
+        return (marketData.rates.ipca?.value ?? 4.50) / 12 / 100;
       case "igpm":
-        return 5.00 / 12 / 100; // ~5.00% a.a. estimated
+        return 5.00 / 12 / 100; // IGP-M not in our API
       default:
         return 0;
     }
+  };
+
+  const getLiveRateLabel = (index: string): string => {
+    const rate = marketData.rates[index];
+    if (!rate) return "—";
+    return `${rate.value.toFixed(2).replace(".", ",")}% ${rate.period}`;
   };
 
   const calculations = useMemo(() => {
