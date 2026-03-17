@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Upload, Lock, Crown, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Building2, Upload, Lock, Crown, Image as ImageIcon, Loader2, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
@@ -222,19 +222,18 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                   <Lock className="h-4 w-4 mr-1" />
                   Enviar Logo
                 </Button>
-                <Button
-                  size="sm"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                <button
+                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
                   disabled={isRedirectingBusiness}
                   onClick={handleUpgradeBusiness}
                 >
                   {isRedirectingBusiness ? (
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    <Loader2 className="h-3 w-3 animate-spin" />
                   ) : (
-                    <Crown className="h-4 w-4 mr-1" />
+                    <Zap className="h-3 w-3" />
                   )}
-                  Migrar para Business
-                </Button>
+                  Liberar Business
+                </button>
               </div>
               )}
               <p className="text-xs text-muted-foreground mt-1">PNG ou JPG, máx. 2MB</p>
