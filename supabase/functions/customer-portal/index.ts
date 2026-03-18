@@ -22,7 +22,7 @@ serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) throw new Error("Stripe key missing");
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -31,15 +31,15 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) throw new Error("No auth header");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } =
       await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) throw new Error("Authentication failed");
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!user?.email) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -51,29 +51,28 @@ serve(async (req) => {
     if (customers.data.length === 0) {
       logStep("No Stripe customer found");
       return new Response(
-        JSON.stringify({ error: "No Stripe customer found for this user" }),
+        JSON.stringify({ error: "Nenhuma assinatura encontrada." }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
       );
     }
 
     const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
+    logStep("Found Stripe customer");
 
     const origin = req.headers.get("origin") || "https://vetorpro.lovable.app";
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${origin}/dashboard`,
     });
-    logStep("Portal session created", { url: portalSession.url });
+    logStep("Portal session created");
 
     return new Response(JSON.stringify({ url: portalSession.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: msg });
-    return new Response(JSON.stringify({ error: msg }), {
+    console.error("[CUSTOMER-PORTAL] Error:", error instanceof Error ? error.message : error);
+    return new Response(JSON.stringify({ error: "Erro ao acessar portal de assinatura. Tente novamente." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
