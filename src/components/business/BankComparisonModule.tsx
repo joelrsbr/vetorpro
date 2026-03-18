@@ -100,15 +100,24 @@ export function BankComparisonModule() {
       {/* Results Grid */}
       {results.length > 0 && (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              Comparativo de 6 Bancos
+              Comparativo Multi-Bancos
             </h3>
-            <Button variant="ghost" size="sm" onClick={resetRates} className="text-xs gap-1">
-              <RotateCcw className="h-3 w-3" />
-              Resetar Taxas
-            </Button>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Referência de Mercado VetorPro
+                {lastFetch && (
+                  <> · {lastFetch.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</>
+                )}
+              </span>
+              <Button variant="ghost" size="sm" onClick={resetRates} className="text-xs gap-1">
+                <RotateCcw className="h-3 w-3" />
+                Resetar Taxas
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
