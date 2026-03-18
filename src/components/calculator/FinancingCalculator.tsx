@@ -35,7 +35,7 @@ export interface ScheduleItem {
   date: Date;
 }
 
-export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm";
+export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "poupanca";
 
 export interface FinancingData {
   propertyValue: number;
