@@ -10,7 +10,7 @@ interface Profile {
   email: string | null;
   phone: string | null;
   company: string | null;
-  subscription_plan: "free" | "pro";
+  subscription_plan: "free" | "pro" | "basic" | "business";
   simulations_used: number;
   proposals_used: number;
   simulations_reset_at: string;

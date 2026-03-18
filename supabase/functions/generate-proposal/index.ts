@@ -63,7 +63,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: "Limite de propostas atingido",
-          message: "Você atingiu o limite de propostas do plano gratuito. Faça upgrade para o plano Pro para propostas ilimitadas."
+          message: "Você atingiu o limite de propostas do seu plano atual. Faça upgrade para liberar propostas ilimitadas."
         }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
