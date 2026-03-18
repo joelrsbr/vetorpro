@@ -232,9 +232,9 @@ Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in generate-proposal:", error);
+    console.error("[GENERATE-PROPOSAL] Error:", error instanceof Error ? error.message : error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Erro desconhecido" }),
+      JSON.stringify({ error: "Erro ao gerar proposta. Tente novamente." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

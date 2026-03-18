@@ -13,6 +13,23 @@ interface MarketData {
   source: string;
 }
 
+// Simple in-memory rate limit: max 10 requests per minute per user
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 // BCB SGS series IDs
 const BCB_SERIES: Record<string, { id: number; name: string; period: string }> = {
   selic: { id: 432, name: "Selic", period: "a.a." },
@@ -92,6 +109,37 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Autenticação necessária." }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: authError } = await supabaseClient.auth.getUser(token);
+    if (authError || !userData.user) {
+      return new Response(JSON.stringify({ error: "Token inválido." }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Rate limit check
+    if (!checkRateLimit(userData.user.id)) {
+      return new Response(JSON.stringify({ error: "Limite de requisições excedido. Aguarde um momento." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Fetch all data in parallel
     const [currencies, ...bcbResults] = await Promise.all([
       fetchCurrencies(),
@@ -122,9 +170,9 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in fetch-market-data:", error);
+    console.error("[FETCH-MARKET-DATA] Error:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to fetch market data" }),
+      JSON.stringify({ error: "Erro ao buscar dados de mercado." }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
