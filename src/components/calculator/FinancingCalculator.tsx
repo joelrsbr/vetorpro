@@ -208,6 +208,8 @@ export function FinancingCalculator() {
         return (marketData.rates.ipca?.value ?? 4.50) / 12 / 100;
       case "igpm":
         return 5.00 / 12 / 100; // IGP-M not in our API
+      case "poupanca":
+        return (marketData.rates.poupanca?.value ?? 0.63) / 100;
       default:
         return 0;
     }
