@@ -33,17 +33,17 @@ serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) throw new Error("Stripe key missing");
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) throw new Error("No auth header");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) throw new Error("Authentication failed");
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!user?.email) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -57,7 +57,7 @@ serve(async (req) => {
     }
 
     const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
+    logStep("Found Stripe customer");
 
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
@@ -76,12 +76,11 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       const productId = subscription.items.data[0].price.product as string;
       plan = PRODUCT_TO_PLAN[productId] || "basic";
-      logStep("Active subscription found", { plan, subscriptionEnd });
+      logStep("Active subscription found", { plan });
     } else {
       logStep("No active subscription found");
     }
 
-    // Sync to Supabase subscriptions table
     const { error: upsertError } = await supabaseClient
       .from("subscriptions")
       .update({
@@ -96,8 +95,6 @@ serve(async (req) => {
 
     if (upsertError) {
       logStep("Error updating subscription", { error: upsertError.message });
-    } else {
-      logStep("Subscription synced to database");
     }
 
     return new Response(JSON.stringify({
@@ -109,9 +106,8 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    console.error("[CHECK-SUBSCRIPTION] Error:", error instanceof Error ? error.message : error);
+    return new Response(JSON.stringify({ error: "Erro ao verificar assinatura. Tente novamente." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
