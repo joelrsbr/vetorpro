@@ -34,6 +34,7 @@ export function BankComparisonModule() {
   const term = parseInt(termMonths) || 360;
 
   const { results, customRates, setRate, resetRates } = useBankComparison(financedAmount, term, system);
+  const { lastFetch } = useMarketData();
 
   const fmtBRL = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
