@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator } from "lucide-react";
+import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock } from "lucide-react";
 import { BANK_RATES } from "@/lib/bank-rates";
 import { useBankComparison } from "@/hooks/useBankComparison";
+import { useMarketData } from "@/hooks/useMarketData";
 
 export function BankComparisonModule() {
   const [propertyValue, setPropertyValue] = useState("50000000");
@@ -33,6 +34,7 @@ export function BankComparisonModule() {
   const term = parseInt(termMonths) || 360;
 
   const { results, customRates, setRate, resetRates } = useBankComparison(financedAmount, term, system);
+  const { lastFetch } = useMarketData();
 
   const fmtBRL = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
@@ -98,15 +100,24 @@ export function BankComparisonModule() {
       {/* Results Grid */}
       {results.length > 0 && (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              Comparativo de 6 Bancos
+              Comparativo Multi-Bancos
             </h3>
-            <Button variant="ghost" size="sm" onClick={resetRates} className="text-xs gap-1">
-              <RotateCcw className="h-3 w-3" />
-              Resetar Taxas
-            </Button>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Referência de Mercado VetorPro
+                {lastFetch && (
+                  <> · {lastFetch.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</>
+                )}
+              </span>
+              <Button variant="ghost" size="sm" onClick={resetRates} className="text-xs gap-1">
+                <RotateCcw className="h-3 w-3" />
+                Resetar Taxas
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -199,7 +210,7 @@ export function BankComparisonModule() {
           </div>
 
           <p className="text-[11px] text-muted-foreground text-center">
-            Taxas médias de mercado para referência. Valores sujeitos a análise de crédito individual.
+            Taxas médias de mercado para referência. Valores sujeitos a análise de crédito individual. Fonte: Referência de Mercado VetorPro.
           </p>
         </>
       )}

@@ -35,7 +35,7 @@ export interface ScheduleItem {
   date: Date;
 }
 
-export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm";
+export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "poupanca";
 
 export interface FinancingData {
   propertyValue: number;
@@ -208,6 +208,8 @@ export function FinancingCalculator() {
         return (marketData.rates.ipca?.value ?? 4.50) / 12 / 100;
       case "igpm":
         return 5.00 / 12 / 100; // IGP-M not in our API
+      case "poupanca":
+        return (marketData.rates.poupanca?.value ?? 0.63) / 100;
       default:
         return 0;
     }
@@ -575,9 +577,16 @@ export function FinancingCalculator() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="isento" className="text-sm">Isento (0%)</SelectItem>
-                      <SelectItem value="tr" className="text-sm">TR (estimada)</SelectItem>
-                      <SelectItem value="ipca" className="text-sm">IPCA</SelectItem>
-                      <SelectItem value="igpm" className="text-sm">IGP-M</SelectItem>
+                      <SelectItem value="tr" className="text-sm">
+                        TR {marketData.rates.tr ? `(${marketData.rates.tr.value.toFixed(2).replace(".", ",")}% ${marketData.rates.tr.period})` : "(estimada)"}
+                      </SelectItem>
+                      <SelectItem value="ipca" className="text-sm">
+                        IPCA {marketData.rates.ipca ? `(${marketData.rates.ipca.value.toFixed(2).replace(".", ",")}% ${marketData.rates.ipca.period})` : ""}
+                      </SelectItem>
+                      <SelectItem value="igpm" className="text-sm">IGP-M (~5,00% a.a.)</SelectItem>
+                      <SelectItem value="poupanca" className="text-sm">
+                        Poupança {marketData.rates.poupanca ? `(${marketData.rates.poupanca.value.toFixed(2).replace(".", ",")}% ${marketData.rates.poupanca.period})` : ""}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

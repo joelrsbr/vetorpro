@@ -73,6 +73,7 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
     tr: "TR",
     ipca: "IPCA",
     igpm: "IGP-M",
+    poupanca: "Poupança",
   };
 
   const summaryItems: SummaryItem[] = [
