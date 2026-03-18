@@ -210,7 +210,7 @@ export function BankComparisonModule() {
           </div>
 
           <p className="text-[11px] text-muted-foreground text-center">
-            Taxas médias de mercado para referência. Valores sujeitos a análise de crédito individual.
+            Taxas médias de mercado para referência. Valores sujeitos a análise de crédito individual. Fonte: Referência de Mercado VetorPro.
           </p>
         </>
       )}

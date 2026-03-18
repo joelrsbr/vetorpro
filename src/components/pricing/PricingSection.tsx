@@ -147,23 +147,20 @@ export function PricingSection() {
                   plan.popular ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
                 } ${isCurrent ? "ring-2 ring-emerald-500/50" : ""}`}
               >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                  {plan.popular && (
+                    <div className="flex items-center gap-1 px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium whitespace-nowrap">
                       <Sparkles className="h-3 w-3" />
                       Recomendado
                     </div>
-                  </div>
-                )}
-
-                {isCurrent && (
-                  <div className="absolute -top-4 right-4">
-                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-medium">
+                  )}
+                  {isCurrent && (
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-medium whitespace-nowrap">
                       <ShieldCheck className="h-3 w-3" />
                       Seu Plano Atual
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
                 
                 <CardHeader className="text-center pb-2">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
