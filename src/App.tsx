@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SessionProvider } from "@/contexts/SessionContext";
 import { BusinessProvider } from "@/contexts/BusinessContext";
+import { SimulationProvider } from "@/contexts/SimulationContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import LoginAndPlansPage from "./pages/LoginAndPlansPage";
 import Index from "./pages/Index";
@@ -22,7 +23,8 @@ const App = () => (
     <AuthProvider>
       <SessionProvider>
         <BusinessProvider>
-          <TooltipProvider>
+          <SimulationProvider>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -44,6 +46,7 @@ const App = () => (
               </Routes>
             </BrowserRouter>
           </TooltipProvider>
+          </SimulationProvider>
         </BusinessProvider>
       </SessionProvider>
     </AuthProvider>

@@ -1,4 +1,5 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useContext } from "react";
+import { useSimulation } from "@/contexts/SimulationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +57,15 @@ export interface FinancingData {
 }
 
 export function FinancingCalculator() {
+  // Shared state from context
+  const {
+    propertyValue, setPropertyValue,
+    downPayment, setDownPayment,
+    interestRate, setInterestRate,
+    termMonths, setTermMonths,
+    amortizationType, setAmortizationType,
+  } = useSimulation();
+
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
@@ -67,12 +77,7 @@ export function FinancingCalculator() {
   const extraAmortRef = useRef<HTMLDivElement>(null);
   const reinforcementRef = useRef<HTMLDivElement>(null);
 
-  const [propertyValue, setPropertyValue] = useState<string>("15000000");
-  const [downPayment, setDownPayment] = useState<string>("3000000");
-  const [interestRate, setInterestRate] = useState<string>("10.5");
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
-  const [termMonths, setTermMonths] = useState<string>("360");
-  const [amortizationType, setAmortizationType] = useState<"SAC" | "PRICE">("SAC");
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
