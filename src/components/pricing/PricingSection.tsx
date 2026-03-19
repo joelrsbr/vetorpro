@@ -26,7 +26,7 @@ const plans = [
     ],
     limitations: [
       "Sem exportação de PDF",
-      "Sem comparativo Multi-Bancos",
+      "Sem Sondagem Estratégica",
     ],
     cta: "Assinar Basic",
     variant: "outline" as const,
@@ -47,7 +47,7 @@ const plans = [
       "Cotações de Moedas Live (Dólar/Euro)",
     ],
     limitations: [
-      "Sem comparativo Multi-Bancos",
+      "Sem Sondagem Estratégica",
     ],
     cta: "Assinar Professional",
     variant: "outline" as const,
@@ -61,7 +61,7 @@ const plans = [
     description: "Ferramentas poderosas para o Corretor de Elite",
     features: [
       "Tudo do Plano Professional",
-      "Comparativo Multi-Bancos (8 bancos)",
+      "Sondagem Estratégica (8 bancos)",
       "APIs de Moedas e Indexadores Live",
       "PDFs Premium com Branding (Logo e CRECI)",
       "Dashboard corporativo",

@@ -106,7 +106,7 @@ export function BankComparisonModule() {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              Comparativo Multi-Bancos
+              Sondagem Estratégica Multi-Bancos
             </h3>
             <div className="flex items-center gap-3">
               <span className="text-[10px] text-muted-foreground flex items-center gap-1">

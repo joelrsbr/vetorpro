@@ -59,7 +59,7 @@ const planDetailsMap: Record<string, PlanDetails> = {
     price: "R$ 149,90/mês",
     color: "hsl(var(--success))",
     badgeClass: "bg-success text-success-foreground",
-    features: ["Tudo do Pro", "Dashboard corporativo", "Relatórios Premium", "Comparativo Multi-Bancos"],
+    features: ["Tudo do Pro", "Dashboard corporativo", "Relatórios Premium", "Sondagem Estratégica"],
   },
 };
 

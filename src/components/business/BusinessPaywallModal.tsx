@@ -56,7 +56,7 @@ export function BusinessPaywallModal({ open, onOpenChange }: BusinessPaywallModa
           </div>
           <DialogTitle className="text-xl">Inteligência Exclusiva Business</DialogTitle>
           <DialogDescription className="text-sm leading-relaxed">
-            O Comparativo Multi-Bancos é uma ferramenta de elite. Por apenas{" "}
+            A Sondagem Estratégica é uma ferramenta de elite. Por apenas{" "}
             <strong className="text-foreground">R$ 149,90/mês</strong>, você tem o poder de 6 bancos em um clique.
           </DialogDescription>
         </DialogHeader>

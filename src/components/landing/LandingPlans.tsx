@@ -27,7 +27,7 @@ const plans = [
   { text: "Calculadora HP12C", included: true },
   { text: "10 simulações/mês", included: true },
   { text: "2 propostas com IA/mês", included: true },
-  { text: "Comparativo Multi-Bancos", included: false }]
+  { text: "Sondagem Estratégica", included: false }]
 },
 {
   id: "pro" as PlanType,
@@ -44,7 +44,7 @@ const plans = [
   { text: "Exportação de PDF Básico", included: true },
   { text: "Indexadores financeiros atualizados (via API Oficial - BACEN)", included: true },
   { text: "Cotações de Moedas Live (Dólar/Euro)", included: true },
-  { text: "Comparativo Multi-Bancos", included: false }]
+  { text: "Sondagem Estratégica", included: false }]
 },
 {
   id: "business" as PlanType,
@@ -57,7 +57,7 @@ const plans = [
   recommended: true,
   features: [
   { text: "Tudo do Plano Professional", included: true },
-  { text: "Comparativo Multi-Bancos (6 maiores bancos)", included: true },
+  { text: "Sondagem Estratégica (6 maiores bancos)", included: true },
   { text: "APIs de Moedas e Indexadores Live", included: true },
   { text: "PDFs Premium com Branding (Logo e CRECI)", included: true },
   { text: "Dashboard corporativo", included: true }]
