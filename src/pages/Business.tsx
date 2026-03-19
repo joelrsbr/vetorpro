@@ -64,24 +64,35 @@ function BusinessContent() {
         </div>
 
         <Tabs defaultValue="simulator" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="simulator" className="gap-2">
-              <Calculator className="h-4 w-4" />
-              Simulador
-            </TabsTrigger>
-            <TabsTrigger value="comparison" className="gap-2 relative">
-              <Brain className="h-4 w-4" />
-              Sondagem Estratégica
-              <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold uppercase leading-none animate-pulse">
-                <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
-                Live
+          <div className="flex items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="simulator" className="gap-2">
+                <Calculator className="h-4 w-4" />
+                Simulador
+              </TabsTrigger>
+              <TabsTrigger value="comparison" className="gap-2 relative">
+                <Brain className="h-4 w-4" />
+                Sondagem Estratégica
+                <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold uppercase leading-none animate-pulse">
+                  <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
+                  Live
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="gap-2">
+                <Settings className="h-4 w-4" />
+                Personalização
+              </TabsTrigger>
+            </TabsList>
+
+            {/* BNDES Enterprise teaser */}
+            <div className="flex items-center gap-2 grayscale opacity-50 select-none">
+              <Landmark className="h-4 w-4" />
+              <span className="text-sm font-medium">BNDES</span>
+              <span className="whitespace-nowrap rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                Enterprise (Em Breve)
               </span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Personalização
-            </TabsTrigger>
-          </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="simulator" className="space-y-6">
             <FinancingCalculator />
