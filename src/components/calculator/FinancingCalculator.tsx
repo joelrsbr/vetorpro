@@ -100,11 +100,35 @@ export function FinancingCalculator() {
   const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("100000");
   const [extraAmortizationType, setExtraAmortizationType] = useState<"reduce-term" | "reduce-payment">("reduce-term");
 
-  // Scheduled reinforcements
+  // Structured reinforcements
   const [enableReinforcements, setEnableReinforcements] = useState(false);
-  const [reinforcementValue, setReinforcementValue] = useState<string>("500000");
-  const [reinforcementFrequency, setReinforcementFrequency] = useState<"monthly" | "semiannual" | "annual">("annual");
+  const [reinforcements, setReinforcements] = useState<ReinforcementEntry[]>([]);
+  const [nextReinforcementId, setNextReinforcementId] = useState(1);
   const [includeMonthlyPayment, setIncludeMonthlyPayment] = useState(true);
+
+  const addReinforcement = () => {
+    const defaultMonth = format(addMonths(startDate, 12), "yyyy-MM");
+    setReinforcements(prev => [
+      ...prev,
+      { id: nextReinforcementId, type: "entrega_chave", value: "500000", monthYear: defaultMonth },
+    ]);
+    setNextReinforcementId(prev => prev + 1);
+  };
+
+  const updateReinforcement = (id: number, field: keyof ReinforcementEntry, val: string) => {
+    setReinforcements(prev => prev.map(r => r.id === id ? { ...r, [field]: val } : r));
+  };
+
+  const removeReinforcement = (id: number) => {
+    setReinforcements(prev => prev.filter(r => r.id !== id));
+  };
+
+  const reinforcementTypeLabels: Record<ReinforcementType, string> = {
+    entrega_chave: "Entrega da Chave",
+    assinatura_contrato: "Assinatura do Contrato",
+    quitacao: "Documento de Quitação",
+    custom: "Personalizado",
+  };
 
   const formatCurrency = (value: string) => {
     const numericValue = value.replace(/\D/g, "");

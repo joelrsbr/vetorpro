@@ -161,19 +161,24 @@ export function CalculationSummary({ financingData, calculations, onFieldClick }
     });
   }
 
-  if (financingData.enableReinforcements) {
-    const frequencyLabels = {
-      monthly: "mensal",
-      semiannual: "semestral",
-      annual: "anual",
+  if (financingData.enableReinforcements && financingData.reinforcements.length > 0) {
+    const typeLabels: Record<string, string> = {
+      entrega_chave: "Entrega da Chave",
+      assinatura_contrato: "Assinatura",
+      quitacao: "Quitação",
+      custom: "Personalizado",
     };
+    const totalReinforcements = financingData.reinforcements.reduce(
+      (sum, r) => sum + (parseInt(r.value.replace(/\D/g, "")) || 0) / 100,
+      0
+    );
     summaryItems.push({
       field: "reinforcement",
       icon: Repeat,
-      label: "Reforço",
-      value: formatBRL(financingData.reinforcementValue),
-      secondary: frequencyLabels[financingData.reinforcementFrequency],
-      tooltip: "Pagamento extra programado para reduzir o saldo devedor",
+      label: `Reforços (${financingData.reinforcements.length})`,
+      value: formatBRL(totalReinforcements),
+      secondary: financingData.reinforcements.map(r => typeLabels[r.type]).join(", "),
+      tooltip: "Pagamentos extras programados para reduzir o saldo devedor",
     });
   }
 
