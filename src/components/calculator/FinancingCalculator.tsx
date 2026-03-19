@@ -410,7 +410,7 @@ export function FinancingCalculator() {
     };
   }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
   enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
-  enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
+  enableReinforcements, reinforcements, startDate, feesInsurance]);
 
   const financingData: FinancingData = {
     propertyValue: parseCurrency(propertyValue),
@@ -424,9 +424,8 @@ export function FinancingCalculator() {
     feesInsurance: parseCurrency(feesInsurance),
     extraAmortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0,
     enableExtraAmortization,
-    reinforcementValue: parseCurrency(reinforcementValue),
+    reinforcements,
     enableReinforcements,
-    reinforcementFrequency,
     includeMonthlyPayment
   };
 
