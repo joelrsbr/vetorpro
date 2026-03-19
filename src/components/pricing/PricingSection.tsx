@@ -47,7 +47,7 @@ const plans = [
       "Cotações de Moedas Live (Dólar/Euro)",
     ],
     limitations: [
-      "Sem comparativo Multi-Bancos",
+      "Sem Sondagem Estratégica",
     ],
     cta: "Assinar Professional",
     variant: "outline" as const,
