@@ -252,7 +252,7 @@ export default function Dashboard() {
               {/* Row 2: upgrade description + button centered below */}
               {plan !== "business" ? (
                 <div className="flex flex-col items-center gap-2 text-center">
-                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos para corretores</p>
+                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
                   <Button variant="outline" size="sm" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
                     <Crown className="h-3.5 w-3.5 mr-1.5" />
                     Exclusivo-Business
