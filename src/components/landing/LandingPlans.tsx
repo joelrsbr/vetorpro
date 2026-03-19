@@ -44,7 +44,7 @@ const plans = [
   { text: "Exportação de PDF Básico", included: true },
   { text: "Indexadores financeiros atualizados (via API Oficial - BACEN)", included: true },
   { text: "Cotações de Moedas Live (Dólar/Euro)", included: true },
-  { text: "Comparativo Multi-Bancos", included: false }]
+  { text: "Sondagem Estratégica", included: false }]
 },
 {
   id: "business" as PlanType,
