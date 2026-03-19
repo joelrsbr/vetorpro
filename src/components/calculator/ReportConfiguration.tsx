@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -222,18 +223,27 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                   <Lock className="h-4 w-4 mr-1" />
                   Enviar Logo
                 </Button>
-                <button
-                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
-                  disabled={isRedirectingBusiness}
-                  onClick={handleUpgradeBusiness}
-                >
-                  {isRedirectingBusiness ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <Zap className="h-3 w-3" />
-                  )}
-                  Liberar Business
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
+                        disabled={isRedirectingBusiness}
+                        onClick={handleUpgradeBusiness}
+                      >
+                        {isRedirectingBusiness ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Zap className="h-3 w-3" />
+                        )}
+                        Liberar Business
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[220px] text-center">
+                      <p className="text-xs">Upgrade Inteligente: o valor já pago no plano atual será descontado proporcionalmente da primeira mensalidade Business.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               )}
               <p className="text-xs text-muted-foreground mt-1">PNG ou JPG, máx. 2MB</p>
