@@ -236,7 +236,7 @@ export default function Dashboard() {
               }
             }}
           >
-            <CardContent className="pt-6 flex items-center gap-4">
+            <CardContent className="pt-6 flex items-start gap-4">
               <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
                 <Brain className="h-6 w-6 text-white" />
               </div>
