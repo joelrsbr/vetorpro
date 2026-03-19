@@ -249,6 +249,7 @@ export default function Dashboard() {
                 ) : (
                   <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
                 )}
+              </div>
             </CardContent>
           </Card>
 
