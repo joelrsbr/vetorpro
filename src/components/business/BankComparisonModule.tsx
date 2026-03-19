@@ -9,12 +9,15 @@ import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock } 
 import { BANK_RATES } from "@/lib/bank-rates";
 import { useBankComparison } from "@/hooks/useBankComparison";
 import { useMarketData } from "@/hooks/useMarketData";
+import { useSimulation } from "@/contexts/SimulationContext";
 
 export function BankComparisonModule() {
-  const [propertyValue, setPropertyValue] = useState("50000000");
-  const [downPayment, setDownPayment] = useState("10000000");
-  const [termMonths, setTermMonths] = useState("360");
-  const [system, setSystem] = useState<"SAC" | "PRICE">("SAC");
+  const {
+    propertyValue, setPropertyValue,
+    downPayment, setDownPayment,
+    termMonths, setTermMonths,
+    amortizationType: system, setAmortizationType: setSystem,
+  } = useSimulation();
   const [editingBank, setEditingBank] = useState<string | null>(null);
 
   const formatCurrency = (value: string) => {
