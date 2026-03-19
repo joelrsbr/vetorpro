@@ -236,35 +236,31 @@ export default function Dashboard() {
               }
             }}
           >
-            <CardContent className="pt-6 space-y-3">
-              {/* Top row: icon + title + badge — single horizontal line */}
-              <div className="flex items-center gap-4">
+            <CardContent className="pt-6 flex flex-col gap-3">
+              {/* Row 1: icon + title + badge — same pattern as other cards */}
+              <div className="flex flex-row items-center gap-4">
                 <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
                   <Brain className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-semibold whitespace-nowrap">Sondagem Estratégica</h3>
-                {plan !== "business" && (
-                  <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0">Exclusivo Business</Badge>
-                )}
+                <div className="flex flex-row items-center gap-3 min-w-0">
+                  <h3 className="font-semibold whitespace-nowrap">Sondagem Estratégica</h3>
+                  {plan !== "business" && (
+                    <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0 ml-1">Exclusivo Business</Badge>
+                  )}
+                </div>
               </div>
 
-              {/* Bottom row: upgrade info centered */}
+              {/* Row 2: upgrade description + button centered below */}
               {plan !== "business" ? (
-                <div className="flex items-center justify-center gap-4">
-                  <p className="text-sm text-muted-foreground whitespace-nowrap">Inteligência multi-bancos</p>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-help shrink-0" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[260px] text-xs">
-                        Este recurso está disponível no plano Business. Migre agora e aproveite o abatimento proporcional da sua assinatura atual.
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos para corretores</p>
+                  <Button variant="outline" size="sm" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
+                    <Crown className="h-3.5 w-3.5 mr-1.5" />
+                    Business — R$&nbsp;99,00
+                  </Button>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground text-center">Inteligência multi-bancos</p>
+                <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
               )}
             </CardContent>
           </Card>
