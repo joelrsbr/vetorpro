@@ -99,10 +99,24 @@ export function useMarketData() {
       if (error) throw error;
 
       if (result && result.currencies && result.rates) {
-        setData(result as MarketData);
+        // Merge with fallback: if API returned empty currencies, keep fallback
+        const mergedCurrencies = {
+          ...FALLBACK_DATA.currencies,
+          ...result.currencies,
+        };
+        const mergedRates = {
+          ...FALLBACK_DATA.rates,
+          ...result.rates,
+        };
+        const merged = { ...result, currencies: mergedCurrencies, rates: mergedRates } as MarketData;
+        setData(merged);
         setIsLive(true);
         setLastFetch(new Date());
-        setCachedData(result as MarketData);
+        setCachedData(merged);
+      } else {
+        // API returned but with no useful data - use fallback
+        setData(FALLBACK_DATA);
+        setIsLive(false);
       }
     } catch (err) {
       console.error("Failed to fetch market data:", err);
@@ -111,6 +125,8 @@ export function useMarketData() {
       if (cached) {
         setData(cached.data);
         setLastFetch(new Date(cached.timestamp));
+      } else {
+        setData(FALLBACK_DATA);
       }
       setIsLive(false);
     } finally {

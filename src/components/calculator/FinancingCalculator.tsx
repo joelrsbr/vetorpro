@@ -38,6 +38,15 @@ export interface ScheduleItem {
 
 export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "poupanca";
 
+export type ReinforcementType = "entrega_chave" | "assinatura_contrato" | "quitacao" | "custom";
+
+export interface ReinforcementEntry {
+  id: number;
+  type: ReinforcementType;
+  value: string;
+  monthYear: string; // format: "YYYY-MM"
+}
+
 export interface FinancingData {
   propertyValue: number;
   downPayment: number;
@@ -50,9 +59,8 @@ export interface FinancingData {
   feesInsurance: number;
   extraAmortization: number;
   enableExtraAmortization: boolean;
-  reinforcementValue: number;
+  reinforcements: ReinforcementEntry[];
   enableReinforcements: boolean;
-  reinforcementFrequency: "monthly" | "semiannual" | "annual";
   includeMonthlyPayment: boolean;
 }
 
@@ -92,11 +100,35 @@ export function FinancingCalculator() {
   const [extraAmortizationValue, setExtraAmortizationValue] = useState<string>("100000");
   const [extraAmortizationType, setExtraAmortizationType] = useState<"reduce-term" | "reduce-payment">("reduce-term");
 
-  // Scheduled reinforcements
+  // Structured reinforcements
   const [enableReinforcements, setEnableReinforcements] = useState(false);
-  const [reinforcementValue, setReinforcementValue] = useState<string>("500000");
-  const [reinforcementFrequency, setReinforcementFrequency] = useState<"monthly" | "semiannual" | "annual">("annual");
+  const [reinforcements, setReinforcements] = useState<ReinforcementEntry[]>([]);
+  const [nextReinforcementId, setNextReinforcementId] = useState(1);
   const [includeMonthlyPayment, setIncludeMonthlyPayment] = useState(true);
+
+  const addReinforcement = () => {
+    const defaultMonth = format(addMonths(startDate, 12), "yyyy-MM");
+    setReinforcements(prev => [
+      ...prev,
+      { id: nextReinforcementId, type: "entrega_chave", value: "500000", monthYear: defaultMonth },
+    ]);
+    setNextReinforcementId(prev => prev + 1);
+  };
+
+  const updateReinforcement = (id: number, field: keyof ReinforcementEntry, val: string) => {
+    setReinforcements(prev => prev.map(r => r.id === id ? { ...r, [field]: val } : r));
+  };
+
+  const removeReinforcement = (id: number) => {
+    setReinforcements(prev => prev.filter(r => r.id !== id));
+  };
+
+  const reinforcementTypeLabels: Record<ReinforcementType, string> = {
+    entrega_chave: "Entrega da Chave",
+    assinatura_contrato: "Assinatura do Contrato",
+    quitacao: "Documento de Quitação",
+    custom: "Personalizado",
+  };
 
   const formatCurrency = (value: string) => {
     const numericValue = value.replace(/\D/g, "");
@@ -235,11 +267,26 @@ export function FinancingCalculator() {
     const months = parseInt(termMonths) || 360;
     const fees = parseCurrency(feesInsurance);
     const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
-    const reinforcement = enableReinforcements ? parseCurrency(reinforcementValue) : 0;
     const correctionRate = getCorrectionRate(correctionIndex);
 
     if (principal <= 0 || monthlyRate <= 0 || months <= 0) {
       return null;
+    }
+
+    // Build a map of month -> reinforcement total based on structured entries
+    const reinforcementByMonth = new Map<number, number>();
+    if (enableReinforcements) {
+      reinforcements.forEach(r => {
+        const rVal = (parseInt(r.value.replace(/\D/g, "")) || 0) / 100;
+        if (rVal <= 0 || !r.monthYear) return;
+        const [year, mon] = r.monthYear.split("-").map(Number);
+        const startMonth = startDate.getFullYear() * 12 + startDate.getMonth();
+        const targetMonth = year * 12 + (mon - 1);
+        const diff = targetMonth - startMonth + 1;
+        if (diff > 0 && diff <= months) {
+          reinforcementByMonth.set(diff, (reinforcementByMonth.get(diff) || 0) + rVal);
+        }
+      });
     }
 
     let schedule: ScheduleItem[] = [];
@@ -250,16 +297,7 @@ export function FinancingCalculator() {
 
     const getReinforcementForMonth = (month: number): number => {
       if (!enableReinforcements) return 0;
-      switch (reinforcementFrequency) {
-        case "monthly":
-          return reinforcement;
-        case "semiannual":
-          return month % 6 === 0 ? reinforcement : 0;
-        case "annual":
-          return month % 12 === 0 ? reinforcement : 0;
-        default:
-          return 0;
-      }
+      return reinforcementByMonth.get(month) || 0;
     };
 
     if (amortizationType === "SAC") {
@@ -372,7 +410,7 @@ export function FinancingCalculator() {
     };
   }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
   enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
-  enableReinforcements, reinforcementValue, reinforcementFrequency, startDate, feesInsurance]);
+  enableReinforcements, reinforcements, startDate, feesInsurance]);
 
   const financingData: FinancingData = {
     propertyValue: parseCurrency(propertyValue),
@@ -386,9 +424,8 @@ export function FinancingCalculator() {
     feesInsurance: parseCurrency(feesInsurance),
     extraAmortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0,
     enableExtraAmortization,
-    reinforcementValue: parseCurrency(reinforcementValue),
+    reinforcements,
     enableReinforcements,
-    reinforcementFrequency,
     includeMonthlyPayment
   };
 
@@ -727,32 +764,52 @@ export function FinancingCalculator() {
               </div>
               {enableReinforcements &&
               <div className="space-y-4 animate-slide-up">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Valor do Reforço (R$)</Label>
-                      <Input
-                      value={formatCurrency(reinforcementValue)}
-                      onChange={(e) => handleCurrencyInput(e.target.value, setReinforcementValue)}
-                      placeholder="5.000" />
-                    
+                  {reinforcements.map((r, idx) => (
+                    <div key={r.id} className="border rounded-lg p-3 bg-background/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-primary">Reforço {idx + 1}</span>
+                        <Button variant="ghost" size="sm" onClick={() => removeReinforcement(r.id)} className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive">
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Tipo</Label>
+                          <Select value={r.type} onValueChange={(v) => updateReinforcement(r.id, "type", v)}>
+                            <SelectTrigger className="h-9 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="entrega_chave">Entrega da Chave</SelectItem>
+                              <SelectItem value="assinatura_contrato">Assinatura do Contrato</SelectItem>
+                              <SelectItem value="quitacao">Documento de Quitação</SelectItem>
+                              <SelectItem value="custom">Personalizado</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Valor (R$)</Label>
+                          <Input
+                            value={formatCurrency(r.value)}
+                            onChange={(e) => updateReinforcement(r.id, "value", e.target.value.replace(/\D/g, ""))}
+                            placeholder="5.000,00"
+                            className="h-9 text-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Mês/Ano</Label>
+                          <Input
+                            type="month"
+                            value={r.monthYear}
+                            onChange={(e) => updateReinforcement(r.id, "monthYear", e.target.value)}
+                            className="h-9 text-sm" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Frequência</Label>
-                      <Select
-                      value={reinforcementFrequency}
-                      onValueChange={(v) => setReinforcementFrequency(v as "monthly" | "semiannual" | "annual")}>
-                      
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="monthly">Mensal</SelectItem>
-                          <SelectItem value="semiannual">Semestral</SelectItem>
-                          <SelectItem value="annual">Anual</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={addReinforcement} className="gap-1 w-full">
+                    <Plus className="h-4 w-4" />
+                    Adicionar Reforço
+                  </Button>
                   <div className="flex items-center gap-2">
                     <Switch
                     id="includeMonthlyPayment"
