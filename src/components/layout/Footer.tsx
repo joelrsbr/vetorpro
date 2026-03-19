@@ -1,7 +1,8 @@
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, MessageCircle } from "lucide-react";
 import vetorproLogo from "@/assets/vetorpro-logo.png";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 export function Footer() {
   const { user } = useAuth();
