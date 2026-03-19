@@ -244,7 +244,7 @@ export default function Dashboard() {
                 <div className="flex flex-row items-center gap-3 min-w-0">
                   <h3 className="font-semibold whitespace-nowrap">Sondagem Estratégica</h3>
                   {plan !== "business" && (
-                    <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0 ml-1">Exclusivo Business</Badge>
+                    <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0 ml-1">Assine</Badge>
                   )}
                 </div>
               </div>
