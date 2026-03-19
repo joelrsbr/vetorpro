@@ -450,19 +450,28 @@ export function ProposalGenerator({
                 <p className="text-sm text-muted-foreground mb-4">
                   Gere propostas persuasivas com IA — Disponível no Business
                 </p>
-                <Button
-                  size="lg"
-                  className="w-full bg-success hover:bg-success/90 text-success-foreground"
-                  disabled={isRedirectingBusiness}
-                  onClick={handleUpgradeBusiness}
-                >
-                  {isRedirectingBusiness ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Crown className="mr-2 h-4 w-4" />
-                  )}
-                  Fazer Upgrade para Business
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="lg"
+                        className="w-full bg-success hover:bg-success/90 text-success-foreground"
+                        disabled={isRedirectingBusiness}
+                        onClick={handleUpgradeBusiness}
+                      >
+                        {isRedirectingBusiness ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Crown className="mr-2 h-4 w-4" />
+                        )}
+                        Fazer Upgrade para Business
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[220px] text-center">
+                      <p className="text-xs">Upgrade Inteligente: o valor já pago no plano atual será descontado proporcionalmente da primeira mensalidade Business.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </>
             )}
           </div>
