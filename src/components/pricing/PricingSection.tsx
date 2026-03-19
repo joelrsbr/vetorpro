@@ -26,7 +26,7 @@ const plans = [
     ],
     limitations: [
       "Sem exportação de PDF",
-      "Sem comparativo Multi-Bancos",
+      "Sem Sondagem Estratégica",
     ],
     cta: "Assinar Basic",
     variant: "outline" as const,
