@@ -11,8 +11,9 @@ import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
-  Loader2, Sparkles, Copy, Brain, Building2
+  Loader2, Sparkles, Copy, Brain, Building2, Info
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -240,7 +241,19 @@ export default function Dashboard() {
                 <Brain className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold">Sondagem Estratégica</h3>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-semibold">Sondagem Estratégica</h3>
+                  {plan !== "business" && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
+                        Ao migrar para o Business, o valor do seu plano atual é descontado proporcionalmente.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
                 {plan !== "business" ? (
                   <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
                     <Crown className="h-3.5 w-3.5 mr-1.5" />
