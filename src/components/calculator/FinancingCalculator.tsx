@@ -38,6 +38,15 @@ export interface ScheduleItem {
 
 export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "poupanca";
 
+export type ReinforcementType = "entrega_chave" | "assinatura_contrato" | "quitacao" | "custom";
+
+export interface ReinforcementEntry {
+  id: number;
+  type: ReinforcementType;
+  value: string;
+  monthYear: string; // format: "YYYY-MM"
+}
+
 export interface FinancingData {
   propertyValue: number;
   downPayment: number;
@@ -50,9 +59,8 @@ export interface FinancingData {
   feesInsurance: number;
   extraAmortization: number;
   enableExtraAmortization: boolean;
-  reinforcementValue: number;
+  reinforcements: ReinforcementEntry[];
   enableReinforcements: boolean;
-  reinforcementFrequency: "monthly" | "semiannual" | "annual";
   includeMonthlyPayment: boolean;
 }
 
