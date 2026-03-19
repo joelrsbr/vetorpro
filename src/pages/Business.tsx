@@ -72,6 +72,10 @@ function BusinessContent() {
             <TabsTrigger value="comparison" className="gap-2">
               <Brain className="h-4 w-4" />
               Sondagem Estratégica
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
+              </span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
 <Settings className="h-4 w-4" />
