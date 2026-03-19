@@ -61,7 +61,7 @@ const plans = [
     description: "Ferramentas poderosas para o Corretor de Elite",
     features: [
       "Tudo do Plano Professional",
-      "Comparativo Multi-Bancos (8 bancos)",
+      "Sondagem Estratégica (8 bancos)",
       "APIs de Moedas e Indexadores Live",
       "PDFs Premium com Branding (Logo e CRECI)",
       "Dashboard corporativo",

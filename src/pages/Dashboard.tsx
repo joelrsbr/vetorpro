@@ -238,12 +238,12 @@ export default function Dashboard() {
           >
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
-                <GitCompareArrows className="h-6 w-6 text-white" />
+                <Brain className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold">Comparativo 6 Bancos</h3>
+                <h3 className="font-semibold">Sondagem Estratégica</h3>
                 <p className="text-sm text-muted-foreground">
-                  {plan === "business" ? "Simulação multi-bancos" : "Exclusivo Business"}
+                  {plan === "business" ? "Inteligência multi-bancos" : "Exclusivo Business"}
                 </p>
               </div>
               {plan !== "business" && (

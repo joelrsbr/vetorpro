@@ -57,7 +57,7 @@ const plans = [
   recommended: true,
   features: [
   { text: "Tudo do Plano Professional", included: true },
-  { text: "Comparativo Multi-Bancos (6 maiores bancos)", included: true },
+  { text: "Sondagem Estratégica (6 maiores bancos)", included: true },
   { text: "APIs de Moedas e Indexadores Live", included: true },
   { text: "PDFs Premium com Branding (Logo e CRECI)", included: true },
   { text: "Dashboard corporativo", included: true }]
