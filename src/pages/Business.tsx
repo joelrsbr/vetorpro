@@ -69,9 +69,13 @@ function BusinessContent() {
               <Calculator className="h-4 w-4" />
               Simulador
             </TabsTrigger>
-            <TabsTrigger value="comparison" className="gap-2">
+            <TabsTrigger value="comparison" className="gap-2 relative">
               <Brain className="h-4 w-4" />
               Sondagem Estratégica
+              <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold uppercase leading-none animate-pulse">
+                <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
+                Live
+              </span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
