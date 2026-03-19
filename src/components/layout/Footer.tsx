@@ -1,4 +1,5 @@
 import { HelpCircle } from "lucide-react";
+import vetorproLogo from "@/assets/vetorpro-logo.png";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 
