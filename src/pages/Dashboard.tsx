@@ -235,32 +235,20 @@ export default function Dashboard() {
               }
             }}
           >
-            <CardContent className="pt-6 flex flex-col gap-3">
-              {/* Row 1: icon + title + badge — same pattern as other cards */}
-              <div className="flex flex-row items-center gap-4">
-                <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
-                  <Brain className="h-6 w-6 text-white" />
-                </div>
-                <div className="flex flex-row items-center gap-3 min-w-0">
-                  <h3 className="font-semibold whitespace-nowrap">Sondagem Estratégica</h3>
-                  {plan !== "business" && (
-                    <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0 ml-1">Assine</Badge>
-                  )}
-                </div>
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
+                <Brain className="h-6 w-6 text-white" />
               </div>
-
-              {/* Row 2: upgrade description + button centered below */}
-              {plan !== "business" ? (
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
-                  <Button variant="outline" size="sm" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
+              <div>
+                <h3 className="font-semibold">Sondagem Estratégica</h3>
+                {plan !== "business" ? (
+                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
                     <Crown className="h-3.5 w-3.5 mr-1.5" />
                     Exclusivo-Business
                   </Button>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
-              )}
+                ) : (
+                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
+                )}
             </CardContent>
           </Card>
 
