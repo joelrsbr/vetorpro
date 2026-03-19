@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Landmark } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -210,6 +211,44 @@ export function BankComparisonModule() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* BNDES - Enterprise teaser */}
+            <Card className="relative overflow-hidden border transition-all duration-200 grayscale opacity-50 select-none pointer-events-none">
+              <div className="h-1.5 w-full bg-muted-foreground" />
+              <div className="absolute top-3 right-3">
+                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 whitespace-nowrap">
+                  Enterprise (Em Breve)
+                </Badge>
+              </div>
+              <CardHeader className="pb-2 pt-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-md flex items-center justify-center bg-muted-foreground text-white text-xs font-bold shrink-0">
+                    <Landmark className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm">BNDES</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">—% a.a.</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2 pb-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">1ª Parcela</p>
+                    <p className="text-sm font-semibold text-foreground">—</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Última Parcela</p>
+                    <p className="text-sm font-semibold text-foreground">—</p>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Custo Total Pago</p>
+                  <p className="text-base font-bold text-foreground">—</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Juros: —</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <p className="text-[11px] text-muted-foreground text-center">
