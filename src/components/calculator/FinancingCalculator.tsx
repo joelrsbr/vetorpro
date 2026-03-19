@@ -267,11 +267,26 @@ export function FinancingCalculator() {
     const months = parseInt(termMonths) || 360;
     const fees = parseCurrency(feesInsurance);
     const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
-    const reinforcement = enableReinforcements ? parseCurrency(reinforcementValue) : 0;
     const correctionRate = getCorrectionRate(correctionIndex);
 
     if (principal <= 0 || monthlyRate <= 0 || months <= 0) {
       return null;
+    }
+
+    // Build a map of month -> reinforcement total based on structured entries
+    const reinforcementByMonth = new Map<number, number>();
+    if (enableReinforcements) {
+      reinforcements.forEach(r => {
+        const rVal = (parseInt(r.value.replace(/\D/g, "")) || 0) / 100;
+        if (rVal <= 0 || !r.monthYear) return;
+        const [year, mon] = r.monthYear.split("-").map(Number);
+        const startMonth = startDate.getFullYear() * 12 + startDate.getMonth();
+        const targetMonth = year * 12 + (mon - 1);
+        const diff = targetMonth - startMonth + 1;
+        if (diff > 0 && diff <= months) {
+          reinforcementByMonth.set(diff, (reinforcementByMonth.get(diff) || 0) + rVal);
+        }
+      });
     }
 
     let schedule: ScheduleItem[] = [];
@@ -282,16 +297,7 @@ export function FinancingCalculator() {
 
     const getReinforcementForMonth = (month: number): number => {
       if (!enableReinforcements) return 0;
-      switch (reinforcementFrequency) {
-        case "monthly":
-          return reinforcement;
-        case "semiannual":
-          return month % 6 === 0 ? reinforcement : 0;
-        case "annual":
-          return month % 12 === 0 ? reinforcement : 0;
-        default:
-          return 0;
-      }
+      return reinforcementByMonth.get(month) || 0;
     };
 
     if (amortizationType === "SAC") {
