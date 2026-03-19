@@ -244,7 +244,7 @@ export default function Dashboard() {
                 <div className="flex flex-row items-center gap-3 min-w-0">
                   <h3 className="font-semibold whitespace-nowrap">Sondagem Estratégica</h3>
                   {plan !== "business" && (
-                    <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0 ml-1">Exclusivo Business</Badge>
+                    <Badge variant="outline" className="text-[10px] whitespace-nowrap shrink-0 ml-1">Assine</Badge>
                   )}
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function Dashboard() {
                   <p className="text-sm text-muted-foreground">Inteligência multi-bancos para corretores</p>
                   <Button variant="outline" size="sm" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
                     <Crown className="h-3.5 w-3.5 mr-1.5" />
-                    Business — R$&nbsp;99,00
+                    Exclusivo-Business
                   </Button>
                 </div>
               ) : (
