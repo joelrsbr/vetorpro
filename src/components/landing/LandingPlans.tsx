@@ -27,7 +27,7 @@ const plans = [
   { text: "Calculadora HP12C", included: true },
   { text: "10 simulações/mês", included: true },
   { text: "2 propostas com IA/mês", included: true },
-  { text: "Comparativo Multi-Bancos", included: false }]
+  { text: "Sondagem Estratégica", included: false }]
 },
 {
   id: "pro" as PlanType,
