@@ -24,18 +24,12 @@ export function Footer() {
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-center">
                   <p>Dúvidas? Nossa equipe responde em até 48h úteis.</p>
-                  <a
-                    href="https://wa.me/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-1 text-primary hover:underline"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp
-                  </a>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+              <MessageCircle className="h-4 w-4 text-green-500 hover:text-green-600 transition-colors" />
+            </a>
             <span className="mx-2">·</span>
             <img src={vetorproLogo} alt="VetorPro" className="h-5 w-auto" />
             <span className="font-semibold text-foreground">{brandLabel}</span>
