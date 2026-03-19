@@ -16,6 +16,7 @@ export function Footer() {
             <HelpCircle className="h-4 w-4" />
             <span>Suporte</span>
             <span className="mx-2">·</span>
+            <img src={vetorproLogo} alt="VetorPro" className="h-5 w-auto" />
             <span className="font-semibold text-foreground">{brandLabel}</span>
           </div>
 
