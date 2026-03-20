@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -5,15 +6,20 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PlanType } from "@/contexts/SessionContext";
 
 interface WelcomeModalProps {
   open: boolean;
   planId: PlanType;
+  onStart?: () => void;
 }
 
-export function WelcomeModal({ open, planId }: WelcomeModalProps) {
+export function WelcomeModal({ open, planId, onStart }: WelcomeModalProps) {
+  const [accepted, setAccepted] = useState(false);
+
   const getPlanName = () => {
     switch (planId) {
       case "basic":
@@ -27,6 +33,11 @@ export function WelcomeModal({ open, planId }: WelcomeModalProps) {
     }
   };
 
+  const handleStart = () => {
+    localStorage.setItem("vetorpro_onboarding_accepted", "true");
+    onStart?.();
+  };
+
   return (
     <Dialog open={open}>
       <DialogContent className="sm:max-w-md text-center [&>button]:hidden">
@@ -36,22 +47,40 @@ export function WelcomeModal({ open, planId }: WelcomeModalProps) {
           </div>
           <DialogTitle className="text-xl">Login realizado com sucesso!</DialogTitle>
           <DialogDescription className="text-base pt-2">
-            Bem-vindo ao <strong>VetorPro Business/TEAM</strong>
+            Bem-vindo ao <strong>VetorPro</strong>
             <br />
             <span className="text-primary font-medium mt-2 block">
               Plano {getPlanName()} ativado
             </span>
-            <span className="text-muted-foreground text-sm mt-2 block">
-              Redirecionando para o painel...
-            </span>
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-center pt-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Aguarde um momento</span>
-          </div>
+
+        <div className="flex items-start gap-2 pt-4 text-left">
+          <Checkbox
+            id="accept-terms"
+            checked={accepted}
+            onCheckedChange={(v) => setAccepted(v === true)}
+            className="mt-0.5"
+          />
+          <label htmlFor="accept-terms" className="text-xs text-muted-foreground leading-snug cursor-pointer">
+            Li e aceito os{" "}
+            <a href="/termos-de-uso" target="_blank" className="underline hover:text-primary">
+              Termos de Uso
+            </a>{" "}
+            e a{" "}
+            <a href="/politica-de-privacidade" target="_blank" className="underline hover:text-primary">
+              Política de Privacidade
+            </a>.
+          </label>
         </div>
+
+        <Button
+          className="w-full mt-2"
+          disabled={!accepted}
+          onClick={handleStart}
+        >
+          Iniciar
+        </Button>
       </DialogContent>
     </Dialog>
   );
