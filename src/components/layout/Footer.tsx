@@ -37,8 +37,8 @@ export function Footer() {
           </div>
 
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <a href="/termos-de-uso" className="hover:text-primary transition-colors">Termos de Uso</a>
-            <a href="/politica-de-privacidade" className="hover:text-primary transition-colors">Privacidade</a>
+            <Link to="/termos-de-uso" className="hover:text-primary transition-colors">Termos de Uso</Link>
+            <Link to="/politica-de-privacidade" className="hover:text-primary transition-colors">Privacidade</Link>
           </div>
 
           <p className="text-[10px] text-muted-foreground/60">

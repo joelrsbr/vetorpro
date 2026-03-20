@@ -3,14 +3,18 @@ import { Footer } from "@/components/layout/Footer";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function TermosDeUso() {
+  const { user } = useAuth();
+  const backTo = user ? "/dashboard" : "/";
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 container max-w-3xl py-12 px-4">
         <Button variant="ghost" size="sm" asChild className="mb-8 text-muted-foreground hover:text-foreground">
-          <Link to="/">
+          <Link to={backTo}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Link>

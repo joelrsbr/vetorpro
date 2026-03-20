@@ -146,7 +146,7 @@ export function LandingHeader() {
                     onClick={() => scrollToSection("#planos")}
                     className="w-full"
                   >
-                    Começar Agora
+                    Iniciar
                   </Button>
                 </>
               )}
