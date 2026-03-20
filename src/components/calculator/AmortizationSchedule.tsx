@@ -56,7 +56,7 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16">Mês</TableHead>
+                  <TableHead className="w-20">Data</TableHead>
                   <TableHead>Dívida</TableHead>
                   <TableHead>Correção</TableHead>
                   <TableHead>Dívida Corrigida</TableHead>
