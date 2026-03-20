@@ -43,7 +43,7 @@ const plans = [
       "Cotações Dólar/Euro em tempo real",
       "Gestão de Reforços Estratégicos",
       "Exportação de PDF Básico",
-      "Propostas com IA ilimitadas",
+      "Propostas com IA liberadas",
     ],
     limitations: [
       "Sem Relatórios White Label",
