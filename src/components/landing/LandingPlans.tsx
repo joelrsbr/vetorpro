@@ -43,7 +43,7 @@ const plans = [
   { text: "Cotações Dólar/Euro em tempo real", included: true },
   { text: "Gestão de Reforços Estratégicos", included: true },
   { text: "Exportação de PDF Básico", included: true },
-  { text: "Propostas com IA ilimitadas", included: true }]
+  { text: "Propostas com IA liberadas", included: true }]
 },
 {
   id: "business" as PlanType,
@@ -54,8 +54,7 @@ const plans = [
   icon: Building2,
   buttonVariant: "hero" as const,
   features: [
-  { text: "Tudo do Professional", included: true },
-  { text: "Relatórios White Label (PDF) com sua marca", included: true },
+  { text: "Tudo do Plano Professional + Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
   { text: "Datas Reais de Cronograma", included: true },
   { text: "Sondagem Estratégica (8 bancos)", included: true },
   { text: "Dashboard corporativo", included: true }]

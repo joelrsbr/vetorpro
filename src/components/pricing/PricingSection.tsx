@@ -43,7 +43,7 @@ const plans = [
       "Cotações Dólar/Euro em tempo real",
       "Gestão de Reforços Estratégicos",
       "Exportação de PDF Básico",
-      "Propostas com IA ilimitadas",
+      "Propostas com IA liberadas",
     ],
     limitations: [
       "Sem Relatórios White Label",
@@ -59,8 +59,7 @@ const plans = [
     period: "/mês",
     description: "O Plano definitivo para Consultoria de Alto Padrão",
     features: [
-      "Tudo do Professional",
-      "Relatórios White Label (PDF) com sua marca",
+      "Tudo do Plano Professional + Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
       "Sondagem Estratégica (8 bancos)",
       "Dashboard corporativo",
