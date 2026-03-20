@@ -36,7 +36,7 @@ export interface ScheduleItem {
   date: Date;
 }
 
-export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "poupanca";
+export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "incc" | "poupanca" | "custom";
 
 export type ReinforcementType = "entrega_chave" | "assinatura_contrato" | "quitacao" | "custom";
 
