@@ -413,7 +413,7 @@ export function FinancingCalculator() {
       monthsSaved,
       interestSaved
     };
-  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
+  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex, customCorrectionRate,
   enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
   enableReinforcements, reinforcements, startDate, feesInsurance]);
 
