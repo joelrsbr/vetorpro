@@ -34,11 +34,11 @@ export function LandingHero() {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold leading-tight text-foreground tracking-tight">
-              VetorPro: Simulação Estruturada de Cenários Imobiliários
+              VetorPro: Antecipe o Futuro do Crédito Imobiliário.
             </h1>
 
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
-              Desenvolvida para apoiar profissionais do mercado imobiliário, a VetorPro organiza variáveis complexas em simulações estruturadas, oferecendo suporte técnico para o dia a dia de negociações.
+              A plataforma de inteligência estratégica que transforma dados de mercado em clareza para investidores e consultores de alto padrão.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
