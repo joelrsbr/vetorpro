@@ -36,7 +36,7 @@ export interface ScheduleItem {
   date: Date;
 }
 
-export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "poupanca";
+export type CorrectionIndexType = "isento" | "tr" | "ipca" | "igpm" | "incc" | "poupanca" | "custom";
 
 export type ReinforcementType = "entrega_chave" | "assinatura_contrato" | "quitacao" | "custom";
 
@@ -87,6 +87,7 @@ export function FinancingCalculator() {
 
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
+  const [customCorrectionRate, setCustomCorrectionRate] = useState<string>("6");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
 
@@ -244,9 +245,13 @@ export function FinancingCalculator() {
       case "ipca":
         return (marketData.rates.ipca?.value ?? 4.50) / 12 / 100;
       case "igpm":
-        return 5.00 / 12 / 100; // IGP-M not in our API
+        return 5.00 / 12 / 100;
+      case "incc":
+        return 6.00 / 12 / 100;
       case "poupanca":
         return (marketData.rates.poupanca?.value ?? 0.63) / 100;
+      case "custom":
+        return (parseFloat(customCorrectionRate.replace(",", ".")) || 0) / 12 / 100;
       default:
         return 0;
     }
@@ -408,7 +413,7 @@ export function FinancingCalculator() {
       monthsSaved,
       interestSaved
     };
-  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex,
+  }, [propertyValue, downPayment, interestRate, interestRateType, termMonths, amortizationType, correctionIndex, customCorrectionRate,
   enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
   enableReinforcements, reinforcements, startDate, feesInsurance]);
 
@@ -619,18 +624,31 @@ export function FinancingCalculator() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="isento" className="text-sm">Isento (0%)</SelectItem>
-                      <SelectItem value="tr" className="text-sm">
-                        TR {marketData.rates.tr ? `(${marketData.rates.tr.value.toFixed(2).replace(".", ",")}% ${marketData.rates.tr.period})` : "(estimada)"}
-                      </SelectItem>
                       <SelectItem value="ipca" className="text-sm">
                         IPCA {marketData.rates.ipca ? `(${marketData.rates.ipca.value.toFixed(2).replace(".", ",")}% ${marketData.rates.ipca.period})` : ""}
                       </SelectItem>
                       <SelectItem value="igpm" className="text-sm">IGP-M (~5,00% a.a.)</SelectItem>
+                      <SelectItem value="incc" className="text-sm">INCC (~6,00% a.a.)</SelectItem>
+                      <SelectItem value="tr" className="text-sm">
+                        TR {marketData.rates.tr ? `(${marketData.rates.tr.value.toFixed(2).replace(".", ",")}% ${marketData.rates.tr.period})` : "(estimada)"}
+                      </SelectItem>
                       <SelectItem value="poupanca" className="text-sm">
                         Poupança {marketData.rates.poupanca ? `(${marketData.rates.poupanca.value.toFixed(2).replace(".", ",")}% ${marketData.rates.poupanca.period})` : ""}
                       </SelectItem>
+                      <SelectItem value="custom" className="text-sm">Digitar Taxa (Personalizado)</SelectItem>
                     </SelectContent>
                   </Select>
+                  {correctionIndex === "custom" && (
+                    <div className="mt-2">
+                      <Label className="text-xs text-muted-foreground">Taxa anual (%)</Label>
+                      <Input
+                        value={customCorrectionRate}
+                        onChange={(e) => setCustomCorrectionRate(e.target.value)}
+                        placeholder="6,00"
+                        className="h-9 text-sm mt-1"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
