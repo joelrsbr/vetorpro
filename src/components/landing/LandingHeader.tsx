@@ -3,7 +3,6 @@ import { Menu, X, LogIn, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import vetorproLogo from "@/assets/vetorpro-logo.png";
 
 export function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,7 +29,10 @@ export function LandingHeader() {
       <nav className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <img src={vetorproLogo} alt="VetorPro" className="h-10 w-auto object-contain" />
+          <span className="text-xl font-bold tracking-tight">
+            <span className="text-primary">Vetor</span>
+            <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
