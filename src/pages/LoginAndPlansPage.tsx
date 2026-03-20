@@ -39,15 +39,9 @@ export default function LoginAndPlansPage() {
     }
   }, [session.isLoggedIn, navigate]);
 
-  // Auto-redirect after welcome modal
-  useEffect(() => {
-    if (showWelcomeModal) {
-      const timer = setTimeout(() => {
-        navigate("/calculadora");
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcomeModal, navigate]);
+  const handleWelcomeStart = () => {
+    navigate("/calculadora");
+  };
 
   const handlePlanSelect = (planId: PlanType) => {
     setSelectedPlan(planId);
