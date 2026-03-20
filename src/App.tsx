@@ -15,6 +15,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Business from "./pages/Business";
 import NotFound from "./pages/NotFound";
+import TermosDeUso from "./pages/TermosDeUso";
+import PoliticaDePrivacidade from "./pages/PoliticaDePrivacidade";
 
 const queryClient = new QueryClient();
 
