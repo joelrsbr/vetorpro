@@ -76,7 +76,7 @@ export function LandingHeader() {
                 size="sm"
                 onClick={() => scrollToSection("#planos")}
               >
-                Começar Agora
+                Iniciar
               </Button>
             </>
           )}
