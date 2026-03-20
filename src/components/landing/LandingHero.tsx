@@ -29,7 +29,7 @@ export function LandingHero() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/8 border border-primary/15">
               <Landmark className="h-4 w-4 text-primary" />
               <span className="text-xs font-medium tracking-wide text-primary uppercase">
-                Suporte Técnico Imobiliário
+                Inteligência Estratégica Imobiliária
               </span>
             </div>
 

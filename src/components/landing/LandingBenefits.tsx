@@ -46,10 +46,10 @@ export function LandingBenefits() {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Recursos da Plataforma
+            Sobre a Plataforma
           </h2>
-          <p className="text-base text-muted-foreground max-w-xl mx-auto">
-            Ferramentas de suporte técnico para o profissional imobiliário.
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            O VetorPro nasceu para transformar a complexidade do mercado imobiliário em clareza estratégica. Somos uma plataforma dedicada à Simulação Estruturada de Cenários, permitindo que você visualize o impacto real de indexadores, cotações globais e reforços financeiros ao longo do tempo.
           </p>
           <p className="mt-4 text-xs tracking-wide text-muted-foreground/80 uppercase">
             Aprimoramento Contínuo: Uma infraestrutura em evolução diária para manter você à frente do mercado.
