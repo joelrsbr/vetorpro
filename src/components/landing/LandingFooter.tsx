@@ -1,19 +1,23 @@
+import { Link } from "react-router-dom";
+
 export function LandingFooter() {
   return (
-    <footer className="bg-[hsl(222_47%_8%)] text-[hsl(215_20%_65%)]">
-      <div className="container max-w-4xl mx-auto px-4 py-10 text-center space-y-4">
+    <footer className="bg-[hsl(var(--foreground))] text-[hsl(var(--muted-foreground))]">
+      <div className="container mx-auto max-w-4xl space-y-4 px-4 py-10 text-center">
         <p className="text-[11px] leading-relaxed tracking-wide opacity-80">
-          As simulações do VetorPro são baseadas em parâmetros técnicos para facilitar as negociações imobiliárias. Sempre consulte as condições oficiais da sua instituição financeira antes de pactuar negociações.
+          O VetorPro é uma plataforma profissional exclusiva. Não há versão gratuita. Planos corporativos acima de 5 usuários sob consulta. As simulações são baseadas em parâmetros técnicos para facilitar as negociações imobiliárias. Sempre consulte as condições oficiais da sua instituição financeira.
         </p>
-        <div className="w-12 h-px bg-[hsl(215_20%_25%)] mx-auto" />
-        <div className="flex items-center justify-center gap-4 text-[10px] opacity-60">
-          <a href="/termos" className="hover:opacity-100 transition-opacity">Termos de Uso</a>
+        <div className="mx-auto h-px w-12 bg-border/40" />
+        <div className="flex items-center justify-center gap-4 text-[10px] opacity-70">
+          <Link to="/termos-de-uso" className="transition-opacity hover:opacity-100">
+            Termos de Uso
+          </Link>
           <span>·</span>
-          <a href="/privacidade" className="hover:opacity-100 transition-opacity">Privacidade</a>
+          <Link to="/politica-de-privacidade" className="transition-opacity hover:opacity-100">
+            Privacidade
+          </Link>
         </div>
-        <p className="text-[10px] opacity-50">
-          © 2026 VetorPro – Desenvolvido por J-RSBR Ltda.
-        </p>
+        <p className="text-[10px] opacity-50">© 2026 VetorPro – Desenvolvido por J-RSBR Ltda.</p>
       </div>
     </footer>
   );
