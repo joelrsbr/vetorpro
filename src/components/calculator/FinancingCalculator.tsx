@@ -791,7 +791,7 @@ export function FinancingCalculator() {
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4 text-primary" />
                   <Label htmlFor="reinforcements" className="font-medium">
-                    Reforços Programados
+                    Arquitetura de Reforços Estratégicos
                   </Label>
                 </div>
                 <Switch
