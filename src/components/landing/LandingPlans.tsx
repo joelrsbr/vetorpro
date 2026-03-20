@@ -43,7 +43,7 @@ const plans = [
   { text: "Cotações Dólar/Euro em tempo real", included: true },
   { text: "Gestão de Reforços Estratégicos", included: true },
   { text: "Exportação de PDF Básico", included: true },
-  { text: "Propostas com IA ilimitadas", included: true }]
+  { text: "Propostas com IA liberadas", included: true }]
 },
 {
   id: "business" as PlanType,
