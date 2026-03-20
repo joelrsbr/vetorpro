@@ -62,8 +62,8 @@ export function LandingHero() {
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Pilares de Confiança</p>
-                  <p className="text-xs text-muted-foreground">Conformidade, clareza e facilitação</p>
+                  <p className="text-sm font-semibold text-foreground">Por que sua Estratégia precisa do VetorPro?</p>
+                  <p className="text-xs text-muted-foreground">Economia, organização e consultoria</p>
                 </div>
               </div>
 
