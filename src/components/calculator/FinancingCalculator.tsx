@@ -848,6 +848,7 @@ export function FinancingCalculator() {
                                 <SelectItem value="custom">Personalizado</SelectItem>
                               </SelectContent>
                             </Select>
+                            <p className="text-[10px] text-muted-foreground/70 italic leading-tight">Define o gatilho para a amortização (Chaves, Anual, Contrato, Quitação).</p>
                           </div>
                           <div className="space-y-1">
                             <Label className="text-xs">Valor (R$)</Label>
@@ -856,15 +857,17 @@ export function FinancingCalculator() {
                               onChange={(e) => updateReinforcement(r.id, "value", e.target.value.replace(/\D/g, ""))}
                               placeholder="5.000,00"
                               className="h-9 text-sm" />
+                            <p className="text-[10px] text-muted-foreground/70 italic leading-tight">Capital destinado à amortização extraordinária neste cenário.</p>
                           </div>
                           <div className="space-y-1">
-                            <Label className="text-xs">Mês/Ano do Reforço</Label>
+                            <Label className="text-xs">Data de Referência</Label>
                             <Input
                               type="month"
                               value={r.monthYear}
                               min={format(startDate, "yyyy-MM")}
                               onChange={(e) => updateReinforcement(r.id, "monthYear", e.target.value)}
                               className="h-9 text-sm" />
+                            <p className="text-[10px] text-muted-foreground/70 italic leading-tight">Inteligência de Datas Reais — projeta o mês exato do aporte.</p>
                           </div>
                         </div>
                       </div>
