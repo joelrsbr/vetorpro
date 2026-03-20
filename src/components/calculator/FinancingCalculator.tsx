@@ -87,6 +87,7 @@ export function FinancingCalculator() {
 
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
+  const [customCorrectionRate, setCustomCorrectionRate] = useState<string>("6");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
 
