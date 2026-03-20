@@ -617,7 +617,13 @@ export function FinancingCalculator() {
                   </div>
                   <Select
                     value={correctionIndex}
-                    onValueChange={(v) => setCorrectionIndex(v as CorrectionIndexType)}>
+                    onValueChange={(v) => {
+                      const newIndex = v as CorrectionIndexType;
+                      if (newIndex !== "custom") {
+                        setCustomCorrectionRate("6");
+                      }
+                      setCorrectionIndex(newIndex);
+                    }}>
                     
                     <SelectTrigger className="h-10 text-sm border-primary/30">
                       <SelectValue />
@@ -638,9 +644,23 @@ export function FinancingCalculator() {
                       <SelectItem value="custom" className="text-sm">Digitar Taxa (Personalizado)</SelectItem>
                     </SelectContent>
                   </Select>
+                  {correctionIndex !== "custom" && correctionIndex !== "isento" && (
+                    <p className="text-xs italic text-muted-foreground mt-1.5">
+                      Utilizando taxa oficial de mercado ({(() => {
+                        const rateMap: Record<string, string> = {
+                          ipca: marketData.rates.ipca ? `${marketData.rates.ipca.value.toFixed(2).replace(".", ",")}% ${marketData.rates.ipca.period}` : "—",
+                          igpm: "~5,00% a.a.",
+                          incc: "~6,00% a.a.",
+                          tr: marketData.rates.tr ? `${marketData.rates.tr.value.toFixed(2).replace(".", ",")}% ${marketData.rates.tr.period}` : "estimada",
+                          poupanca: marketData.rates.poupanca ? `${marketData.rates.poupanca.value.toFixed(2).replace(".", ",")}% ${marketData.rates.poupanca.period}` : "—",
+                        };
+                        return rateMap[correctionIndex] || "—";
+                      })()})
+                    </p>
+                  )}
                   {correctionIndex === "custom" && (
                     <div className="mt-2">
-                      <Label className="text-xs text-muted-foreground">Taxa anual (%)</Label>
+                      <Label className="text-xs text-muted-foreground">Taxa de Correção Anual (%)</Label>
                       <Input
                         value={customCorrectionRate}
                         onChange={(e) => setCustomCorrectionRate(e.target.value)}
