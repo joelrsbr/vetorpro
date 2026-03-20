@@ -1,5 +1,6 @@
-import { Landmark, TrendingUp, ArrowRight, Scale, Eye, Target } from "lucide-react";
+import { TrendingUp, ArrowRight, Scale, Eye, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import vetorproLogo from "@/assets/vetorpro-logo.png";
 
 export function LandingHero() {
   const pillars = [
@@ -26,18 +27,18 @@ export function LandingHero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Copy */}
           <div className="space-y-6 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/8 border border-primary/15">
-              <Landmark className="h-4 w-4 text-primary" />
-              <span className="text-xs font-medium tracking-wide text-primary uppercase">
-                Inteligência Estratégica Imobiliária
-              </span>
+            <div className="flex items-center gap-3">
+              <img src={vetorproLogo} alt="VetorPro" className="h-12 w-auto object-contain" />
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-foreground tracking-tight">
+                VetorPro
+              </h1>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold leading-tight text-foreground tracking-tight">
-              VetorPro: Antecipe o Futuro do Crédito Imobiliário.
-            </h1>
+            <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
+              Antecipe o Futuro do Crédito Imobiliário.
+            </p>
 
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
+            <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
               A plataforma de inteligência estratégica que transforma dados de mercado em clareza para investidores e consultores de alto padrão.
             </p>
 
