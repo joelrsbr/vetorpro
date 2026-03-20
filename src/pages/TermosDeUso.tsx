@@ -16,7 +16,8 @@ export default function TermosDeUso() {
           </Link>
         </Button>
 
-        <h1 className="text-2xl font-bold text-foreground mb-8">Termos de Uso</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-4">Termos de Uso</h1>
+        <p className="text-base font-medium text-foreground mb-8">VetorPro: Simulação Estruturada de Cenários Imobiliários</p>
 
         <div className="prose prose-sm max-w-none text-muted-foreground space-y-6 leading-relaxed">
           <p>O VetorPro é uma plataforma de simulação financeira. O usuário declara estar ciente de que:</p>
