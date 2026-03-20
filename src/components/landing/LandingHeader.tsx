@@ -29,7 +29,10 @@ export function LandingHeader() {
       <nav className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <img src={vetorproLogo} alt="VetorPro" className="h-10 w-auto object-contain" />
+          <span className="text-xl font-bold tracking-tight">
+            <span className="text-primary">Vetor</span>
+            <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
