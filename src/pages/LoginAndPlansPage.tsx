@@ -95,7 +95,8 @@ export default function LoginAndPlansPage() {
       {/* Welcome Modal */}
       <WelcomeModal 
         open={showWelcomeModal} 
-        planId={selectedPlan} 
+        planId={selectedPlan}
+        onStart={handleWelcomeStart}
       />
     </div>
   );
