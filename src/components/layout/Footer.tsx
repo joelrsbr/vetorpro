@@ -1,4 +1,5 @@
 import { HelpCircle, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import vetorproLogo from "@/assets/vetorpro-logo.png";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
