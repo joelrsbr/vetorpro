@@ -86,13 +86,8 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
                     key={item.month} 
                     className={item.hasReinforcement ? "bg-primary/5 font-semibold" : ""}
                   >
-                    <TableCell className="font-medium">
-                      <div className="flex flex-col">
-                        <span>{item.month}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(item.date, "MMM/yy", { locale: ptBR })}
-                        </span>
-                      </div>
+                    <TableCell className="font-medium capitalize">
+                      {format(item.date, "MMM/yyyy", { locale: ptBR })}
                     </TableCell>
                     <TableCell>{formatBRL(item.debt)}</TableCell>
                     <TableCell className="text-muted-foreground">

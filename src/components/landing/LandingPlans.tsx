@@ -54,8 +54,7 @@ const plans = [
   icon: Building2,
   buttonVariant: "hero" as const,
   features: [
-  { text: "Tudo do Professional", included: true },
-  { text: "Relatórios White Label (PDF) com sua marca", included: true },
+  { text: "Tudo do Plano Professional + Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
   { text: "Datas Reais de Cronograma", included: true },
   { text: "Sondagem Estratégica (8 bancos)", included: true },
   { text: "Dashboard corporativo", included: true }]
