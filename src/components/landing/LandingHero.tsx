@@ -5,18 +5,18 @@ export function LandingHero() {
   const pillars = [
     {
       icon: Scale,
-      title: "Simulações em Nível de Fidelidade",
-      description: "Cálculos estruturados com base nos modelos SAC e PRICE.",
+      title: "Economia Efetiva",
+      description: "Visualize a Economia Efetiva gerada por aportes estratégicos e amortizações inteligentes.",
     },
     {
       icon: Eye,
-      title: "Transparência Operacional",
-      description: "Visualização clara de seguros e taxas que compõem o contrato.",
+      title: "Cronograma Real",
+      description: "Obtenha um Cronograma Real de fluxo de caixa, com datas precisas para cada reforço programado.",
     },
     {
       icon: Target,
-      title: "Apoio à Decisão",
-      description: "Uma ferramenta de suporte para tornar a jornada de financiamento mais compreensível.",
+      title: "Consultoria de Alto Padrão",
+      description: "Eleve o nível da sua consultoria entregando clareza técnica e transparência ao seu cliente final.",
     },
   ];
 
@@ -62,8 +62,8 @@ export function LandingHero() {
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Pilares de Confiança</p>
-                  <p className="text-xs text-muted-foreground">Conformidade, clareza e facilitação</p>
+                  <p className="text-sm font-semibold text-foreground">Por que sua Estratégia precisa do VetorPro?</p>
+                  <p className="text-xs text-muted-foreground">Economia, organização e consultoria</p>
                 </div>
               </div>
 
