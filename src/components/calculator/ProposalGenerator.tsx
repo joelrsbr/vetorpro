@@ -42,7 +42,7 @@ export function ProposalGenerator({
   termMonths,
   amortizationType,
 }: ProposalGeneratorProps) {
-  const { user, usageLimits } = useAuth();
+  const { user, usageLimits, profile } = useAuth();
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
   const [clientName, setClientName] = useState("");
@@ -205,12 +205,15 @@ export function ProposalGenerator({
   const handleDownloadPDF = async () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     const maxWidth = pageWidth - margin * 2;
     let yPos = 20;
 
     const isPro = isActive && plan === "pro";
+    const consultantName = user ? (profile?.full_name || "") : "";
 
+    // --- HEADER ---
     if (reportConfig.isBusiness && reportConfig.logoUrl) {
       try {
         const img = new Image();
@@ -243,46 +246,45 @@ export function ProposalGenerator({
       doc.setDrawColor(200);
       doc.line(margin, yPos, pageWidth - margin, yPos);
       yPos += 10;
-    } else if (isPro && (reportConfig.companyName || reportConfig.creci)) {
-      // Pro branding: name and CRECI in footer
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(100);
-      const footerY = doc.internal.pageSize.getHeight() - 10;
-      const proFooter = [reportConfig.companyName, reportConfig.creci].filter(Boolean).join(" • ");
-      doc.text(proFooter, pageWidth / 2, footerY, { align: "center" });
-      doc.setTextColor(0);
-    } else {
-      // Default branding for Basic
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(150);
-      const footerY = doc.internal.pageSize.getHeight() - 10;
-      doc.text("Gerado por VetorPro • vetorpro.com.br", pageWidth / 2, footerY, {
-        align: "center",
-      });
-      doc.setTextColor(0);
     }
 
     // Title
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("Proposta de Financiamento", pageWidth / 2, yPos, { align: "center" });
-    yPos += 12;
+    doc.text("Relatorio Estrategico de Cenarios", pageWidth / 2, yPos, { align: "center" });
+    yPos += 10;
+
+    // Consultant field
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(80);
+    doc.text(
+      `Consultor Responsavel: ${consultantName || "____________________________"}`,
+      pageWidth / 2,
+      yPos,
+      { align: "center" }
+    );
+    doc.setTextColor(0);
+    yPos += 10;
+
+    // Separator
+    doc.setDrawColor(220);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 8;
 
     // Client info
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.text(`Cliente: ${clientName}`, margin, yPos);
     yPos += 6;
-    doc.text(`Imóvel: ${propertyDescription}`, margin, yPos);
+    doc.text(`Imovel: ${propertyDescription}`, margin, yPos);
     yPos += 10;
 
     // Proposal text
     doc.setFontSize(10);
     const lines = doc.splitTextToSize(proposalText, maxWidth);
     for (const line of lines) {
-      if (yPos > doc.internal.pageSize.getHeight() - 20) {
+      if (yPos > pageHeight - 25) {
         doc.addPage();
         yPos = 20;
       }
@@ -290,25 +292,35 @@ export function ProposalGenerator({
       yPos += 5;
     }
 
-    // Business footer with logo
-    if (reportConfig.isBusiness) {
-      const footerY = doc.internal.pageSize.getHeight() - 10;
+    // --- FOOTER on all pages ---
+    const totalPages = doc.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      const footerY = pageHeight - 10;
       doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
-      doc.text(
-        `${reportConfig.companyName}${reportConfig.creci ? " • " + reportConfig.creci : ""}`,
-        pageWidth / 2,
-        footerY,
-        { align: "center" }
-      );
+
+      if (reportConfig.isBusiness) {
+        const parts = [reportConfig.companyName, reportConfig.creci].filter(Boolean);
+        const businessLine = parts.length > 0
+          ? `${parts.join(" • ")} | Gerado por VetorPro — Inteligencia Estrategica`
+          : "Gerado por VetorPro — Inteligencia Estrategica";
+        doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
+      } else if (isPro && (reportConfig.companyName || reportConfig.creci)) {
+        const proFooter = [reportConfig.companyName, reportConfig.creci].filter(Boolean).join(" • ");
+        doc.text(`${proFooter} | Gerado por VetorPro — Inteligencia Estrategica`, pageWidth / 2, footerY, { align: "center" });
+      } else {
+        doc.text("Gerado por VetorPro — Inteligencia Estrategica", pageWidth / 2, footerY, { align: "center" });
+      }
       doc.setTextColor(0);
     }
 
-    doc.save(`proposta-${clientName.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+    doc.save(`relatorio-estrategico-${clientName.replace(/\s+/g, "-").toLowerCase()}.pdf`);
 
     toast({
       title: "PDF gerado!",
-      description: "A proposta foi baixada como PDF.",
+      description: "Relatório Estratégico de Cenários baixado com sucesso.",
     });
   };
 

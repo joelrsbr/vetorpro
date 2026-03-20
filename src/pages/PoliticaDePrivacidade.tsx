@@ -4,7 +4,7 @@ export default function PoliticaDePrivacidade() {
   return (
     <LegalPageLayout
       title="Política de Privacidade"
-      intro="VetorPro: Simulação Estruturada de Cenários Imobiliários"
+      intro="O VetorPro fornece inteligência de dados para Simulação Estruturada de Cenários Imobiliários, visando oferecer clareza estratégica e projeções financeiras baseadas em indexadores de mercado."
     >
       <p className="font-medium text-foreground">Sua privacidade é prioridade.</p>
 

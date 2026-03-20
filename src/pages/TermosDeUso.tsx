@@ -4,7 +4,7 @@ export default function TermosDeUso() {
   return (
     <LegalPageLayout
       title="Termos de Uso"
-      intro="VetorPro: Simulação Estruturada de Cenários Imobiliários"
+      intro="O VetorPro fornece inteligência de dados para Simulação Estruturada de Cenários Imobiliários, visando oferecer clareza estratégica e projeções financeiras baseadas em indexadores de mercado."
     >
       <p>
         O VetorPro é uma plataforma de simulação financeira. O usuário declara estar ciente de que:
