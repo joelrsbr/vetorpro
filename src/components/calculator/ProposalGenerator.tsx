@@ -42,7 +42,7 @@ export function ProposalGenerator({
   termMonths,
   amortizationType,
 }: ProposalGeneratorProps) {
-  const { user, usageLimits } = useAuth();
+  const { user, usageLimits, profile } = useAuth();
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
   const [clientName, setClientName] = useState("");
