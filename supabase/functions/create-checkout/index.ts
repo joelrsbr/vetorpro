@@ -9,8 +9,8 @@ const corsHeaders = {
 
 const ALLOWED_PRICE_IDS = new Set([
   "price_1Sz3K9GjguN4FlrbksLKHQLs", // basic
-  "price_1Sz3LZGjguN4FlrbISGogCm3", // pro
-  "price_1Sz3MVGjguN4Flrb6rI0ZsQW", // business
+  "price_1TDCXbGjguN4FlrbZHvVJBZ1", // pro
+  "price_1TDCY7GjguN4FlrbwpO0AIb1", // business
 ]);
 
 serve(async (req) => {

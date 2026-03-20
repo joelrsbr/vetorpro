@@ -19,47 +19,45 @@ const plans = [
   name: "Basic",
   price: "R$ 29,90",
   period: "/mês",
-  description: "Para corretores autônomos",
+  description: "Simulações ilimitadas e indexadores oficiais.",
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulação simples SAC/PRICE", included: true },
-  { text: "Calculadora HP12C", included: true },
-  { text: "10 simulações/mês", included: true },
-  { text: "2 propostas com IA/mês", included: true },
-  { text: "Sondagem Estratégica", included: false }]
+  { text: "Simulações ilimitadas SAC/PRICE", included: true },
+  { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
+  { text: "Calculadora HP12C integrada", included: true },
+  { text: "Cotações de câmbio em tempo real", included: false },
+  { text: "Gestão de Reforços", included: false }]
 },
 {
   id: "pro" as PlanType,
   name: "Professional",
-  price: "R$ 59,90",
+  price: "R$ 89,90",
   period: "/mês",
-  description: "Para consultores profissionais",
+  description: "Cotações de Dólar/Euro em tempo real e Gestão de Reforços.",
   icon: Rocket,
   buttonVariant: "default" as const,
+  recommended: true,
   features: [
   { text: "Tudo do Basic", included: true },
-  { text: "Simulações: Liberado", included: true },
-  { text: "Propostas com IA: Liberado", included: true },
+  { text: "Cotações Dólar/Euro em tempo real", included: true },
+  { text: "Gestão de Reforços Estratégicos", included: true },
   { text: "Exportação de PDF Básico", included: true },
-  { text: "Indexadores financeiros atualizados (via API Oficial - BACEN)", included: true },
-  { text: "Cotações de Moedas Live (Dólar/Euro)", included: true },
-  { text: "Sondagem Estratégica", included: false }]
+  { text: "Propostas com IA ilimitadas", included: true }]
 },
 {
   id: "business" as PlanType,
   name: "Business",
-  price: "R$ 149,90",
+  price: "R$ 229,90",
   period: "/mês",
-  description: "Ferramentas poderosas para o Corretor de Elite",
+  description: "O Plano definitivo para Consultoria de Alto Padrão",
   icon: Building2,
   buttonVariant: "hero" as const,
-  recommended: true,
   features: [
-  { text: "Tudo do Plano Professional", included: true },
-  { text: "Sondagem Estratégica (6 maiores bancos)", included: true },
-  { text: "APIs de Moedas e Indexadores Live", included: true },
-  { text: "PDFs Premium com Branding (Logo e CRECI)", included: true },
+  { text: "Tudo do Professional", included: true },
+  { text: "Relatórios White Label (PDF) com sua marca", included: true },
+  { text: "Datas Reais de Cronograma", included: true },
+  { text: "Sondagem Estratégica (8 bancos)", included: true },
   { text: "Dashboard corporativo", included: true }]
 }];
 

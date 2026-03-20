@@ -57,7 +57,7 @@ export function BusinessPaywallModal({ open, onOpenChange }: BusinessPaywallModa
           <DialogTitle className="text-xl">Inteligência Exclusiva Business</DialogTitle>
           <DialogDescription className="text-sm leading-relaxed">
             A Sondagem Estratégica é uma ferramenta de elite. Por apenas{" "}
-            <strong className="text-foreground">R$ 149,90/mês</strong>, você tem o poder de 6 bancos em um clique.
+            <strong className="text-foreground">R$ 229,90/mês</strong>, você tem o poder de 8 bancos em um clique.
           </DialogDescription>
         </DialogHeader>
 
