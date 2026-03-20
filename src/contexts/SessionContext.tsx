@@ -53,7 +53,7 @@ const planDetailsMap: Record<string, PlanDetails> = {
     badgeClass: "bg-primary text-primary-foreground",
     features: ["Simulações ilimitadas", "Exportação PDF", "Cotações Live", "Gestão de Reforços"],
   },
-  {
+  business: {
     id: "business",
     name: "Business",
     price: "R$ 229,90/mês",
