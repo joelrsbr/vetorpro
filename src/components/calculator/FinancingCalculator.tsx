@@ -764,48 +764,74 @@ export function FinancingCalculator() {
               </div>
               {enableReinforcements &&
               <div className="space-y-4 animate-slide-up">
-                  {reinforcements.map((r, idx) => (
-                    <div key={r.id} className="border rounded-lg p-3 bg-background/50 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-primary">Reforço {idx + 1}</span>
-                        <Button variant="ghost" size="sm" onClick={() => removeReinforcement(r.id)} className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive">
-                          <Minus className="h-4 w-4" />
-                        </Button>
+                  {reinforcements.map((r, idx) => {
+                    // Calculate month number relative to startDate
+                    let monthNumber: number | null = null;
+                    let realDateLabel = "";
+                    if (r.monthYear) {
+                      const [year, mon] = r.monthYear.split("-").map(Number);
+                      const startMonth = startDate.getFullYear() * 12 + startDate.getMonth();
+                      const targetMonth = year * 12 + (mon - 1);
+                      monthNumber = targetMonth - startMonth + 1;
+                      const targetDate = new Date(year, mon - 1);
+                      realDateLabel = format(targetDate, "MMMM/yyyy", { locale: ptBR });
+                    }
+                    return (
+                      <div key={r.id} className="border rounded-lg p-3 bg-background/50 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-primary">Reforço {idx + 1}</span>
+                            {monthNumber !== null && monthNumber > 0 && (
+                              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                                Mês {monthNumber} — <span className="capitalize">{realDateLabel}</span>
+                              </span>
+                            )}
+                            {monthNumber !== null && monthNumber <= 0 && (
+                              <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">
+                                Data anterior ao início
+                              </span>
+                            )}
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => removeReinforcement(r.id)} className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive">
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Tipo</Label>
+                            <Select value={r.type} onValueChange={(v) => updateReinforcement(r.id, "type", v)}>
+                              <SelectTrigger className="h-9 text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="entrega_chave">Entrega da Chave</SelectItem>
+                                <SelectItem value="assinatura_contrato">Assinatura do Contrato</SelectItem>
+                                <SelectItem value="quitacao">Documento de Quitação</SelectItem>
+                                <SelectItem value="custom">Personalizado</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Valor (R$)</Label>
+                            <Input
+                              value={formatCurrency(r.value)}
+                              onChange={(e) => updateReinforcement(r.id, "value", e.target.value.replace(/\D/g, ""))}
+                              placeholder="5.000,00"
+                              className="h-9 text-sm" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Mês/Ano do Reforço</Label>
+                            <Input
+                              type="month"
+                              value={r.monthYear}
+                              min={format(startDate, "yyyy-MM")}
+                              onChange={(e) => updateReinforcement(r.id, "monthYear", e.target.value)}
+                              className="h-9 text-sm" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Tipo</Label>
-                          <Select value={r.type} onValueChange={(v) => updateReinforcement(r.id, "type", v)}>
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="entrega_chave">Entrega da Chave</SelectItem>
-                              <SelectItem value="assinatura_contrato">Assinatura do Contrato</SelectItem>
-                              <SelectItem value="quitacao">Documento de Quitação</SelectItem>
-                              <SelectItem value="custom">Personalizado</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Valor (R$)</Label>
-                          <Input
-                            value={formatCurrency(r.value)}
-                            onChange={(e) => updateReinforcement(r.id, "value", e.target.value.replace(/\D/g, ""))}
-                            placeholder="5.000,00"
-                            className="h-9 text-sm" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Mês/Ano</Label>
-                          <Input
-                            type="month"
-                            value={r.monthYear}
-                            onChange={(e) => updateReinforcement(r.id, "monthYear", e.target.value)}
-                            className="h-9 text-sm" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <Button variant="outline" size="sm" onClick={addReinforcement} className="gap-1 w-full">
                     <Plus className="h-4 w-4" />
                     Adicionar Reforço
