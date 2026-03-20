@@ -4,11 +4,11 @@ export const STRIPE_PLANS = {
     productId: "prod_TwxEUcSWGGNe3t",
   },
   pro: {
-    priceId: "price_1Sz3LZGjguN4FlrbISGogCm3",
-    productId: "prod_TwxGNAi9Qvpz6S",
+    priceId: "price_1TDCXbGjguN4FlrbZHvVJBZ1",
+    productId: "prod_UBZgji9BJRgxIr",
   },
   business: {
-    priceId: "price_1Sz3MVGjguN4Flrb6rI0ZsQW",
-    productId: "prod_TwxH9f9aZIUw7T",
+    priceId: "price_1TDCY7GjguN4FlrbwpO0AIb1",
+    productId: "prod_UBZhBm5CM4yngz",
   },
 } as const;
