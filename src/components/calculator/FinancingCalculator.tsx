@@ -818,12 +818,12 @@ export function FinancingCalculator() {
                       <div key={r.id} className="border rounded-lg p-3 bg-background/50 space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-primary">Reforço {idx + 1}</span>
-                            {monthNumber !== null && monthNumber > 0 && (
-                              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-                                Mês {monthNumber} — <span className="capitalize">{realDateLabel}</span>
-                              </span>
-                            )}
+                            <span className="text-sm font-semibold text-primary">
+                              Reforço {idx + 1}{monthNumber !== null && monthNumber > 0 && realDateLabel ? ` — ` : ""}
+                              {monthNumber !== null && monthNumber > 0 && realDateLabel && (
+                                <span className="capitalize">{realDateLabel}</span>
+                              )}
+                            </span>
                             {monthNumber !== null && monthNumber <= 0 && (
                               <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">
                                 Data anterior ao início
