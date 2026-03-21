@@ -207,11 +207,11 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <TrendingUp className="h-7 w-7 text-emerald-500" />
+            <h1 className="text-2xl font-medium flex items-center gap-2">
+              <TrendingUp className="h-6 w-6 text-emerald-500" />
               {profile?.full_name?.split(" ")[0] || "Corretor"}
             </h1>
-            <p className="text-muted-foreground">Bem-vindo ao seu painel de controle</p>
+            <p className="text-sm font-light text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
           <div className="flex items-center gap-3">
             {planBadge ? (
@@ -236,8 +236,8 @@ export default function Dashboard() {
         {/* LGPD Notice */}
         <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 flex items-center justify-center gap-3 text-center">
           <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
+          <p className="text-xs font-light text-muted-foreground">
+            <span className="font-medium text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
           </p>
         </div>
 
@@ -247,8 +247,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Simulações</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-xs font-light text-muted-foreground">Simulações</p>
+                  <p className="text-xl font-medium">
                     {`${usageLimits?.simulationsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
@@ -261,8 +261,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Propostas IA</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-xs font-light text-muted-foreground">Propostas IA</p>
+                  <p className="text-xl font-medium">
                     {`${usageLimits?.proposalsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
@@ -275,8 +275,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Propostas</p>
-                  <p className="text-2xl font-bold">{proposals.length}</p>
+                  <p className="text-xs font-light text-muted-foreground">Total Propostas</p>
+                  <p className="text-xl font-medium">{proposals.length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-primary opacity-80" />
               </div>
@@ -287,8 +287,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Plano</p>
-                  <p className="text-2xl font-bold capitalize">
+                  <p className="text-xs font-light text-muted-foreground">Plano</p>
+                  <p className="text-xl font-medium capitalize">
                     {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
                   </p>
                 </div>
@@ -306,8 +306,8 @@ export default function Dashboard() {
                 <Calculator className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold">Nova Simulação</h3>
-                <p className="text-sm text-muted-foreground">Calcule um novo financiamento</p>
+                <h3 className="font-medium text-sm">Nova Simulação</h3>
+                <p className="text-xs font-light text-muted-foreground">Calcule um novo financiamento</p>
               </div>
             </CardContent>
           </Card>
@@ -328,7 +328,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold">Sondagem Estratégica</h3>
+                  <h3 className="font-medium text-sm">Sondagem Estratégica</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -346,7 +346,7 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
+                  <p className="text-xs font-light text-muted-foreground">Inteligência multi-bancos</p>
                 )}
               </div>
             </CardContent>
@@ -358,8 +358,8 @@ export default function Dashboard() {
                 <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold">Ver Planos</h3>
-                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
+                <h3 className="font-medium text-sm">Ver Planos</h3>
+                <p className="text-xs font-light text-muted-foreground">Compare os benefícios</p>
               </div>
             </CardContent>
           </Card>
@@ -370,8 +370,8 @@ export default function Dashboard() {
         {/* History Tabs */}
         <Card>
           <CardHeader>
-            <CardTitle>Histórico</CardTitle>
-            <CardDescription>Suas simulações e propostas recentes</CardDescription>
+            <CardTitle className="text-lg font-medium">Histórico</CardTitle>
+            <CardDescription className="text-xs font-light">Suas simulações e propostas recentes</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="proposals">
