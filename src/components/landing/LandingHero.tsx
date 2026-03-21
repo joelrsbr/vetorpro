@@ -1,5 +1,6 @@
 import { TrendingUp, ArrowRight, Scale, Eye, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import vetorproLogo from "@/assets/vetorpro-logo.png";
 
 export function LandingHero() {
   const pillars = [
@@ -26,12 +27,13 @@ export function LandingHero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Copy */}
           <div className="space-y-6 animate-fade-in-up">
-            <div>
-              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight">
-                <span className="text-primary">Vetor</span>
-                <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
-              </h1>
-            </div>
+             <div className="flex items-center gap-3">
+               <img src={vetorproLogo} alt="VetorPro" className="h-12 w-12 md:h-14 md:w-14" />
+               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight">
+                 <span className="text-primary">Vetor</span>
+                 <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+               </h1>
+             </div>
 
             <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
               Antecipe o Futuro do Crédito Imobiliário.
