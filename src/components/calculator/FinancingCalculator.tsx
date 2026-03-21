@@ -1078,7 +1078,9 @@ export function FinancingCalculator() {
               downPayment={parseCurrency(downPayment)}
               interestRate={parseCurrency(interestRate)}
               termMonths={parseInt(termMonths) || 360}
-              amortizationType={amortizationType} />
+              amortizationType={amortizationType}
+              clientName={clientName}
+              propertyDescription={propertyDescription} />
             )}
           
           </div>

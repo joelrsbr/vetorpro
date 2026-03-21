@@ -32,6 +32,8 @@ interface ProposalGeneratorProps {
   interestRate: number;
   termMonths: number;
   amortizationType: string;
+  clientName: string;
+  propertyDescription: string;
 }
 
 export function ProposalGenerator({
@@ -41,12 +43,12 @@ export function ProposalGenerator({
   interestRate,
   termMonths,
   amortizationType,
+  clientName,
+  propertyDescription,
 }: ProposalGeneratorProps) {
   const { user, usageLimits, profile } = useAuth();
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
-  const [clientName, setClientName] = useState("");
-  const [propertyDescription, setPropertyDescription] = useState("");
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingBusiness, setIsGeneratingBusiness] = useState(false);
@@ -371,26 +373,6 @@ export function ProposalGenerator({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clientName">Nome do Cliente</Label>
-              <Input
-                id="clientName"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="João da Silva"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="propertyDescription">Descrição do Imóvel</Label>
-              <Input
-                id="propertyDescription"
-                value={propertyDescription}
-                onChange={(e) => setPropertyDescription(e.target.value)}
-                placeholder="Apartamento 3 quartos, 85m², Zona Sul"
-              />
-            </div>
-          </div>
 
           {!canGenerateProposal && (
             <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
