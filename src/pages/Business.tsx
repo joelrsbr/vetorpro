@@ -98,7 +98,6 @@ function BusinessContent() {
       </main>
 
       <Footer />
-      <HP12CCalculator />
     </div>);
 
 }

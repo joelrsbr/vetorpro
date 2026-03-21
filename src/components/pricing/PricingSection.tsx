@@ -59,10 +59,10 @@ const plans = [
     period: "/mês",
     description: "O Plano definitivo para Consultoria de Alto Padrão",
     features: [
-      "Tudo do Plano Professional + Relatórios PDF Personalizados com sua Marca e CRECI",
+      "Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
-      "Sondagem Estratégica (8 bancos)",
-      "Dashboard corporativo",
+      "Sondagem Estratégica Multi-Bancos",
+      "Dashboard Corporativo",
     ],
     limitations: [],
     cta: "Assinar Business",

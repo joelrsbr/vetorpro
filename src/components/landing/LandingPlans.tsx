@@ -143,7 +143,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                 <CardHeader className={`rounded-t-lg transition-all duration-300 pt-8 ${isRecommended ? "bg-primary/5" : ""}`}>
                   <div className="flex items-center gap-3 mb-3">
                     <plan.icon className={`h-6 w-6 ${isRecommended ? "text-primary" : "text-muted-foreground"}`} />
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                    <CardTitle className="text-xl">{plan.id === "business" ? "Tudo do Plano Professional" : plan.name}</CardTitle>
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold">{plan.price}</span>
