@@ -57,7 +57,7 @@ const plans = [
     name: "Business",
     price: "R$229,90",
     period: "/mês",
-    description: "O Plano definitivo para Consultoria de Alto Padrão",
+    description: "O Plano para Profissionais de Elite e Consultorias de Alto Padrão",
     features: [
       "Inclui todos os recursos do Plano Professional",
       "Relatórios PDF Personalizados com sua Marca e CRECI",
