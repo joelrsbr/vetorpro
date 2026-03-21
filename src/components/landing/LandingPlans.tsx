@@ -54,10 +54,10 @@ const plans = [
   icon: Building2,
   buttonVariant: "hero" as const,
   features: [
-  { text: "Tudo do Plano Professional + Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
+  { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
   { text: "Datas Reais de Cronograma", included: true },
-  { text: "Sondagem Estratégica (8 bancos)", included: true },
-  { text: "Dashboard corporativo", included: true }]
+  { text: "Sondagem Estratégica Multi-Bancos", included: true },
+  { text: "Dashboard Corporativo", included: true }]
 }];
 
 
