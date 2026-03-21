@@ -201,6 +201,7 @@ export function PricingSection() {
                     ) : null}
                     {isCurrent ? "Plano Ativo" : plan.cta}
                   </Button>
+                  </div>
                 </CardContent>
               </Card>
             );
