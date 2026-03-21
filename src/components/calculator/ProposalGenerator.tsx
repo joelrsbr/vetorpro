@@ -112,14 +112,23 @@ export function ProposalGenerator({
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Parse edge function error responses
+        const errorBody = typeof error === 'object' && 'message' in error ? error.message : '';
+        if (errorBody.includes('429') || data?.code === 'RATE_LIMITED') {
+          toast({ title: "Limite de requisições", description: "Muitas requisições em pouco tempo. Aguarde um momento.", variant: "destructive" });
+          return;
+        }
+        throw error;
+      }
 
       if (data.error) {
-        toast({
-          title: "Erro",
-          description: data.message || data.error,
-          variant: "destructive",
-        });
+        const errorMessages: Record<string, { title: string; description: string }> = {
+          "Limite de propostas atingido": { title: "Saldo de créditos insuficiente", description: data.message || "Faça upgrade para continuar gerando propostas." },
+          "RATE_LIMITED": { title: "Limite de requisições", description: "Muitas requisições em pouco tempo. Aguarde um momento." },
+        };
+        const mapped = errorMessages[data.error] || { title: "Erro na geração", description: data.message || data.error };
+        toast({ ...mapped, variant: "destructive" });
         return;
       }
 
@@ -128,13 +137,18 @@ export function ProposalGenerator({
         title: "Proposta gerada!",
         description: "Sua proposta foi criada com sucesso.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating proposal:", error);
-      toast({
-        title: "Erro ao gerar proposta",
-        description: "Tente novamente em alguns instantes.",
-        variant: "destructive",
-      });
+      const msg = error?.message || "";
+      if (msg.includes("400")) {
+        toast({ title: "Dados inválidos", description: "Verifique os campos preenchidos e tente novamente.", variant: "destructive" });
+      } else if (msg.includes("429")) {
+        toast({ title: "Muitas requisições", description: "Aguarde um momento antes de tentar novamente.", variant: "destructive" });
+      } else if (msg.includes("402")) {
+        toast({ title: "Créditos de IA esgotados", description: "Entre em contato com o suporte.", variant: "destructive" });
+      } else {
+        toast({ title: "Erro ao gerar proposta", description: "Tente novamente em alguns instantes.", variant: "destructive" });
+      }
     } finally {
       setIsGenerating(false);
     }
