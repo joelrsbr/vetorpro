@@ -87,6 +87,22 @@ export function FinancingCalculator() {
   const [simulationUnlocked, setSimulationUnlocked] = useState(false);
   const [clientName, setClientName] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
+  const location = useLocation();
+
+  // Load data from navigation state (CRM edit flow)
+  useEffect(() => {
+    const state = location.state as Record<string, string> | null;
+    if (!state) return;
+    if (state.clientName) setClientName(state.clientName);
+    if (state.propertyDescription) setPropertyDescription(state.propertyDescription);
+    if (state.propertyValue) setPropertyValue(state.propertyValue);
+    if (state.downPayment) setDownPayment(state.downPayment);
+    if (state.interestRate) setInterestRate(state.interestRate);
+    if (state.termMonths) setTermMonths(state.termMonths);
+    if (state.amortizationType) setAmortizationType(state.amortizationType as "SAC" | "PRICE");
+    // Clear location state to avoid re-loading on re-render
+    window.history.replaceState({}, document.title);
+  }, []);
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
