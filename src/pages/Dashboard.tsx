@@ -247,8 +247,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Simulações</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-xs font-light text-muted-foreground">Simulações</p>
+                  <p className="text-xl font-medium">
                     {`${usageLimits?.simulationsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
