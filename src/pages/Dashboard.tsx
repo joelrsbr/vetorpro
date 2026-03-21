@@ -88,8 +88,16 @@ export default function Dashboard() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
+  // Real-time counts from RPC (Single Source of Truth)
+  const [dashCounts, setDashCounts] = useState<{
+    simulations_count: number;
+    proposals_count: number;
+    plan_limit: number;
+    current_plan: string;
+  } | null>(null);
+
   const planBadge = isActive ? getPlanBadge(plan) : null;
-  const limit = getPlanLimit(plan, isActive);
+  const limit = dashCounts?.plan_limit ?? getPlanLimit(plan, isActive);
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
