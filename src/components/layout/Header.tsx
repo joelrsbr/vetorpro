@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import vetorproLogo from "@/assets/vetorpro-logo.png";
+
 
 const STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_14AbJ15XI4OD5kl0ji4ko00";
 
@@ -54,7 +54,10 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={vetorproLogo} alt="VetorPro" className="h-10 w-auto object-contain" />
+          <span className="text-lg font-bold tracking-tight">
+            <span className="text-primary">Vetor</span>
+            <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+          </span>
           {planSuffix && <span className="text-primary text-sm font-semibold">{planSuffix}</span>}
         </Link>
 
