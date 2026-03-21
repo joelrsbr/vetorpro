@@ -279,9 +279,11 @@ export default function Dashboard() {
 
         {/* Stats Cards */}
         {(() => {
-          // Unified credit usage: every proposal implies a simulation was performed
-          const realSimUsage = Math.max(simulations.length, proposals.length);
-          const realProposalUsage = proposals.length;
+          // Use RPC counts as Single Source of Truth
+          const simCount = dashCounts?.simulations_count ?? simulations.length;
+          const propCount = dashCounts?.proposals_count ?? proposals.length;
+          const realSimUsage = Math.max(simCount, propCount);
+          const realProposalUsage = propCount;
           const simDisplay = Math.min(realSimUsage, limit);
           const proposalDisplay = Math.min(realProposalUsage, limit);
 
