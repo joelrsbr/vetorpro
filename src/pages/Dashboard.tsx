@@ -370,8 +370,8 @@ export default function Dashboard() {
         {/* History Tabs */}
         <Card>
           <CardHeader>
-            <CardTitle>Histórico</CardTitle>
-            <CardDescription>Suas simulações e propostas recentes</CardDescription>
+            <CardTitle className="text-lg font-medium">Histórico</CardTitle>
+            <CardDescription className="text-xs font-light">Suas simulações e propostas recentes</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="proposals">
