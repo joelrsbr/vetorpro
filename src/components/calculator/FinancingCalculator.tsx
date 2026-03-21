@@ -79,6 +79,10 @@ export function FinancingCalculator() {
     amortizationType, setAmortizationType,
   } = useSimulation();
 
+  const { user, usageLimits, incrementSimulationCount, refreshUsageLimits } = useAuth();
+  const { plan, isActive } = useSubscription();
+  const { toast } = useToast();
+  const [savingSimulation, setSavingSimulation] = useState(false);
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
