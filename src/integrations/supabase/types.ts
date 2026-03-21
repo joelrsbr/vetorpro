@@ -278,6 +278,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_proposal_count: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       increment_simulation_count: {
         Args: { p_user_id: string }
         Returns: undefined
