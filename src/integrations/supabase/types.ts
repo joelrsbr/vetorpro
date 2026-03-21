@@ -262,6 +262,15 @@ export type Database = {
         }[]
       }
       cleanup_old_records: { Args: never; Returns: undefined }
+      get_dashboard_counts: {
+        Args: { p_user_id: string }
+        Returns: {
+          current_plan: string
+          plan_limit: number
+          proposals_count: number
+          simulations_count: number
+        }[]
+      }
       get_user_subscription: {
         Args: { p_user_id: string }
         Returns: {
