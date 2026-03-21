@@ -174,6 +174,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     )}
                   </ul>
 
+                  <div className="mt-auto">
                   <Button
                     variant={plan.buttonVariant}
                     size="lg"
@@ -190,6 +191,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     Assinar Agora
                     {isHighlight && <ArrowRight className="h-4 w-4 ml-2" />}
                   </Button>
+                  </div>
                 </CardContent>
               </Card>);
 
