@@ -268,73 +268,83 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-          <Card className="shadow-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Simulações</p>
-                  <p className="text-2xl font-semibold">
-                    {`${Math.min(simulations.length, limit)} de ${limit}`}
-                  </p>
-                </div>
-                <Calculator className="h-8 w-8 text-primary opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Propostas IA</p>
-                  <p className="text-2xl font-semibold">
-                    {`${Math.min(proposals.length, limit)} de ${limit}`}
-                  </p>
-                </div>
-                <Sparkles className="h-8 w-8 text-primary opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Propostas</p>
-                  <p className="text-2xl font-semibold">{proposals.length}</p>
-                </div>
-                <FileText className="h-8 w-8 text-primary opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
+        {(() => {
+          // Unified credit usage: every proposal implies a simulation was performed
+          const realSimUsage = Math.max(simulations.length, proposals.length);
+          const realProposalUsage = proposals.length;
+          const simDisplay = Math.min(realSimUsage, limit);
+          const proposalDisplay = Math.min(realProposalUsage, limit);
 
-          <Card className="shadow-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Simulações</p>
-                  <p className="text-2xl font-semibold">{simulations.length}</p>
-                </div>
-                <Calculator className="h-8 w-8 text-primary opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Plano</p>
-                  <p className="text-2xl font-semibold capitalize">
-                    {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
-                  </p>
-                </div>
-                <Crown className="h-8 w-8 text-primary opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+              <Card className="shadow-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Simulações</p>
+                      <p className="text-2xl font-semibold">
+                        {`${simDisplay} de ${limit}`}
+                      </p>
+                    </div>
+                    <Calculator className="h-8 w-8 text-primary opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Propostas IA</p>
+                      <p className="text-2xl font-semibold">
+                        {`${proposalDisplay} de ${limit}`}
+                      </p>
+                    </div>
+                    <Sparkles className="h-8 w-8 text-primary opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Propostas</p>
+                      <p className="text-2xl font-semibold">{proposals.length}</p>
+                    </div>
+                    <FileText className="h-8 w-8 text-primary opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Simulações</p>
+                      <p className="text-2xl font-semibold">{realSimUsage}</p>
+                    </div>
+                    <Calculator className="h-8 w-8 text-primary opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Plano</p>
+                      <p className="text-2xl font-semibold capitalize">
+                        {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
+                      </p>
+                    </div>
+                    <Crown className="h-8 w-8 text-primary opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        })()}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
