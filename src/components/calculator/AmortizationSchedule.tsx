@@ -10,11 +10,12 @@ import type { ScheduleItem } from "./FinancingCalculator";
 interface AmortizationScheduleProps {
   schedule: ScheduleItem[];
   amortizationType: "SAC" | "PRICE";
+  locked?: boolean;
 }
 
-export function AmortizationSchedule({ schedule, amortizationType }: AmortizationScheduleProps) {
+export function AmortizationSchedule({ schedule, amortizationType, locked = false }: AmortizationScheduleProps) {
   const [expanded, setExpanded] = useState(false);
-  const displayedItems = expanded ? schedule : schedule.slice(0, 3);
+  const displayedItems = locked ? schedule.slice(0, 3) : (expanded ? schedule : schedule.slice(0, 3));
 
   const formatBRL = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
