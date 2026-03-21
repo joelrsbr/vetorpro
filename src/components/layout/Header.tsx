@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import vetorproLogo from "@/assets/vetorpro-logo.png";
+
 
 const STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_14AbJ15XI4OD5kl0ji4ko00";
 
