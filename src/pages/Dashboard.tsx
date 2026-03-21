@@ -416,7 +416,11 @@ export default function Dashboard() {
                                   >
                                     <SelectTrigger className="w-auto h-7 px-2 gap-1.5 text-xs border-none bg-transparent shadow-none focus:ring-0">
                                       <span className="flex items-center gap-1.5">
-                                        <span>{statusInfo.emoji}</span>
+                                        {statusInfo.isVetor ? (
+                                          <ChevronUp className="h-4 w-4 text-cyan-400" strokeWidth={3} />
+                                        ) : (
+                                          <span>{statusInfo.emoji}</span>
+                                        )}
                                         <span>{statusInfo.label}</span>
                                       </span>
                                     </SelectTrigger>
@@ -424,7 +428,11 @@ export default function Dashboard() {
                                       {STATUS_OPTIONS.map(opt => (
                                         <SelectItem key={opt.value} value={opt.value} className="pl-2">
                                           <span className="flex items-center gap-2">
-                                            <span>{opt.emoji}</span>
+                                            {opt.isVetor ? (
+                                              <ChevronUp className="h-4 w-4 text-cyan-400" strokeWidth={3} />
+                                            ) : (
+                                              <span>{opt.emoji}</span>
+                                            )}
                                             {opt.label}
                                           </span>
                                         </SelectItem>
