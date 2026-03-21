@@ -37,7 +37,6 @@ export function Header() {
   const navigation = isLoginPage 
     ? [{ name: "Assine e saia na frente", href: "/precos", highlight: true }]
     : [
-        { name: "Calculadora", href: "/calculadora" },
         { name: "Planos", href: "/precos" },
       ];
 
