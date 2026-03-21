@@ -54,6 +54,8 @@ interface Simulation {
   total_paid: number;
   total_interest: number;
   created_at: string;
+  client_name: string | null;
+  property_description: string | null;
 }
 
 const STATUS_OPTIONS = [
