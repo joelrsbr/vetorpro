@@ -50,7 +50,7 @@ const plans = [
     ],
     cta: "Assinar Professional",
     variant: "outline" as const,
-    popular: true,
+    popular: false,
   },
   {
     key: "business" as PlanKey,
@@ -59,6 +59,7 @@ const plans = [
     period: "/mês",
     description: "O Plano definitivo para Consultoria de Alto Padrão",
     features: [
+      "Inclui todos os recursos do Plano Professional",
       "Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
       "Sondagem Estratégica Multi-Bancos",
