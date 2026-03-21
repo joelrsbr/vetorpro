@@ -494,6 +494,8 @@ export function FinancingCalculator() {
         total_interest: calculations.totalInterest,
         extra_amortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : null,
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
+        client_name: clientName.trim(),
+        property_description: propertyDescription.trim(),
       });
 
       if (error) throw error;
