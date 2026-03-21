@@ -132,12 +132,14 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     setLoadingData(true);
-    const [proposalsRes, simulationsRes] = await Promise.all([
+    const [proposalsRes, simulationsRes, countsRes] = await Promise.all([
       supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.rpc("get_dashboard_counts", { p_user_id: user!.id }),
     ]);
     if (proposalsRes.data) setProposals(proposalsRes.data as Proposal[]);
     if (simulationsRes.data) setSimulations(simulationsRes.data);
+    if (countsRes.data && countsRes.data[0]) setDashCounts(countsRes.data[0]);
     setLoadingData(false);
   };
 
