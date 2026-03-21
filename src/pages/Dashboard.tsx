@@ -290,6 +290,18 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Simulações</p>
+                  <p className="text-2xl font-semibold">{simulations.length}</p>
+                </div>
+                <Calculator className="h-8 w-8 text-primary opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
           
           <Card className="shadow-card">
             <CardContent className="pt-6">
