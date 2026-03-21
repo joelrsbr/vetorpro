@@ -522,11 +522,11 @@ export default function Dashboard() {
                             <div className="flex items-center gap-6">
                               <div>
                                 <p className="text-sm text-muted-foreground">Valor</p>
-                                <p className="font-medium">{formatCurrency(sim.property_value)}</p>
+                                <p className="font-semibold">{formatCurrency(sim.property_value)}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Parcela</p>
-                                <p className="font-medium">{formatCurrency(sim.monthly_payment)}</p>
+                                <p className="font-semibold">{formatCurrency(sim.monthly_payment)}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Sistema</p>
@@ -534,10 +534,10 @@ export default function Dashboard() {
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Prazo</p>
-                                <p className="font-medium">{sim.term_months} meses</p>
+                                <p className="font-semibold">{sim.term_months} meses</p>
                               </div>
                             </div>
-                            <span className="text-sm text-muted-foreground">{formatDate(sim.created_at)}</span>
+                            <span className="text-sm text-muted-foreground font-mono">{formatDate(sim.created_at)}</span>
                           </div>
                         </CardContent>
                       </Card>
