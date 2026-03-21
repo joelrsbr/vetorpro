@@ -275,8 +275,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-light text-muted-foreground">Total Propostas</p>
-                  <p className="text-xl font-medium">{proposals.length}</p>
+                  <p className="text-sm text-muted-foreground">Total Propostas</p>
+                  <p className="text-2xl font-semibold">{proposals.length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-primary opacity-80" />
               </div>
