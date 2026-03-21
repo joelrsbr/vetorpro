@@ -116,22 +116,22 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {plans.map((plan, index) => {
-            const isRecommended = plan.recommended;
+            const isHighlight = (plan as any).highlight;
             return (
               <Card
                 key={plan.id}
                 className={`relative card-shadow-animated cursor-pointer transition-all duration-300 ${
-                isRecommended ?
-                "border-primary border-2 shadow-xl md:scale-105 z-10" :
+                isHighlight ?
+                "border-emerald-500 border-2 shadow-xl md:scale-105 z-10" :
                 "border hover:border-primary/50"} ${
                 selectedPlan === plan.id ? "ring-2 ring-offset-2 ring-primary" : ""}`}
                 onClick={() => onSelectPlan(plan.id)}
                 style={{ animationDelay: `${index * 150}ms` }}>
                 
-                {isRecommended &&
+                {isHighlight &&
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="px-4 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
-                      Recomendado
+                    <span className="px-4 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
+                      Escolha das Imobiliárias
                     </span>
                   </div>
                 }
