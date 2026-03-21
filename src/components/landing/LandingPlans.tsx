@@ -116,7 +116,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {plans.map((plan, index) => {
             const isHighlight = (plan as any).highlight;
             return (
