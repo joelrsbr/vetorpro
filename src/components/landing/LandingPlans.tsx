@@ -188,7 +188,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
                     null}
                     Assinar Agora
-                    {isRecommended && <ArrowRight className="h-4 w-4 ml-2" />}
+                    {isHighlight && <ArrowRight className="h-4 w-4 ml-2" />}
                   </Button>
                 </CardContent>
               </Card>);
