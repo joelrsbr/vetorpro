@@ -207,11 +207,11 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-medium flex items-center gap-2">
+            <h1 className="text-3xl font-bold flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-emerald-500" />
               {profile?.full_name?.split(" ")[0] || "Corretor"}
             </h1>
-            <p className="text-sm font-light text-muted-foreground">Bem-vindo ao seu painel de controle</p>
+            <p className="text-base text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
           <div className="flex items-center gap-3">
             {planBadge ? (
@@ -234,21 +234,21 @@ export default function Dashboard() {
         </div>
 
         {/* LGPD Notice */}
-        <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 flex items-center justify-center gap-3 text-center">
+        <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 shadow-sm flex items-center justify-center gap-3 text-center">
           <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
-          <p className="text-xs font-light text-muted-foreground">
-            <span className="font-medium text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
           </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
+          <Card className="shadow-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-light text-muted-foreground">Simulações</p>
-                  <p className="text-xl font-medium">
+                  <p className="text-sm text-muted-foreground">Simulações</p>
+                  <p className="text-2xl font-semibold">
                     {`${usageLimits?.simulationsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
@@ -257,12 +257,12 @@ export default function Dashboard() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="shadow-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-light text-muted-foreground">Propostas IA</p>
-                  <p className="text-xl font-medium">
+                  <p className="text-sm text-muted-foreground">Propostas IA</p>
+                  <p className="text-2xl font-semibold">
                     {`${usageLimits?.proposalsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
@@ -271,24 +271,24 @@ export default function Dashboard() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="shadow-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-light text-muted-foreground">Total Propostas</p>
-                  <p className="text-xl font-medium">{proposals.length}</p>
+                  <p className="text-sm text-muted-foreground">Total Propostas</p>
+                  <p className="text-2xl font-semibold">{proposals.length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-primary opacity-80" />
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="shadow-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-light text-muted-foreground">Plano</p>
-                  <p className="text-xl font-medium capitalize">
+                  <p className="text-sm text-muted-foreground">Plano</p>
+                  <p className="text-2xl font-semibold capitalize">
                     {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
                   </p>
                 </div>
@@ -300,20 +300,20 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
                 <Calculator className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-medium text-sm">Nova Simulação</h3>
-                <p className="text-xs font-light text-muted-foreground">Calcule um novo financiamento</p>
+                <h3 className="font-semibold text-base">Nova Simulação</h3>
+                <p className="text-sm text-muted-foreground">Calcule um novo financiamento</p>
               </div>
             </CardContent>
           </Card>
           
           <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer"
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
                 navigate("/business");
@@ -328,7 +328,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-medium text-sm">Sondagem Estratégica</h3>
+                  <h3 className="font-semibold text-base">Sondagem Estratégica</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -346,20 +346,20 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-xs font-light text-muted-foreground">Inteligência multi-bancos</p>
+                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
                 <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-medium text-sm">Ver Planos</h3>
-                <p className="text-xs font-light text-muted-foreground">Compare os benefícios</p>
+                <h3 className="font-semibold text-base">Ver Planos</h3>
+                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
               </div>
             </CardContent>
           </Card>
@@ -368,10 +368,10 @@ export default function Dashboard() {
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
 
         {/* History Tabs */}
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Histórico</CardTitle>
-            <CardDescription className="text-xs font-light">Suas simulações e propostas recentes</CardDescription>
+            <CardTitle className="text-2xl">Histórico</CardTitle>
+            <CardDescription>Suas simulações e propostas recentes</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="proposals">
@@ -442,15 +442,15 @@ export default function Dashboard() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                              <span className="font-medium text-sm truncate">{proposal.client_name}</span>
+                              <span className="font-semibold text-sm truncate">{proposal.client_name}</span>
                               <span className="text-muted-foreground hidden sm:inline">•</span>
-                              <span className="text-xs text-muted-foreground truncate hidden sm:inline">{proposal.property_description}</span>
+                              <span className="text-sm text-muted-foreground truncate hidden sm:inline">{proposal.property_description}</span>
                             </div>
                           </div>
 
                           {/* Date/Time */}
                           <div className="shrink-0 w-[150px] text-center">
-                            <span className="text-xs text-muted-foreground font-mono">{formatDate(proposal.created_at)}</span>
+                            <span className="text-sm text-muted-foreground font-mono">{formatDate(proposal.created_at)}</span>
                           </div>
 
                           {/* Actions */}
@@ -522,11 +522,11 @@ export default function Dashboard() {
                             <div className="flex items-center gap-6">
                               <div>
                                 <p className="text-sm text-muted-foreground">Valor</p>
-                                <p className="font-medium">{formatCurrency(sim.property_value)}</p>
+                                <p className="font-semibold">{formatCurrency(sim.property_value)}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Parcela</p>
-                                <p className="font-medium">{formatCurrency(sim.monthly_payment)}</p>
+                                <p className="font-semibold">{formatCurrency(sim.monthly_payment)}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Sistema</p>
@@ -534,10 +534,10 @@ export default function Dashboard() {
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Prazo</p>
-                                <p className="font-medium">{sim.term_months} meses</p>
+                                <p className="font-semibold">{sim.term_months} meses</p>
                               </div>
                             </div>
-                            <span className="text-sm text-muted-foreground">{formatDate(sim.created_at)}</span>
+                            <span className="text-sm text-muted-foreground font-mono">{formatDate(sim.created_at)}</span>
                           </div>
                         </CardContent>
                       </Card>
