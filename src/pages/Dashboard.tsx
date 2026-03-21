@@ -328,7 +328,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold">Sondagem Estratégica</h3>
+                  <h3 className="font-medium text-sm">Sondagem Estratégica</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
