@@ -958,6 +958,36 @@ export function FinancingCalculator() {
             <CalculationResults
             calculations={calculations}
             amortizationType={amortizationType} />
+
+            {/* Save Simulation Button */}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleSaveSimulation}
+                  disabled={savingSimulation || (!isUnlimited && !canSimulate)}
+                  className="gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  {savingSimulation ? "Salvando..." : "Salvar Simulação"}
+                </Button>
+                {!isUnlimited && (
+                  <span className="text-sm text-muted-foreground">
+                    {canSimulate
+                      ? `${usageLimits?.simulationsRemaining ?? 0} de 10 restantes`
+                      : (
+                        <span className="flex items-center gap-1 text-destructive">
+                          <Lock className="h-3.5 w-3.5" />
+                          Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
+                        </span>
+                      )}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                <Link to="/login" className="text-primary underline">Faça login</Link> para salvar simulações.
+              </p>
+            )}
           
             <AmortizationSchedule
             schedule={calculations.schedule}
