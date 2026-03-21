@@ -132,6 +132,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Server-side plan enforcement
+    const { data: subData } = await supabaseClient.rpc('get_user_subscription', { p_user_id: userData.user.id });
+    if (!subData?.[0]?.is_active || !['pro', 'business'].includes(subData[0].plan)) {
+      return new Response(JSON.stringify({ error: "Upgrade necessário para acessar cotações de mercado." }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Rate limit check
     if (!checkRateLimit(userData.user.id)) {
       return new Response(JSON.stringify({ error: "Limite de requisições excedido. Aguarde um momento." }), {
