@@ -89,6 +89,10 @@ export function FinancingCalculator() {
   const [propertyDescription, setPropertyDescription] = useState("");
   const location = useLocation();
 
+  // CRM edit tracking: store original values to detect changes
+  const [editingSimulationId, setEditingSimulationId] = useState<string | null>(null);
+  const [originalFinancialValues, setOriginalFinancialValues] = useState<Record<string, string> | null>(null);
+
   // Load data from navigation state (CRM edit flow)
   useEffect(() => {
     const state = location.state as Record<string, string> | null;
@@ -100,6 +104,20 @@ export function FinancingCalculator() {
     if (state.interestRate) setInterestRate(state.interestRate);
     if (state.termMonths) setTermMonths(state.termMonths);
     if (state.amortizationType) setAmortizationType(state.amortizationType as "SAC" | "PRICE");
+
+    // If coming from CRM edit, track original values and auto-unlock
+    if (state.fromCRM === "true") {
+      setEditingSimulationId(state.simulationId || null);
+      setOriginalFinancialValues({
+        propertyValue: state.propertyValue || "",
+        downPayment: state.downPayment || "",
+        interestRate: state.interestRate || "",
+        termMonths: state.termMonths || "",
+        amortizationType: state.amortizationType || "",
+      });
+      setSimulationUnlocked(true); // Already paid — free re-view
+    }
+
     // Clear location state to avoid re-loading on re-render
     window.history.replaceState({}, document.title);
   }, []);
