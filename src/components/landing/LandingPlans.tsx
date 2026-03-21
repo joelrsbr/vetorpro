@@ -17,53 +17,54 @@ const plans = [
 {
   id: "basic" as PlanType,
   name: "Basic",
-  price: "R$ 29,90",
+  price: "R$ 69,90",
   period: "/mês",
-  description: "Simulações ilimitadas e indexadores oficiais.",
+  description: "Uso Essencial — Simulações e Propostas com IA.",
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
   { text: "Até 10 Simulações (SAC/PRICE) por mês", included: true },
-  { text: "2 Propostas com Inteligência Artificial por mês", included: true },
+  { text: "Até 10 Propostas com IA por mês", included: true },
   { text: "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)", included: true },
   { text: "Simulador HP12C Integrado", included: true },
   { text: "Gestão de Reforços Estratégicos", included: true },
   { text: "Histórico Recente de Simulações", included: true },
-  { text: "Dashboard de Evolução de Saldo Devedor", included: true }]
-
+  { text: "Dashboard de Evolução de Saldo Devedor", included: true },
+  { text: "Download de PDF bloqueado", included: false }]
 },
 {
   id: "pro" as PlanType,
   name: "Professional",
-  price: "R$ 89,90",
+  price: "R$ 139,90",
   period: "/mês",
-  description: "Cotações de Dólar/Euro em tempo real e Gestão de Reforços.",
+  description: "Uso Extensivo — Para corretores que operam em volume.",
   icon: Rocket,
   buttonVariant: "default" as const,
   features: [
   { text: "Tudo do Basic", included: true },
+  { text: "Até 100 Simulações por mês", included: true },
+  { text: "Até 100 Propostas com IA por mês", included: true },
   { text: "Cotações Dólar/Euro em tempo real", included: true },
   { text: "Tabela de Amortizações e Arquitetura de Reforços Estratégicos", included: true },
-  { text: "Exportação de PDF Básico", included: true },
-  { text: "Propostas com IA liberadas", included: true }]
-
+  { text: "Exportação de PDF liberada", included: true }]
 },
 {
   id: "business" as PlanType,
   name: "Business",
-  price: "R$ 229,90",
+  price: "R$ 269,90",
   period: "/mês",
-  description: "O Plano para Profissionais de Elite e Consultorias de Alto Padrão",
+  description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
   icon: Building2,
   buttonVariant: "hero" as const,
   highlight: true,
   features: [
   { text: "Inclui todos os recursos do Plano Professional", included: true },
+  { text: "Até 200 Simulações por mês", included: true },
+  { text: "Até 200 Propostas com IA por mês", included: true },
   { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
   { text: "Datas Reais de Cronograma", included: true },
   { text: "Sondagem Estratégica Multi-Bancos", included: true },
   { text: "Dashboard Corporativo", included: true }]
-
 }];
 
 

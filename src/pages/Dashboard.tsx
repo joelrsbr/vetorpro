@@ -11,12 +11,26 @@ import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
-  Loader2, Sparkles, Copy, Brain, Building2, Info
+  Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
+  CircleDot
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Proposal {
   id: string;
@@ -26,6 +40,7 @@ interface Proposal {
   interest_savings: number | null;
   term_savings_months: number | null;
   created_at: string;
+  status: string;
 }
 
 interface Simulation {
@@ -41,6 +56,23 @@ interface Simulation {
   created_at: string;
 }
 
+const STATUS_OPTIONS = [
+  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢" },
+  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡" },
+  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴" },
+];
+
+function getStatusInfo(status: string) {
+  return STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[1];
+}
+
+function getPlanLimit(plan: string, isActive: boolean) {
+  if (!isActive) return 10;
+  if (plan === "business") return 200;
+  if (plan === "pro") return 100;
+  return 10;
+}
+
 export default function Dashboard() {
   const { user, profile, usageLimits, loading, refreshProfile } = useAuth();
   const { plan, isActive, loading: subLoading, refresh: refreshSub } = useSubscription();
@@ -51,8 +83,10 @@ export default function Dashboard() {
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
   const planBadge = isActive ? getPlanBadge(plan) : null;
+  const limit = getPlanLimit(plan, isActive);
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
@@ -88,10 +122,10 @@ export default function Dashboard() {
   const fetchData = async () => {
     setLoadingData(true);
     const [proposalsRes, simulationsRes] = await Promise.all([
-      supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(10),
-      supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(10),
+      supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(50),
     ]);
-    if (proposalsRes.data) setProposals(proposalsRes.data);
+    if (proposalsRes.data) setProposals(proposalsRes.data as Proposal[]);
     if (simulationsRes.data) setSimulations(simulationsRes.data);
     setLoadingData(false);
   };
@@ -105,6 +139,43 @@ export default function Dashboard() {
   const handleCopyProposal = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copiado!", description: "Proposta copiada para a área de transferência." });
+  };
+
+  const handleUpdateStatus = async (proposalId: string, newStatus: string) => {
+    const { error } = await supabase.from("proposals").update({ status: newStatus } as any).eq("id", proposalId);
+    if (!error) {
+      setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status: newStatus } : p));
+      toast({ title: "Status atualizado" });
+    }
+  };
+
+  const handleDownloadPdf = (proposal: Proposal) => {
+    if (plan === "basic" || !isActive) {
+      toast({
+        title: "PDF bloqueado no Basic",
+        description: "Faça upgrade para Professional ou Business para baixar PDFs.",
+        variant: "destructive",
+      });
+      navigate("/precos");
+      return;
+    }
+    // Use jsPDF for download
+    import("jspdf").then(({ jsPDF }) => {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Proposta de Financiamento", 20, 20);
+      doc.setFontSize(11);
+      doc.text(`Cliente: ${proposal.client_name}`, 20, 35);
+      doc.text(`Imóvel: ${proposal.property_description}`, 20, 42);
+      doc.text(`Data: ${formatDate(proposal.created_at)}`, 20, 49);
+      const lines = doc.splitTextToSize(proposal.proposal_text, 170);
+      doc.text(lines, 20, 62);
+      doc.save(`proposta-${proposal.client_name.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+    });
+  };
+
+  const handleAdjustProposal = (proposal: Proposal) => {
+    navigate("/calculadora", { state: { clientName: proposal.client_name, propertyDescription: proposal.property_description } });
   };
 
   if (loading || subLoading) {
@@ -151,6 +222,14 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* LGPD Notice */}
+        <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 flex items-start gap-3">
+          <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
+          </p>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
@@ -159,9 +238,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Simulações</p>
                   <p className="text-2xl font-bold">
-                    {(plan === "pro" || plan === "business") && isActive
-                      ? "Liberado" 
-                      : `${usageLimits?.simulationsRemaining ?? 0} de 10`}
+                    {`${usageLimits?.simulationsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
                 <Calculator className="h-8 w-8 text-primary opacity-80" />
@@ -175,9 +252,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Propostas IA</p>
                   <p className="text-2xl font-bold">
-                    {(plan === "pro" || plan === "business") && isActive
-                      ? "Liberado" 
-                      : `${usageLimits?.proposalsRemaining ?? 0} de 10`}
+                    {`${usageLimits?.proposalsRemaining ?? 0} de ${limit}`}
                   </p>
                 </div>
                 <Sparkles className="h-8 w-8 text-primary opacity-80" />
@@ -314,38 +389,85 @@ export default function Dashboard() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {proposals.map((proposal) => (
-                      <Card key={proposal.id} className="bg-muted/30">
-                        <CardContent className="pt-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">{proposal.client_name}</span>
-                                <span className="text-sm text-muted-foreground">•</span>
-                                <span className="text-sm text-muted-foreground">{proposal.property_description}</span>
-                              </div>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {formatDate(proposal.created_at)}
-                                </span>
-                                {proposal.interest_savings && (
-                                  <span className="flex items-center gap-1 text-green-600">
-                                    <TrendingUp className="h-3 w-3" />
-                                    Economia: {formatCurrency(proposal.interest_savings)}
+                  <div className="space-y-3">
+                    {proposals.map((proposal) => {
+                      const statusInfo = getStatusInfo(proposal.status);
+                      return (
+                        <Card key={proposal.id} className="bg-muted/30">
+                          <CardContent className="pt-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                  {/* Status Semaphore */}
+                                  <Select
+                                    value={proposal.status}
+                                    onValueChange={(val) => handleUpdateStatus(proposal.id, val)}
+                                  >
+                                    <SelectTrigger className="w-auto h-7 px-2 gap-1.5 text-xs border-none bg-transparent">
+                                      <span>{statusInfo.emoji}</span>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {STATUS_OPTIONS.map(opt => (
+                                        <SelectItem key={opt.value} value={opt.value}>
+                                          <span className="flex items-center gap-2">
+                                            <span>{opt.emoji}</span>
+                                            {opt.label}
+                                          </span>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <User className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium truncate">{proposal.client_name}</span>
+                                  <span className="text-sm text-muted-foreground hidden sm:inline">•</span>
+                                  <span className="text-sm text-muted-foreground truncate hidden sm:inline">{proposal.property_description}</span>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {formatDate(proposal.created_at)}
                                   </span>
-                                )}
+                                  {proposal.interest_savings && (
+                                    <span className="flex items-center gap-1 text-green-600">
+                                      <TrendingUp className="h-3 w-3" />
+                                      Economia: {formatCurrency(proposal.interest_savings)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {/* Action Icons */}
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewProposal(proposal)}>
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Ver Proposta</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyProposal(proposal.proposal_text)}>
+                                      <Copy className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Copiar</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownloadPdf(proposal)}>
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Download PDF</TooltipContent>
+                                </Tooltip>
                               </div>
                             </div>
-                            <Button variant="outline" size="sm" onClick={() => handleCopyProposal(proposal.proposal_text)}>
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>
@@ -399,6 +521,43 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Proposal View Modal */}
+      <Dialog open={!!viewProposal} onOpenChange={(open) => !open && setViewProposal(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Proposta — {viewProposal?.client_name}
+            </DialogTitle>
+          </DialogHeader>
+          {viewProposal && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>{viewProposal.property_description}</span>
+                <span>•</span>
+                <span>{formatDate(viewProposal.created_at)}</span>
+              </div>
+              <div className="whitespace-pre-wrap text-sm leading-relaxed border rounded-lg p-4 bg-muted/30">
+                {viewProposal.proposal_text}
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => handleCopyProposal(viewProposal.proposal_text)}>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copiar
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownloadPdf(viewProposal)}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button variant="default" size="sm" onClick={() => { setViewProposal(null); handleAdjustProposal(viewProposal); }}>
+                  Ajustar Proposta
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>

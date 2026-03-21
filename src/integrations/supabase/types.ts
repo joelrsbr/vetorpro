@@ -80,6 +80,7 @@ export type Database = {
           property_description: string
           proposal_text: string
           simulation_id: string | null
+          status: string
           term_savings_months: number | null
           user_id: string
         }
@@ -91,6 +92,7 @@ export type Database = {
           property_description: string
           proposal_text: string
           simulation_id?: string | null
+          status?: string
           term_savings_months?: number | null
           user_id: string
         }
@@ -102,6 +104,7 @@ export type Database = {
           property_description?: string
           proposal_text?: string
           simulation_id?: string | null
+          status?: string
           term_savings_months?: number | null
           user_id?: string
         }
@@ -231,6 +234,7 @@ export type Database = {
           simulations_remaining: number
         }[]
       }
+      cleanup_old_records: { Args: never; Returns: undefined }
       get_user_subscription: {
         Args: { p_user_id: string }
         Returns: {
