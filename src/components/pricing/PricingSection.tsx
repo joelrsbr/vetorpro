@@ -188,7 +188,7 @@ export function PricingSection() {
                     ))}
                   </ul>
 
-                  <Button 
+                  <Button
                     variant={plan.variant} 
                     size="lg" 
                     className={`w-full ${(plan as any).highlight ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""} ${isCurrent ? "opacity-60" : ""}`}
