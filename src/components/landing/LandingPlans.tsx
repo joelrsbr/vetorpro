@@ -23,11 +23,12 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulações ilimitadas SAC/PRICE", included: true },
-  { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
-  { text: "Calculadora HP12C integrada", included: true },
-  { text: "Cotações de câmbio em tempo real", included: false },
-  { text: "Gestão de Reforços", included: false }]
+    { text: "Simulações ilimitadas SAC/PRICE", included: true },
+    { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
+    { text: "Calculadora HP12C integrada", included: true },
+    { text: "Cotações de câmbio em tempo real", included: false },
+    { text: "Gestão de Reforços", included: false },
+  ],
 },
 {
   id: "pro" as PlanType,
@@ -37,13 +38,13 @@ const plans = [
   description: "Cotações de Dólar/Euro em tempo real e Gestão de Reforços.",
   icon: Rocket,
   buttonVariant: "default" as const,
-  recommended: true,
   features: [
-  { text: "Tudo do Basic", included: true },
-  { text: "Cotações Dólar/Euro em tempo real", included: true },
-  { text: "Gestão de Reforços Estratégicos", included: true },
-  { text: "Exportação de PDF Básico", included: true },
-  { text: "Propostas com IA liberadas", included: true }]
+    { text: "Tudo do Basic", included: true },
+    { text: "Cotações Dólar/Euro em tempo real", included: true },
+    { text: "Gestão de Reforços Estratégicos", included: true },
+    { text: "Exportação de PDF Básico", included: true },
+    { text: "Propostas com IA liberadas", included: true },
+  ],
 },
 {
   id: "business" as PlanType,
@@ -53,11 +54,14 @@ const plans = [
   description: "O Plano definitivo para Consultoria de Alto Padrão",
   icon: Building2,
   buttonVariant: "hero" as const,
+  highlight: true,
   features: [
-  { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
-  { text: "Datas Reais de Cronograma", included: true },
-  { text: "Sondagem Estratégica Multi-Bancos", included: true },
-  { text: "Dashboard Corporativo", included: true }]
+    { text: "Inclui todos os recursos do Plano Professional", included: true },
+    { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
+    { text: "Datas Reais de Cronograma", included: true },
+    { text: "Sondagem Estratégica Multi-Bancos", included: true },
+    { text: "Dashboard Corporativo", included: true },
+  ],
 }];
 
 
@@ -112,22 +116,22 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {plans.map((plan, index) => {
-            const isRecommended = plan.recommended;
+            const isHighlight = (plan as any).highlight;
             return (
               <Card
                 key={plan.id}
                 className={`relative card-shadow-animated cursor-pointer transition-all duration-300 ${
-                isRecommended ?
-                "border-primary border-2 shadow-xl md:scale-105 z-10" :
+                isHighlight ?
+                "border-emerald-500 border-2 shadow-xl md:scale-105 z-10" :
                 "border hover:border-primary/50"} ${
                 selectedPlan === plan.id ? "ring-2 ring-offset-2 ring-primary" : ""}`}
                 onClick={() => onSelectPlan(plan.id)}
                 style={{ animationDelay: `${index * 150}ms` }}>
                 
-                {isRecommended &&
+                {isHighlight &&
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="px-4 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
-                      Recomendado
+                    <span className="px-4 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
+                      Escolha das Imobiliárias
                     </span>
                   </div>
                 }
@@ -140,10 +144,10 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                   </div>
                 }
 
-                <CardHeader className={`rounded-t-lg transition-all duration-300 pt-8 ${isRecommended ? "bg-primary/5" : ""}`}>
+                <CardHeader className={`rounded-t-lg transition-all duration-300 pt-8 ${isHighlight ? "bg-emerald-500/5" : ""}`}>
                   <div className="flex items-center gap-3 mb-3">
-                    <plan.icon className={`h-6 w-6 ${isRecommended ? "text-primary" : "text-muted-foreground"}`} />
-                    <CardTitle className="text-xl">{plan.id === "business" ? "Tudo do Plano Professional" : plan.name}</CardTitle>
+                    <plan.icon className={`h-6 w-6 ${isHighlight ? "text-emerald-500" : "text-muted-foreground"}`} />
+                    <CardTitle className="text-xl">{plan.name}</CardTitle>
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold">{plan.price}</span>
@@ -173,7 +177,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                   <Button
                     variant={plan.buttonVariant}
                     size="lg"
-                    className={`w-full ${isRecommended ? "shadow-button" : ""}`}
+                    className={`w-full ${isHighlight ? "shadow-button" : ""}`}
                     disabled={loadingPlan === plan.id}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -184,7 +188,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
                     null}
                     Assinar Agora
-                    {isRecommended && <ArrowRight className="h-4 w-4 ml-2" />}
+                    {isHighlight && <ArrowRight className="h-4 w-4 ml-2" />}
                   </Button>
                 </CardContent>
               </Card>);

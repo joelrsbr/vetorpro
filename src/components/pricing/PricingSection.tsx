@@ -50,7 +50,7 @@ const plans = [
     ],
     cta: "Assinar Professional",
     variant: "outline" as const,
-    popular: true,
+    popular: false,
   },
   {
     key: "business" as PlanKey,
@@ -59,6 +59,7 @@ const plans = [
     period: "/mês",
     description: "O Plano definitivo para Consultoria de Alto Padrão",
     features: [
+      "Inclui todos os recursos do Plano Professional",
       "Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
       "Sondagem Estratégica Multi-Bancos",
@@ -142,14 +143,14 @@ export function PricingSection() {
               <Card 
                 key={plan.name}
                 className={`relative shadow-card hover:shadow-lg transition-all duration-300 ${
-                  plan.popular ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
+                  (plan as any).highlight ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
                 } ${isCurrent ? "ring-2 ring-emerald-500/50" : ""}`}
               >
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                  {plan.popular && (
+                  {(plan as any).highlight && (
                     <div className="flex items-center gap-1 px-4 py-1 rounded-full bg-emerald-500 text-white text-sm font-medium whitespace-nowrap">
                       <Sparkles className="h-3 w-3" />
-                      Recomendado
+                      Escolha das Imobiliárias
                     </div>
                   )}
                   {isCurrent && (
@@ -161,7 +162,7 @@ export function PricingSection() {
                 </div>
                 
                 <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-2xl">{plan.key === "business" ? "Tudo do Professional" : plan.name}</CardTitle>
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{plan.price}</span>
@@ -190,7 +191,7 @@ export function PricingSection() {
                   <Button 
                     variant={plan.variant} 
                     size="lg" 
-                    className={`w-full ${plan.popular ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""} ${isCurrent ? "opacity-60" : ""}`}
+                    className={`w-full ${(plan as any).highlight ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""} ${isCurrent ? "opacity-60" : ""}`}
                     disabled={loadingPlan === plan.key || isCurrent}
                     onClick={() => handleSubscribe(plan.key)}
                   >
