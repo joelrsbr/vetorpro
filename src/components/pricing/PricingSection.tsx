@@ -41,7 +41,7 @@ const plans = [
     features: [
       "Tudo do Basic",
       "Cotações Dólar/Euro em tempo real",
-      "Gestão de Reforços Estratégicos",
+      "Tabela de Amortizações e Arquitetura de Reforços Estratégicos",
       "Exportação de PDF Básico",
       "Propostas com IA liberadas",
     ],

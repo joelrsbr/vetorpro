@@ -43,7 +43,7 @@ const plans = [
   features: [
   { text: "Tudo do Basic", included: true },
   { text: "Cotações Dólar/Euro em tempo real", included: true },
-  { text: "Gestão de Reforços Estratégicos", included: true },
+  { text: "Tabela de Amortizações e Arquitetura de Reforços Estratégicos", included: true },
   { text: "Exportação de PDF Básico", included: true },
   { text: "Propostas com IA liberadas", included: true }]
 
