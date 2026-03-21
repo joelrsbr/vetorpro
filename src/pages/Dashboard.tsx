@@ -57,9 +57,10 @@ interface Simulation {
 }
 
 const STATUS_OPTIONS = [
-  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢" },
-  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡" },
-  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴" },
+  { value: "completed", label: "Concluído", color: "text-cyan-400", emoji: "V", isVetor: true },
+  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢", isVetor: false },
+  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡", isVetor: false },
+  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴", isVetor: false },
 ];
 
 function getStatusInfo(status: string) {
