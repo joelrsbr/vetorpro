@@ -313,7 +313,7 @@ export default function Dashboard() {
           </Card>
           
           <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer"
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
                 navigate("/business");
