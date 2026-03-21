@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useContext } from "react";
+import { useState, useMemo, useRef, useContext, useCallback } from "react";
 import { useSimulation } from "@/contexts/SimulationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,12 @@ import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
 import { ProposalGenerator } from "./ProposalGenerator";
 import { useMarketData } from "@/hooks/useMarketData";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Save, Crown, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format, addMonths } from "date-fns";
@@ -74,6 +80,10 @@ export function FinancingCalculator() {
     amortizationType, setAmortizationType,
   } = useSimulation();
 
+  const { user, usageLimits, incrementSimulationCount, refreshUsageLimits } = useAuth();
+  const { plan, isActive } = useSubscription();
+  const { toast } = useToast();
+  const [savingSimulation, setSavingSimulation] = useState(false);
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
@@ -433,6 +443,56 @@ export function FinancingCalculator() {
     enableReinforcements,
     includeMonthlyPayment
   };
+
+  const canSimulate = usageLimits?.canSimulate ?? false;
+  const isUnlimited = (plan === "pro" || plan === "business") && isActive;
+
+  const handleSaveSimulation = useCallback(async () => {
+    if (!user || !calculations) return;
+    
+    if (!isUnlimited && !canSimulate) {
+      toast({
+        title: "Limite atingido",
+        description: "Você atingiu o limite de simulações do Plano Basic. Faça upgrade para o Professional para simulações ilimitadas.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingSimulation(true);
+    try {
+      const { error } = await supabase.from("simulations").insert({
+        user_id: user.id,
+        property_value: parseCurrency(propertyValue),
+        down_payment: parseCurrency(downPayment),
+        interest_rate: parseCurrency(interestRate),
+        term_months: parseInt(termMonths) || 360,
+        amortization_type: amortizationType.toLowerCase() as "sac" | "price",
+        monthly_payment: calculations.firstPayment,
+        total_paid: calculations.totalPaid,
+        total_interest: calculations.totalInterest,
+        extra_amortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : null,
+        extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
+      });
+
+      if (error) throw error;
+
+      await incrementSimulationCount();
+      toast({
+        title: "Simulação salva! ✅",
+        description: `Simulação registrada. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} de 10.`}`,
+      });
+    } catch (err) {
+      console.error("Error saving simulation:", err);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar a simulação.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingSimulation(false);
+    }
+  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits]);
 
   return (
     <TooltipProvider>
@@ -899,6 +959,36 @@ export function FinancingCalculator() {
             <CalculationResults
             calculations={calculations}
             amortizationType={amortizationType} />
+
+            {/* Save Simulation Button */}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleSaveSimulation}
+                  disabled={savingSimulation || (!isUnlimited && !canSimulate)}
+                  className="gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  {savingSimulation ? "Salvando..." : "Salvar Simulação"}
+                </Button>
+                {!isUnlimited && (
+                  <span className="text-sm text-muted-foreground">
+                    {canSimulate
+                      ? `${usageLimits?.simulationsRemaining ?? 0} de 10 restantes`
+                      : (
+                        <span className="flex items-center gap-1 text-destructive">
+                          <Lock className="h-3.5 w-3.5" />
+                          Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
+                        </span>
+                      )}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                <Link to="/login" className="text-primary underline">Faça login</Link> para salvar simulações.
+              </p>
+            )}
           
             <AmortizationSchedule
             schedule={calculations.schedule}

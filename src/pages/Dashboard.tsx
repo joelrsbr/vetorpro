@@ -161,7 +161,7 @@ export default function Dashboard() {
                   <p className="text-2xl font-bold">
                     {(plan === "pro" || plan === "business") && isActive
                       ? "Liberado" 
-                      : `${usageLimits?.simulationsRemaining ?? 0} restantes`}
+                      : `${usageLimits?.simulationsRemaining ?? 0} de 10`}
                   </p>
                 </div>
                 <Calculator className="h-8 w-8 text-primary opacity-80" />
@@ -177,7 +177,7 @@ export default function Dashboard() {
                   <p className="text-2xl font-bold">
                     {(plan === "pro" || plan === "business") && isActive
                       ? "Liberado" 
-                      : `${usageLimits?.proposalsRemaining ?? 0} restantes`}
+                      : `${usageLimits?.proposalsRemaining ?? 0} de 10`}
                   </p>
                 </div>
                 <Sparkles className="h-8 w-8 text-primary opacity-80" />
