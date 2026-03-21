@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useContext, useCallback } from "react";
+import { useState, useMemo, useRef, useContext, useCallback, useEffect } from "react";
 import { useSimulation } from "@/contexts/SimulationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Crown, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format, addMonths } from "date-fns";
@@ -87,6 +87,22 @@ export function FinancingCalculator() {
   const [simulationUnlocked, setSimulationUnlocked] = useState(false);
   const [clientName, setClientName] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
+  const location = useLocation();
+
+  // Load data from navigation state (CRM edit flow)
+  useEffect(() => {
+    const state = location.state as Record<string, string> | null;
+    if (!state) return;
+    if (state.clientName) setClientName(state.clientName);
+    if (state.propertyDescription) setPropertyDescription(state.propertyDescription);
+    if (state.propertyValue) setPropertyValue(state.propertyValue);
+    if (state.downPayment) setDownPayment(state.downPayment);
+    if (state.interestRate) setInterestRate(state.interestRate);
+    if (state.termMonths) setTermMonths(state.termMonths);
+    if (state.amortizationType) setAmortizationType(state.amortizationType as "SAC" | "PRICE");
+    // Clear location state to avoid re-loading on re-render
+    window.history.replaceState({}, document.title);
+  }, []);
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);

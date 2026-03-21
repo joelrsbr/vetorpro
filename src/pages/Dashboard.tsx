@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
-  CircleDot, Trash2, ChevronUp
+  CircleDot, Trash2, ChevronUp, Pencil
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
@@ -181,6 +181,20 @@ export default function Dashboard() {
 
   const handleAdjustProposal = (proposal: Proposal) => {
     navigate("/calculadora", { state: { clientName: proposal.client_name, propertyDescription: proposal.property_description } });
+  };
+
+  const handleEditSimulation = (sim: Simulation) => {
+    navigate("/calculadora", {
+      state: {
+        clientName: sim.client_name || "",
+        propertyDescription: sim.property_description || "",
+        propertyValue: Math.round(sim.property_value * 100).toString(),
+        downPayment: Math.round(sim.down_payment * 100).toString(),
+        interestRate: Math.round(sim.interest_rate * 100).toString(),
+        termMonths: sim.term_months.toString(),
+        amortizationType: sim.amortization_type.toUpperCase(),
+      },
+    });
   };
 
   const handleDeleteProposal = async (proposalId: string) => {
@@ -508,6 +522,14 @@ export default function Dashboard() {
                             </Tooltip>
                             <Tooltip>
                               <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setViewProposal(null); handleAdjustProposal(proposal); }}>
+                                  <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Editar / Retomar</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
                                   <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                                 </Button>
@@ -577,6 +599,14 @@ export default function Dashboard() {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Copiar</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
+                                <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Editar / Retomar</TooltipContent>
                           </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
