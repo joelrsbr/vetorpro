@@ -334,7 +334,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Total Simulações</p>
-                      <p className="text-2xl font-semibold">{realSimUsage}</p>
+                      <p className="text-2xl font-semibold">{simCount}</p>
                     </div>
                     <Calculator className="h-8 w-8 text-primary opacity-80" />
                   </div>
