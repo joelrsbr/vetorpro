@@ -443,6 +443,56 @@ export function FinancingCalculator() {
     includeMonthlyPayment
   };
 
+  const canSimulate = usageLimits?.canSimulate ?? false;
+  const isUnlimited = (plan === "pro" || plan === "business") && isActive;
+
+  const handleSaveSimulation = useCallback(async () => {
+    if (!user || !calculations) return;
+    
+    if (!isUnlimited && !canSimulate) {
+      toast({
+        title: "Limite atingido",
+        description: "Você atingiu o limite de simulações do Plano Basic. Faça upgrade para o Professional para simulações ilimitadas.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingSimulation(true);
+    try {
+      const { error } = await supabase.from("simulations").insert({
+        user_id: user.id,
+        property_value: parseCurrency(propertyValue),
+        down_payment: parseCurrency(downPayment),
+        interest_rate: parseCurrency(interestRate),
+        term_months: parseInt(termMonths) || 360,
+        amortization_type: amortizationType.toLowerCase() as "sac" | "price",
+        monthly_payment: calculations.firstPayment,
+        total_paid: calculations.totalPaid,
+        total_interest: calculations.totalInterest,
+        extra_amortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : null,
+        extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
+      });
+
+      if (error) throw error;
+
+      await incrementSimulationCount();
+      toast({
+        title: "Simulação salva! ✅",
+        description: `Simulação registrada. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} de 10.`}`,
+      });
+    } catch (err) {
+      console.error("Error saving simulation:", err);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar a simulação.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingSimulation(false);
+    }
+  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits]);
+
   return (
     <TooltipProvider>
       <div className="space-y-8 pb-16">
