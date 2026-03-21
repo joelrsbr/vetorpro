@@ -595,7 +595,16 @@ export default function Dashboard() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-0.5 shrink-0">
+                        <div className="flex items-center shrink-0">
+                          <div className="flex items-center gap-0.5">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
+                                <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Retomar e editar este cálculo</TooltipContent>
+                          </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(`Simulação: ${formatCurrency(sim.property_value)} | Parcela: ${formatCurrency(sim.monthly_payment)} | ${sim.amortization_type.toUpperCase()} | ${sim.term_months} meses | Taxa: ${sim.interest_rate}% a.a.`)}>
@@ -604,14 +613,8 @@ export default function Dashboard() {
                             </TooltipTrigger>
                             <TooltipContent>Copiar</TooltipContent>
                           </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
-                                <Pencil className="h-4 w-4" strokeWidth={1.5} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Editar / Retomar</TooltipContent>
-                          </Tooltip>
+                          </div>
+                          <div className="ml-2">
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteSimulation(sim.id)}>
@@ -620,6 +623,7 @@ export default function Dashboard() {
                             </TooltipTrigger>
                             <TooltipContent>Excluir</TooltipContent>
                           </Tooltip>
+                          </div>
                         </div>
                       </div>
                     ))}
