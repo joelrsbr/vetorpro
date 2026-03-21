@@ -236,8 +236,8 @@ export default function Dashboard() {
         {/* LGPD Notice */}
         <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 flex items-center justify-center gap-3 text-center">
           <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
+          <p className="text-xs font-light text-muted-foreground">
+            <span className="font-medium text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
           </p>
         </div>
 
