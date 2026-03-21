@@ -142,7 +142,7 @@ export function PricingSection() {
             return (
               <Card 
                 key={plan.name}
-                className={`relative shadow-card hover:shadow-lg transition-all duration-300 ${
+                className={`relative shadow-card hover:shadow-lg transition-all duration-300 flex flex-col ${
                   (plan as any).highlight ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
                 } ${isCurrent ? "ring-2 ring-emerald-500/50" : ""}`}
               >
