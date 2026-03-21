@@ -548,13 +548,18 @@ export default function Dashboard() {
                         {/* Details */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3">
-                            <span className="font-semibold text-sm">{formatCurrency(sim.property_value)}</span>
+                            <span className="font-semibold text-sm">{sim.client_name || "Sem nome"}</span>
                             <span className="text-muted-foreground">•</span>
-                            <span className="text-sm text-muted-foreground">Parcela: {formatCurrency(sim.monthly_payment)}</span>
+                            <span className="text-sm text-muted-foreground">{sim.property_description || formatCurrency(sim.property_value)}</span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            <span className="text-xs text-muted-foreground">{formatCurrency(sim.property_value)}</span>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-xs text-muted-foreground">Parcela: {formatCurrency(sim.monthly_payment)}</span>
                             <span className="text-muted-foreground hidden sm:inline">•</span>
-                            <span className="text-sm text-muted-foreground hidden sm:inline">{sim.term_months} meses</span>
+                            <span className="text-xs text-muted-foreground hidden sm:inline">{sim.term_months} meses</span>
                             <span className="text-muted-foreground hidden md:inline">•</span>
-                            <span className="text-sm text-muted-foreground hidden md:inline">{sim.interest_rate}% a.a.</span>
+                            <span className="text-xs text-muted-foreground hidden md:inline">{sim.interest_rate}% a.a.</span>
                           </div>
                         </div>
 
