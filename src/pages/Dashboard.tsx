@@ -496,6 +496,12 @@ export default function Dashboard() {
                                   </TooltipTrigger>
                                   <TooltipContent>Excluir</TooltipContent>
                                 </Tooltip>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>
