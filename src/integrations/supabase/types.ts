@@ -121,6 +121,7 @@ export type Database = {
       simulations: {
         Row: {
           amortization_type: Database["public"]["Enums"]["amortization_type"]
+          client_name: string | null
           created_at: string
           down_payment: number
           extra_amortization: number | null
@@ -130,6 +131,7 @@ export type Database = {
           id: string
           interest_rate: number
           monthly_payment: number
+          property_description: string | null
           property_value: number
           reinforcement_frequency:
             | Database["public"]["Enums"]["reinforcement_frequency"]
@@ -142,6 +144,7 @@ export type Database = {
         }
         Insert: {
           amortization_type: Database["public"]["Enums"]["amortization_type"]
+          client_name?: string | null
           created_at?: string
           down_payment: number
           extra_amortization?: number | null
@@ -151,6 +154,7 @@ export type Database = {
           id?: string
           interest_rate: number
           monthly_payment: number
+          property_description?: string | null
           property_value: number
           reinforcement_frequency?:
             | Database["public"]["Enums"]["reinforcement_frequency"]
@@ -163,6 +167,7 @@ export type Database = {
         }
         Update: {
           amortization_type?: Database["public"]["Enums"]["amortization_type"]
+          client_name?: string | null
           created_at?: string
           down_payment?: number
           extra_amortization?: number | null
@@ -172,6 +177,7 @@ export type Database = {
           id?: string
           interest_rate?: number
           monthly_payment?: number
+          property_description?: string | null
           property_value?: number
           reinforcement_frequency?:
             | Database["public"]["Enums"]["reinforcement_frequency"]
