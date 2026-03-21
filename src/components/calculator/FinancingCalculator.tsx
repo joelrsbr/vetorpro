@@ -132,7 +132,25 @@ export function FinancingCalculator() {
   const extraAmortRef = useRef<HTMLDivElement>(null);
   const reinforcementRef = useRef<HTMLDivElement>(null);
 
-  const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
+  // Reactive edit: reset unlock when financial values change from original CRM values
+  useEffect(() => {
+    if (!originalFinancialValues) return;
+    const currentValues = {
+      propertyValue,
+      downPayment,
+      interestRate,
+      termMonths,
+      amortizationType,
+    };
+    const hasChanged = Object.keys(originalFinancialValues).some(
+      (key) => originalFinancialValues[key] !== (currentValues as Record<string, string>)[key]
+    );
+    if (hasChanged) {
+      setSimulationUnlocked(false);
+    }
+  }, [propertyValue, downPayment, interestRate, termMonths, amortizationType, originalFinancialValues]);
+
+
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
   const [customCorrectionRate, setCustomCorrectionRate] = useState<string>("6");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
