@@ -186,6 +186,7 @@ export default function Dashboard() {
   const handleEditSimulation = (sim: Simulation) => {
     navigate("/calculadora", {
       state: {
+        simulationId: sim.id,
         clientName: sim.client_name || "",
         propertyDescription: sim.property_description || "",
         propertyValue: Math.round(sim.property_value * 100).toString(),
@@ -193,6 +194,7 @@ export default function Dashboard() {
         interestRate: Math.round(sim.interest_rate * 100).toString(),
         termMonths: sim.term_months.toString(),
         amortizationType: sim.amortization_type.toUpperCase(),
+        fromCRM: "true",
       },
     });
   };

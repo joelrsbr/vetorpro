@@ -89,6 +89,10 @@ export function FinancingCalculator() {
   const [propertyDescription, setPropertyDescription] = useState("");
   const location = useLocation();
 
+  // CRM edit tracking: store original values to detect changes
+  const [editingSimulationId, setEditingSimulationId] = useState<string | null>(null);
+  const [originalFinancialValues, setOriginalFinancialValues] = useState<Record<string, string> | null>(null);
+
   // Load data from navigation state (CRM edit flow)
   useEffect(() => {
     const state = location.state as Record<string, string> | null;
@@ -100,6 +104,20 @@ export function FinancingCalculator() {
     if (state.interestRate) setInterestRate(state.interestRate);
     if (state.termMonths) setTermMonths(state.termMonths);
     if (state.amortizationType) setAmortizationType(state.amortizationType as "SAC" | "PRICE");
+
+    // If coming from CRM edit, track original values and auto-unlock
+    if (state.fromCRM === "true") {
+      setEditingSimulationId(state.simulationId || null);
+      setOriginalFinancialValues({
+        propertyValue: state.propertyValue || "",
+        downPayment: state.downPayment || "",
+        interestRate: state.interestRate || "",
+        termMonths: state.termMonths || "",
+        amortizationType: state.amortizationType || "",
+      });
+      setSimulationUnlocked(true); // Already paid — free re-view
+    }
+
     // Clear location state to avoid re-loading on re-render
     window.history.replaceState({}, document.title);
   }, []);
@@ -113,6 +131,24 @@ export function FinancingCalculator() {
   const amortizationRef = useRef<HTMLButtonElement>(null);
   const extraAmortRef = useRef<HTMLDivElement>(null);
   const reinforcementRef = useRef<HTMLDivElement>(null);
+
+  // Reactive edit: reset unlock when financial values change from original CRM values
+  useEffect(() => {
+    if (!originalFinancialValues) return;
+    const currentValues = {
+      propertyValue,
+      downPayment,
+      interestRate,
+      termMonths,
+      amortizationType,
+    };
+    const hasChanged = Object.keys(originalFinancialValues).some(
+      (key) => originalFinancialValues[key] !== (currentValues as Record<string, string>)[key]
+    );
+    if (hasChanged) {
+      setSimulationUnlocked(false);
+    }
+  }, [propertyValue, downPayment, interestRate, termMonths, amortizationType, originalFinancialValues]);
 
   const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
@@ -490,7 +526,7 @@ export function FinancingCalculator() {
     if (!isUnlimited && !canSimulate) {
       toast({
         title: "Limite atingido",
-        description: "Você atingiu o limite de simulações do Plano Basic. Faça upgrade para o Professional para simulações ilimitadas.",
+        description: `Libere esta análise para o cliente ${clientName.trim() || "atual"} agora. Faça upgrade para o Professional.`,
         variant: "destructive",
       });
       return false;
@@ -498,7 +534,7 @@ export function FinancingCalculator() {
 
     setSavingSimulation(true);
     try {
-      const { error } = await supabase.from("simulations").insert({
+      const simulationData = {
         user_id: user.id,
         property_value: parseCurrency(propertyValue),
         down_payment: parseCurrency(downPayment),
@@ -512,15 +548,34 @@ export function FinancingCalculator() {
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
         client_name: clientName.trim(),
         property_description: propertyDescription.trim(),
-      });
+      };
+
+      let error;
+      if (editingSimulationId) {
+        // Update existing record in the dashboard
+        const result = await supabase.from("simulations").update(simulationData).eq("id", editingSimulationId).eq("user_id", user.id);
+        error = result.error;
+      } else {
+        const result = await supabase.from("simulations").insert(simulationData);
+        error = result.error;
+      }
 
       if (error) throw error;
+
+      // Update original values so re-viewing remains free
+      setOriginalFinancialValues({
+        propertyValue,
+        downPayment,
+        interestRate,
+        termMonths,
+        amortizationType,
+      });
 
       await incrementSimulationCount();
       await refreshUsageLimits();
       toast({
         title: "Tabela desbloqueada! ✅",
-        description: `Simulação salva no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
+        description: `Simulação ${editingSimulationId ? "atualizada" : "salva"} no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
       });
       return true;
     } catch (err) {
@@ -534,7 +589,7 @@ export function FinancingCalculator() {
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits]);
+  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits, editingSimulationId]);
 
   return (
     <TooltipProvider>
@@ -1063,7 +1118,7 @@ export function FinancingCalculator() {
                           : (
                             <span className="flex items-center gap-1 text-destructive">
                               <Lock className="h-3.5 w-3.5" />
-                              Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
+                              Libere esta análise para {clientName.trim() || "o cliente"} — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
                             </span>
                           )}
                       </span>
