@@ -368,10 +368,10 @@ export default function Dashboard() {
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
 
         {/* History Tabs */}
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Histórico</CardTitle>
-            <CardDescription className="text-xs font-light">Suas simulações e propostas recentes</CardDescription>
+            <CardTitle className="text-2xl">Histórico</CardTitle>
+            <CardDescription>Suas simulações e propostas recentes</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="proposals">
