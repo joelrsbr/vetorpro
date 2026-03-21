@@ -346,7 +346,7 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-xs font-light text-muted-foreground">Inteligência multi-bancos</p>
+                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
                 )}
               </div>
             </CardContent>
