@@ -27,6 +27,23 @@ interface ProposalRequest {
 const processedKeys = new Map<string, { result: string; timestamp: number }>();
 const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+// Rate limiting: max 5 proposal generations per minute per user
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 function cleanExpiredKeys() {
   const now = Date.now();
   for (const [key, entry] of processedKeys) {
@@ -68,6 +85,14 @@ Deno.serve(async (req) => {
     }
 
     const userId = claimsData.claims.sub as string;
+
+    // === Rate limiting ===
+    if (!checkRateLimit(userId)) {
+      return new Response(
+        JSON.stringify({ error: "Muitas requisições. Aguarde um momento antes de tentar novamente.", code: "RATE_LIMITED" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // === 2. Parse and validate input ===
     const rawBody = await req.json();

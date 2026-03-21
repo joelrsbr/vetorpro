@@ -88,8 +88,16 @@ export default function Dashboard() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
+  // Real-time counts from RPC (Single Source of Truth)
+  const [dashCounts, setDashCounts] = useState<{
+    simulations_count: number;
+    proposals_count: number;
+    plan_limit: number;
+    current_plan: string;
+  } | null>(null);
+
   const planBadge = isActive ? getPlanBadge(plan) : null;
-  const limit = getPlanLimit(plan, isActive);
+  const limit = dashCounts?.plan_limit ?? getPlanLimit(plan, isActive);
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
@@ -124,12 +132,14 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     setLoadingData(true);
-    const [proposalsRes, simulationsRes] = await Promise.all([
+    const [proposalsRes, simulationsRes, countsRes] = await Promise.all([
       supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.rpc("get_dashboard_counts", { p_user_id: user!.id }),
     ]);
     if (proposalsRes.data) setProposals(proposalsRes.data as Proposal[]);
     if (simulationsRes.data) setSimulations(simulationsRes.data);
+    if (countsRes.data && countsRes.data[0]) setDashCounts(countsRes.data[0]);
     setLoadingData(false);
   };
 
@@ -269,9 +279,11 @@ export default function Dashboard() {
 
         {/* Stats Cards */}
         {(() => {
-          // Unified credit usage: every proposal implies a simulation was performed
-          const realSimUsage = Math.max(simulations.length, proposals.length);
-          const realProposalUsage = proposals.length;
+          // Use RPC counts as Single Source of Truth
+          const simCount = dashCounts?.simulations_count ?? simulations.length;
+          const propCount = dashCounts?.proposals_count ?? proposals.length;
+          const realSimUsage = Math.max(simCount, propCount);
+          const realProposalUsage = propCount;
           const simDisplay = Math.min(realSimUsage, limit);
           const proposalDisplay = Math.min(realProposalUsage, limit);
 
@@ -322,7 +334,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Total Simulações</p>
-                      <p className="text-2xl font-semibold">{realSimUsage}</p>
+                      <p className="text-2xl font-semibold">{simCount}</p>
                     </div>
                     <Calculator className="h-8 w-8 text-primary opacity-80" />
                   </div>
