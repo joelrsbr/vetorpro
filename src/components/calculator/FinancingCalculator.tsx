@@ -85,6 +85,8 @@ export function FinancingCalculator() {
   const { toast } = useToast();
   const [savingSimulation, setSavingSimulation] = useState(false);
   const [simulationUnlocked, setSimulationUnlocked] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [propertyDescription, setPropertyDescription] = useState("");
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
@@ -459,6 +461,15 @@ export function FinancingCalculator() {
 
   const handleSaveSimulation = useCallback(async (): Promise<boolean> => {
     if (!user || !calculations) return false;
+
+    if (!clientName.trim() || !propertyDescription.trim()) {
+      toast({
+        title: "Identificação obrigatória",
+        description: "Por favor, identifique o cliente e o imóvel para salvar esta simulação no seu histórico.",
+        variant: "destructive",
+      });
+      return false;
+    }
     
     if (!isUnlimited && !canSimulate) {
       toast({
@@ -483,6 +494,8 @@ export function FinancingCalculator() {
         total_interest: calculations.totalInterest,
         extra_amortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : null,
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
+        client_name: clientName.trim(),
+        property_description: propertyDescription.trim(),
       });
 
       if (error) throw error;
@@ -505,7 +518,7 @@ export function FinancingCalculator() {
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits]);
+  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits]);
 
   return (
     <TooltipProvider>
@@ -973,6 +986,38 @@ export function FinancingCalculator() {
             calculations={calculations}
             amortizationType={amortizationType} />
 
+            {/* Client identification fields */}
+            <Card className="shadow-card">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Dados do Cliente
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="simClientName">Nome do Cliente</Label>
+                    <Input
+                      id="simClientName"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      placeholder="Ex: João da Silva"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="simPropertyDesc">Identificação do Imóvel</Label>
+                    <Input
+                      id="simPropertyDesc"
+                      value={propertyDescription}
+                      onChange={(e) => setPropertyDescription(e.target.value)}
+                      placeholder="Ex: Apto 120m² - Bairro Centro"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Unlock / Save Button */}
             {user ? (
               <div className="flex flex-col gap-3">
@@ -988,7 +1033,7 @@ export function FinancingCalculator() {
                         const success = await handleSaveSimulation();
                         if (success) setSimulationUnlocked(true);
                       }}
-                      disabled={savingSimulation || (!isUnlimited && !canSimulate)}
+                      disabled={savingSimulation || (!isUnlimited && !canSimulate) || !clientName.trim() || !propertyDescription.trim()}
                       variant="hero"
                       className="gap-2"
                     >
@@ -1008,6 +1053,11 @@ export function FinancingCalculator() {
                       </span>
                     )}
                   </div>
+                )}
+                {!simulationUnlocked && (!clientName.trim() || !propertyDescription.trim()) && (
+                  <p className="text-sm text-muted-foreground italic">
+                    Preencha o Nome do Cliente e a Identificação do Imóvel para liberar.
+                  </p>
                 )}
               </div>
             ) : (
