@@ -306,8 +306,8 @@ export default function Dashboard() {
                 <Calculator className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-medium text-sm">Nova Simulação</h3>
-                <p className="text-xs font-light text-muted-foreground">Calcule um novo financiamento</p>
+                <h3 className="font-semibold text-base">Nova Simulação</h3>
+                <p className="text-sm text-muted-foreground">Calcule um novo financiamento</p>
               </div>
             </CardContent>
           </Card>
