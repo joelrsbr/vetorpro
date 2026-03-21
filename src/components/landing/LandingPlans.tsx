@@ -158,7 +158,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 flex-1 flex flex-col">
                   <ul className="space-y-3 mb-6">
                     {plan.features.map((feature, idx) =>
                     <li key={idx} className="flex items-center gap-3">
