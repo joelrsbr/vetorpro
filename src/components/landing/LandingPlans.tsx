@@ -51,7 +51,7 @@ const plans = [
   name: "Business",
   price: "R$ 229,90",
   period: "/mês",
-  description: "O Plano definitivo para Consultoria de Alto Padrão",
+  description: "O Plano para Profissionais de Elite e Consultorias de Alto Padrão",
   icon: Building2,
   buttonVariant: "hero" as const,
   highlight: true,
