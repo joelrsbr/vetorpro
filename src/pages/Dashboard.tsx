@@ -181,6 +181,14 @@ export default function Dashboard() {
     navigate("/calculadora", { state: { clientName: proposal.client_name, propertyDescription: proposal.property_description } });
   };
 
+  const handleDeleteProposal = async (proposalId: string) => {
+    const { error } = await supabase.from("proposals").delete().eq("id", proposalId);
+    if (!error) {
+      setProposals(prev => prev.filter(p => p.id !== proposalId));
+      toast({ title: "Proposta excluída" });
+    }
+  };
+
   if (loading || subLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
