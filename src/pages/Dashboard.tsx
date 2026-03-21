@@ -271,7 +271,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="shadow-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
