@@ -150,7 +150,7 @@ export function FinancingCalculator() {
     }
   }, [propertyValue, downPayment, interestRate, termMonths, amortizationType, originalFinancialValues]);
 
-
+  const [interestRateType, setInterestRateType] = useState<"annual" | "monthly">("annual");
   const [correctionIndex, setCorrectionIndex] = useState<CorrectionIndexType>("isento");
   const [customCorrectionRate, setCustomCorrectionRate] = useState<string>("6");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
