@@ -526,7 +526,7 @@ export function FinancingCalculator() {
     if (!isUnlimited && !canSimulate) {
       toast({
         title: "Limite atingido",
-        description: "Você atingiu o limite de simulações do Plano Basic. Faça upgrade para o Professional para simulações ilimitadas.",
+        description: `Libere esta análise para o cliente ${clientName.trim() || "atual"} agora. Faça upgrade para o Professional.`,
         variant: "destructive",
       });
       return false;
@@ -534,7 +534,7 @@ export function FinancingCalculator() {
 
     setSavingSimulation(true);
     try {
-      const { error } = await supabase.from("simulations").insert({
+      const simulationData = {
         user_id: user.id,
         property_value: parseCurrency(propertyValue),
         down_payment: parseCurrency(downPayment),
@@ -548,15 +548,34 @@ export function FinancingCalculator() {
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
         client_name: clientName.trim(),
         property_description: propertyDescription.trim(),
-      });
+      };
+
+      let error;
+      if (editingSimulationId) {
+        // Update existing record in the dashboard
+        const result = await supabase.from("simulations").update(simulationData).eq("id", editingSimulationId).eq("user_id", user.id);
+        error = result.error;
+      } else {
+        const result = await supabase.from("simulations").insert(simulationData);
+        error = result.error;
+      }
 
       if (error) throw error;
+
+      // Update original values so re-viewing remains free
+      setOriginalFinancialValues({
+        propertyValue,
+        downPayment,
+        interestRate,
+        termMonths,
+        amortizationType,
+      });
 
       await incrementSimulationCount();
       await refreshUsageLimits();
       toast({
         title: "Tabela desbloqueada! ✅",
-        description: `Simulação salva no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
+        description: `Simulação ${editingSimulationId ? "atualizada" : "salva"} no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
       });
       return true;
     } catch (err) {
@@ -570,7 +589,7 @@ export function FinancingCalculator() {
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits]);
+  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits, editingSimulationId]);
 
   return (
     <TooltipProvider>
