@@ -961,47 +961,63 @@ export function FinancingCalculator() {
             calculations={calculations}
             amortizationType={amortizationType} />
 
-            {/* Save Simulation Button */}
+            {/* Unlock / Save Button */}
             {user ? (
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={handleSaveSimulation}
-                  disabled={savingSimulation || (!isUnlimited && !canSimulate)}
-                  className="gap-2"
-                >
-                  <Save className="h-4 w-4" />
-                  {savingSimulation ? "Salvando..." : "Salvar Simulação"}
-                </Button>
-                {!isUnlimited && (
-                  <span className="text-sm text-muted-foreground">
-                    {canSimulate
-                      ? `${usageLimits?.simulationsRemaining ?? 0} de 10 restantes`
-                      : (
-                        <span className="flex items-center gap-1 text-destructive">
-                          <Lock className="h-3.5 w-3.5" />
-                          Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
-                        </span>
-                      )}
-                  </span>
+              <div className="flex flex-col gap-3">
+                {simulationUnlocked ? (
+                  <Button disabled className="gap-2 bg-success/90 text-success-foreground cursor-default">
+                    <Save className="h-4 w-4" />
+                    Simulação Salva no Histórico ✔️
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={async () => {
+                        await handleSaveSimulation();
+                        if (calculations) setSimulationUnlocked(true);
+                      }}
+                      disabled={savingSimulation || (!isUnlimited && !canSimulate)}
+                      variant="hero"
+                      className="gap-2"
+                    >
+                      <Lock className="h-4 w-4" />
+                      {savingSimulation ? "Desbloqueando..." : "Liberar Tabela Completa e Gerar Relatório"}
+                    </Button>
+                    {!isUnlimited && (
+                      <span className="text-sm text-muted-foreground">
+                        {canSimulate
+                          ? `${usageLimits?.simulationsRemaining ?? 0} de 10 restantes`
+                          : (
+                            <span className="flex items-center gap-1 text-destructive">
+                              <Lock className="h-3.5 w-3.5" />
+                              Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
+                            </span>
+                          )}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                <Link to="/login" className="text-primary underline">Faça login</Link> para salvar simulações.
+                <Link to="/login" className="text-primary underline">Faça login</Link> para desbloquear a tabela completa e salvar simulações.
               </p>
             )}
           
             <AmortizationSchedule
             schedule={calculations.schedule}
-            amortizationType={amortizationType} />
+            amortizationType={amortizationType}
+            locked={!simulationUnlocked} />
           
-            <ProposalGenerator
-            calculations={calculations}
-            propertyValue={parseCurrency(propertyValue)}
-            downPayment={parseCurrency(downPayment)}
-            interestRate={parseCurrency(interestRate)}
-            termMonths={parseInt(termMonths) || 360}
-            amortizationType={amortizationType} />
+            {simulationUnlocked && (
+              <ProposalGenerator
+              calculations={calculations}
+              propertyValue={parseCurrency(propertyValue)}
+              downPayment={parseCurrency(downPayment)}
+              interestRate={parseCurrency(interestRate)}
+              termMonths={parseInt(termMonths) || 360}
+              amortizationType={amortizationType} />
+            )}
           
           </div>
         }
