@@ -1,5 +1,6 @@
 import { TrendingUp, ArrowRight, Scale, Eye, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import vetorproLogo from "@/assets/vetorpro-logo.png";
 
 export function LandingHero() {
   const pillars = [
