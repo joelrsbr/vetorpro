@@ -477,18 +477,25 @@ export default function Dashboard() {
                                 </Tooltip>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownloadPdf(proposal)}>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className={`h-8 w-8 ${(plan === "basic" || !isActive) ? "opacity-40 cursor-not-allowed" : ""}`}
+                                      onClick={() => handleDownloadPdf(proposal)}
+                                    >
                                       <Download className="h-4 w-4" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent>Download PDF</TooltipContent>
+                                  <TooltipContent>{(plan === "basic" || !isActive) ? "Upgrade para baixar PDF" : "Download PDF"}</TooltipContent>
                                 </Tooltip>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Excluir</TooltipContent>
+                                </Tooltip>
                   </div>
                 )}
               </TabsContent>
