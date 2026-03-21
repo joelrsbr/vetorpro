@@ -19,15 +19,15 @@ const plans = [
     period: "/mês",
     description: "Simulações ilimitadas e indexadores oficiais.",
     features: [
-      "Simulações ilimitadas SAC/PRICE",
-      "Indexadores oficiais (IPCA, TR, IGPM, INCC)",
-      "Calculadora HP12C integrada",
-      "Suporte por e-mail",
+      "Até 10 Simulações (SAC/PRICE) por mês",
+      "2 Propostas com Inteligência Artificial por mês",
+      "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)",
+      "Simulador HP12C Integrado",
+      "Tabela de Amortizações e Arquitetura de Reforços Estratégicos",
+      "Histórico Recente de Simulações",
+      "Dashboard de Evolução de Saldo Devedor",
     ],
-    limitations: [
-      "Sem cotações de câmbio",
-      "Sem Gestão de Reforços",
-    ],
+    limitations: [],
     cta: "Assinar Basic",
     variant: "outline" as const,
     popular: false,
@@ -136,13 +136,13 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
           {plans.map((plan) => {
             const isCurrent = isCurrentPlan(plan.key);
             return (
               <Card 
                 key={plan.name}
-                className={`relative shadow-card hover:shadow-lg transition-all duration-300 ${
+                className={`relative shadow-card hover:shadow-lg transition-all duration-300 flex flex-col ${
                   (plan as any).highlight ? "border-emerald-500 border-2 scale-105 shadow-emerald-500/20" : ""
                 } ${isCurrent ? "ring-2 ring-emerald-500/50" : ""}`}
               >
@@ -170,7 +170,7 @@ export function PricingSection() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 flex-1 flex flex-col">
                   <ul className="space-y-3">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
@@ -186,9 +186,10 @@ export function PricingSection() {
                         <span className="text-sm">{limitation}</span>
                       </li>
                     ))}
-                  </ul>
+                   </ul>
 
-                  <Button 
+                  <div className="mt-auto">
+                  <Button
                     variant={plan.variant} 
                     size="lg" 
                     className={`w-full ${(plan as any).highlight ? "bg-emerald-500 hover:bg-emerald-600 text-white border-0" : ""} ${isCurrent ? "opacity-60" : ""}`}
@@ -200,6 +201,7 @@ export function PricingSection() {
                     ) : null}
                     {isCurrent ? "Plano Ativo" : plan.cta}
                   </Button>
+                  </div>
                 </CardContent>
               </Card>
             );

@@ -23,11 +23,13 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulações ilimitadas SAC/PRICE", included: true },
-  { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
-  { text: "Calculadora HP12C integrada", included: true },
-  { text: "Cotações de câmbio em tempo real", included: false },
-  { text: "Gestão de Reforços", included: false }]
+  { text: "Até 10 Simulações (SAC/PRICE) por mês", included: true },
+  { text: "2 Propostas com Inteligência Artificial por mês", included: true },
+  { text: "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)", included: true },
+  { text: "Simulador HP12C Integrado", included: true },
+  { text: "Tabela de Amortizações e Arquitetura de Reforços Estratégicos", included: true },
+  { text: "Histórico Recente de Simulações", included: true },
+  { text: "Dashboard de Evolução de Saldo Devedor", included: true }]
 
 },
 {
@@ -114,13 +116,13 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {plans.map((plan, index) => {
             const isHighlight = (plan as any).highlight;
             return (
               <Card
                 key={plan.id}
-                className={`relative card-shadow-animated cursor-pointer transition-all duration-300 ${
+                className={`relative card-shadow-animated cursor-pointer transition-all duration-300 flex flex-col ${
                 isHighlight ?
                 "border-emerald-500 border-2 shadow-xl md:scale-105 z-10" :
                 "border hover:border-primary/50"} ${
@@ -156,7 +158,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 flex-1 flex flex-col">
                   <ul className="space-y-3 mb-6">
                     {plan.features.map((feature, idx) =>
                     <li key={idx} className="flex items-center gap-3">
@@ -172,6 +174,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     )}
                   </ul>
 
+                  <div className="mt-auto">
                   <Button
                     variant={plan.buttonVariant}
                     size="lg"
@@ -188,6 +191,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                     Assinar Agora
                     {isHighlight && <ArrowRight className="h-4 w-4 ml-2" />}
                   </Button>
+                  </div>
                 </CardContent>
               </Card>);
 
