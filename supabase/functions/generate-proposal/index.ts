@@ -86,6 +86,14 @@ Deno.serve(async (req) => {
 
     const userId = claimsData.claims.sub as string;
 
+    // === Rate limiting ===
+    if (!checkRateLimit(userId)) {
+      return new Response(
+        JSON.stringify({ error: "Muitas requisições. Aguarde um momento antes de tentar novamente.", code: "RATE_LIMITED" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // === 2. Parse and validate input ===
     const rawBody = await req.json();
     const proposalData: ProposalRequest = rawBody;
