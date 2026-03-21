@@ -602,6 +602,14 @@ export default function Dashboard() {
                           </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
+                                <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Editar / Retomar</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteSimulation(sim.id)}>
                                 <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                               </Button>
