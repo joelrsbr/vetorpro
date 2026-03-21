@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
-  CircleDot
+  CircleDot, Trash2, ChevronUp
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
@@ -57,9 +57,10 @@ interface Simulation {
 }
 
 const STATUS_OPTIONS = [
-  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢" },
-  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡" },
-  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴" },
+  { value: "completed", label: "Concluído", color: "text-cyan-400", emoji: "V", isVetor: true },
+  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢", isVetor: false },
+  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡", isVetor: false },
+  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴", isVetor: false },
 ];
 
 function getStatusInfo(status: string) {
@@ -133,8 +134,10 @@ export default function Dashboard() {
   const formatCurrency = (value: number) =>
     value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+  const formatDate = (dateString: string) => {
+    const d = new Date(dateString);
+    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  };
 
   const handleCopyProposal = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -176,6 +179,14 @@ export default function Dashboard() {
 
   const handleAdjustProposal = (proposal: Proposal) => {
     navigate("/calculadora", { state: { clientName: proposal.client_name, propertyDescription: proposal.property_description } });
+  };
+
+  const handleDeleteProposal = async (proposalId: string) => {
+    const { error } = await supabase.from("proposals").delete().eq("id", proposalId);
+    if (!error) {
+      setProposals(prev => prev.filter(p => p.id !== proposalId));
+      toast({ title: "Proposta excluída" });
+    }
   };
 
   if (loading || subLoading) {
@@ -405,7 +416,11 @@ export default function Dashboard() {
                                   >
                                     <SelectTrigger className="w-auto h-7 px-2 gap-1.5 text-xs border-none bg-transparent shadow-none focus:ring-0">
                                       <span className="flex items-center gap-1.5">
-                                        <span>{statusInfo.emoji}</span>
+                                        {statusInfo.isVetor ? (
+                                          <ChevronUp className="h-4 w-4 text-cyan-400" strokeWidth={3} />
+                                        ) : (
+                                          <span>{statusInfo.emoji}</span>
+                                        )}
                                         <span>{statusInfo.label}</span>
                                       </span>
                                     </SelectTrigger>
@@ -413,7 +428,11 @@ export default function Dashboard() {
                                       {STATUS_OPTIONS.map(opt => (
                                         <SelectItem key={opt.value} value={opt.value} className="pl-2">
                                           <span className="flex items-center gap-2">
-                                            <span>{opt.emoji}</span>
+                                            {opt.isVetor ? (
+                                              <ChevronUp className="h-4 w-4 text-cyan-400" strokeWidth={3} />
+                                            ) : (
+                                              <span>{opt.emoji}</span>
+                                            )}
                                             {opt.label}
                                           </span>
                                         </SelectItem>
@@ -458,11 +477,24 @@ export default function Dashboard() {
                                 </Tooltip>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownloadPdf(proposal)}>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className={`h-8 w-8 ${(plan === "basic" || !isActive) ? "opacity-40 cursor-not-allowed" : ""}`}
+                                      onClick={() => handleDownloadPdf(proposal)}
+                                    >
                                       <Download className="h-4 w-4" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent>Download PDF</TooltipContent>
+                                  <TooltipContent>{(plan === "basic" || !isActive) ? "Upgrade para baixar PDF" : "Download PDF"}</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Excluir</TooltipContent>
                                 </Tooltip>
                               </div>
                             </div>
