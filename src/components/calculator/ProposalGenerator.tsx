@@ -373,26 +373,6 @@ export function ProposalGenerator({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clientName">Nome do Cliente</Label>
-              <Input
-                id="clientName"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="João da Silva"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="propertyDescription">Descrição do Imóvel</Label>
-              <Input
-                id="propertyDescription"
-                value={propertyDescription}
-                onChange={(e) => setPropertyDescription(e.target.value)}
-                placeholder="Apartamento 3 quartos, 85m², Zona Sul"
-              />
-            </div>
-          </div>
 
           {!canGenerateProposal && (
             <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
