@@ -275,7 +275,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Simulações</p>
                   <p className="text-2xl font-semibold">
-                    {`${usageLimits?.simulationsRemaining ?? 0} de ${limit}`}
+                    {`${Math.min(simulations.length, limit)} de ${limit}`}
                   </p>
                 </div>
                 <Calculator className="h-8 w-8 text-primary opacity-80" />
@@ -289,7 +289,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Propostas IA</p>
                   <p className="text-2xl font-semibold">
-                    {`${usageLimits?.proposalsRemaining ?? 0} de ${limit}`}
+                    {`${Math.min(proposals.length, limit)} de ${limit}`}
                   </p>
                 </div>
                 <Sparkles className="h-8 w-8 text-primary opacity-80" />
