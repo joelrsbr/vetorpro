@@ -986,6 +986,38 @@ export function FinancingCalculator() {
             calculations={calculations}
             amortizationType={amortizationType} />
 
+            {/* Client identification fields */}
+            <Card className="shadow-card">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Dados do Cliente
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="simClientName">Nome do Cliente</Label>
+                    <Input
+                      id="simClientName"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      placeholder="Ex: João da Silva"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="simPropertyDesc">Identificação do Imóvel</Label>
+                    <Input
+                      id="simPropertyDesc"
+                      value={propertyDescription}
+                      onChange={(e) => setPropertyDescription(e.target.value)}
+                      placeholder="Ex: Apto 120m² - Bairro Centro"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Unlock / Save Button */}
             {user ? (
               <div className="flex flex-col gap-3">
@@ -1001,7 +1033,7 @@ export function FinancingCalculator() {
                         const success = await handleSaveSimulation();
                         if (success) setSimulationUnlocked(true);
                       }}
-                      disabled={savingSimulation || (!isUnlimited && !canSimulate)}
+                      disabled={savingSimulation || (!isUnlimited && !canSimulate) || !clientName.trim() || !propertyDescription.trim()}
                       variant="hero"
                       className="gap-2"
                     >
@@ -1021,6 +1053,11 @@ export function FinancingCalculator() {
                       </span>
                     )}
                   </div>
+                )}
+                {!simulationUnlocked && (!clientName.trim() || !propertyDescription.trim()) && (
+                  <p className="text-sm text-muted-foreground italic">
+                    Preencha o Nome do Cliente e a Identificação do Imóvel para liberar.
+                  </p>
                 )}
               </div>
             ) : (
