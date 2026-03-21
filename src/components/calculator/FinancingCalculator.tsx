@@ -158,10 +158,6 @@ export function FinancingCalculator() {
     setter(numericValue);
   };
 
-  // Reset unlock state when inputs change
-  useMemo(() => {
-    setSimulationUnlocked(false);
-  }, [propertyValue, downPayment, interestRate, termMonths, amortizationType]);
 
   const scrollToField = (field: string) => {
     const refs: Record<string, React.RefObject<any>> = {
