@@ -189,6 +189,14 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteSimulation = async (simId: string) => {
+    const { error } = await supabase.from("simulations").delete().eq("id", simId);
+    if (!error) {
+      setSimulations(prev => prev.filter(s => s.id !== simId));
+      toast({ title: "Simulação excluída" });
+    }
+  };
+
   if (loading || subLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
