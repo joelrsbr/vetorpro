@@ -91,6 +91,8 @@ export function ProposalGenerator({
 
     setIsGenerating(true);
 
+    const idempotencyKey = `proposal-${clientName}-${propertyValue}-${Date.now()}`;
+
     try {
       const { data, error } = await supabase.functions.invoke("generate-proposal", {
         body: {
@@ -106,6 +108,7 @@ export function ProposalGenerator({
           totalInterest: calculations.totalInterest,
           monthsSaved: calculations.monthsSaved || undefined,
           interestSaved: calculations.interestSaved || undefined,
+          idempotencyKey,
         },
       });
 
