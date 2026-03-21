@@ -1,9 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface ProposalRequest {
@@ -20,14 +20,29 @@ interface ProposalRequest {
   monthsSaved?: number;
   interestSaved?: number;
   businessMode?: boolean;
+  idempotencyKey?: string;
 }
 
-serve(async (req) => {
+// In-memory idempotency store (per instance lifetime)
+const processedKeys = new Map<string, { result: string; timestamp: number }>();
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function cleanExpiredKeys() {
+  const now = Date.now();
+  for (const [key, entry] of processedKeys) {
+    if (now - entry.timestamp > IDEMPOTENCY_TTL_MS) {
+      processedKeys.delete(key);
+    }
+  }
+}
+
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // === 1. Authentication ===
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -44,7 +59,7 @@ serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    
+
     if (claimsError || !claimsData?.claims) {
       return new Response(
         JSON.stringify({ error: "Token inválido" }),
@@ -52,61 +67,85 @@ serve(async (req) => {
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = claimsData.claims.sub as string;
 
-    // Check usage limits
+    // === 2. Parse and validate input ===
+    const rawBody = await req.json();
+    const proposalData: ProposalRequest = rawBody;
+
+    // Idempotency check
+    if (proposalData.idempotencyKey) {
+      cleanExpiredKeys();
+      const cached = processedKeys.get(`${userId}:${proposalData.idempotencyKey}`);
+      if (cached) {
+        console.log("[GENERATE-PROPOSAL] Idempotency hit, returning cached result");
+        return new Response(cached.result, {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // String validation
+    if (!proposalData.clientName || typeof proposalData.clientName !== "string" || proposalData.clientName.length > 200) {
+      return new Response(JSON.stringify({ error: "Nome do cliente inválido (máximo 200 caracteres)." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!proposalData.propertyDescription || typeof proposalData.propertyDescription !== "string" || proposalData.propertyDescription.length > 500) {
+      return new Response(JSON.stringify({ error: "Descrição do imóvel inválida (máximo 500 caracteres)." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Numeric validation
+    const numericFields = [
+      { key: "propertyValue", min: 1, max: 100_000_000 },
+      { key: "downPayment", min: 0, max: 100_000_000 },
+      { key: "interestRate", min: 0, max: 100 },
+      { key: "termMonths", min: 1, max: 600 },
+      { key: "monthlyPayment", min: 0, max: 100_000_000 },
+      { key: "totalPaid", min: 0, max: 1_000_000_000 },
+      { key: "totalInterest", min: 0, max: 1_000_000_000 },
+    ] as const;
+
+    for (const { key, min, max } of numericFields) {
+      const val = (proposalData as any)[key];
+      if (typeof val !== "number" || !Number.isFinite(val) || val < min || val > max) {
+        return new Response(JSON.stringify({ error: `Campo ${key} inválido.` }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    if (proposalData.downPayment >= proposalData.propertyValue) {
+      return new Response(JSON.stringify({ error: "Entrada deve ser menor que o valor do imóvel." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // === 3. Check credits BEFORE calling AI ===
     const { data: limitsData, error: limitsError } = await supabase.rpc("check_and_reset_limits", {
       p_user_id: userId,
     });
 
     if (limitsError || !limitsData?.[0]?.can_generate_proposal) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Limite de propostas atingido",
-          message: "Você atingiu o limite de propostas do seu plano atual. Faça upgrade para liberar propostas ilimitadas."
+          message: "Você atingiu o limite de propostas do seu plano atual. Faça upgrade para continuar.",
         }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const rawBody = await req.json();
-
-    // Input validation
-    const proposalData: ProposalRequest = rawBody;
-    if (!proposalData.clientName || typeof proposalData.clientName !== 'string' || proposalData.clientName.length > 200) {
-      return new Response(JSON.stringify({ error: "Nome do cliente inválido (máximo 200 caracteres)." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    if (!proposalData.propertyDescription || typeof proposalData.propertyDescription !== 'string' || proposalData.propertyDescription.length > 500) {
-      return new Response(JSON.stringify({ error: "Descrição do imóvel inválida (máximo 500 caracteres)." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const numericFields = [
-      { key: 'propertyValue', min: 1, max: 100_000_000 },
-      { key: 'downPayment', min: 0, max: 100_000_000 },
-      { key: 'interestRate', min: 0, max: 100 },
-      { key: 'termMonths', min: 1, max: 600 },
-      { key: 'monthlyPayment', min: 0, max: 100_000_000 },
-      { key: 'totalPaid', min: 0, max: 1_000_000_000 },
-      { key: 'totalInterest', min: 0, max: 1_000_000_000 },
-    ] as const;
-    for (const { key, min, max } of numericFields) {
-      const val = (proposalData as any)[key];
-      if (typeof val !== 'number' || !Number.isFinite(val) || val < min || val > max) {
-        return new Response(JSON.stringify({ error: `Campo ${key} inválido.` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-    }
-    if (proposalData.downPayment >= proposalData.propertyValue) {
-      return new Response(JSON.stringify({ error: "Entrada deve ser menor que o valor do imóvel." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
+    // === 4. Call AI ===
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY não está configurada");
     }
 
-    const formatCurrency = (value: number) => {
-      return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    };
+    const formatCurrency = (value: number) =>
+      value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
     const isBusinessMode = proposalData.businessMode === true;
 
@@ -221,6 +260,7 @@ Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
     });
 
     if (!response.ok) {
+      // AI failed → NO credit deducted
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
@@ -242,16 +282,11 @@ Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
     const proposalText = aiResponse.choices?.[0]?.message?.content;
 
     if (!proposalText) {
+      // AI returned empty → NO credit deducted
       throw new Error("Resposta da IA vazia");
     }
 
-    // Increment proposal count
-    await supabase
-      .from("profiles")
-      .update({ proposals_used: limitsData[0].proposals_remaining === 999999 ? 0 : 2 - limitsData[0].proposals_remaining + 1 })
-      .eq("user_id", userId);
-
-    // Save proposal to database
+    // === 5. ATOMIC: Save proposal FIRST, then deduct credit ===
     const { data: savedProposal, error: saveError } = await supabase
       .from("proposals")
       .insert({
@@ -266,16 +301,37 @@ Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
       .single();
 
     if (saveError) {
+      // DB save failed → NO credit deducted
       console.error("Error saving proposal:", saveError);
+      throw new Error("Erro ao salvar proposta no banco de dados");
     }
 
-    return new Response(
-      JSON.stringify({ 
-        proposalText,
-        proposalId: savedProposal?.id 
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // Only deduct credit AFTER successful AI + DB save
+    const { error: incrementError } = await supabase.rpc("increment_proposal_count", {
+      p_user_id: userId,
+    });
+
+    if (incrementError) {
+      console.error("Error incrementing proposal count:", incrementError);
+      // Proposal was saved but credit wasn't deducted — acceptable (user benefits)
+    }
+
+    const resultJson = JSON.stringify({
+      proposalText,
+      proposalId: savedProposal?.id,
+    });
+
+    // Cache result for idempotency
+    if (proposalData.idempotencyKey) {
+      processedKeys.set(`${userId}:${proposalData.idempotencyKey}`, {
+        result: resultJson,
+        timestamp: Date.now(),
+      });
+    }
+
+    return new Response(resultJson, {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("[GENERATE-PROPOSAL] Error:", error instanceof Error ? error.message : error);
     return new Response(
