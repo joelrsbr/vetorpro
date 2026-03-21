@@ -457,8 +457,8 @@ export function FinancingCalculator() {
   const canSimulate = usageLimits?.canSimulate ?? false;
   const isUnlimited = (plan === "pro" || plan === "business") && isActive;
 
-  const handleSaveSimulation = useCallback(async () => {
-    if (!user || !calculations) return;
+  const handleSaveSimulation = useCallback(async (): Promise<boolean> => {
+    if (!user || !calculations) return false;
     
     if (!isUnlimited && !canSimulate) {
       toast({
@@ -466,7 +466,7 @@ export function FinancingCalculator() {
         description: "Você atingiu o limite de simulações do Plano Basic. Faça upgrade para o Professional para simulações ilimitadas.",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     setSavingSimulation(true);
@@ -488,10 +488,12 @@ export function FinancingCalculator() {
       if (error) throw error;
 
       await incrementSimulationCount();
+      await refreshUsageLimits();
       toast({
-        title: "Simulação salva! ✅",
-        description: `Simulação registrada. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} de 10.`}`,
+        title: "Tabela desbloqueada! ✅",
+        description: `Simulação salva no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
       });
+      return true;
     } catch (err) {
       console.error("Error saving simulation:", err);
       toast({
@@ -499,10 +501,11 @@ export function FinancingCalculator() {
         description: "Não foi possível salvar a simulação.",
         variant: "destructive",
       });
+      return false;
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits]);
+  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits]);
 
   return (
     <TooltipProvider>
