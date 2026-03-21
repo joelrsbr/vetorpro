@@ -161,7 +161,7 @@ export default function Dashboard() {
                   <p className="text-2xl font-bold">
                     {(plan === "pro" || plan === "business") && isActive
                       ? "Liberado" 
-                      : `${10 - (10 - (usageLimits?.simulationsRemaining ?? 0))} de 10`}
+                      : `${usageLimits?.simulationsRemaining ?? 0} de 10`}
                   </p>
                 </div>
                 <Calculator className="h-8 w-8 text-primary opacity-80" />
