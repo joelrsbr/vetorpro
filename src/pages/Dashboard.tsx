@@ -183,6 +183,20 @@ export default function Dashboard() {
     navigate("/calculadora", { state: { clientName: proposal.client_name, propertyDescription: proposal.property_description } });
   };
 
+  const handleEditSimulation = (sim: Simulation) => {
+    navigate("/calculadora", {
+      state: {
+        clientName: sim.client_name || "",
+        propertyDescription: sim.property_description || "",
+        propertyValue: Math.round(sim.property_value * 100).toString(),
+        downPayment: Math.round(sim.down_payment * 100).toString(),
+        interestRate: Math.round(sim.interest_rate * 100).toString(),
+        termMonths: sim.term_months.toString(),
+        amortizationType: sim.amortization_type.toUpperCase(),
+      },
+    });
+  };
+
   const handleDeleteProposal = async (proposalId: string) => {
     const { error } = await supabase.from("proposals").delete().eq("id", proposalId);
     if (!error) {
