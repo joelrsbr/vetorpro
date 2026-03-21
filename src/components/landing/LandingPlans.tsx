@@ -177,7 +177,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                   <Button
                     variant={plan.buttonVariant}
                     size="lg"
-                    className={`w-full ${isRecommended ? "shadow-button" : ""}`}
+                    className={`w-full ${isHighlight ? "shadow-button" : ""}`}
                     disabled={loadingPlan === plan.id}
                     onClick={(e) => {
                       e.stopPropagation();
