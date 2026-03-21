@@ -69,7 +69,35 @@ serve(async (req) => {
       );
     }
 
-    const proposalData: ProposalRequest = await req.json();
+    const rawBody = await req.json();
+
+    // Input validation
+    const proposalData: ProposalRequest = rawBody;
+    if (!proposalData.clientName || typeof proposalData.clientName !== 'string' || proposalData.clientName.length > 200) {
+      return new Response(JSON.stringify({ error: "Nome do cliente inválido (máximo 200 caracteres)." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (!proposalData.propertyDescription || typeof proposalData.propertyDescription !== 'string' || proposalData.propertyDescription.length > 500) {
+      return new Response(JSON.stringify({ error: "Descrição do imóvel inválida (máximo 500 caracteres)." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const numericFields = [
+      { key: 'propertyValue', min: 1, max: 100_000_000 },
+      { key: 'downPayment', min: 0, max: 100_000_000 },
+      { key: 'interestRate', min: 0, max: 100 },
+      { key: 'termMonths', min: 1, max: 600 },
+      { key: 'monthlyPayment', min: 0, max: 100_000_000 },
+      { key: 'totalPaid', min: 0, max: 1_000_000_000 },
+      { key: 'totalInterest', min: 0, max: 1_000_000_000 },
+    ] as const;
+    for (const { key, min, max } of numericFields) {
+      const val = (proposalData as any)[key];
+      if (typeof val !== 'number' || !Number.isFinite(val) || val < min || val > max) {
+        return new Response(JSON.stringify({ error: `Campo ${key} inválido.` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
+    if (proposalData.downPayment >= proposalData.propertyValue) {
+      return new Response(JSON.stringify({ error: "Entrada deve ser menor que o valor do imóvel." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
