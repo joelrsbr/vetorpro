@@ -461,6 +461,15 @@ export function FinancingCalculator() {
 
   const handleSaveSimulation = useCallback(async (): Promise<boolean> => {
     if (!user || !calculations) return false;
+
+    if (!clientName.trim() || !propertyDescription.trim()) {
+      toast({
+        title: "Identificação obrigatória",
+        description: "Por favor, identifique o cliente e o imóvel para salvar esta simulação no seu histórico.",
+        variant: "destructive",
+      });
+      return false;
+    }
     
     if (!isUnlimited && !canSimulate) {
       toast({
