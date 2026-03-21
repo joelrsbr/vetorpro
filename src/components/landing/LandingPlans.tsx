@@ -122,7 +122,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
             return (
               <Card
                 key={plan.id}
-                className={`relative card-shadow-animated cursor-pointer transition-all duration-300 ${
+                className={`relative card-shadow-animated cursor-pointer transition-all duration-300 flex flex-col ${
                 isHighlight ?
                 "border-emerald-500 border-2 shadow-xl md:scale-105 z-10" :
                 "border hover:border-primary/50"} ${
