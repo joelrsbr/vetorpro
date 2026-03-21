@@ -23,12 +23,12 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-    { text: "Simulações ilimitadas SAC/PRICE", included: true },
-    { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
-    { text: "Calculadora HP12C integrada", included: true },
-    { text: "Cotações de câmbio em tempo real", included: false },
-    { text: "Gestão de Reforços", included: false },
-  ],
+  { text: "Simulações ilimitadas SAC/PRICE", included: true },
+  { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
+  { text: "Calculadora HP12C integrada", included: true },
+  { text: "Cotações de câmbio em tempo real", included: false },
+  { text: "Gestão de Reforços", included: false }]
+
 },
 {
   id: "pro" as PlanType,
@@ -39,12 +39,12 @@ const plans = [
   icon: Rocket,
   buttonVariant: "default" as const,
   features: [
-    { text: "Tudo do Basic", included: true },
-    { text: "Cotações Dólar/Euro em tempo real", included: true },
-    { text: "Gestão de Reforços Estratégicos", included: true },
-    { text: "Exportação de PDF Básico", included: true },
-    { text: "Propostas com IA liberadas", included: true },
-  ],
+  { text: "Tudo do Basic", included: true },
+  { text: "Cotações Dólar/Euro em tempo real", included: true },
+  { text: "Gestão de Reforços Estratégicos", included: true },
+  { text: "Exportação de PDF Básico", included: true },
+  { text: "Propostas com IA liberadas", included: true }]
+
 },
 {
   id: "business" as PlanType,
@@ -56,12 +56,12 @@ const plans = [
   buttonVariant: "hero" as const,
   highlight: true,
   features: [
-    { text: "Inclui todos os recursos do Plano Professional", included: true },
-    { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
-    { text: "Datas Reais de Cronograma", included: true },
-    { text: "Sondagem Estratégica Multi-Bancos", included: true },
-    { text: "Dashboard Corporativo", included: true },
-  ],
+  { text: "Inclui todos os recursos do Plano Professional", included: true },
+  { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
+  { text: "Datas Reais de Cronograma", included: true },
+  { text: "Sondagem Estratégica Multi-Bancos", included: true },
+  { text: "Dashboard Corporativo", included: true }]
+
 }];
 
 
@@ -130,9 +130,9 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
                 
                 {isHighlight &&
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                    <span className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
-                      Escolha de Elite
-                    </span>
+                    <span className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider"> ELITE
+
+                  </span>
                     <span className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-full shadow-lg uppercase tracking-wider">
                       Alta Consultoria
                     </span>
