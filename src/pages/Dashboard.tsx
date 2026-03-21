@@ -358,8 +358,8 @@ export default function Dashboard() {
                 <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold">Ver Planos</h3>
-                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
+                <h3 className="font-medium text-sm">Ver Planos</h3>
+                <p className="text-xs font-light text-muted-foreground">Compare os benefícios</p>
               </div>
             </CardContent>
           </Card>
