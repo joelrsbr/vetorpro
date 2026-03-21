@@ -32,6 +32,8 @@ interface ProposalGeneratorProps {
   interestRate: number;
   termMonths: number;
   amortizationType: string;
+  clientName: string;
+  propertyDescription: string;
 }
 
 export function ProposalGenerator({
@@ -41,12 +43,12 @@ export function ProposalGenerator({
   interestRate,
   termMonths,
   amortizationType,
+  clientName,
+  propertyDescription,
 }: ProposalGeneratorProps) {
   const { user, usageLimits, profile } = useAuth();
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
-  const [clientName, setClientName] = useState("");
-  const [propertyDescription, setPropertyDescription] = useState("");
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingBusiness, setIsGeneratingBusiness] = useState(false);
