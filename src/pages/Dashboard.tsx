@@ -207,11 +207,11 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-medium flex items-center gap-2">
+            <h1 className="text-3xl font-bold flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-emerald-500" />
               {profile?.full_name?.split(" ")[0] || "Corretor"}
             </h1>
-            <p className="text-sm font-light text-muted-foreground">Bem-vindo ao seu painel de controle</p>
+            <p className="text-base text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
           <div className="flex items-center gap-3">
             {planBadge ? (
@@ -234,10 +234,10 @@ export default function Dashboard() {
         </div>
 
         {/* LGPD Notice */}
-        <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 flex items-center justify-center gap-3 text-center">
+        <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 shadow-sm flex items-center justify-center gap-3 text-center">
           <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
-          <p className="text-xs font-light text-muted-foreground">
-            <span className="font-medium text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Compromisso LGPD:</span> Por segurança e privacidade, os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
           </p>
         </div>
 
