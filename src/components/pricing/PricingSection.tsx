@@ -186,8 +186,9 @@ export function PricingSection() {
                         <span className="text-sm">{limitation}</span>
                       </li>
                     ))}
-                  </ul>
+                   </ul>
 
+                  <div className="mt-auto">
                   <Button
                     variant={plan.variant} 
                     size="lg" 
