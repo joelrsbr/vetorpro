@@ -226,6 +226,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -250,6 +271,13 @@ export type Database = {
           status: Database["public"]["Enums"]["subscription_status"]
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_simulation_count: {
         Args: { p_user_id: string }
         Returns: undefined
@@ -257,6 +285,7 @@ export type Database = {
     }
     Enums: {
       amortization_type: "sac" | "price"
+      app_role: "corretor" | "admin"
       extra_amortization_strategy: "reduce_term" | "reduce_payment"
       reinforcement_frequency: "monthly" | "semiannual" | "annual"
       subscription_plan: "free" | "pro"
@@ -390,6 +419,7 @@ export const Constants = {
   public: {
     Enums: {
       amortization_type: ["sac", "price"],
+      app_role: ["corretor", "admin"],
       extra_amortization_strategy: ["reduce_term", "reduce_payment"],
       reinforcement_frequency: ["monthly", "semiannual", "annual"],
       subscription_plan: ["free", "pro"],
