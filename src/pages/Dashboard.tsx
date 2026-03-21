@@ -207,11 +207,11 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <TrendingUp className="h-7 w-7 text-emerald-500" />
+            <h1 className="text-2xl font-medium flex items-center gap-2">
+              <TrendingUp className="h-6 w-6 text-emerald-500" />
               {profile?.full_name?.split(" ")[0] || "Corretor"}
             </h1>
-            <p className="text-muted-foreground">Bem-vindo ao seu painel de controle</p>
+            <p className="text-sm font-light text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
           <div className="flex items-center gap-3">
             {planBadge ? (
