@@ -189,6 +189,14 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteSimulation = async (simId: string) => {
+    const { error } = await supabase.from("simulations").delete().eq("id", simId);
+    if (!error) {
+      setSimulations(prev => prev.filter(s => s.id !== simId));
+      toast({ title: "Simulação excluída" });
+    }
+  };
+
   if (loading || subLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -242,7 +250,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Card className="shadow-card">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -279,6 +287,18 @@ export default function Dashboard() {
                   <p className="text-2xl font-semibold">{proposals.length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-primary opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Simulações</p>
+                  <p className="text-2xl font-semibold">{simulations.length}</p>
+                </div>
+                <Calculator className="h-8 w-8 text-primary opacity-80" />
               </div>
             </CardContent>
           </Card>
@@ -508,39 +528,59 @@ export default function Dashboard() {
                 ) : simulations.length === 0 ? (
                   <div className="text-center py-8">
                     <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">Nenhuma simulação salva ainda</p>
+                    <p className="text-muted-foreground">Nenhuma simulação salva ainda.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Use o botão "Salvar Simulação" na calculadora para registrar.</p>
                     <Button variant="hero" className="mt-4" asChild>
                       <Link to="/calculadora">Fazer Primeira Simulação</Link>
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {simulations.map((sim) => (
-                      <Card key={sim.id} className="bg-muted/30">
-                        <CardContent className="pt-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-6">
-                              <div>
-                                <p className="text-sm text-muted-foreground">Valor</p>
-                                <p className="font-semibold">{formatCurrency(sim.property_value)}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Parcela</p>
-                                <p className="font-semibold">{formatCurrency(sim.monthly_payment)}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Sistema</p>
-                                <Badge variant="outline">{sim.amortization_type.toUpperCase()}</Badge>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Prazo</p>
-                                <p className="font-semibold">{sim.term_months} meses</p>
-                              </div>
-                            </div>
-                            <span className="text-sm text-muted-foreground font-mono">{formatDate(sim.created_at)}</span>
+                      <div key={sim.id} className="flex items-center gap-4 px-4 py-3 rounded-lg bg-muted/30 border border-border/50">
+                        {/* Type badge */}
+                        <div className="shrink-0 w-[80px]">
+                          <Badge variant="outline" className="text-xs">{sim.amortization_type.toUpperCase()}</Badge>
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-sm">{formatCurrency(sim.property_value)}</span>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-sm text-muted-foreground">Parcela: {formatCurrency(sim.monthly_payment)}</span>
+                            <span className="text-muted-foreground hidden sm:inline">•</span>
+                            <span className="text-sm text-muted-foreground hidden sm:inline">{sim.term_months} meses</span>
+                            <span className="text-muted-foreground hidden md:inline">•</span>
+                            <span className="text-sm text-muted-foreground hidden md:inline">{sim.interest_rate}% a.a.</span>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+
+                        {/* Date/Time */}
+                        <div className="shrink-0 w-[150px] text-center">
+                          <span className="text-sm text-muted-foreground font-mono">{formatDate(sim.created_at)}</span>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(`Simulação: ${formatCurrency(sim.property_value)} | Parcela: ${formatCurrency(sim.monthly_payment)} | ${sim.amortization_type.toUpperCase()} | ${sim.term_months} meses | Taxa: ${sim.interest_rate}% a.a.`)}>
+                                <Copy className="h-4 w-4" strokeWidth={1.5} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Copiar</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteSimulation(sim.id)}>
+                                <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Excluir</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
