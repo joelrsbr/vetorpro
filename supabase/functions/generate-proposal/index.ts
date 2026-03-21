@@ -89,6 +89,9 @@ REGRAS OBRIGATÓRIAS:
 - NÃO use formatação de lista com hífens ou bullets
 - Escreva em parágrafos corridos, como um documento executivo
 - NUNCA escreva valores monetários por extenso. Use SEMPRE o formato R$ 0.000,00 (ex: R$ 450.000,00)
+- NUNCA escreva "por cento" por extenso. Use SEMPRE o símbolo % (ex: 32%, 9,5%)
+- Sempre que citar juros, especifique se a taxa é mensal (a.m.) ou anual (a.a.)
+- Evite repetir o nome da cidade ou do cliente mais de 2 vezes no mesmo parágrafo para manter a fluidez
 - Use obrigatoriamente os termos: "Análise Estratégica de Crédito", "Antecipação de Cenários de Amortização" e "Segurança Patrimonial"
 - Enfatize que o VetorPro calculou a rota de menor custo financeiro para o cliente
 - Use tom de exclusividade e urgência para fechamento do negócio
@@ -98,7 +101,7 @@ ESTRUTURA:
 2. Destaque em parágrafo curto: Entrada, Parcela Inicial e Sistema escolhido
 3. "Antecipação de Cenários de Amortização": análise estratégica de economia com amortizações e projeção de ganho patrimonial
 4. "Segurança Patrimonial": fechamento com senso de urgência, mencionando que o VetorPro projetou a rota otimizada de menor custo
-5. Assinatura: "Proposta gerada com inteligência VetorPro."
+5. Assinatura: "Análise gerada via Inteligência Estratégica VetorPro."
 
 Ter entre 300-500 palavras. Formato elegante para PDF corporativo.`;
 
@@ -109,6 +112,9 @@ REGRAS OBRIGATÓRIAS:
 - NÃO use formatação de lista com hífens ou bullets
 - NÃO repita frases como "gere uma proposta profissional" ou "conquiste seu imóvel"
 - NUNCA escreva valores monetários por extenso. Use SEMPRE o formato R$ 0.000,00 (ex: R$ 450.000,00)
+- NUNCA escreva "por cento" por extenso. Use SEMPRE o símbolo % (ex: 32%, 9,5%)
+- Sempre que citar juros, especifique se a taxa é mensal (a.m.) ou anual (a.a.)
+- Evite repetir o nome da cidade ou do cliente mais de 2 vezes no mesmo parágrafo para manter a fluidez
 - Use obrigatoriamente os termos: "Análise Estratégica de Crédito", "Antecipação de Cenários de Amortização" e "Segurança Patrimonial"
 - Enfatize que o VetorPro calculou a rota de menor custo financeiro para o cliente
 - Use tom humano, profissional e estratégico
@@ -120,7 +126,7 @@ ESTRUTURA DA PROPOSTA:
 3. "Antecipação de Cenários de Amortização": explicação dos benefícios do modelo escolhido e economia projetada
 4. "Segurança Patrimonial": argumento financeiro de que o VetorPro projetou a rota otimizada para este perfil
 5. Fechamento com convite à ação (agendar contato, validar documentação)
-6. Assinatura: "Proposta gerada com inteligência VetorPro."
+6. Assinatura: "Análise gerada via Inteligência Estratégica VetorPro."
 
 Ter entre 300-450 palavras.`;
 
