@@ -450,7 +450,7 @@ export default function Dashboard() {
 
                           {/* Date/Time */}
                           <div className="shrink-0 w-[150px] text-center">
-                            <span className="text-xs text-muted-foreground font-mono">{formatDate(proposal.created_at)}</span>
+                            <span className="text-sm text-muted-foreground font-mono">{formatDate(proposal.created_at)}</span>
                           </div>
 
                           {/* Actions */}
