@@ -158,6 +158,15 @@ export function FinancingCalculator() {
     setter(numericValue);
   };
 
+  // Reset unlock state when calculation inputs change
+  // Using useEffect to avoid side effects in render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const _resetKey = `${propertyValue}-${downPayment}-${interestRate}-${termMonths}-${amortizationType}`;
+  const [prevResetKey, setPrevResetKey] = useState(_resetKey);
+  if (_resetKey !== prevResetKey) {
+    setPrevResetKey(_resetKey);
+    setSimulationUnlocked(false);
+  }
 
   const scrollToField = (field: string) => {
     const refs: Record<string, React.RefObject<any>> = {
