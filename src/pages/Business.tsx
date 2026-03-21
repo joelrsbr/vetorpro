@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BusinessHeader } from "@/components/business/BusinessHeader";
 import { BusinessCustomization } from "@/components/business/BusinessCustomization";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
-import { HP12CCalculator } from "@/components/calculator/HP12CCalculator";
+
 import { QuotesPanel } from "@/components/business/QuotesPanel";
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -98,7 +98,6 @@ function BusinessContent() {
       </main>
 
       <Footer />
-      <HP12CCalculator />
     </div>);
 
 }

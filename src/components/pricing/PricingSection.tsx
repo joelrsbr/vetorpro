@@ -59,10 +59,10 @@ const plans = [
     period: "/mês",
     description: "O Plano definitivo para Consultoria de Alto Padrão",
     features: [
-      "Tudo do Plano Professional + Relatórios PDF Personalizados com sua Marca e CRECI",
+      "Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
-      "Sondagem Estratégica (8 bancos)",
-      "Dashboard corporativo",
+      "Sondagem Estratégica Multi-Bancos",
+      "Dashboard Corporativo",
     ],
     limitations: [],
     cta: "Assinar Business",
@@ -161,7 +161,7 @@ export function PricingSection() {
                 </div>
                 
                 <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardTitle className="text-2xl">{plan.key === "business" ? "Tudo do Professional" : plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{plan.price}</span>
