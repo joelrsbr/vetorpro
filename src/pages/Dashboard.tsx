@@ -287,8 +287,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Plano</p>
-                  <p className="text-2xl font-bold capitalize">
+                  <p className="text-xs font-light text-muted-foreground">Plano</p>
+                  <p className="text-xl font-medium capitalize">
                     {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
                   </p>
                 </div>
