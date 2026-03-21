@@ -84,6 +84,7 @@ export function FinancingCalculator() {
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
   const [savingSimulation, setSavingSimulation] = useState(false);
+  const [simulationUnlocked, setSimulationUnlocked] = useState(false);
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
