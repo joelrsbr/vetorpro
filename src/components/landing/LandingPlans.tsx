@@ -23,11 +23,13 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulações ilimitadas SAC/PRICE", included: true },
-  { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
-  { text: "Calculadora HP12C integrada", included: true },
-  { text: "Cotações de câmbio em tempo real", included: false },
-  { text: "Gestão de Reforços", included: false }]
+  { text: "Até 10 Simulações (SAC/PRICE) por mês", included: true },
+  { text: "2 Propostas com Inteligência Artificial por mês", included: true },
+  { text: "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)", included: true },
+  { text: "Simulador HP12C Integrado", included: true },
+  { text: "Tabela de Amortizações e Arquitetura de Reforços Estratégicos", included: true },
+  { text: "Histórico Recente de Simulações", included: true },
+  { text: "Dashboard de Evolução de Saldo Devedor", included: true }]
 
 },
 {
