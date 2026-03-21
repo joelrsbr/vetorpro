@@ -985,8 +985,8 @@ export function FinancingCalculator() {
                   <div className="flex items-center gap-3">
                     <Button
                       onClick={async () => {
-                        await handleSaveSimulation();
-                        if (calculations) setSimulationUnlocked(true);
+                        const success = await handleSaveSimulation();
+                        if (success) setSimulationUnlocked(true);
                       }}
                       disabled={savingSimulation || (!isUnlimited && !canSimulate)}
                       variant="hero"
