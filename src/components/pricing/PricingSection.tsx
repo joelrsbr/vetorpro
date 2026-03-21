@@ -23,7 +23,7 @@ const plans = [
       "2 Propostas com Inteligência Artificial por mês",
       "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)",
       "Simulador HP12C Integrado",
-      "Tabela de Amortizações e Arquitetura de Reforços Estratégicos",
+      "Gestão de Reforços Estratégicos",
       "Histórico Recente de Simulações",
       "Dashboard de Evolução de Saldo Devedor",
     ],
@@ -41,7 +41,7 @@ const plans = [
     features: [
       "Tudo do Basic",
       "Cotações Dólar/Euro em tempo real",
-      "Gestão de Reforços Estratégicos",
+      "Tabela de Amortizações e Arquitetura de Reforços Estratégicos",
       "Exportação de PDF Básico",
       "Propostas com IA liberadas",
     ],
