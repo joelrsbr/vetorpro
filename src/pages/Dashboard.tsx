@@ -400,106 +400,100 @@ export default function Dashboard() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {proposals.map((proposal) => {
                       const statusInfo = getStatusInfo(proposal.status);
                       return (
-                        <Card key={proposal.id} className="bg-muted/30">
-                          <CardContent className="pt-4">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                  {/* Status Semaphore */}
-                                  <Select
-                                    value={proposal.status}
-                                    onValueChange={(val) => handleUpdateStatus(proposal.id, val)}
-                                  >
-                                    <SelectTrigger className="w-auto h-7 px-2 gap-1.5 text-xs border-none bg-transparent shadow-none focus:ring-0">
-                                      <span className="flex items-center gap-1.5">
-                                        {statusInfo.isVetor ? (
-                                          <ChevronUp className="h-4 w-4 text-cyan-400" strokeWidth={3} />
-                                        ) : (
-                                          <span>{statusInfo.emoji}</span>
-                                        )}
-                                        <span>{statusInfo.label}</span>
-                                      </span>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {STATUS_OPTIONS.map(opt => (
-                                        <SelectItem key={opt.value} value={opt.value} className="pl-2">
-                                          <span className="flex items-center gap-2">
-                                            {opt.isVetor ? (
-                                              <ChevronUp className="h-4 w-4 text-cyan-400" strokeWidth={3} />
-                                            ) : (
-                                              <span>{opt.emoji}</span>
-                                            )}
-                                            {opt.label}
-                                          </span>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <User className="h-4 w-4 text-muted-foreground" />
-                                  <span className="font-medium truncate">{proposal.client_name}</span>
-                                  <span className="text-sm text-muted-foreground hidden sm:inline">•</span>
-                                  <span className="text-sm text-muted-foreground truncate hidden sm:inline">{proposal.property_description}</span>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {formatDate(proposal.created_at)}
-                                  </span>
-                                  {proposal.interest_savings && (
-                                    <span className="flex items-center gap-1 text-green-600">
-                                      <TrendingUp className="h-3 w-3" />
-                                      Economia: {formatCurrency(proposal.interest_savings)}
-                                    </span>
+                        <div key={proposal.id} className="flex items-center gap-4 px-4 py-3 rounded-lg bg-muted/30 border border-border/50">
+                          {/* Status */}
+                          <div className="shrink-0 w-[140px]">
+                            <Select
+                              value={proposal.status}
+                              onValueChange={(val) => handleUpdateStatus(proposal.id, val)}
+                            >
+                              <SelectTrigger className="w-full h-7 px-2 gap-1.5 text-xs border-none bg-transparent shadow-none focus:ring-0">
+                                <span className="flex items-center gap-1.5">
+                                  {statusInfo.isVetor ? (
+                                    <ChevronUp className="h-3.5 w-3.5 text-cyan-400" strokeWidth={3} />
+                                  ) : (
+                                    <span className="text-xs">{statusInfo.emoji}</span>
                                   )}
-                                </div>
-                              </div>
-                              {/* Action Icons */}
-                              <div className="flex items-center gap-1 shrink-0">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewProposal(proposal)}>
-                                      <Eye className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Ver Proposta</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyProposal(proposal.proposal_text)}>
-                                      <Copy className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Copiar</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      className={`h-8 w-8 ${(plan === "basic" || !isActive) ? "opacity-40 cursor-not-allowed" : ""}`}
-                                      onClick={() => handleDownloadPdf(proposal)}
-                                    >
-                                      <Download className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>{(plan === "basic" || !isActive) ? "Upgrade para baixar PDF" : "Download PDF"}</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Excluir</TooltipContent>
-                                </Tooltip>
-                              </div>
+                                  <span>{statusInfo.label}</span>
+                                </span>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {STATUS_OPTIONS.map(opt => (
+                                  <SelectItem key={opt.value} value={opt.value} className="pl-2">
+                                    <span className="flex items-center gap-2">
+                                      {opt.isVetor ? (
+                                        <ChevronUp className="h-3.5 w-3.5 text-cyan-400" strokeWidth={3} />
+                                      ) : (
+                                        <span className="text-xs">{opt.emoji}</span>
+                                      )}
+                                      {opt.label}
+                                    </span>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Client & Property */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="font-medium text-sm truncate">{proposal.client_name}</span>
+                              <span className="text-muted-foreground hidden sm:inline">•</span>
+                              <span className="text-xs text-muted-foreground truncate hidden sm:inline">{proposal.property_description}</span>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+
+                          {/* Date/Time */}
+                          <div className="shrink-0 w-[150px] text-center">
+                            <span className="text-xs text-muted-foreground font-mono">{formatDate(proposal.created_at)}</span>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setViewProposal(proposal)}>
+                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Ver Proposta</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(proposal.proposal_text)}>
+                                  <Copy className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Copiar</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className={`h-8 w-8 ${(plan === "basic" || !isActive) ? "opacity-30 cursor-not-allowed text-muted-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                                  onClick={() => handleDownloadPdf(proposal)}
+                                >
+                                  <Download className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{(plan === "basic" || !isActive) ? "Upgrade para baixar PDF" : "Download PDF"}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
+                                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Excluir</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
