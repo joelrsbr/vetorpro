@@ -10,11 +10,12 @@ import type { ScheduleItem } from "./FinancingCalculator";
 interface AmortizationScheduleProps {
   schedule: ScheduleItem[];
   amortizationType: "SAC" | "PRICE";
+  locked?: boolean;
 }
 
-export function AmortizationSchedule({ schedule, amortizationType }: AmortizationScheduleProps) {
+export function AmortizationSchedule({ schedule, amortizationType, locked = false }: AmortizationScheduleProps) {
   const [expanded, setExpanded] = useState(false);
-  const displayedItems = expanded ? schedule : schedule.slice(0, 3);
+  const displayedItems = locked ? schedule.slice(0, 3) : (expanded ? schedule : schedule.slice(0, 3));
 
   const formatBRL = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -127,10 +128,18 @@ export function AmortizationSchedule({ schedule, amortizationType }: Amortizatio
                   <TableCell>—</TableCell>
                 </TableRow>
               </TableFooter>
-            </Table>
+           </Table>
           </div>
 
-          {schedule.length > 12 && (
+          {locked && schedule.length > 3 && (
+            <div className="relative mt-[-2rem] h-24 bg-gradient-to-t from-card via-card/90 to-transparent flex items-end justify-center pb-2">
+              <p className="text-sm text-muted-foreground font-medium">
+                🔒 Libere a tabela completa para visualizar todas as {schedule.length} parcelas
+              </p>
+            </div>
+          )}
+
+          {!locked && schedule.length > 12 && (
             <div className="mt-4 flex justify-center">
               <Button
                 variant="outline"

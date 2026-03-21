@@ -84,6 +84,7 @@ export function FinancingCalculator() {
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
   const [savingSimulation, setSavingSimulation] = useState(false);
+  const [simulationUnlocked, setSimulationUnlocked] = useState(false);
   // Refs for scrolling
   const propertyValueRef = useRef<HTMLInputElement>(null);
   const downPaymentRef = useRef<HTMLInputElement>(null);
@@ -157,6 +158,15 @@ export function FinancingCalculator() {
     setter(numericValue);
   };
 
+  // Reset unlock state when calculation inputs change
+  // Using useEffect to avoid side effects in render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const _resetKey = `${propertyValue}-${downPayment}-${interestRate}-${termMonths}-${amortizationType}`;
+  const [prevResetKey, setPrevResetKey] = useState(_resetKey);
+  if (_resetKey !== prevResetKey) {
+    setPrevResetKey(_resetKey);
+    setSimulationUnlocked(false);
+  }
 
   const scrollToField = (field: string) => {
     const refs: Record<string, React.RefObject<any>> = {
@@ -447,8 +457,8 @@ export function FinancingCalculator() {
   const canSimulate = usageLimits?.canSimulate ?? false;
   const isUnlimited = (plan === "pro" || plan === "business") && isActive;
 
-  const handleSaveSimulation = useCallback(async () => {
-    if (!user || !calculations) return;
+  const handleSaveSimulation = useCallback(async (): Promise<boolean> => {
+    if (!user || !calculations) return false;
     
     if (!isUnlimited && !canSimulate) {
       toast({
@@ -456,7 +466,7 @@ export function FinancingCalculator() {
         description: "Você atingiu o limite de simulações do Plano Basic. Faça upgrade para o Professional para simulações ilimitadas.",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     setSavingSimulation(true);
@@ -478,10 +488,12 @@ export function FinancingCalculator() {
       if (error) throw error;
 
       await incrementSimulationCount();
+      await refreshUsageLimits();
       toast({
-        title: "Simulação salva! ✅",
-        description: `Simulação registrada. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} de 10.`}`,
+        title: "Tabela desbloqueada! ✅",
+        description: `Simulação salva no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
       });
+      return true;
     } catch (err) {
       console.error("Error saving simulation:", err);
       toast({
@@ -489,10 +501,11 @@ export function FinancingCalculator() {
         description: "Não foi possível salvar a simulação.",
         variant: "destructive",
       });
+      return false;
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits]);
+  }, [user, calculations, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits]);
 
   return (
     <TooltipProvider>
@@ -960,47 +973,63 @@ export function FinancingCalculator() {
             calculations={calculations}
             amortizationType={amortizationType} />
 
-            {/* Save Simulation Button */}
+            {/* Unlock / Save Button */}
             {user ? (
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={handleSaveSimulation}
-                  disabled={savingSimulation || (!isUnlimited && !canSimulate)}
-                  className="gap-2"
-                >
-                  <Save className="h-4 w-4" />
-                  {savingSimulation ? "Salvando..." : "Salvar Simulação"}
-                </Button>
-                {!isUnlimited && (
-                  <span className="text-sm text-muted-foreground">
-                    {canSimulate
-                      ? `${usageLimits?.simulationsRemaining ?? 0} de 10 restantes`
-                      : (
-                        <span className="flex items-center gap-1 text-destructive">
-                          <Lock className="h-3.5 w-3.5" />
-                          Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
-                        </span>
-                      )}
-                  </span>
+              <div className="flex flex-col gap-3">
+                {simulationUnlocked ? (
+                  <Button disabled className="gap-2 bg-success/90 text-success-foreground cursor-default">
+                    <Save className="h-4 w-4" />
+                    Simulação Salva no Histórico ✔️
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={async () => {
+                        const success = await handleSaveSimulation();
+                        if (success) setSimulationUnlocked(true);
+                      }}
+                      disabled={savingSimulation || (!isUnlimited && !canSimulate)}
+                      variant="hero"
+                      className="gap-2"
+                    >
+                      <Lock className="h-4 w-4" />
+                      {savingSimulation ? "Desbloqueando..." : "Liberar Tabela Completa e Gerar Relatório"}
+                    </Button>
+                    {!isUnlimited && (
+                      <span className="text-sm text-muted-foreground">
+                        {canSimulate
+                          ? `${usageLimits?.simulationsRemaining ?? 0} de 10 restantes`
+                          : (
+                            <span className="flex items-center gap-1 text-destructive">
+                              <Lock className="h-3.5 w-3.5" />
+                              Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
+                            </span>
+                          )}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                <Link to="/login" className="text-primary underline">Faça login</Link> para salvar simulações.
+                <Link to="/login" className="text-primary underline">Faça login</Link> para desbloquear a tabela completa e salvar simulações.
               </p>
             )}
           
             <AmortizationSchedule
             schedule={calculations.schedule}
-            amortizationType={amortizationType} />
+            amortizationType={amortizationType}
+            locked={!simulationUnlocked} />
           
-            <ProposalGenerator
-            calculations={calculations}
-            propertyValue={parseCurrency(propertyValue)}
-            downPayment={parseCurrency(downPayment)}
-            interestRate={parseCurrency(interestRate)}
-            termMonths={parseInt(termMonths) || 360}
-            amortizationType={amortizationType} />
+            {simulationUnlocked && (
+              <ProposalGenerator
+              calculations={calculations}
+              propertyValue={parseCurrency(propertyValue)}
+              downPayment={parseCurrency(downPayment)}
+              interestRate={parseCurrency(interestRate)}
+              termMonths={parseInt(termMonths) || 360}
+              amortizationType={amortizationType} />
+            )}
           
           </div>
         }
