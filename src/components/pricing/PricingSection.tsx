@@ -162,7 +162,7 @@ export function PricingSection() {
                 </div>
                 
                 <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-2xl">{plan.key === "business" ? "Tudo do Professional" : plan.name}</CardTitle>
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{plan.price}</span>
