@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useContext, useCallback } from "react";
+import { useState, useMemo, useRef, useContext, useCallback, useEffect } from "react";
 import { useSimulation } from "@/contexts/SimulationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
