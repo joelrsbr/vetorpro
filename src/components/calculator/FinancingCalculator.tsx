@@ -1118,7 +1118,7 @@ export function FinancingCalculator() {
                           : (
                             <span className="flex items-center gap-1 text-destructive">
                               <Lock className="h-3.5 w-3.5" />
-                              Limite atingido — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
+                              Libere esta análise para {clientName.trim() || "o cliente"} — <Link to="/precos" className="underline text-primary">Upgrade para Professional</Link>
                             </span>
                           )}
                       </span>
