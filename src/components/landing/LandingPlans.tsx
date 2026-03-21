@@ -23,11 +23,12 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Simulações ilimitadas SAC/PRICE", included: true },
-  { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
-  { text: "Calculadora HP12C integrada", included: true },
-  { text: "Cotações de câmbio em tempo real", included: false },
-  { text: "Gestão de Reforços", included: false }]
+    { text: "Simulações ilimitadas SAC/PRICE", included: true },
+    { text: "Indexadores oficiais (IPCA, TR, IGPM, INCC)", included: true },
+    { text: "Calculadora HP12C integrada", included: true },
+    { text: "Cotações de câmbio em tempo real", included: false },
+    { text: "Gestão de Reforços", included: false },
+  ],
 },
 {
   id: "pro" as PlanType,
@@ -37,13 +38,13 @@ const plans = [
   description: "Cotações de Dólar/Euro em tempo real e Gestão de Reforços.",
   icon: Rocket,
   buttonVariant: "default" as const,
-  recommended: true,
   features: [
-  { text: "Tudo do Basic", included: true },
-  { text: "Cotações Dólar/Euro em tempo real", included: true },
-  { text: "Gestão de Reforços Estratégicos", included: true },
-  { text: "Exportação de PDF Básico", included: true },
-  { text: "Propostas com IA liberadas", included: true }]
+    { text: "Tudo do Basic", included: true },
+    { text: "Cotações Dólar/Euro em tempo real", included: true },
+    { text: "Gestão de Reforços Estratégicos", included: true },
+    { text: "Exportação de PDF Básico", included: true },
+    { text: "Propostas com IA liberadas", included: true },
+  ],
 },
 {
   id: "business" as PlanType,
@@ -53,11 +54,14 @@ const plans = [
   description: "O Plano definitivo para Consultoria de Alto Padrão",
   icon: Building2,
   buttonVariant: "hero" as const,
+  highlight: true,
   features: [
-  { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
-  { text: "Datas Reais de Cronograma", included: true },
-  { text: "Sondagem Estratégica Multi-Bancos", included: true },
-  { text: "Dashboard Corporativo", included: true }]
+    { text: "Inclui todos os recursos do Plano Professional", included: true },
+    { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
+    { text: "Datas Reais de Cronograma", included: true },
+    { text: "Sondagem Estratégica Multi-Bancos", included: true },
+    { text: "Dashboard Corporativo", included: true },
+  ],
 }];
 
 
