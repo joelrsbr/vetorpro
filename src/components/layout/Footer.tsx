@@ -42,7 +42,7 @@ export function Footer() {
           </div>
 
           <p className="text-[10px] text-muted-foreground/60">
-            © 2026 {brandLabel}. Desenvolvido por J-RSBR Ltda.
+            © 2026 {brandLabel}. Operado por J-RSBR INOVA SIMPLES (I.S.) · CNPJ: 65.827.331/0001-45
           </p>
         </div>
       </div>

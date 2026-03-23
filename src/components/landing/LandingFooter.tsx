@@ -17,7 +17,7 @@ export function LandingFooter() {
             Privacidade
           </Link>
         </div>
-        <p className="text-[10px] opacity-50">© 2026 VetorPro – Desenvolvido por J-RSBR Ltda.</p>
+        <p className="text-[10px] opacity-50">© 2026 VetorPro – Operado por J-RSBR INOVA SIMPLES (I.S.) · CNPJ: 65.827.331/0001-45</p>
       </div>
     </footer>
   );

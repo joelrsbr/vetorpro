@@ -7,10 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PRODUCT_TO_PLAN: Record<string, string> = {
-  "prod_TwxEUcSWGGNe3t": "basic",
-  "prod_TwxGNAi9Qvpz6S": "pro",
-  "prod_TwxH9f9aZIUw7T": "business",
+// Production Price ID → Plan mapping
+const PRICE_TO_PLAN: Record<string, string> = {
+  "price_1TE8bEK0PFZazC04eMPnB54f": "basic",
+  "price_1TE8XiK0PFZazC04uv6s7DrS": "pro",
+  "price_1TE8PQK0PFZazC04abx7OiHr": "business",
 };
 
 const logStep = (step: string, details?: any) => {
@@ -74,9 +75,9 @@ serve(async (req) => {
       const subscription = subscriptions.data[0];
       stripeSubscriptionId = subscription.id;
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      const productId = subscription.items.data[0].price.product as string;
-      plan = PRODUCT_TO_PLAN[productId] || "basic";
-      logStep("Active subscription found", { plan });
+      const priceId = subscription.items.data[0].price.id;
+      plan = PRICE_TO_PLAN[priceId] || "basic";
+      logStep("Active subscription found", { plan, priceId });
     } else {
       logStep("No active subscription found");
     }
