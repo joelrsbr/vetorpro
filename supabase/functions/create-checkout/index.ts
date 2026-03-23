@@ -8,9 +8,9 @@ const corsHeaders = {
 };
 
 const ALLOWED_PRICE_IDS = new Set([
-  "price_1Sz3K9GjguN4FlrbksLKHQLs", // basic
-  "price_1TDCXbGjguN4FlrbZHvVJBZ1", // pro
-  "price_1TDCY7GjguN4FlrbwpO0AIb1", // business
+  "price_1TE8bEK0PFZazC04eMPnB54f", // basic
+  "price_1TE8XiK0PFZazC04uv6s7DrS", // pro
+  "price_1TE8PQK0PFZazC04abx7OiHr", // business
 ]);
 
 serve(async (req) => {
@@ -53,9 +53,10 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
+      client_reference_id: user.id,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      success_url: `${origin}/dashboard?checkout=success`,
+      success_url: `${origin}/dashboard?status=success`,
       cancel_url: `${origin}/?checkout=canceled`,
     });
 
