@@ -6,6 +6,7 @@ export const ProtectedRoute = () => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [hasEligibleProfilePlan, setHasEligibleProfilePlan] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -20,12 +21,23 @@ export const ProtectedRoute = () => {
 
         setIsAuthenticated(true);
 
-        const { data, error } = await supabase.rpc("get_user_subscription", {
-          p_user_id: user.id,
-        });
+        const [{ data: subscriptionData, error: subscriptionError }, { data: profileData, error: profileError }] = await Promise.all([
+          supabase.rpc("get_user_subscription", {
+            p_user_id: user.id,
+          }),
+          supabase
+            .from("profiles")
+            .select("subscription_plan")
+            .eq("user_id", user.id)
+            .maybeSingle(),
+        ]);
 
-        if (!error && data && data[0]?.is_active) {
+        if (!subscriptionError && subscriptionData && subscriptionData[0]?.is_active) {
           setHasActiveSubscription(true);
+        }
+
+        if (!profileError && profileData?.subscription_plan && profileData.subscription_plan !== "free") {
+          setHasEligibleProfilePlan(true);
         }
       } catch (err) {
         console.error("Erro ao verificar assinatura:", err);
@@ -53,7 +65,7 @@ export const ProtectedRoute = () => {
   }
 
   // Logado mas sem assinatura ativa → preços
-  if (!hasActiveSubscription) {
+  if (!hasActiveSubscription || !hasEligibleProfilePlan) {
     return <Navigate to="/precos" replace />;
   }
 

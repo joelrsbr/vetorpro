@@ -2,12 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles, Zap, Loader2, ShieldCheck } from "lucide-react";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { clearPendingCheckoutPlan, createCheckoutUrl, setPendingCheckoutPlan } from "@/lib/checkout";
 
 type PlanKey = "basic" | "pro" | "business";
 
@@ -87,7 +87,8 @@ export function PricingSection() {
 
   const handleSubscribe = async (planKey: PlanKey) => {
     if (!user) {
-      navigate("/login");
+      setPendingCheckoutPlan(planKey);
+      navigate(`/login?checkoutPlan=${planKey}`);
       return;
     }
 
@@ -104,14 +105,9 @@ export function PricingSection() {
 
     setLoadingPlan(planKey);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: stripePlan.priceId },
-      });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
+      const checkoutUrl = await createCheckoutUrl(planKey);
+      clearPendingCheckoutPlan();
+      window.location.assign(checkoutUrl);
     } catch (err: any) {
       toast({
         title: "Erro ao iniciar checkout",
