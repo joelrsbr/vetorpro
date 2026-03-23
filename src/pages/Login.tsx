@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Landmark, TrendingUp, Mail, Lock, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { createCheckoutUrl, getCheckoutPlanFromValue, getPendingCheckoutPlan } from "@/lib/checkout";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,8 +19,43 @@ const Login = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const autoCheckoutTriggered = useRef(false);
+
+  const checkoutPlan = useMemo(
+    () => getCheckoutPlanFromValue(searchParams.get("checkoutPlan")) ?? getPendingCheckoutPlan(),
+    [searchParams]
+  );
+
+  useEffect(() => {
+    if (authLoading || !user || !checkoutPlan || autoCheckoutTriggered.current) {
+      return;
+    }
+
+    autoCheckoutTriggered.current = true;
+
+    const triggerCheckout = async () => {
+      setIsLoading(true);
+      try {
+        const checkoutUrl = await createCheckoutUrl(checkoutPlan);
+        window.location.assign(checkoutUrl);
+      } catch (err: any) {
+        autoCheckoutTriggered.current = false;
+        toast({
+          title: "Erro ao iniciar checkout",
+          description: err.message || "Tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void triggerCheckout();
+  }, [authLoading, checkoutPlan, toast, user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +63,7 @@ const Login = () => {
     
     const { error } = await signIn(loginEmail, loginPassword);
     
-    if (!error) {
+    if (!error && !checkoutPlan) {
       navigate("/dashboard");
     }
     
@@ -40,9 +77,11 @@ const Login = () => {
     const { error } = await signUp(registerEmail, registerPassword, registerName);
     
     if (!error) {
-      // Auto login after registration and redirect to plans selection
       await signIn(registerEmail, registerPassword);
-      navigate("/loginandplans#planos");
+
+      if (!checkoutPlan) {
+        navigate("/dashboard");
+      }
     }
     
     setIsLoading(false);
