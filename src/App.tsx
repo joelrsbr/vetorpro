@@ -18,6 +18,7 @@ import Business from "./pages/Business";
 import NotFound from "./pages/NotFound";
 import TermosDeUso from "./pages/TermosDeUso";
 import PoliticaDePrivacidade from "./pages/PoliticaDePrivacidade";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
 
                   <Route path="/termos-de-uso" element={<TermosDeUso />} />
                   <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidade />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
 
                   {/* Rotas protegidas - requerem autenticação e assinatura ativa */}
                   <Route element={<ProtectedRoute />}>
