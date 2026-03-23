@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Crown, Rocket, Building2, Loader2, ArrowRight } from "lucide-react";
 import { PlanType } from "@/contexts/SessionContext";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { clearPendingCheckoutPlan, createCheckoutUrl, setPendingCheckoutPlan } from "@/lib/checkout";
 
 interface LandingPlansProps {
   onSelectPlan: (planId: PlanType) => void;
@@ -71,13 +72,16 @@ const plans = [
 export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const handleSubscribe = async (planId: PlanType) => {
     if (!planId) return;
 
     if (!user) {
+      setPendingCheckoutPlan(planId);
       onSelectPlan(planId);
+      navigate(`/login?checkoutPlan=${planId}`);
       return;
     }
 
@@ -86,14 +90,9 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
 
     setLoadingPlan(planId);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: stripePlan.priceId }
-      });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
+      const checkoutUrl = await createCheckoutUrl(planId);
+      clearPendingCheckoutPlan();
+      window.location.assign(checkoutUrl);
     } catch (err: any) {
       toast({
         title: "Erro ao iniciar checkout",
