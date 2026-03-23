@@ -101,7 +101,9 @@ export default function Dashboard() {
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
-    if (user && searchParams.get("checkout") === "success") {
+    const checkoutStatus = searchParams.get("status") ?? searchParams.get("checkout");
+
+    if (user && checkoutStatus === "success") {
       const syncSubscription = async () => {
         try {
           await supabase.functions.invoke("check-subscription");

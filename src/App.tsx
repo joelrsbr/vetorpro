@@ -53,7 +53,6 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<LoginAndPlansPage />} />
                   <Route path="/loginandplans" element={<LoginAndPlansPage />} />
-                  <Route path="/calculadora" element={<Index />} />
                   <Route path="/precos" element={<Precos />} />
                   <Route path="/login" element={<Login />} />
 
@@ -62,6 +61,7 @@ const App = () => (
 
                   {/* Rotas protegidas - requerem autenticação e assinatura ativa */}
                   <Route element={<ProtectedRoute />}>
+                    <Route path="/calculadora" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/business" element={<Business />} />
                   </Route>
