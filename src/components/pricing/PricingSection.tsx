@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles, Zap, Loader2, ShieldCheck } from "lucide-react";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
