@@ -59,6 +59,7 @@ const App = () => (
 
                   <Route path="/termos-de-uso" element={<TermosDeUso />} />
                   <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidade />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
 
                   {/* Rotas protegidas - requerem autenticação e assinatura ativa */}
                   <Route element={<ProtectedRoute />}>
