@@ -21,24 +21,21 @@ export const ProtectedRoute = () => {
 
         setIsAuthenticated(true);
 
-        const [{ data: subscriptionData, error: subscriptionError }, { data: profileData, error: profileError }] = await Promise.all([
-          supabase.rpc("get_user_subscription", {
+        // Default to blocked — only set true on confirmed active subscription
+        let active = false;
+        try {
+          const { data: subscriptionData, error: subscriptionError } = await supabase.rpc("get_user_subscription", {
             p_user_id: user.id,
-          }),
-          supabase
-            .from("profiles")
-            .select("subscription_plan")
-            .eq("user_id", user.id)
-            .maybeSingle(),
-        ]);
+          });
 
-        if (!subscriptionError && subscriptionData && subscriptionData[0]?.is_active) {
-          setHasActiveSubscription(true);
+          if (!subscriptionError && subscriptionData && subscriptionData[0]?.is_active === true) {
+            active = true;
+          }
+        } catch (rpcErr) {
+          console.error("Erro ao verificar assinatura (RPC):", rpcErr);
+          // On any error, remain blocked
         }
-
-        if (!profileError && profileData?.subscription_plan && profileData.subscription_plan !== "free") {
-          setHasEligibleProfilePlan(true);
-        }
+        setHasActiveSubscription(active);
       } catch (err) {
         console.error("Erro ao verificar assinatura:", err);
       } finally {
