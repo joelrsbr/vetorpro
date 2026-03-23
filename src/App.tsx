@@ -18,6 +18,7 @@ import Business from "./pages/Business";
 import NotFound from "./pages/NotFound";
 import TermosDeUso from "./pages/TermosDeUso";
 import PoliticaDePrivacidade from "./pages/PoliticaDePrivacidade";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
