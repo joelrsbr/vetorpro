@@ -65,7 +65,8 @@ export const ProtectedRoute = () => {
   }
 
   // Logado mas sem assinatura ativa → preços
-  if (!hasActiveSubscription || !hasEligibleProfilePlan) {
+  // Exige AMBAS: assinatura ativa no Stripe E plano elegível no perfil
+  if (!hasActiveSubscription) {
     return <Navigate to="/precos" replace />;
   }
 
