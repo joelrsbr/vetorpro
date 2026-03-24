@@ -114,9 +114,16 @@ const Login = () => {
     const { error } = await signUp(registerEmail, registerPassword, registerName);
     
     if (!error) {
-      await signIn(registerEmail, registerPassword);
+      // Try to sign in - if email confirmation is required, this will fail gracefully
+      const { error: signInError } = await signIn(registerEmail, registerPassword);
 
-      if (!checkoutPlan) {
+      if (signInError) {
+        // Email confirmation is likely required
+        toast({
+          title: "Conta criada! Verifique seu e-mail",
+          description: "Enviamos um link de confirmação para " + registerEmail + ". Confirme seu e-mail antes de fazer login.",
+        });
+      } else if (!checkoutPlan) {
         navigate("/dashboard");
       }
     }
