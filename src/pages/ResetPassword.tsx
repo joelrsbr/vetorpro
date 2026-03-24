@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, Landmark, TrendingUp } from "lucide-react";
+import { Lock, Loader2, ShieldCheck, Info } from "lucide-react";
+import vetorproLogo from "@/assets/vetorpro-logo-login.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,24 +15,32 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setIsRecovery(true);
+        setIsChecking(false);
       }
     });
 
-    // Also check hash for type=recovery
+    // Check hash for type=recovery
     const hash = window.location.hash;
     if (hash.includes("type=recovery")) {
       setIsRecovery(true);
+      setIsChecking(false);
     }
 
-    return () => subscription.unsubscribe();
+    // Give auth state change a moment to fire
+    const timeout = setTimeout(() => setIsChecking(false), 2000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
@@ -67,8 +76,8 @@ const ResetPassword = () => {
       });
     } else {
       toast({
-        title: "Senha redefinida!",
-        description: "Sua senha foi atualizada com sucesso. Redirecionando...",
+        title: "Senha redefinida com sucesso! ✅",
+        description: "Redirecionando para o login...",
       });
       setTimeout(() => navigate("/login"), 2000);
     }
@@ -82,20 +91,28 @@ const ResetPassword = () => {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-lg relative">
-              <Landmark className="h-7 w-7 text-primary-foreground" />
-              <TrendingUp className="h-4 w-4 text-primary-foreground absolute -top-1 -right-1" />
-            </div>
+            <img src={vetorproLogo} alt="VetorPro" className="mx-auto mb-3 h-20 w-20 object-contain" />
             <CardTitle className="text-2xl font-bold">Redefinir Senha</CardTitle>
             <CardDescription>
               Escolha uma nova senha para sua conta
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!isRecovery ? (
-              <p className="text-center text-muted-foreground text-sm">
-                Link de recuperação inválido ou expirado. Solicite um novo na página de login.
-              </p>
+            {isChecking ? (
+              <div className="flex flex-col items-center gap-3 py-6">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Verificando link de recuperação...</p>
+              </div>
+            ) : !isRecovery ? (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <ShieldCheck className="h-10 w-10 text-destructive/70" />
+                <p className="text-center text-muted-foreground text-sm">
+                  Link de recuperação inválido ou expirado.
+                </p>
+                <Button variant="outline" onClick={() => navigate("/login")} className="mt-2">
+                  Voltar ao Login
+                </Button>
+              </div>
             ) : (
               <form onSubmit={handleReset} className="space-y-4">
                 <div className="space-y-2">
@@ -115,7 +132,7 @@ const ResetPassword = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirmar Senha</Label>
+                  <Label htmlFor="confirm-password">Confirme sua Nova Senha</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -130,11 +147,19 @@ const ResetPassword = () => {
                     />
                   </div>
                 </div>
+
+                <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
+                  <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <p className="text-xs text-muted-foreground">
+                    Dica: Crie uma senha forte e guarde-a em um local seguro.
+                  </p>
+                </div>
+
                 <Button type="submit" variant="hero" className="w-full" size="lg" disabled={isLoading}>
                   {isLoading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Salvando...</>
                   ) : (
-                    "Redefinir Senha"
+                    "Salvar Nova Senha"
                   )}
                 </Button>
               </form>
