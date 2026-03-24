@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Landmark, TrendingUp, Mail, Lock, User, Loader2, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Loader2, ArrowLeft } from "lucide-react";
+import vetorproLogo from "@/assets/vetorpro-logo-login.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutUrl, getCheckoutPlanFromValue, getPendingCheckoutPlan } from "@/lib/checkout";
@@ -167,6 +168,7 @@ const Login = () => {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center pb-2">
+            <img src={vetorproLogo} alt="VetorPro" className="mx-auto mb-3 h-20 w-20 object-contain" />
             <CardTitle className="text-2xl font-bold">
               <span className="text-primary">Vetor</span>
               <span className="text-success">Pro</span>
