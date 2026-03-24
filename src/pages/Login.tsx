@@ -168,6 +168,7 @@ const Login = () => {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center pb-2">
+            <img src={vetorproLogo} alt="VetorPro" className="mx-auto mb-3 h-20 w-20 object-contain" />
             <CardTitle className="text-2xl font-bold">
               <span className="text-primary">Vetor</span>
               <span className="text-success">Pro</span>
