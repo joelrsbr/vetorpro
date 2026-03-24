@@ -28,9 +28,12 @@ export function LandingHero() {
           {/* Left — Copy */}
           <div className="space-y-6 animate-fade-in-up">
             <div>
-            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight">
-                <span className="text-primary">Vetor</span>
-                <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight flex items-center gap-3">
+                <img src={vetorproIcon} alt="VetorPro" className="h-12 w-12 md:h-14 md:w-14" />
+                <span>
+                  <span className="text-primary">Vetor</span>
+                  <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+                </span>
               </h1>
             </div>
 
