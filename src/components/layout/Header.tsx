@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { User, Menu, X, LogOut, LayoutDashboard, Building2, Sparkles, CreditCard, Crown, TrendingUp } from "lucide-react";
+import vetorproIcon from "@/assets/vetorpro-icon.png";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -53,6 +54,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
+          <img src={vetorproIcon} alt="VetorPro" className="h-8 w-8 object-contain" />
           <span className="text-lg font-bold tracking-tight">
             <span className="text-primary">Vetor</span>
             <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
