@@ -102,16 +102,18 @@ export default function Dashboard() {
   // Sync subscription after Stripe checkout success
   useEffect(() => {
     const checkoutStatus = searchParams.get("status") ?? searchParams.get("checkout");
+    const sessionId = searchParams.get("session_id");
 
-    if (user && checkoutStatus === "success") {
+    if (user && (checkoutStatus === "success" || sessionId)) {
       const syncSubscription = async () => {
         try {
           await supabase.functions.invoke("check-subscription");
           await refreshProfile();
           await refreshSub();
+          await fetchData();
           toast({
-            title: "Assinatura ativada! 🎉",
-            description: "Seu plano foi ativado com sucesso.",
+            title: "Assinatura confirmada com sucesso! ✅",
+            description: "Aproveite o VetorPro.",
           });
         } catch (err) {
           console.error("Error syncing subscription:", err);
