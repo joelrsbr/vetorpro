@@ -167,10 +167,6 @@ const Login = () => {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl">
           <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-lg relative">
-              <Landmark className="h-7 w-7 text-primary-foreground" />
-              <TrendingUp className="h-4 w-4 text-primary-foreground absolute -top-1 -right-1" />
-            </div>
             <CardTitle className="text-2xl font-bold">
               <span className="text-primary">Vetor</span>
               <span className="text-success">Pro</span>
