@@ -56,7 +56,7 @@ serve(async (req) => {
       client_reference_id: user.id,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      success_url: `${origin}/dashboard?status=success`,
+      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}&status=success`,
       cancel_url: `${origin}/?checkout=canceled`,
     });
 
