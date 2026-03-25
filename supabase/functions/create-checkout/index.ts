@@ -48,7 +48,7 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const origin = req.headers.get("origin") || "https://vetorpro.lovable.app";
+    const origin = req.headers.get("origin") || "https://vetorpro.com.br";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
