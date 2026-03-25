@@ -59,7 +59,7 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer");
 
-    const origin = req.headers.get("origin") || "https://vetorpro.lovable.app";
+    const origin = req.headers.get("origin") || "https://vetorpro.com.br";
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${origin}/dashboard`,
