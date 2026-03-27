@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, Zap, Loader2, ShieldCheck } from "lucide-react";
+import { Check, Sparkles, Zap, Loader2, ShieldCheck, Target as BowArrow } from "lucide-react";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
