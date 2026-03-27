@@ -39,7 +39,7 @@ export default function PoliticaDePrivacidade() {
         <div>
           <h2 className="mb-1 text-sm font-semibold text-foreground md:text-base">4. Direitos do Titular (Art. 18 da LGPD)</h2>
           <p>
-            O titular dos dados pessoais tem direito a solicitar, a qualquer momento, mediante requisição ao controlador:
+            O assinante da plataforma, na qualidade de titular dos dados pessoais, tem direito a solicitar, a qualquer momento, mediante requisição ao controlador:
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>Confirmação da existência de tratamento de dados;</li>
@@ -51,8 +51,8 @@ export default function PoliticaDePrivacidade() {
           </ul>
           <p className="mt-2">
             Para exercer seus direitos, entre em contato pelo e-mail{" "}
-            <a href="mailto:suporte@vetorpro.com.br" className="text-primary underline underline-offset-2">
-              suporte@vetorpro.com.br
+            <a href="mailto:contato@j-rsbr.com.br" className="text-primary underline underline-offset-2">
+              contato@j-rsbr.com.br
             </a>.
           </p>
         </div>
