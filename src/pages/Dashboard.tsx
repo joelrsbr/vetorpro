@@ -496,6 +496,12 @@ export default function Dashboard() {
                 <Info className="h-3 w-3" />
                 Upgrade Inteligente: o valor já pago é descontado proporcionalmente.
               </p>
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground/50">
+                <Mail className="h-3 w-3 shrink-0" />
+                <a href="mailto:vendas@vetorpro.com.br" className="hover:text-primary transition-colors">
+                  vendas@vetorpro.com.br
+                </a>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
