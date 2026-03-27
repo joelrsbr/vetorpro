@@ -21,8 +21,8 @@ function BusinessContent() {
   const { user, loading } = useAuth();
   const { plan, isActive, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "simulator";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "simulator";
 
   useEffect(() => {
     if (!loading && !user) {
@@ -65,7 +65,7 @@ function BusinessContent() {
           <QuotesPanel />
         </div>
 
-        <Tabs defaultValue={defaultTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-6">
           <TabsList>
             <TabsTrigger value="simulator" className="gap-2">
               <Calculator className="h-4 w-4" />

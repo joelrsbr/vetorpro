@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock } from "lucide-react";
+import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock, ArrowRight } from "lucide-react";
 import { BANK_RATES } from "@/lib/bank-rates";
 import { useBankComparison } from "@/hooks/useBankComparison";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useSimulation } from "@/contexts/SimulationContext";
+import { useSearchParams } from "react-router-dom";
 
 export function BankComparisonModule() {
   const {
@@ -19,6 +20,7 @@ export function BankComparisonModule() {
     termMonths, setTermMonths,
     amortizationType: system, setAmortizationType: setSystem,
   } = useSimulation();
+  const [, setSearchParams] = useSearchParams();
   const [editingBank, setEditingBank] = useState<string | null>(null);
 
   const formatCurrency = (value: string) => {
@@ -30,10 +32,6 @@ export function BankComparisonModule() {
     return (parseInt(value.replace(/\D/g, "")) || 0) / 100;
   };
 
-  const handleCurrencyInput = (value: string, setter: (v: string) => void) => {
-    setter(value.replace(/\D/g, ""));
-  };
-
   const financedAmount = parseCurrency(propertyValue) - parseCurrency(downPayment);
   const term = parseInt(termMonths) || 360;
 
@@ -43,54 +41,51 @@ export function BankComparisonModule() {
   const fmtBRL = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
 
+  const goToSimulator = () => {
+    setSearchParams({ tab: "simulator" });
+  };
+
   return (
     <div className="space-y-6">
-      {/* Input Section */}
-      <Card className="border-primary/20">
+      {/* Read-only Summary Section */}
+      <Card className="border-primary/20 cursor-pointer group" onClick={goToSimulator}>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-primary" />
-            Parâmetros da Simulação Comparativa
+          <CardTitle className="text-lg flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-primary" />
+              Resumo da Simulação
+            </span>
+            <span className="text-xs font-normal text-muted-foreground flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              Para alterar, use o Simulador
+              <ArrowRight className="h-3 w-3" />
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">Valor do Imóvel</Label>
-              <Input
-                value={`R$ ${formatCurrency(propertyValue)}`}
-                onChange={(e) => handleCurrencyInput(e.target.value, setPropertyValue)}
-                className="h-[42px] text-sm"
-              />
+              <div className="h-[42px] text-sm flex items-center px-3 rounded-md border bg-muted/50 text-foreground pointer-events-none select-none">
+                R$ {formatCurrency(propertyValue)}
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">Entrada</Label>
-              <Input
-                value={`R$ ${formatCurrency(downPayment)}`}
-                onChange={(e) => handleCurrencyInput(e.target.value, setDownPayment)}
-                className="h-[42px] text-sm"
-              />
+              <div className="h-[42px] text-sm flex items-center px-3 rounded-md border bg-muted/50 text-foreground pointer-events-none select-none">
+                R$ {formatCurrency(downPayment)}
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">Prazo (meses)</Label>
-              <Input
-                type="number"
-                value={termMonths}
-                onChange={(e) => setTermMonths(e.target.value)}
-                className="h-[42px] text-sm"
-              />
+              <div className="h-[42px] text-sm flex items-center px-3 rounded-md border bg-muted/50 text-foreground pointer-events-none select-none">
+                {termMonths}
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">Sistema</Label>
-              <Select value={system} onValueChange={(v) => setSystem(v as "SAC" | "PRICE")}>
-                <SelectTrigger className="h-[42px] text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SAC">SAC</SelectItem>
-                  <SelectItem value="PRICE">PRICE</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="h-[42px] text-sm flex items-center px-3 rounded-md border bg-muted/50 text-foreground pointer-events-none select-none">
+                {system}
+              </div>
             </div>
           </div>
           {financedAmount > 0 && (
