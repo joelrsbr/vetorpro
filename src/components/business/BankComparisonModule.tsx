@@ -303,6 +303,66 @@ export function BankComparisonModule() {
                         {"\n"}
                       </p>
                     )}
+
+                    {/* Hidden Costs Section */}
+                    {(() => {
+                      const bankConfig = BANK_RATES.find(b => b.id === result.bankId);
+                      if (!bankConfig) return null;
+                      const costs = bankConfig.hiddenCosts;
+                      const isExpanded = expandedCosts === result.bankId;
+                      const propertyVal = parseCurrency(propertyValue);
+                      const estimatedInsurance = propertyVal > 0 ? propertyVal * (costs.insuranceRate / 100) : 0;
+                      const totalInitialCosts = costs.engineeringAppraisal + (costs.monthlyAdmin > 0 ? costs.monthlyAdmin : 0);
+
+                      return (
+                        <div className="mt-3 pt-3 border-t border-border/50">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedCosts(isExpanded ? null : result.bankId);
+                            }}
+                            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors w-full justify-between"
+                          >
+                            <span className="flex items-center gap-1">
+                              <Info className="h-3 w-3" />
+                              Ver taxas estimadas e custos extras
+                            </span>
+                            {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                          </button>
+
+                          {isExpanded && (
+                            <div className="mt-2 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                              <div className="rounded-md bg-muted/50 p-3 space-y-1.5">
+                                <div className="flex justify-between text-[11px]">
+                                  <span className="text-muted-foreground">Avaliação de Engenharia</span>
+                                  <span className="font-medium text-foreground">{fmtBRL(costs.engineeringAppraisal)}</span>
+                                </div>
+                                <div className="flex justify-between text-[11px]">
+                                  <span className="text-muted-foreground">Taxa Admin. Mensal</span>
+                                  <span className="font-medium text-foreground">
+                                    {costs.monthlyAdmin > 0 ? fmtBRL(costs.monthlyAdmin) : "Isento"}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between text-[11px]">
+                                  <span className="text-muted-foreground">Seguros (MIP/DFI) est./mês</span>
+                                  <span className="font-medium text-foreground">
+                                    {estimatedInsurance > 0 ? fmtBRL(estimatedInsurance) : "—"}
+                                  </span>
+                                </div>
+                                <div className="border-t border-border/50 pt-1.5 mt-1.5 flex justify-between text-[11px]">
+                                  <span className="text-muted-foreground font-medium">Custos iniciais estimados</span>
+                                  <span className="font-semibold text-foreground">≈ {fmtBRL(totalInitialCosts)}</span>
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground flex items-start gap-1">
+                                <AlertCircle className="h-3 w-3 shrink-0 mt-0.5" />
+                                Estimativas médias. Antecipar estes custos ao seu cliente gera confiança e evita surpresas no fechamento.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               );
