@@ -151,7 +151,7 @@ export function PricingSection() {
                   {(plan as any).highlight && (
                     <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-medium whitespace-nowrap">
                       <Sparkles className="h-3 w-3" />
-                      Elite
+                      &nbsp;Elite
                     </div>
                   )}
                   {isCurrent && (
