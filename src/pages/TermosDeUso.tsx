@@ -4,7 +4,7 @@ export default function TermosDeUso() {
   return (
     <LegalPageLayout
       title="Termos de Uso"
-      intro="O VetorPro fornece inteligência de dados para Simulação Estruturada de Cenários Imobiliários, visando oferecer clareza estratégica e projeções financeiras baseadas em indexadores de mercado."
+      intro=""
     >
       <section className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
         <p className="font-semibold text-foreground text-center">
