@@ -105,7 +105,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
   };
 
   return (
-    <section id="planos" className="py-16 md:py-24 bg-muted/30 scroll-mt-20">
+    <section id="planos" className="pt-10 pb-16 md:pt-16 md:pb-24 bg-muted/30 scroll-mt-20">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
