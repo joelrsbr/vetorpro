@@ -417,6 +417,49 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          <Card 
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              if (plan === "business") {
+                navigate("/business?tab=customization");
+              } else {
+                setShowCustomizationPaywall(true);
+              }
+            }}
+          >
+            <CardContent className="pt-6 flex items-start gap-4">
+              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), hsl(260 60% 30%))" }}>
+                <Settings className="h-6 w-6 text-white" />
+                {plan !== "business" && (
+                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-semibold text-base">Personalização</h3>
+                  {plan !== "business" && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
+                        Ao migrar para o Business, o valor do seu plano atual é descontado proporcionalmente.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+                {plan !== "business" ? (
+                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowCustomizationPaywall(true); }}>
+                    <Crown className="h-3.5 w-3.5 mr-1.5" />
+                    Exclusivo-Business
+                  </Button>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Identidade visual e taxas</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
@@ -431,6 +474,31 @@ export default function Dashboard() {
         </div>
 
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+
+        {/* Customization Paywall Modal */}
+        <Dialog open={showCustomizationPaywall} onOpenChange={setShowCustomizationPaywall}>
+          <DialogContent className="sm:max-w-md text-center">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-center gap-2 text-lg">
+                <Lock className="h-5 w-5 text-muted-foreground" />
+                Recurso Exclusivo Business
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground mt-2">
+              A Personalização de taxas e identidade visual é um recurso exclusivo do Plano Business. Desbloqueie agora para profissionalizar sua operação.
+            </p>
+            <div className="flex flex-col gap-2 mt-4">
+              <Button variant="hero" onClick={() => { setShowCustomizationPaywall(false); navigate("/precos"); }}>
+                <Crown className="h-4 w-4 mr-2" />
+                Ver Planos e Desbloquear
+              </Button>
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                <Info className="h-3 w-3" />
+                Upgrade Inteligente: o valor já pago é descontado proporcionalmente.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* History Tabs */}
         <Card className="shadow-card">
