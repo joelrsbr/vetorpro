@@ -241,7 +241,7 @@ export function BankComparisonModule() {
                         className={`h-8 w-8 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0 transition-transform duration-200 ${isRelationship ? "scale-110" : ""}`}
                         style={{ backgroundColor: result.bankColor }}
                       >
-                        {result.shortName}
+                        {BANK_RATES.find(b => b.id === result.bankId)?.compeCode ?? result.shortName}
                       </div>
                       <div>
                         <CardTitle className="text-sm">{result.bankName}</CardTitle>
