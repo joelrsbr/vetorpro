@@ -254,7 +254,7 @@ export function Header() {
                 </>
               ) : (
                 <Button variant="hero" size="sm" asChild>
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Assinar Agora</Link>
+                  <Link to="/precos" onClick={() => setMobileMenuOpen(false)}>Assinar Agora</Link>
                 </Button>
               )}
             </div>
