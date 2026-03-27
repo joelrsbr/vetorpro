@@ -65,7 +65,7 @@ export default function PoliticaDePrivacidade() {
         </div>
 
         <div>
-          <p className="text-xs">
+          <p className="text-xs text-right">
             <a
               href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm"
               target="_blank"
