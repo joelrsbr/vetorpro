@@ -43,7 +43,7 @@ export default function TermosDeUso() {
         <p>
           Estes Termos de Uso são regidos pela legislação brasileira. Para questões relacionadas ao consumo, aplica-se o Código de Defesa do Consumidor. Para questões digitais, aplica-se o Marco Civil da Internet e a Lei Geral de Proteção de Dados (LGPD).
         </p>
-        <p className="text-xs">
+        <p className="text-xs text-right">
           <a
             href="https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm"
             target="_blank"
