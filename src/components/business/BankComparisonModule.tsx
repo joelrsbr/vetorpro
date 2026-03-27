@@ -139,10 +139,10 @@ export function BankComparisonModule() {
                 <Users className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <div className="space-y-2 w-full">
                   <p className="text-sm font-medium text-foreground">
-                    Seu cliente possui relacionamento com algum destes bancos?
+                    Seu cliente possui relacionamento com algum destes bancos?<br />
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Clique no banco para indicar o relacionamento. Ele será priorizado como sugestão estratégica.
+                    Clique no banco para indicar o relacionamento. Ele será priorizado como sugestão estratégica. Além da menor taxa, oriente seu cliente a procurar também o seu Gerente de Relacionamento ou o seu Correspondente Bancário em busca de melhores opções.
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {BANK_RATES.map((bank) => (
