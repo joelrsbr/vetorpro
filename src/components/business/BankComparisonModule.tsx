@@ -193,13 +193,12 @@ export function BankComparisonModule() {
                 <Card
                   key={result.bankId}
                   className={`
-                    relative overflow-hidden border transition-all duration-300 hover:shadow-md cursor-pointer
+                    relative overflow-hidden border transition-all duration-300
                     ${isRelationship
-                      ? "ring-2 ring-primary/40 border-primary/30 shadow-lg shadow-primary/5"
-                      : ""
+                      ? "ring-2 ring-primary/40 border-primary/30 shadow-lg shadow-primary/5 hover:shadow-md"
+                      : "border-border/60 hover:shadow-sm"
                     }
                   `}
-                  onClick={() => toggleRelationship(result.bankId)}
                 >
                   {/* Bank color accent bar */}
                   <div
