@@ -38,11 +38,11 @@ export function LandingHero() {
             </div>
 
             <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
-              A plataforma de Inteligência Imobiliária que acelera sua jornada do básico ao topo da Consultoria de Elite.
+              A plataforma de Inteligência Imobiliária que acelera sua jornada do básico à Consultoria de Elite.
             </p>
 
             <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
-              Evoluímos a cada dia para transformar dados complexos em clareza absoluta. Conquiste a confiança do investidor e acelere seu sucesso com IA, Ética e a Curadoria Humana da VetorPro.
+              Evoluímos a cada dia para transformar dados complexos em clareza absoluta. Conquiste a confiança do investidor e acelere seu sucesso com a IA, Ética e a Curadoria Humana da VetorPro.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
