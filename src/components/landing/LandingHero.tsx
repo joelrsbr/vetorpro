@@ -42,7 +42,7 @@ export function LandingHero() {
             </p>
 
             <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
-              Evoluímos a cada dia para transformar dados complexos em clareza absoluta. Conquiste a confiança do investidor e acelere seu sucesso com a curadoria humana da VetorPro.
+              Evoluímos a cada dia para transformar dados complexos em clareza absoluta. Conquiste a confiança do investidor e acelere seu sucesso com IA, Ética e a Curadoria Humana da VetorPro.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
