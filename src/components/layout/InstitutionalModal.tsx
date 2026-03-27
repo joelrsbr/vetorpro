@@ -23,7 +23,9 @@ export function InstitutionalModal({ open, onOpenChange }: InstitutionalModalPro
             <DialogTitle className="text-lg font-semibold tracking-tight">J-RSBR</DialogTitle>
             <img src={flagRS} alt="Rio Grande do Sul" className="h-5 w-auto rounded-sm" loading="lazy" />
           </div>
-          <p className="text-sm italic text-muted-foreground">Empresa 100% Brasileira</p>
+          <p className="text-sm italic text-muted-foreground">
+            Empresa Inova Simples (I.S.)<br />100% Brasileira
+          </p>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
