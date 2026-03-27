@@ -323,9 +323,21 @@ export function BankComparisonModule() {
                             }}
                             className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors w-full justify-between"
                           >
-                            <span className="flex items-center gap-1">
-                              <Info className="h-3 w-3" />
-                              Ver taxas estimadas e custos extras
+                            <span className="flex items-center gap-1 relative">
+                              {(result.isBestRate || isRelationship) ? (
+                                <>
+                                  <span className="relative">
+                                    <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+                                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                                  </span>
+                                  <span className="font-medium text-foreground">Ver taxas estimadas e custos extras</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Info className="h-3 w-3" />
+                                  Ver taxas estimadas e custos extras
+                                </>
+                              )}
                             </span>
                             {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                           </button>
