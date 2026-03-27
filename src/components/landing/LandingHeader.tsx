@@ -29,13 +29,16 @@ export function LandingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="flex items-center gap-2 cursor-pointer"
+        >
           <img src={vetorproLogo} alt="VetorPro" className="h-8 w-8" />
           <span className="text-xl font-bold tracking-tight">
             <span className="text-primary">Vetor</span>
             <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
           </span>
-        </Link>
+        </button>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
