@@ -67,7 +67,7 @@ export function LandingHero() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">Por que sua Estratégia precisa do VetorPro?</p>
-                  <p className="text-xs text-muted-foreground">Economia, organização e consultoria</p>
+                  <p className="text-xs text-muted-foreground">Negócios, confiança e inteligência</p>
                 </div>
               </div>
 
