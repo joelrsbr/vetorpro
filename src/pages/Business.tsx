@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calculator, Settings, Loader2, Building2, Brain } from "lucide-react";
+import { Calculator, Loader2, Building2, Brain } from "lucide-react";
 import { BankComparisonModule } from "@/components/business/BankComparisonModule";
 
 // BusinessPaywall removed — non-Business users are redirected to /precos
