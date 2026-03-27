@@ -89,9 +89,6 @@ function BusinessContent() {
             <BankComparisonModule />
           </TabsContent>
 
-          <TabsContent value="settings">
-            <BusinessCustomization />
-          </TabsContent>
         </Tabs>
       </main>
 
