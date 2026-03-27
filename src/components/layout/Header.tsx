@@ -36,7 +36,7 @@ export function Header() {
   };
 
   const navigation = isLoginPage 
-    ? [{ name: "Assine e saia na frente", href: "/precos", highlight: true }]
+    ? []
     : [
         { name: "Planos", href: "/precos" },
       ];
@@ -176,7 +176,7 @@ export function Header() {
             </div>
           ) : (
             <Button variant="hero" size="sm" asChild>
-              <Link to="/login">
+              <Link to="/precos">
                 <User className="h-4 w-4" />
                 Assinar Agora
               </Link>
@@ -254,7 +254,7 @@ export function Header() {
                 </>
               ) : (
                 <Button variant="hero" size="sm" asChild>
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Assinar Agora</Link>
+                  <Link to="/precos" onClick={() => setMobileMenuOpen(false)}>Assinar Agora</Link>
                 </Button>
               )}
             </div>
