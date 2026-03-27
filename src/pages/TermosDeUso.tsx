@@ -15,7 +15,7 @@ export default function TermosDeUso() {
       <section className="space-y-4">
         <h2 className="text-base font-semibold text-foreground">1. Natureza do Serviço</h2>
         <p>
-          O VetorPro é uma plataforma de simulação financeira que atua como <strong>ferramenta de apoio à decisão e suporte estratégico</strong> para profissionais do mercado imobiliário. O assinante da plataforma declara estar ciente de que:
+          O VetorPro é uma plataforma de simulação financeira que atua como <strong>ferramenta de apoio à decisão e suporte estratégico</strong> para profissionais do mercado imobiliário. O Assinante da Plataforma declara estar ciente de que:
         </p>
         <ul className="list-disc space-y-3 pl-5">
           <li>Os resultados apresentados são projeções estimadas e não garantias de valores reais;</li>
