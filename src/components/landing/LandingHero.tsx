@@ -1,23 +1,23 @@
-import { TrendingUp, ArrowRight, Scale, Eye, Target } from "lucide-react";
+import { TrendingUp, ArrowRight, Handshake, ShieldCheck, BowArrow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import vetorproIcon from "@/assets/vetorpro-icon.png";
 
 export function LandingHero() {
   const pillars = [
   {
-    icon: Scale,
-    title: "Economia Efetiva",
-    description: "Visualize a Economia Efetiva gerada por aportes estratégicos e amortizações inteligentes."
+    icon: Handshake,
+    title: "Potencialização de Negócios",
+    description: "Use o fator relacionamento para potencializar suas negociações. Identifique o melhor cenário para o seu cliente e forneça o argumento certo para buscar condições exclusivas."
   },
   {
-    icon: Eye,
-    title: "Cronograma Real",
-    description: "Obtenha um Cronograma Real de fluxo de caixa, com datas precisas para cada reforço programado."
+    icon: ShieldCheck,
+    title: "Confiança Estratégica",
+    description: "Antecipe custos extras e taxas bancárias ocultas. Gere confiança estratégica ao eliminar surpresas no fechamento e proteja sua reputação diante de investidores."
   },
   {
-    icon: Target,
-    title: "Consultoria de Alto Padrão",
-    description: "Eleve o nível da sua consultoria entregando clareza técnica e transparência ao seu cliente final."
+    icon: BowArrow,
+    title: "Inteligência Evolutiva",
+    description: "Um sistema vivo que evolui diariamente. Unimos a velocidade da IA com a ética e a curadoria humana da VetorPro para que você esteja sempre atualizado com o mercado."
   }];
 
 
@@ -38,11 +38,11 @@ export function LandingHero() {
             </div>
 
             <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
-              A plataforma de Inteligência Imobiliária que acelera sua jornada do básico ao topo da Consultoria de Elite.
+              A plataforma de Inteligência Imobiliária que acelera sua jornada do básico à Consultoria de Elite.
             </p>
 
             <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
-              Evoluímos a cada dia para transformar dados complexos em clareza absoluta. Conquiste a confiança do investidor e acelere seu sucesso com IA, Ética e a Curadoria Humana da VetorPro.
+              Evoluímos a cada dia para transformar dados complexos em clareza absoluta. Conquiste a confiança do investidor e acelere seu sucesso com a IA, Ética e a Curadoria Humana da VetorPro.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -67,7 +67,7 @@ export function LandingHero() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">Por que sua Estratégia precisa do VetorPro?</p>
-                  <p className="text-xs text-muted-foreground">Economia, organização e consultoria</p>
+                  <p className="text-xs text-muted-foreground">Negócios, confiança e inteligência</p>
                 </div>
               </div>
 
