@@ -24,7 +24,7 @@ export default function PoliticaDePrivacidade() {
             O tratamento de dados pessoais pelo VetorPro ocorre com fundamento no <strong>Art. 7º da LGPD</strong>, especificamente:
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
-            <li><strong>Inciso I — Consentimento:</strong> o usuário consente com o tratamento ao aceitar os Termos de Uso e criar sua conta na plataforma;</li>
+            <li><strong>Inciso I — Consentimento:</strong> o assinante da plataforma consente com o tratamento ao aceitar os Termos de Uso e criar sua conta;</li>
             <li><strong>Inciso V — Execução de Contrato:</strong> os dados são necessários para a prestação do serviço contratado (simulações, propostas e relatórios).</li>
           </ul>
         </div>
