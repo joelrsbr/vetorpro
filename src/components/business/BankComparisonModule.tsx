@@ -299,7 +299,7 @@ export function BankComparisonModule() {
                     </div>
                     {isBanrisul && (
                       <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 italic">
-                        ⚠ Condições de mesa com o gerente
+                        {"\n"}
                       </p>
                     )}
                   </CardContent>
