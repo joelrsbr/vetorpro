@@ -1,23 +1,23 @@
-import { TrendingUp, ArrowRight, Scale, Eye, Target } from "lucide-react";
+import { TrendingUp, ArrowRight, Handshake, ShieldCheck, BowArrow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import vetorproIcon from "@/assets/vetorpro-icon.png";
 
 export function LandingHero() {
   const pillars = [
   {
-    icon: Scale,
-    title: "Economia Efetiva",
-    description: "Visualize a Economia Efetiva gerada por aportes estratégicos e amortizações inteligentes."
+    icon: Handshake,
+    title: "Potencialização de Negócios",
+    description: "Use o fator relacionamento para potencializar suas negociações. Identifique o melhor cenário para o seu cliente e forneça o argumento certo para buscar condições exclusivas."
   },
   {
-    icon: Eye,
-    title: "Cronograma Real",
-    description: "Obtenha um Cronograma Real de fluxo de caixa, com datas precisas para cada reforço programado."
+    icon: ShieldCheck,
+    title: "Confiança Estratégica",
+    description: "Antecipe custos extras e taxas bancárias ocultas. Gere confiança estratégica ao eliminar surpresas no fechamento e proteja sua reputação diante de investidores."
   },
   {
-    icon: Target,
-    title: "Consultoria de Alto Padrão",
-    description: "Eleve o nível da sua consultoria entregando clareza técnica e transparência ao seu cliente final."
+    icon: BowArrow,
+    title: "Inteligência Evolutiva",
+    description: "Um sistema vivo que evolui diariamente. Unimos a velocidade da IA com a ética e a curadoria humana da VetorPro para que você esteja sempre atualizado com o mercado."
   }];
 
 
