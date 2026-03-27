@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Landmark } from "lucide-react";
+import { Landmark, Handshake, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock, ArrowRight } from "lucide-react";
+import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock, ArrowRight, Star } from "lucide-react";
 import { BANK_RATES } from "@/lib/bank-rates";
 import { useBankComparison } from "@/hooks/useBankComparison";
 import { useMarketData } from "@/hooks/useMarketData";
@@ -22,6 +21,7 @@ export function BankComparisonModule() {
   } = useSimulation();
   const [, setSearchParams] = useSearchParams();
   const [editingBank, setEditingBank] = useState<string | null>(null);
+  const [relationshipBank, setRelationshipBank] = useState<string | null>(null);
 
   const formatCurrency = (value: string) => {
     const num = parseInt(value.replace(/\D/g, "")) || 0;
@@ -43,6 +43,19 @@ export function BankComparisonModule() {
 
   const goToSimulator = () => {
     setSearchParams({ tab: "simulator" });
+  };
+
+  // Sort results: relationship bank first as strategic suggestion, then by totalPaid
+  const sortedResults = [...results].sort((a, b) => {
+    if (relationshipBank) {
+      if (a.bankId === relationshipBank && b.bankId !== relationshipBank) return -1;
+      if (b.bankId === relationshipBank && a.bankId !== relationshipBank) return 1;
+    }
+    return a.totalPaid - b.totalPaid;
+  });
+
+  const toggleRelationship = (bankId: string) => {
+    setRelationshipBank(prev => prev === bankId ? null : bankId);
   };
 
   return (
@@ -119,93 +132,181 @@ export function BankComparisonModule() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {results.map((result) => (
-              <Card
-                key={result.bankId}
-                className="relative overflow-hidden border transition-all duration-200 hover:shadow-md"
-              >
-                {/* Bank color accent bar */}
-                <div className="h-1.5 w-full" style={{ backgroundColor: result.bankColor }} />
-
-                {/* Badges */}
-                <div className="absolute top-3 right-3 flex flex-col gap-1">
-                  {result.isBestRate && (
-                    <Badge className="bg-success text-success-foreground text-[10px] px-2 py-0.5 gap-1">
-                      <Trophy className="h-3 w-3" />
-                      Melhor Taxa
-                    </Badge>
-                  )}
-                  {result.isLowestCost && (
-                    <Badge className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 gap-1">
-                      <TrendingDown className="h-3 w-3" />
-                      Menor Custo
-                    </Badge>
+          {/* Relationship Question */}
+          <Card className="border-accent/30 bg-accent/5">
+            <CardContent className="py-4">
+              <div className="flex items-start gap-3">
+                <Users className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div className="space-y-2 w-full">
+                  <p className="text-sm font-medium text-foreground">
+                    Seu cliente possui relacionamento com algum destes bancos?
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Clique no banco para indicar o relacionamento. Ele será priorizado como sugestão estratégica.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {BANK_RATES.map((bank) => (
+                      <button
+                        key={bank.id}
+                        onClick={() => toggleRelationship(bank.id)}
+                        className={`
+                          flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+                          transition-all duration-200 border
+                          ${relationshipBank === bank.id
+                            ? "border-primary bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
+                            : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                          }
+                        `}
+                      >
+                        <div
+                          className="h-3 w-3 rounded-full shrink-0"
+                          style={{ backgroundColor: bank.color }}
+                        />
+                        {bank.shortName === bank.shortName ? bank.name : bank.shortName}
+                        {relationshipBank === bank.id && (
+                          <Handshake className="h-3 w-3 text-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {relationshipBank && (
+                    <button
+                      onClick={() => setRelationshipBank(null)}
+                      className="text-[11px] text-muted-foreground hover:text-foreground transition-colors mt-1"
+                    >
+                      ✕ Limpar seleção
+                    </button>
                   )}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                <CardHeader className="pb-2 pt-4">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-8 w-8 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0"
-                      style={{ backgroundColor: result.bankColor }}
-                    >
-                      {result.bankName.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <CardTitle className="text-sm">{result.bankName}</CardTitle>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        {editingBank === result.bankId ? (
-                          <Input
-                            type="number"
-                            step="0.01"
-                            defaultValue={customRates[result.bankId] || String(BANK_RATES.find(b => b.id === result.bankId)!.defaultRate)}
-                            className="h-6 w-20 text-xs px-1"
-                            autoFocus
-                            onBlur={(e) => {
-                              const val = parseFloat(e.target.value);
-                              if (!isNaN(val)) setRate(result.bankId, val);
-                              setEditingBank(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                            }}
-                          />
-                        ) : (
-                          <button
-                            onClick={() => setEditingBank(result.bankId)}
-                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            {result.rate.toFixed(2)}% a.a.
-                            <Edit3 className="h-3 w-3" />
-                          </button>
-                        )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sortedResults.map((result) => {
+              const isRelationship = relationshipBank === result.bankId;
+              const isBanrisul = result.bankId === "banrisul";
+              // If relationship bank is not the best rate, tag it as strategic suggestion
+              const isStrategicSuggestion = isRelationship && !result.isBestRate && !result.isLowestCost;
+
+              return (
+                <Card
+                  key={result.bankId}
+                  className={`
+                    relative overflow-hidden border transition-all duration-300 hover:shadow-md cursor-pointer
+                    ${isRelationship
+                      ? "ring-2 ring-primary/40 border-primary/30 shadow-lg shadow-primary/5"
+                      : ""
+                    }
+                  `}
+                  onClick={() => toggleRelationship(result.bankId)}
+                >
+                  {/* Bank color accent bar */}
+                  <div
+                    className={`w-full transition-all duration-300 ${isRelationship ? "h-2" : "h-1.5"}`}
+                    style={{ backgroundColor: result.bankColor }}
+                  />
+
+                  {/* Badges */}
+                  <div className="absolute top-3 right-3 flex flex-col gap-1">
+                    {isRelationship && (
+                      <Badge className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 gap-1 animate-in fade-in slide-in-from-right-2 duration-300">
+                        <Handshake className="h-3 w-3" />
+                        Relacionamento Ativo
+                      </Badge>
+                    )}
+                    {isStrategicSuggestion && (
+                      <Badge className="bg-warning text-warning-foreground text-[10px] px-2 py-0.5 gap-1 animate-in fade-in slide-in-from-right-2 duration-300">
+                        <Star className="h-3 w-3" />
+                        Sugestão Estratégica
+                      </Badge>
+                    )}
+                    {result.isBestRate && (
+                      <Badge className="bg-success text-success-foreground text-[10px] px-2 py-0.5 gap-1">
+                        <Trophy className="h-3 w-3" />
+                        Melhor Taxa
+                      </Badge>
+                    )}
+                    {result.isLowestCost && !result.isBestRate && (
+                      <Badge className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 gap-1">
+                        <TrendingDown className="h-3 w-3" />
+                        Menor Custo
+                      </Badge>
+                    )}
+                  </div>
+
+                  <CardHeader className="pb-2 pt-4">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`h-8 w-8 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0 transition-transform duration-200 ${isRelationship ? "scale-110" : ""}`}
+                        style={{ backgroundColor: result.bankColor }}
+                      >
+                        {result.shortName}
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm">{result.bankName}</CardTitle>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          {editingBank === result.bankId ? (
+                            <Input
+                              type="number"
+                              step="0.01"
+                              defaultValue={customRates[result.bankId] || String(BANK_RATES.find(b => b.id === result.bankId)!.defaultRate)}
+                              className="h-6 w-20 text-xs px-1"
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                              onBlur={(e) => {
+                                const val = parseFloat(e.target.value);
+                                if (!isNaN(val)) setRate(result.bankId, val);
+                                setEditingBank(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                              }}
+                            />
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingBank(result.bankId);
+                              }}
+                              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {result.rate.toFixed(2)}% a.a.
+                              <Edit3 className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
 
-                <CardContent className="pt-2 pb-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">1ª Parcela</p>
-                      <p className="text-sm font-semibold text-foreground">{fmtBRL(result.firstPayment)}</p>
+                  <CardContent className="pt-2 pb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">1ª Parcela</p>
+                        <p className="text-sm font-semibold text-foreground">{fmtBRL(result.firstPayment)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Última Parcela</p>
+                        <p className="text-sm font-semibold text-foreground">{fmtBRL(result.lastPayment)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Última Parcela</p>
-                      <p className="text-sm font-semibold text-foreground">{fmtBRL(result.lastPayment)}</p>
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Custo Total Pago</p>
+                      <p className="text-base font-bold text-foreground">{fmtBRL(result.totalPaid)}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        Juros: {fmtBRL(result.totalInterest)}
+                      </p>
                     </div>
-                  </div>
-                  <div className="mt-3 pt-3 border-t">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Custo Total Pago</p>
-                    <p className="text-base font-bold text-foreground">{fmtBRL(result.totalPaid)}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      Juros: {fmtBRL(result.totalInterest)}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    {isBanrisul && (
+                      <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 italic">
+                        ⚠ Condições de mesa com o gerente
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
 
             {/* BNDES - Enterprise teaser */}
             <Card className="relative overflow-hidden border transition-all duration-200 grayscale opacity-50 select-none pointer-events-none">

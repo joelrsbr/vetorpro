@@ -24,6 +24,7 @@ export const BANK_RATES: BankRateConfig[] = [
   { id: "inter", name: "Banco Inter", shortName: "IN", color: "hsl(25, 95%, 50%)", defaultRate: 9.29 },
   { id: "sicredi", name: "Sicredi", shortName: "SI", color: "hsl(120, 60%, 35%)", defaultRate: 9.39 },
   { id: "brb", name: "BRB", shortName: "BR", color: "hsl(210, 80%, 30%)", defaultRate: 9.59 },
+  { id: "banrisul", name: "Banrisul", shortName: "BA", color: "hsl(200, 70%, 35%)", defaultRate: 9.69 },
 ];
 
 export interface BankSimulationInput {
