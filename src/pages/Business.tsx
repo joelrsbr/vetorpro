@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BusinessHeader } from "@/components/business/BusinessHeader";
@@ -21,6 +21,8 @@ function BusinessContent() {
   const { user, loading } = useAuth();
   const { plan, isActive, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "simulator";
 
   useEffect(() => {
     if (!loading && !user) {
@@ -63,7 +65,7 @@ function BusinessContent() {
           <QuotesPanel />
         </div>
 
-        <Tabs defaultValue="simulator" className="space-y-6">
+        <Tabs defaultValue={defaultTab} className="space-y-6">
           <TabsList>
             <TabsTrigger value="simulator" className="gap-2">
               <Calculator className="h-4 w-4" />
