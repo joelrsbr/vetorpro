@@ -47,7 +47,7 @@ export function BusinessCustomization() {
           Personalização Business
         </CardTitle>
         <CardDescription>
-          Configure sua identidade visual para propostas e simulações
+          Invista um tempo e configure sua identidade visual. Esse refino amplia sua percepção de valor e destaca suas propostas.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
