@@ -5,8 +5,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Mail, Building2 } from "lucide-react";
-import flagBrazil from "@/assets/flag-brazil.png";
-import flagRS from "@/assets/flag-rs.png";
 
 interface InstitutionalModalProps {
   open: boolean;
