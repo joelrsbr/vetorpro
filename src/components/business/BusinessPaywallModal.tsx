@@ -6,7 +6,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowRight, Shield, Info, Loader2 } from "lucide-react";
+import { Building2, ArrowRight, Shield, Info, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
