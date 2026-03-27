@@ -51,7 +51,7 @@ const Index = () => {
           <>
             {/* Visitor: Hero first */}
             <HeroSection />
-            <section className="py-16 md:py-24 bg-background">
+            <section id="experimente" className="py-16 md:py-24 bg-background scroll-mt-20">
               <div className="container">
                 <div className="text-center space-y-4 mb-12">
                   <h2 className="text-3xl md:text-4xl font-bold">
