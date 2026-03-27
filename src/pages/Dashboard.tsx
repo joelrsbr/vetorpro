@@ -775,6 +775,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
       
+      <ArsenalFAB />
       <Footer />
     </div>
   );
