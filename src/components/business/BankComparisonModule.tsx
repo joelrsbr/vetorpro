@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock } from "lucide-react";
+import { Building2, Trophy, TrendingDown, Edit3, RotateCcw, Calculator, Clock, ArrowRight } from "lucide-react";
 import { BANK_RATES } from "@/lib/bank-rates";
 import { useBankComparison } from "@/hooks/useBankComparison";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useSimulation } from "@/contexts/SimulationContext";
+import { useSearchParams } from "react-router-dom";
 
 export function BankComparisonModule() {
   const {
