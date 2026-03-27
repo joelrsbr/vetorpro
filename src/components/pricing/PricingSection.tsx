@@ -122,9 +122,9 @@ export function PricingSection() {
   const isCurrentPlan = (planKey: PlanKey) => isActive && currentPlan === planKey;
 
   return (
-    <section id="planos" className="py-16 md:py-24 bg-muted/30 scroll-mt-20">
+    <section id="planos" className="pt-8 pb-16 md:pt-12 md:pb-24 bg-muted/30 scroll-mt-20">
       <div className="container">
-        <div className="text-center space-y-4 mb-12">
+        <div className="text-center space-y-3 mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Zap className="h-4 w-4" />
             Preços simples e transparentes
