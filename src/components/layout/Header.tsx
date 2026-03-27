@@ -36,7 +36,7 @@ export function Header() {
   };
 
   const navigation = isLoginPage 
-    ? [{ name: "Assine e saia na frente", href: "/precos", highlight: true }]
+    ? []
     : [
         { name: "Planos", href: "/precos" },
       ];
