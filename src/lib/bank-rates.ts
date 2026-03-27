@@ -6,6 +6,15 @@
  * Valores sujeitos a análise de crédito individual.
  */
 
+export interface BankHiddenCosts {
+  /** Taxa de avaliação de engenharia (R$) */
+  engineeringAppraisal: number;
+  /** Taxa de administração mensal (R$) */
+  monthlyAdmin: number;
+  /** Alíquota estimada de seguro MIP+DFI sobre valor do imóvel (% mensal) */
+  insuranceRate: number;
+}
+
 export interface BankRateConfig {
   id: string;
   name: string;
@@ -13,6 +22,8 @@ export interface BankRateConfig {
   color: string;
   /** Taxa média anual (% a.a.) */
   defaultRate: number;
+  /** Custos extras estimados */
+  hiddenCosts: BankHiddenCosts;
 }
 
 export const BANK_RATES: BankRateConfig[] = [
