@@ -22,6 +22,7 @@ export function BankComparisonModule() {
   const [, setSearchParams] = useSearchParams();
   const [editingBank, setEditingBank] = useState<string | null>(null);
   const [relationshipBank, setRelationshipBank] = useState<string | null>(null);
+  const [expandedCosts, setExpandedCosts] = useState<string | null>(null);
 
   const formatCurrency = (value: string) => {
     const num = parseInt(value.replace(/\D/g, "")) || 0;
