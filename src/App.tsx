@@ -15,6 +15,7 @@ import Precos from "./pages/Precos";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Business from "./pages/Business";
+import Personalizacao from "./pages/Personalizacao";
 import NotFound from "./pages/NotFound";
 import TermosDeUso from "./pages/TermosDeUso";
 import PoliticaDePrivacidade from "./pages/PoliticaDePrivacidade";
