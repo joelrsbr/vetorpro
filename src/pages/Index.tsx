@@ -5,7 +5,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
-import { QuotesPanel } from "@/components/business/QuotesPanel";
+import { QuotesStickyBar } from "@/components/business/QuotesStickyBar";
 import { useSession } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -27,19 +27,16 @@ const Index = () => {
       <main className="flex-1">
         {isLoggedIn ? (
           <>
-            {/* Logged-in: Calculator first, NO Hero */}
+            {showQuotes && <QuotesStickyBar />}
             <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-background">
               <div className="container">
-                <div className="flex items-center justify-between mb-12">
-                  <div className="text-center flex-1 space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold">
-                      Simulador de Financiamento
-                    </h2>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                      Faça uma simulação completa de financiamento imobiliário em segundos.
-                    </p>
-                  </div>
-                  {showQuotes && <QuotesPanel />}
+                <div className="text-center space-y-4 mb-12">
+                  <h2 className="text-3xl md:text-4xl font-bold">
+                    Simulador de Financiamento
+                  </h2>
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    Faça uma simulação completa de financiamento imobiliário em segundos.
+                  </p>
                 </div>
                 <div className="max-w-4xl mx-auto">
                   <FinancingCalculator />
