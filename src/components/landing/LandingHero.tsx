@@ -22,7 +22,7 @@ export function LandingHero() {
 
 
   return (
-    <section className="relative py-20 md:py-28 bg-card border-b">
+    <section className="relative py-20 pb-32 md:py-28 md:pb-44 bg-card border-b">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Copy */}
