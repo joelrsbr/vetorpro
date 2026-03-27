@@ -44,10 +44,10 @@ export function BusinessCustomization() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5 text-primary" />
-          Personalização Business/TEAM
+          Personalização Business
         </CardTitle>
         <CardDescription>
-          Configure sua identidade visual para propostas e simulações
+          Invista um tempo e configure sua identidade visual. Esse refino amplia sua percepção de valor e destaca suas propostas.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
