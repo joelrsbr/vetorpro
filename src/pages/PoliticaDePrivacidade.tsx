@@ -14,7 +14,7 @@ export default function PoliticaDePrivacidade() {
         <div>
           <h2 className="mb-1 text-sm font-semibold text-foreground md:text-base">1. Coleta de Dados</h2>
           <p>
-            Coletamos apenas os dados técnicos necessários para as simulações (valores, prazos e taxas inseridos) e dados cadastrais fornecidos voluntariamente pelo assinante da plataforma no momento do registro (nome, e-mail e telefone).
+            Coletamos apenas os dados técnicos necessários para as simulações (valores, prazos e taxas inseridos) e dados cadastrais fornecidos voluntariamente pelo Assinante da Plataforma no momento do registro (nome, e-mail e telefone).
           </p>
         </div>
 
