@@ -31,8 +31,8 @@ export function LegalPageLayout({ title, intro, children }: LegalPageLayoutProps
 
       <main className="container max-w-3xl px-4 py-12 md:py-16">
         <article className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-10">
-          <p className="mb-3 text-sm font-medium text-primary text-center">{intro}</p>
-          <h1 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+          <p className="mb-3 text-sm font-medium text-primary">{intro}</p>
+          <h1 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl text-center">
             {title}
           </h1>
           <div className="mt-8 space-y-6 text-sm leading-7 text-muted-foreground md:text-base">
