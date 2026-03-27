@@ -67,6 +67,7 @@ const App = () => (
                     <Route path="/calculadora" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/business" element={<Business />} />
+                    <Route path="/personalizacao" element={<Personalizacao />} />
                   </Route>
 
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
