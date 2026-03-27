@@ -150,8 +150,8 @@ export function PricingSection() {
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
                   {(plan as any).highlight && (
                     <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-medium whitespace-nowrap">
-                      <Sparkles className="h-3 w-3" />
-                      &nbsp;Elite
+                      <BowArrow className="h-3 w-3" />
+                      &nbsp;Elite&nbsp;
                     </div>
                   )}
                   {isCurrent && (
