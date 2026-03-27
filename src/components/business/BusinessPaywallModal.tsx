@@ -6,7 +6,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowRight, Shield, Info, Loader2 } from "lucide-react";
+import { Building2, ArrowRight, Shield, Info, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,6 +97,12 @@ export function BusinessPaywallModal({ open, onOpenChange }: BusinessPaywallModa
             <Info className="h-3.5 w-3.5 shrink-0" />
             Upgrade Inteligente: Ao migrar, o valor já pago será descontado proporcionalmente da sua primeira mensalidade.
           </p>
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground/50">
+            <Mail className="h-3 w-3 shrink-0" />
+            <a href="mailto:vendas@vetorpro.com.br" className="hover:text-primary transition-colors">
+              vendas@vetorpro.com.br
+            </a>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

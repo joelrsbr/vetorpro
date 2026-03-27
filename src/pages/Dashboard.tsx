@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
-  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock
+  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
@@ -496,6 +496,12 @@ export default function Dashboard() {
                 <Info className="h-3 w-3" />
                 Upgrade Inteligente: o valor já pago é descontado proporcionalmente.
               </p>
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground/50">
+                <Mail className="h-3 w-3 shrink-0" />
+                <a href="mailto:vendas@vetorpro.com.br" className="hover:text-primary transition-colors">
+                  vendas@vetorpro.com.br
+                </a>
+              </div>
             </div>
           </DialogContent>
         </Dialog>

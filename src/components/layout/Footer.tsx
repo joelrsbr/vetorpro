@@ -1,14 +1,17 @@
-import { HelpCircle, MessageCircle } from "lucide-react";
+import { HelpCircle, MessageCircle, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import vetorproLogo from "@/assets/vetorpro-logo.png";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { InstitutionalModal } from "./InstitutionalModal";
 
 export function Footer() {
   const { user } = useAuth();
   const { plan, isActive } = useSubscription();
   const brandLabel = user ? getPlanLabel(plan, isActive) : "VetorPro";
+  const [showInstitutional, setShowInstitutional] = useState(false);
 
   return (
     <footer className="border-t border-border bg-muted/30">
@@ -36,16 +39,30 @@ export function Footer() {
             <span className="font-semibold text-foreground">{brandLabel}</span>
           </div>
 
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Mail className="h-3.5 w-3.5 shrink-0" />
+            <a href="mailto:suporte@vetorpro.com.br" className="hover:text-primary transition-colors">
+              suporte@vetorpro.com.br
+            </a>
+          </div>
+
           <div className="flex items-center justify-center gap-5 text-sm text-muted-foreground">
             <Link to="/termos-de-uso" className="hover:text-primary transition-colors font-medium">Termos de Uso</Link>
             <Link to="/politica-de-privacidade" className="hover:text-primary transition-colors font-medium">Privacidade</Link>
           </div>
 
           <p className="text-xs text-muted-foreground/70">
-            © 2026 {brandLabel}. Operado por J-RSBR INOVA SIMPLES (I.S.) · CNPJ: 65.827.331/0001-45
+            © 2026 {brandLabel}. Operado por{" "}
+            <button
+              onClick={() => setShowInstitutional(true)}
+              className="underline underline-offset-2 hover:text-primary transition-colors"
+            >
+              J-RSBR (I.S.)
+            </button>
           </p>
         </div>
       </div>
+      <InstitutionalModal open={showInstitutional} onOpenChange={setShowInstitutional} />
     </footer>
   );
 }
