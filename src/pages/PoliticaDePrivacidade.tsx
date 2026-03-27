@@ -14,7 +14,7 @@ export default function PoliticaDePrivacidade() {
         <div>
           <h2 className="mb-1 text-sm font-semibold text-foreground md:text-base">1. Coleta de Dados</h2>
           <p>
-            Coletamos apenas os dados técnicos necessários para as simulações (valores, prazos e taxas inseridos) e dados cadastrais fornecidos voluntariamente pelo assinante da plataforma no momento do registro (nome, e-mail e telefone).
+            Coletamos apenas os dados técnicos necessários para as simulações (valores, prazos e taxas inseridos) e dados cadastrais fornecidos voluntariamente pelo Assinante da Plataforma no momento do registro (nome, e-mail e telefone).
           </p>
         </div>
 
@@ -24,7 +24,7 @@ export default function PoliticaDePrivacidade() {
             O tratamento de dados pessoais pelo VetorPro ocorre com fundamento no <strong>Art. 7º da LGPD</strong>, especificamente:
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
-            <li><strong>Inciso I — Consentimento:</strong> o assinante da plataforma consente com o tratamento ao aceitar os Termos de Uso e criar sua conta;</li>
+            <li><strong>Inciso I — Consentimento:</strong> o Assinante da Plataforma consente com o tratamento ao aceitar os Termos de Uso, implícitos no momento da criação e pagamento de sua conta;</li>
             <li><strong>Inciso V — Execução de Contrato:</strong> os dados são necessários para a prestação do serviço contratado (simulações, propostas e relatórios).</li>
           </ul>
         </div>
@@ -39,7 +39,7 @@ export default function PoliticaDePrivacidade() {
         <div>
           <h2 className="mb-1 text-sm font-semibold text-foreground md:text-base">4. Direitos do Titular (Art. 18 da LGPD)</h2>
           <p>
-            O assinante da plataforma, na qualidade de titular dos dados pessoais, tem direito a solicitar, a qualquer momento, mediante requisição ao controlador:
+            O Assinante da Plataforma, na qualidade de titular dos dados pessoais, tem direito a solicitar, a qualquer momento, mediante requisição ao controlador:
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>Confirmação da existência de tratamento de dados;</li>
