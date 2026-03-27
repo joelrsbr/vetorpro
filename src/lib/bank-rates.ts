@@ -19,6 +19,10 @@ export interface BankRateConfig {
   id: string;
   name: string;
   shortName: string;
+  /** Código COMPE (compensação bancária) */
+  compeCode: string;
+  /** URL do logo do banco (reservado para uso futuro) */
+  logoUrl?: string;
   color: string;
   /** Taxa média anual (% a.a.) */
   defaultRate: number;
