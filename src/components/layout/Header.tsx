@@ -176,7 +176,7 @@ export function Header() {
             </div>
           ) : (
             <Button variant="hero" size="sm" asChild>
-              <Link to="/login">
+              <Link to="/precos">
                 <User className="h-4 w-4" />
                 Assinar Agora
               </Link>
