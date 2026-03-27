@@ -6,9 +6,9 @@ export default function TermosDeUso() {
       title="Termos de Uso"
       intro=""
     >
-      <section className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
-        <p className="font-semibold text-foreground text-center">
-          Ao contratar e acessar os serviços do VetorPro, o assinante da plataforma declara estar ciente e em total concordância com os termos e condições abaixo estabelecidos.
+      <section className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4 text-left">
+        <p className="font-semibold text-foreground text-justify">
+          Ao contratar e acessar os serviços do VetorPro, o Assinante da Plataforma declara estar ciente e em total concordância com os termos e condições abaixo estabelecidos.
         </p>
       </section>
 
