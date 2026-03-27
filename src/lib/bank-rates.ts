@@ -6,6 +6,15 @@
  * Valores sujeitos a análise de crédito individual.
  */
 
+export interface BankHiddenCosts {
+  /** Taxa de avaliação de engenharia (R$) */
+  engineeringAppraisal: number;
+  /** Taxa de administração mensal (R$) */
+  monthlyAdmin: number;
+  /** Alíquota estimada de seguro MIP+DFI sobre valor do imóvel (% mensal) */
+  insuranceRate: number;
+}
+
 export interface BankRateConfig {
   id: string;
   name: string;
@@ -13,18 +22,20 @@ export interface BankRateConfig {
   color: string;
   /** Taxa média anual (% a.a.) */
   defaultRate: number;
+  /** Custos extras estimados */
+  hiddenCosts: BankHiddenCosts;
 }
 
 export const BANK_RATES: BankRateConfig[] = [
-  { id: "caixa", name: "Caixa Econômica", shortName: "CX", color: "hsl(210, 100%, 35%)", defaultRate: 8.99 },
-  { id: "itau", name: "Itaú", shortName: "IT", color: "hsl(30, 90%, 45%)", defaultRate: 9.99 },
-  { id: "bradesco", name: "Bradesco", shortName: "BR", color: "hsl(0, 80%, 45%)", defaultRate: 9.49 },
-  { id: "santander", name: "Santander", shortName: "SA", color: "hsl(0, 90%, 40%)", defaultRate: 9.79 },
-  { id: "bb", name: "Banco do Brasil", shortName: "BB", color: "hsl(50, 90%, 45%)", defaultRate: 9.19 },
-  { id: "inter", name: "Banco Inter", shortName: "IN", color: "hsl(25, 95%, 50%)", defaultRate: 9.29 },
-  { id: "sicredi", name: "Sicredi", shortName: "SI", color: "hsl(120, 60%, 35%)", defaultRate: 9.39 },
-  { id: "brb", name: "BRB", shortName: "BR", color: "hsl(210, 80%, 30%)", defaultRate: 9.59 },
-  { id: "banrisul", name: "Banrisul", shortName: "BRR", color: "hsl(200, 70%, 35%)", defaultRate: 9.69 },
+  { id: "caixa", name: "Caixa Econômica", shortName: "CX", color: "hsl(210, 100%, 35%)", defaultRate: 8.99, hiddenCosts: { engineeringAppraisal: 3000, monthlyAdmin: 25, insuranceRate: 0.025 } },
+  { id: "itau", name: "Itaú", shortName: "IT", color: "hsl(30, 90%, 45%)", defaultRate: 9.99, hiddenCosts: { engineeringAppraisal: 3100, monthlyAdmin: 25, insuranceRate: 0.028 } },
+  { id: "bradesco", name: "Bradesco", shortName: "BR", color: "hsl(0, 80%, 45%)", defaultRate: 9.49, hiddenCosts: { engineeringAppraisal: 3500, monthlyAdmin: 25, insuranceRate: 0.027 } },
+  { id: "santander", name: "Santander", shortName: "SA", color: "hsl(0, 90%, 40%)", defaultRate: 9.79, hiddenCosts: { engineeringAppraisal: 3200, monthlyAdmin: 25, insuranceRate: 0.026 } },
+  { id: "bb", name: "Banco do Brasil", shortName: "BB", color: "hsl(50, 90%, 45%)", defaultRate: 9.19, hiddenCosts: { engineeringAppraisal: 3000, monthlyAdmin: 25, insuranceRate: 0.025 } },
+  { id: "inter", name: "Banco Inter", shortName: "IN", color: "hsl(25, 95%, 50%)", defaultRate: 9.29, hiddenCosts: { engineeringAppraisal: 2800, monthlyAdmin: 0, insuranceRate: 0.024 } },
+  { id: "sicredi", name: "Sicredi", shortName: "SI", color: "hsl(120, 60%, 35%)", defaultRate: 9.39, hiddenCosts: { engineeringAppraisal: 2900, monthlyAdmin: 25, insuranceRate: 0.026 } },
+  { id: "brb", name: "BRB", shortName: "BR", color: "hsl(210, 80%, 30%)", defaultRate: 9.59, hiddenCosts: { engineeringAppraisal: 3000, monthlyAdmin: 25, insuranceRate: 0.025 } },
+  { id: "banrisul", name: "Banrisul", shortName: "BRR", color: "hsl(200, 70%, 35%)", defaultRate: 9.69, hiddenCosts: { engineeringAppraisal: 3100, monthlyAdmin: 25, insuranceRate: 0.026 } },
 ];
 
 export interface BankSimulationInput {
