@@ -15,6 +15,7 @@ import Precos from "./pages/Precos";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Business from "./pages/Business";
+import Personalizacao from "./pages/Personalizacao";
 import NotFound from "./pages/NotFound";
 import TermosDeUso from "./pages/TermosDeUso";
 import PoliticaDePrivacidade from "./pages/PoliticaDePrivacidade";
@@ -66,6 +67,7 @@ const App = () => (
                     <Route path="/calculadora" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/business" element={<Business />} />
+                    <Route path="/personalizacao" element={<Personalizacao />} />
                   </Route>
 
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

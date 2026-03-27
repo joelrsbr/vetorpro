@@ -421,7 +421,7 @@ export default function Dashboard() {
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
-                navigate("/business?tab=customization");
+                navigate("/personalizacao");
               } else {
                 setShowCustomizationPaywall(true);
               }

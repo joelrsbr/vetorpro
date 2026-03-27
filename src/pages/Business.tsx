@@ -3,7 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BusinessHeader } from "@/components/business/BusinessHeader";
-import { BusinessCustomization } from "@/components/business/BusinessCustomization";
+
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
 
 import { QuotesPanel } from "@/components/business/QuotesPanel";
@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calculator, Settings, Loader2, Building2, Brain } from "lucide-react";
+import { Calculator, Loader2, Building2, Brain } from "lucide-react";
 import { BankComparisonModule } from "@/components/business/BankComparisonModule";
 
 // BusinessPaywall removed — non-Business users are redirected to /precos
@@ -79,10 +79,6 @@ function BusinessContent() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
               </span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-<Settings className="h-4 w-4" />
-              Personalização
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="simulator" className="space-y-6">
@@ -93,9 +89,6 @@ function BusinessContent() {
             <BankComparisonModule />
           </TabsContent>
 
-          <TabsContent value="settings">
-            <BusinessCustomization />
-          </TabsContent>
         </Tabs>
       </main>
 
