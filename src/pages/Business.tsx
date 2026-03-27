@@ -21,6 +21,8 @@ function BusinessContent() {
   const { user, loading } = useAuth();
   const { plan, isActive, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "simulator";
 
   useEffect(() => {
     if (!loading && !user) {
