@@ -78,9 +78,21 @@ export function ArsenalPanel() {
 
   const indexes: IndexItem[] = [
     {
-      id: "poupanca", name: "Poupança",
-      value: data.rates.poupanca ? formatRate(data.rates.poupanca.value, data.rates.poupanca.period) : "—",
-      icon: <PiggyBank className="h-4 w-4" />, description: "Rendimento da caderneta",
+      id: "ipca", name: "IPCA",
+      value: data.rates.ipca ? formatRate(data.rates.ipca.value, data.rates.ipca.period) : "—",
+      icon: <BarChart3 className="h-4 w-4" />, description: "Índice de Preços ao Consumidor",
+      minPlan: "basic",
+    },
+    {
+      id: "igpm", name: "IGP-M",
+      value: data.rates.igpm ? formatRate(data.rates.igpm.value, data.rates.igpm.period) : "—",
+      icon: <BarChart3 className="h-4 w-4" />, description: "Índice Geral de Preços — Mercado",
+      minPlan: "basic",
+    },
+    {
+      id: "incc", name: "INCC",
+      value: data.rates.incc ? formatRate(data.rates.incc.value, data.rates.incc.period) : "—",
+      icon: <Landmark className="h-4 w-4" />, description: "Índice Nacional de Custo da Construção",
       minPlan: "basic",
     },
     {
@@ -90,45 +102,33 @@ export function ArsenalPanel() {
       minPlan: "basic",
     },
     {
-      id: "ipca", name: "IPCA",
-      value: data.rates.ipca ? formatRate(data.rates.ipca.value, data.rates.ipca.period) : "—",
-      icon: <BarChart3 className="h-4 w-4" />, description: "Índice de Preços ao Consumidor",
+      id: "poupanca", name: "Poupança",
+      value: data.rates.poupanca ? formatRate(data.rates.poupanca.value, data.rates.poupanca.period) : "—",
+      icon: <PiggyBank className="h-4 w-4" />, description: "Rendimento da caderneta",
       minPlan: "basic",
-    },
-    {
-      id: "selic", name: "SELIC",
-      value: data.rates.selic ? formatRate(data.rates.selic.value, data.rates.selic.period) : "—",
-      icon: <TrendingUp className="h-4 w-4" />, description: "Taxa básica de juros",
-      minPlan: "pro",
-    },
-    {
-      id: "igpm", name: "IGP-M",
-      value: data.rates.igpm ? formatRate(data.rates.igpm.value, data.rates.igpm.period) : "—",
-      icon: <BarChart3 className="h-4 w-4" />, description: "Índice Geral de Preços — Mercado",
-      minPlan: "pro",
-    },
-    {
-      id: "cdi", name: "CDI",
-      value: data.rates.cdi ? formatRate(data.rates.cdi.value, data.rates.cdi.period) : "—",
-      icon: <TrendingDown className="h-4 w-4" />, description: "Certificado de Depósito Interbancário",
-      minPlan: "pro",
-    },
-    {
-      id: "incc", name: "INCC",
-      value: data.rates.incc ? formatRate(data.rates.incc.value, data.rates.incc.period) : "—",
-      icon: <Landmark className="h-4 w-4" />, description: "Índice Nacional de Custo da Construção",
-      minPlan: "business",
     },
     {
       id: "usd", name: "Dólar",
       value: data.currencies.usd ? formatCurrency(data.currencies.usd.value) : "—",
       icon: <DollarSign className="h-4 w-4" />, description: "USD/BRL",
-      minPlan: "business",
+      minPlan: "pro",
     },
     {
       id: "eur", name: "Euro",
       value: data.currencies.eur ? formatCurrency(data.currencies.eur.value) : "—",
       icon: <Euro className="h-4 w-4" />, description: "EUR/BRL",
+      minPlan: "pro",
+    },
+    {
+      id: "selic", name: "SELIC",
+      value: data.rates.selic ? formatRate(data.rates.selic.value, data.rates.selic.period) : "—",
+      icon: <TrendingUp className="h-4 w-4" />, description: "Taxa básica de juros",
+      minPlan: "business",
+    },
+    {
+      id: "cdi", name: "CDI",
+      value: data.rates.cdi ? formatRate(data.rates.cdi.value, data.rates.cdi.period) : "—",
+      icon: <TrendingDown className="h-4 w-4" />, description: "Certificado de Depósito Interbancário",
       minPlan: "business",
     },
   ];
