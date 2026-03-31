@@ -229,7 +229,7 @@ export function ArsenalPanel() {
         <button
           onClick={() => setDrawerOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center justify-center h-14 w-14 rounded-full bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all active:scale-95"
-          aria-label="Arsenal Técnico"
+          aria-label="Galeria de Indexadores"
         >
           <TrendingUp className="h-6 w-6" />
         </button>
