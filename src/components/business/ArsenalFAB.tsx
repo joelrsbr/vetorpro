@@ -207,7 +207,7 @@ export function ArsenalFAB() {
   const headerTitle = (
     <div className="flex items-center gap-2 text-xl font-semibold">
       <Briefcase className="h-5 w-5 text-primary" />
-      Arsenal de Indexadores e Cotações
+      Galeria de Indexadores
     </div>
   );
 
@@ -218,7 +218,7 @@ export function ArsenalFAB() {
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center justify-center h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all active:scale-95"
-          aria-label="Arsenal de Cotações"
+          aria-label="Galeria de Indexadores"
         >
           <Briefcase className="h-6 w-6" />
         </button>
@@ -243,10 +243,10 @@ export function ArsenalFAB() {
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-8 right-8 z-50 flex items-center gap-2.5 rounded-full bg-primary text-primary-foreground px-5 py-3.5 shadow-lg hover:shadow-xl transition-all hover:scale-[1.03] active:scale-95"
-        aria-label="Arsenal de Cotações"
+        aria-label="Galeria de Indexadores"
       >
         <Briefcase className="h-5 w-5" />
-        <span className="text-sm font-semibold">Arsenal</span>
+        <span className="text-sm font-semibold">Indexadores</span>
         {isLive && (
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />

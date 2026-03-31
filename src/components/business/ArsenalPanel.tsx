@@ -229,7 +229,7 @@ export function ArsenalPanel() {
         <button
           onClick={() => setDrawerOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center justify-center h-14 w-14 rounded-full bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all active:scale-95"
-          aria-label="Arsenal Técnico"
+          aria-label="Galeria de Indexadores"
         >
           <TrendingUp className="h-6 w-6" />
         </button>
@@ -239,7 +239,7 @@ export function ArsenalPanel() {
               <DrawerTitle>
                 <div className="flex items-center gap-2 text-base font-semibold">
                   <TrendingUp className="h-5 w-5 text-emerald-500" />
-                  Arsenal Técnico
+                  Galeria de Indexadores
                   <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
                     {plan.charAt(0).toUpperCase() + plan.slice(1)}
                   </Badge>
@@ -266,7 +266,7 @@ export function ArsenalPanel() {
           <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors rounded-t-lg">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-emerald-500" />
-              <span className="text-sm font-semibold text-foreground">Arsenal Técnico</span>
+              <span className="text-sm font-semibold text-foreground">Galeria de Indexadores</span>
               {isLive && (
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
