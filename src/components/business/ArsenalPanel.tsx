@@ -174,7 +174,7 @@ export function ArsenalPanel() {
 
       {/* Index grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {accessibleIndexes.map((idx) => (
+      {accessibleIndexes.map((idx) => (
           <div
             key={idx.id}
             className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2 hover:bg-muted/50 transition-colors"
@@ -184,7 +184,11 @@ export function ArsenalPanel() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground leading-tight truncate">{idx.name}</p>
-              <p className="text-sm font-bold text-foreground leading-tight">{idx.value}</p>
+              {isLoading && idx.value === "—" ? (
+                <div className="h-4 w-16 rounded bg-muted animate-pulse mt-0.5" />
+              ) : (
+                <p className="text-sm font-bold text-foreground leading-tight">{idx.value}</p>
+              )}
             </div>
           </div>
         ))}

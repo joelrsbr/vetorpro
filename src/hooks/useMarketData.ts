@@ -27,6 +27,8 @@ const FALLBACK_DATA: MarketData = {
   rates: {
     selic: { value: 13.25, period: "a.a." },
     ipca: { value: 4.75, period: "a.a." },
+    igpm: { value: 4.20, period: "a.a." },
+    incc: { value: 3.85, period: "a.a." },
     tr: { value: 0.04, period: "a.m." },
     cdi: { value: 10.9, period: "a.a." },
     poupanca: { value: 0.63, period: "a.m." },
