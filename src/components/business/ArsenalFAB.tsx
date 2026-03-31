@@ -207,7 +207,7 @@ export function ArsenalFAB() {
   const headerTitle = (
     <div className="flex items-center gap-2 text-xl font-semibold">
       <Briefcase className="h-5 w-5 text-primary" />
-      Arsenal de Indexadores e Cotações
+      Galeria de Indexadores
     </div>
   );
 
