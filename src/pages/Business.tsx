@@ -6,7 +6,7 @@ import { BusinessHeader } from "@/components/business/BusinessHeader";
 
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
 
-import { QuotesStickyBar } from "@/components/business/QuotesStickyBar";
+
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
