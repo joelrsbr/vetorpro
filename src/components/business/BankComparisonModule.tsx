@@ -62,7 +62,7 @@ export function BankComparisonModule() {
 
   return (
     <div className="space-y-6">
-      {/* Arsenal Técnico */}
+      {/* Galeria de Indexadores */}
       <ArsenalPanel />
       {/* Read-only Summary Section */}
       <Card className="border-primary/20 cursor-pointer group" onClick={goToSimulator}>

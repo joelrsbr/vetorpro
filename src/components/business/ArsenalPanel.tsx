@@ -266,7 +266,7 @@ export function ArsenalPanel() {
           <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors rounded-t-lg">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-emerald-500" />
-              <span className="text-sm font-semibold text-foreground">Arsenal Técnico</span>
+              <span className="text-sm font-semibold text-foreground">Galeria de Indexadores</span>
               {isLive && (
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
