@@ -11,6 +11,7 @@ import { useBankComparison } from "@/hooks/useBankComparison";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useSimulation } from "@/contexts/SimulationContext";
 import { useSearchParams } from "react-router-dom";
+import { ArsenalPanel } from "./ArsenalPanel";
 
 export function BankComparisonModule() {
   const {
