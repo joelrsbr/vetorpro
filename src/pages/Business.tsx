@@ -6,7 +6,7 @@ import { BusinessHeader } from "@/components/business/BusinessHeader";
 
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
 
-import { QuotesStickyBar } from "@/components/business/QuotesStickyBar";
+
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -51,7 +51,7 @@ function BusinessContent() {
       <Header />
       <BusinessHeader />
       
-      <QuotesStickyBar />
+      
 
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
