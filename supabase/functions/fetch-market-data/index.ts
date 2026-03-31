@@ -34,6 +34,8 @@ function checkRateLimit(userId: string): boolean {
 const BCB_SERIES: Record<string, { id: number; name: string; period: string }> = {
   selic: { id: 432, name: "Selic", period: "a.a." },
   ipca: { id: 13522, name: "IPCA", period: "a.a." },
+  igpm: { id: 189, name: "IGP-M", period: "a.a." },
+  incc: { id: 192, name: "INCC", period: "a.a." },
   tr: { id: 226, name: "TR", period: "a.m." },
   cdi: { id: 4389, name: "CDI", period: "a.a." },
   poupanca: { id: 196, name: "Poupança", period: "a.m." },
