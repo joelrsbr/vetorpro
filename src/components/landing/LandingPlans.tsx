@@ -24,8 +24,8 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Até 10 Simulações (SAC/PRICE) por mês", included: true },
-  { text: "Até 10 Propostas com IA por mês", included: true },
+  { text: "Até 50 Simulações (SAC/PRICE) por mês", included: true },
+  { text: "Até 20 Propostas com IA por mês", included: true },
   { text: "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)", included: true },
   { text: "Simulador HP12C Integrado", included: true },
   { text: "Gestão de Reforços Estratégicos", included: true },
@@ -43,7 +43,7 @@ const plans = [
   buttonVariant: "default" as const,
   features: [
   { text: "Tudo do Basic", included: true },
-  { text: "Até 100 Simulações por mês", included: true },
+  { text: "Até 500 Simulações por mês", included: true },
   { text: "Até 100 Propostas com IA por mês", included: true },
   { text: "Cotações Dólar/Euro em tempo real", included: true },
   { text: "Tabela de Amortizações e Arquitetura de Reforços Estratégicos", included: true },
@@ -60,8 +60,8 @@ const plans = [
   highlight: true,
   features: [
   { text: "Inclui todos os recursos do Plano Professional", included: true },
-  { text: "Até 200 Simulações por mês", included: true },
-  { text: "Até 200 Propostas com IA por mês", included: true },
+  { text: "Até 2.000 Simulações por mês", included: true },
+  { text: "Até 300 Propostas com IA por mês", included: true },
   { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
   { text: "Datas Reais de Cronograma", included: true },
   { text: "Sondagem Estratégica Multi-Bancos", included: true },

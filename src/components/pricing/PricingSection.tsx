@@ -19,8 +19,8 @@ const plans = [
     period: "/mês",
     description: "Uso Essencial — Simulações e Propostas com IA.",
     features: [
-      "Até 10 Simulações (SAC/PRICE) por mês",
-      "Até 10 Propostas com IA por mês",
+      "Até 50 Simulações (SAC/PRICE) por mês",
+      "Até 20 Propostas com IA por mês",
       "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)",
       "Simulador HP12C Integrado",
       "Gestão de Reforços Estratégicos",
@@ -42,7 +42,7 @@ const plans = [
     description: "Uso Extensivo — Para corretores que operam em volume.",
     features: [
       "Tudo do Basic",
-      "Até 100 Simulações por mês",
+      "Até 500 Simulações por mês",
       "Até 100 Propostas com IA por mês",
       "Cotações Dólar/Euro em tempo real",
       "Tabela de Amortizações e Arquitetura de Reforços Estratégicos",
@@ -63,8 +63,8 @@ const plans = [
     description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
     features: [
       "Inclui todos os recursos do Plano Professional",
-      "Até 200 Simulações por mês",
-      "Até 200 Propostas com IA por mês",
+      "Até 2.000 Simulações por mês",
+      "Até 300 Propostas com IA por mês",
       "Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
       "Sondagem Estratégica Multi-Bancos",

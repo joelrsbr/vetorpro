@@ -40,26 +40,26 @@ const planDetailsMap: Record<string, PlanDetails> = {
   basic: {
     id: "basic",
     name: "Basic",
-    price: "R$ 29,90/mês",
+    price: "R$ 69,90/mês",
     color: "hsl(var(--muted-foreground))",
     badgeClass: "bg-muted-foreground text-background",
-    features: ["Simulador Financeiro", "Painel de Cotações", "Calculadora HP12C"],
+    features: ["Até 50 Simulações/mês", "Até 20 Propostas IA/mês", "Painel de Cotações", "Calculadora HP12C"],
   },
   pro: {
     id: "pro",
     name: "Pro",
-    price: "R$ 89,90/mês",
+    price: "R$ 139,90/mês",
     color: "hsl(var(--primary))",
     badgeClass: "bg-primary text-primary-foreground",
-    features: ["Simulações ilimitadas", "Exportação PDF", "Cotações Live", "Gestão de Reforços"],
+    features: ["Até 500 Simulações/mês", "Até 100 Propostas IA/mês", "Exportação PDF", "Cotações Live"],
   },
   business: {
     id: "business",
     name: "Business",
-    price: "R$ 229,90/mês",
+    price: "R$ 269,90/mês",
     color: "hsl(var(--success))",
     badgeClass: "bg-success text-success-foreground",
-    features: ["Tudo do Pro", "Dashboard corporativo", "Relatórios Premium", "Sondagem Estratégica"],
+    features: ["Até 2.000 Simulações/mês", "Até 300 Propostas IA/mês", "Relatórios Premium", "Sondagem Estratégica"],
   },
 };
 
