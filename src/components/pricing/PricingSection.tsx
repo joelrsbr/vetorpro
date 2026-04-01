@@ -19,8 +19,8 @@ const plans = [
     period: "/mês",
     description: "Uso Essencial — Simulações e Propostas com IA.",
     features: [
-      "Até 10 Simulações (SAC/PRICE) por mês",
-      "Até 10 Propostas com IA por mês",
+      "Até 50 Simulações (SAC/PRICE) por mês",
+      "Até 20 Propostas com IA por mês",
       "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)",
       "Simulador HP12C Integrado",
       "Gestão de Reforços Estratégicos",
