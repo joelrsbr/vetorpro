@@ -70,11 +70,18 @@ function getStatusInfo(status: string) {
   return STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[1];
 }
 
-function getPlanLimit(plan: string, isActive: boolean) {
-  if (!isActive) return 10;
-  if (plan === "business") return 200;
+function getPlanSimLimit(plan: string, isActive: boolean) {
+  if (!isActive) return 0;
+  if (plan === "business") return 2000;
+  if (plan === "pro") return 300;
+  return 50; // basic
+}
+
+function getPlanProposalLimit(plan: string, isActive: boolean) {
+  if (!isActive) return 0;
+  if (plan === "business") return 300;
   if (plan === "pro") return 100;
-  return 10;
+  return 20; // basic
 }
 
 export default function Dashboard() {
@@ -99,7 +106,8 @@ export default function Dashboard() {
   } | null>(null);
 
   const planBadge = isActive ? getPlanBadge(plan) : null;
-  const limit = dashCounts?.plan_limit ?? getPlanLimit(plan, isActive);
+  const simLimit = dashCounts?.plan_limit ?? getPlanSimLimit(plan, isActive);
+  const proposalLimit = getPlanProposalLimit(plan, isActive);
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
@@ -290,8 +298,8 @@ export default function Dashboard() {
           const propCount = dashCounts?.proposals_count ?? proposals.length;
           const realSimUsage = Math.max(simCount, propCount);
           const realProposalUsage = propCount;
-          const simDisplay = Math.min(realSimUsage, limit);
-          const proposalDisplay = Math.min(realProposalUsage, limit);
+          const simDisplay = Math.min(realSimUsage, simLimit);
+          const proposalDisplay = Math.min(realProposalUsage, proposalLimit);
 
           return (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
@@ -301,7 +309,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm text-muted-foreground">Simulações</p>
                       <p className="text-2xl font-semibold">
-                        {`${simDisplay} de ${limit}`}
+                        {`${simDisplay} de ${simLimit}`}
                       </p>
                     </div>
                     <Calculator className="h-8 w-8 text-primary opacity-80" />
@@ -315,7 +323,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm text-muted-foreground">Propostas IA</p>
                       <p className="text-2xl font-semibold">
-                        {`${proposalDisplay} de ${limit}`}
+                        {`${proposalDisplay} de ${proposalLimit}`}
                       </p>
                     </div>
                     <Sparkles className="h-8 w-8 text-primary opacity-80" />
