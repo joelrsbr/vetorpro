@@ -70,11 +70,18 @@ function getStatusInfo(status: string) {
   return STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[1];
 }
 
-function getPlanLimit(plan: string, isActive: boolean) {
-  if (!isActive) return 10;
-  if (plan === "business") return 200;
+function getPlanSimLimit(plan: string, isActive: boolean) {
+  if (!isActive) return 0;
+  if (plan === "business") return 2000;
+  if (plan === "pro") return 300;
+  return 50; // basic
+}
+
+function getPlanProposalLimit(plan: string, isActive: boolean) {
+  if (!isActive) return 0;
+  if (plan === "business") return 300;
   if (plan === "pro") return 100;
-  return 10;
+  return 20; // basic
 }
 
 export default function Dashboard() {
