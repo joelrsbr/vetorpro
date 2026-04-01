@@ -60,8 +60,8 @@ const plans = [
   highlight: true,
   features: [
   { text: "Inclui todos os recursos do Plano Professional", included: true },
-  { text: "Até 200 Simulações por mês", included: true },
-  { text: "Até 200 Propostas com IA por mês", included: true },
+  { text: "Até 2.000 Simulações por mês", included: true },
+  { text: "Até 300 Propostas com IA por mês", included: true },
   { text: "Relatórios PDF Personalizados com sua Marca e CRECI", included: true },
   { text: "Datas Reais de Cronograma", included: true },
   { text: "Sondagem Estratégica Multi-Bancos", included: true },

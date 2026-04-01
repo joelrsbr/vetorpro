@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     question: "As simulações do plano Basic são limitadas?",
-    answer: "No plano Basic, você pode fazer até 10 simulações por mês e gerar 2 propostas com IA. Os contadores resetam todo mês.",
+    answer: "No plano Basic, você pode fazer até 50 simulações por mês e gerar 20 consultas com IA. Os contadores resetam todo mês.",
   },
   {
     question: "O que são amortizações avançadas?",

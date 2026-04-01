@@ -63,8 +63,8 @@ const plans = [
     description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
     features: [
       "Inclui todos os recursos do Plano Professional",
-      "Até 200 Simulações por mês",
-      "Até 200 Propostas com IA por mês",
+      "Até 2.000 Simulações por mês",
+      "Até 300 Propostas com IA por mês",
       "Relatórios PDF Personalizados com sua Marca e CRECI",
       "Datas Reais de Cronograma",
       "Sondagem Estratégica Multi-Bancos",
