@@ -106,7 +106,8 @@ export default function Dashboard() {
   } | null>(null);
 
   const planBadge = isActive ? getPlanBadge(plan) : null;
-  const limit = dashCounts?.plan_limit ?? getPlanLimit(plan, isActive);
+  const simLimit = dashCounts?.plan_limit ?? getPlanSimLimit(plan, isActive);
+  const proposalLimit = getPlanProposalLimit(plan, isActive);
 
   // Sync subscription after Stripe checkout success
   useEffect(() => {
