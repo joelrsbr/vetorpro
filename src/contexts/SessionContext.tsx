@@ -51,7 +51,7 @@ const planDetailsMap: Record<string, PlanDetails> = {
     price: "R$ 139,90/mês",
     color: "hsl(var(--primary))",
     badgeClass: "bg-primary text-primary-foreground",
-    features: ["Até 500 Simulações/mês", "Até 100 Propostas IA/mês", "Exportação PDF", "Cotações Live"],
+    features: ["Até 300 Simulações/mês", "Até 100 Propostas IA/mês", "Exportação PDF", "Cotações Live"],
   },
   business: {
     id: "business",
