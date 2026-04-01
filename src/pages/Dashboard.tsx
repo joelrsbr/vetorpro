@@ -298,8 +298,8 @@ export default function Dashboard() {
           const propCount = dashCounts?.proposals_count ?? proposals.length;
           const realSimUsage = Math.max(simCount, propCount);
           const realProposalUsage = propCount;
-          const simDisplay = Math.min(realSimUsage, limit);
-          const proposalDisplay = Math.min(realProposalUsage, limit);
+          const simDisplay = Math.min(realSimUsage, simLimit);
+          const proposalDisplay = Math.min(realProposalUsage, proposalLimit);
 
           return (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
@@ -309,7 +309,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm text-muted-foreground">Simulações</p>
                       <p className="text-2xl font-semibold">
-                        {`${simDisplay} de ${limit}`}
+                        {`${simDisplay} de ${simLimit}`}
                       </p>
                     </div>
                     <Calculator className="h-8 w-8 text-primary opacity-80" />
@@ -323,7 +323,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm text-muted-foreground">Propostas IA</p>
                       <p className="text-2xl font-semibold">
-                        {`${proposalDisplay} de ${limit}`}
+                        {`${proposalDisplay} de ${proposalLimit}`}
                       </p>
                     </div>
                     <Sparkles className="h-8 w-8 text-primary opacity-80" />
