@@ -43,7 +43,7 @@ const plans = [
   buttonVariant: "default" as const,
   features: [
   { text: "Tudo do Basic", included: true },
-  { text: "Até 500 Simulações por mês", included: true },
+  { text: "Até 300 Simulações por mês", included: true },
   { text: "Até 100 Propostas com IA por mês", included: true },
   { text: "Cotações Dólar/Euro em tempo real", included: true },
   { text: "Tabela de Amortizações e Arquitetura de Reforços Estratégicos", included: true },

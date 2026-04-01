@@ -42,7 +42,7 @@ const plans = [
     description: "Uso Extensivo — Para corretores que operam em volume.",
     features: [
       "Tudo do Basic",
-      "Até 500 Simulações por mês",
+      "Até 300 Simulações por mês",
       "Até 100 Propostas com IA por mês",
       "Cotações Dólar/Euro em tempo real",
       "Tabela de Amortizações e Arquitetura de Reforços Estratégicos",
