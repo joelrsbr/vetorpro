@@ -24,8 +24,8 @@ const plans = [
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
-  { text: "Até 10 Simulações (SAC/PRICE) por mês", included: true },
-  { text: "Até 10 Propostas com IA por mês", included: true },
+  { text: "Até 50 Simulações (SAC/PRICE) por mês", included: true },
+  { text: "Até 20 Propostas com IA por mês", included: true },
   { text: "Indexadores Oficiais (IPCA, IGP-M, INCC, TR, Poupança)", included: true },
   { text: "Simulador HP12C Integrado", included: true },
   { text: "Gestão de Reforços Estratégicos", included: true },
