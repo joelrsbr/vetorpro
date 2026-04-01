@@ -56,10 +56,10 @@ const planDetailsMap: Record<string, PlanDetails> = {
   business: {
     id: "business",
     name: "Business",
-    price: "R$ 229,90/mês",
+    price: "R$ 269,90/mês",
     color: "hsl(var(--success))",
     badgeClass: "bg-success text-success-foreground",
-    features: ["Tudo do Pro", "Dashboard corporativo", "Relatórios Premium", "Sondagem Estratégica"],
+    features: ["Até 2.000 Simulações/mês", "Até 300 Propostas IA/mês", "Relatórios Premium", "Sondagem Estratégica"],
   },
 };
 
