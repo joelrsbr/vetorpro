@@ -20,6 +20,7 @@ interface ProposalRequest {
   monthsSaved?: number;
   interestSaved?: number;
   businessMode?: boolean;
+  salesArguments?: string;
   idempotencyKey?: string;
 }
 
