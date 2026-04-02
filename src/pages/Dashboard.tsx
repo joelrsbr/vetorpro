@@ -719,7 +719,24 @@ export default function Dashboard() {
                         {/* Actions */}
                         <div className="flex items-center shrink-0">
                           <div className="flex items-center gap-0.5">
-                          {!hasProposal && (
+                          {hasProposal ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-primary hover:text-primary/80"
+                                  onClick={() => {
+                                    const existingProposal = proposals.find(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
+                                    if (existingProposal) setViewProposal(existingProposal);
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Ver proposta existente</TooltipContent>
+                            </Tooltip>
+                          ) : (
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button

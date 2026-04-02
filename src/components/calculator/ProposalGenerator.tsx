@@ -51,8 +51,7 @@ export function ProposalGenerator({
   const { toast } = useToast();
   const [proposalText, setProposalText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isGeneratingBusiness, setIsGeneratingBusiness] = useState(false);
-  const [isRedirectingBusiness, setIsRedirectingBusiness] = useState(false);
+  const [salesArguments, setSalesArguments] = useState("");
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
     logoUrl: null,
     companyName: "",
@@ -61,23 +60,6 @@ export function ProposalGenerator({
   });
 
   const isBusiness = isActive && plan === "business";
-
-  const handleUpgradeBusiness = async () => {
-    if (!user) return;
-    setIsRedirectingBusiness(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: STRIPE_PLANS.business.priceId },
-      });
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
-    } catch (err) {
-      console.error("Checkout error:", err);
-      toast({ title: "Erro", description: "Não foi possível iniciar o checkout.", variant: "destructive" });
-    } finally {
-      setIsRedirectingBusiness(false);
-    }
-  };
 
   const handleGenerateProposal = async () => {
     if (!clientName.trim() || !propertyDescription.trim()) {
@@ -108,12 +90,13 @@ export function ProposalGenerator({
           totalInterest: calculations.totalInterest,
           monthsSaved: calculations.monthsSaved || undefined,
           interestSaved: calculations.interestSaved || undefined,
+          businessMode: isBusiness,
+          salesArguments: isBusiness && salesArguments.trim() ? salesArguments.trim() : undefined,
           idempotencyKey,
         },
       });
 
       if (error) {
-        // Parse edge function error responses
         const errorBody = typeof error === 'object' && 'message' in error ? error.message : '';
         if (errorBody.includes('429') || data?.code === 'RATE_LIMITED') {
           toast({ title: "Limite de requisições", description: "Muitas requisições em pouco tempo. Aguarde um momento.", variant: "destructive" });
@@ -134,8 +117,8 @@ export function ProposalGenerator({
 
       setProposalText(data.proposalText);
       toast({
-        title: "Proposta gerada!",
-        description: "Sua proposta foi criada com sucesso.",
+        title: isBusiness ? "Proposta executiva gerada!" : "Proposta gerada!",
+        description: isBusiness ? "Proposta estratégica criada com tom de exclusividade." : "Sua proposta foi criada com sucesso.",
       });
     } catch (error: any) {
       console.error("Error generating proposal:", error);
@@ -151,80 +134,6 @@ export function ProposalGenerator({
       }
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handleGenerateBusinessProposal = async () => {
-    if (!clientName.trim() || !propertyDescription.trim()) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Preencha o nome do cliente e a descrição do imóvel.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsGeneratingBusiness(true);
-
-    const idempotencyKey = `biz-proposal-${clientName}-${propertyValue}-${Date.now()}`;
-
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-proposal", {
-        body: {
-          clientName,
-          propertyDescription,
-          propertyValue,
-          downPayment,
-          interestRate,
-          termMonths,
-          amortizationType,
-          monthlyPayment: calculations.firstPayment,
-          totalPaid: calculations.totalPaid,
-          totalInterest: calculations.totalInterest,
-          monthsSaved: calculations.monthsSaved || undefined,
-          interestSaved: calculations.interestSaved || undefined,
-          businessMode: true,
-          idempotencyKey,
-        },
-      });
-
-      if (error) {
-        const errorBody = typeof error === 'object' && 'message' in error ? error.message : '';
-        if (errorBody.includes('429') || data?.code === 'RATE_LIMITED') {
-          toast({ title: "Limite de requisições", description: "Muitas requisições em pouco tempo. Aguarde um momento.", variant: "destructive" });
-          return;
-        }
-        throw error;
-      }
-
-      if (data.error) {
-        const errorMessages: Record<string, { title: string; description: string }> = {
-          "Limite de propostas atingido": { title: "Saldo de créditos insuficiente", description: data.message || "Faça upgrade para continuar gerando propostas." },
-        };
-        const mapped = errorMessages[data.error] || { title: "Erro na geração", description: data.message || data.error };
-        toast({ ...mapped, variant: "destructive" });
-        return;
-      }
-
-      setProposalText(data.proposalText);
-      toast({
-        title: "Proposta executiva gerada! 🏢",
-        description: "Proposta estratégica criada com tom de exclusividade.",
-      });
-    } catch (error: any) {
-      console.error("Error generating business proposal:", error);
-      const msg = error?.message || "";
-      if (msg.includes("400")) {
-        toast({ title: "Dados inválidos", description: "Verifique os campos preenchidos e tente novamente.", variant: "destructive" });
-      } else if (msg.includes("429")) {
-        toast({ title: "Muitas requisições", description: "Aguarde um momento antes de tentar novamente.", variant: "destructive" });
-      } else if (msg.includes("402")) {
-        toast({ title: "Créditos de IA esgotados", description: "Entre em contato com o suporte.", variant: "destructive" });
-      } else {
-        toast({ title: "Erro ao gerar proposta", description: "Tente novamente em alguns instantes.", variant: "destructive" });
-      }
-    } finally {
-      setIsGeneratingBusiness(false);
     }
   };
 
@@ -247,7 +156,6 @@ export function ProposalGenerator({
     const isPro = isActive && plan === "pro";
     const consultantName = user ? (profile?.full_name || "") : "";
 
-    // --- HEADER ---
     if (reportConfig.isBusiness && reportConfig.logoUrl) {
       try {
         const img = new Image();
@@ -276,19 +184,16 @@ export function ProposalGenerator({
         yPos += 5;
       }
 
-      // Separator line
       doc.setDrawColor(200);
       doc.line(margin, yPos, pageWidth - margin, yPos);
       yPos += 10;
     }
 
-    // Title
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text("Relatorio Estrategico de Cenarios", pageWidth / 2, yPos, { align: "center" });
     yPos += 10;
 
-    // Consultant field
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(80);
@@ -301,12 +206,10 @@ export function ProposalGenerator({
     doc.setTextColor(0);
     yPos += 10;
 
-    // Separator
     doc.setDrawColor(220);
     doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 8;
 
-    // Client info
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.text(`Cliente: ${clientName}`, margin, yPos);
@@ -314,7 +217,6 @@ export function ProposalGenerator({
     doc.text(`Imovel: ${propertyDescription}`, margin, yPos);
     yPos += 10;
 
-    // Proposal text
     doc.setFontSize(10);
     const lines = doc.splitTextToSize(proposalText, maxWidth);
     for (const line of lines) {
@@ -326,7 +228,6 @@ export function ProposalGenerator({
       yPos += 5;
     }
 
-    // --- FOOTER on all pages ---
     const totalPages = doc.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
@@ -384,22 +285,27 @@ export function ProposalGenerator({
 
   return (
     <div className="space-y-6">
-      {/* Report Configuration */}
       <ReportConfiguration onConfigChange={setReportConfig} />
 
-      {/* Proposal Generator */}
       <Card className="shadow-card border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              Gerar Proposta com IA
+              {isBusiness ? (
+                <Crown className="h-5 w-5 text-success" />
+              ) : (
+                <Sparkles className="h-5 w-5 text-primary" />
+              )}
+              {isBusiness ? "Proposta Executiva com IA" : "Gerar Proposta com IA"}
+              {isBusiness && (
+                <Badge variant="outline" className="border-success text-success text-xs ml-1">
+                  Business
+                </Badge>
+              )}
             </div>
             {usageLimits && (
               <span className="text-sm font-normal text-muted-foreground">
-                {(plan === "pro" || plan === "business") && isActive
-                  ? "Liberado"
-                  : `${usageLimits.proposalsRemaining} restantes`}
+                {usageLimits.proposalsRemaining} restantes
               </span>
             )}
           </CardTitle>
@@ -413,94 +319,54 @@ export function ProposalGenerator({
                 <Link to="/precos" className="font-medium underline">
                   Faça upgrade do seu plano
                 </Link>{" "}
-                para propostas ilimitadas.
+                para continuar gerando.
+              </p>
+            </div>
+          )}
+
+          {/* Business-only: Sales Arguments textarea */}
+          {isBusiness && (
+            <div className="space-y-2">
+              <Label htmlFor="sales-arguments" className="text-sm font-medium">
+                Argumentos de Venda (Opcional)
+              </Label>
+              <Textarea
+                id="sales-arguments"
+                value={salesArguments}
+                onChange={(e) => setSalesArguments(e.target.value)}
+                placeholder="Ex: Próximo ao shopping, sol da manhã, excelente para investimento..."
+                className="min-h-[80px] text-sm"
+                maxLength={500}
+              />
+              <p className="text-xs text-muted-foreground">
+                A IA incorporará seus argumentos na proposta executiva para criar um texto consultivo e exclusivo.
               </p>
             </div>
           )}
 
           <Button
-            variant="hero"
+            variant={isBusiness ? "default" : "hero"}
             size="lg"
-            className="w-full"
+            className={`w-full ${isBusiness ? "bg-success hover:bg-success/90 text-success-foreground" : ""}`}
             onClick={handleGenerateProposal}
             disabled={isGenerating || !canGenerateProposal}
           >
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Gerando proposta...
+                {isBusiness ? "Gerando proposta executiva..." : "Gerando proposta..."}
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Gerar Proposta com IA
+                {isBusiness ? (
+                  <Crown className="mr-2 h-4 w-4" />
+                ) : (
+                  <Sparkles className="mr-2 h-4 w-4" />
+                )}
+                {isBusiness ? "Gerar Proposta Executiva" : "Gerar Proposta com IA"}
               </>
             )}
           </Button>
-
-          {/* Business AI Executive Proposal */}
-          <div className="relative rounded-xl border-2 border-dashed border-success/40 p-5 bg-success/5">
-            <div className="flex items-center gap-2 mb-3">
-              <Crown className="h-5 w-5 text-success" />
-              <span className="font-semibold text-foreground">Proposta Executiva com IA</span>
-              <Badge variant="outline" className="border-success text-success text-xs">
-                Business
-              </Badge>
-            </div>
-            {isBusiness ? (
-              <>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Gere uma proposta estratégica com tom de exclusividade, focada no impacto financeiro e economia com amortizações.
-                </p>
-                <Button
-                  size="lg"
-                  className="w-full bg-success hover:bg-success/90 text-success-foreground"
-                  onClick={handleGenerateBusinessProposal}
-                  disabled={isGeneratingBusiness || !canGenerateProposal}
-                >
-                  {isGeneratingBusiness ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Gerando proposta executiva...
-                    </>
-                  ) : (
-                    <>
-                      <Crown className="mr-2 h-4 w-4" />
-                      Gerar Proposta Executiva
-                    </>
-                  )}
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Gere propostas persuasivas com IA — Disponível no Business
-                </p>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="lg"
-                        className="w-full bg-success hover:bg-success/90 text-success-foreground"
-                        disabled={isRedirectingBusiness}
-                        onClick={handleUpgradeBusiness}
-                      >
-                        {isRedirectingBusiness ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <Crown className="mr-2 h-4 w-4" />
-                        )}
-                        Fazer Upgrade para Business
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-[220px] text-center">
-                      <p className="text-xs">Upgrade Inteligente: o valor já pago no plano atual será descontado proporcionalmente da primeira mensalidade Business.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </>
-            )}
-          </div>
 
           {proposalText && (
             <div className="space-y-4 animate-slide-up">
