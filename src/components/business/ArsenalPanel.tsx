@@ -66,7 +66,7 @@ export function ArsenalPanel() {
   const { data, isLoading, isLive, lastFetch, refresh } = useMarketData();
   const { plan } = useSubscription();
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
+  const [isOpen, setIsOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 

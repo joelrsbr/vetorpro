@@ -348,7 +348,7 @@ export function FinancingCalculator() {
     const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
     const correctionRate = getCorrectionRate(correctionIndex);
 
-    if (principal <= 0 || monthlyRate <= 0 || months <= 0) {
+    if (principal <= 0 || monthlyRate < 0 || months <= 0) {
       return null;
     }
 
