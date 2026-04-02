@@ -232,6 +232,10 @@ Ter entre 300-450 palavras.`;
     const entradaPercentual = ((proposalData.downPayment / proposalData.propertyValue) * 100).toFixed(1);
     const prazoAnos = (proposalData.termMonths / 12).toFixed(1);
 
+    const salesArgsBlock = proposalData.salesArguments?.trim()
+      ? `\nArgumentos de Venda do Corretor (incorpore naturalmente no texto):\n${proposalData.salesArguments.trim()}\n`
+      : "";
+
     const userPrompt = isBusinessMode
       ? `Com base nestes dados, gere uma proposta executiva curta. Foque no impacto financeiro: quanto o cliente economiza em juros ao fazer as amortizações sugeridas. Use um tom de exclusividade e urgência para o fechamento do negócio.
 
@@ -249,7 +253,7 @@ Dados do Investimento:
 - Juros Totais: ${formatCurrency(proposalData.totalInterest)}
 ${proposalData.monthsSaved ? `- Redução de Prazo com Amortização Extra: ${proposalData.monthsSaved} meses` : ""}
 ${proposalData.interestSaved ? `- Economia em Juros com Amortização Extra: ${formatCurrency(proposalData.interestSaved)}` : ""}
-
+${salesArgsBlock}
 Retorne apenas o texto executivo pronto para PDF corporativo.`
       : `Gere uma proposta profissional de financiamento imobiliário com base nos dados abaixo, usando linguagem comercial natural, sem formatação Markdown, sem usar asteriscos ou negrito.
 
