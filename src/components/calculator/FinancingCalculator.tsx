@@ -348,7 +348,7 @@ export function FinancingCalculator() {
     const extraAmort = enableExtraAmortization ? parseCurrency(extraAmortizationValue) : 0;
     const correctionRate = getCorrectionRate(correctionIndex);
 
-    if (principal <= 0 || monthlyRate <= 0 || months <= 0) {
+    if (principal <= 0 || monthlyRate < 0 || months <= 0) {
       return null;
     }
 
@@ -423,8 +423,10 @@ export function FinancingCalculator() {
       }
     } else {
       // PRICE system
-      const fixedPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (
-      Math.pow(1 + monthlyRate, months) - 1);
+      const fixedPayment = monthlyRate === 0
+        ? principal / months
+        : principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (
+        Math.pow(1 + monthlyRate, months) - 1);
 
       for (let month = 1; month <= months && balance > 0; month++) {
         const currentDate = addMonths(startDate, month - 1);

@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BusinessHeader } from "@/components/business/BusinessHeader";
 
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
-
+import { ArsenalPanel } from "@/components/business/ArsenalPanel";
 
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,6 +81,7 @@ function BusinessContent() {
           </TabsList>
 
           <TabsContent value="simulator" className="space-y-6">
+            <ArsenalPanel />
             <FinancingCalculator />
           </TabsContent>
 

@@ -676,7 +676,11 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {simulations.map((sim) => (
+                    {simulations.map((sim) => {
+                      const hasProposal = proposals.some(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
+                      const propCount = dashCounts?.proposals_count ?? proposals.length;
+                      const canGenerateAI = propCount < proposalLimit && isActive;
+                      return (
                       <div key={sim.id} className="flex items-center gap-4 px-4 py-3 rounded-lg bg-muted/30 border border-border/50">
                         {/* Type badge */}
                         <div className="shrink-0 w-[80px]">
@@ -689,6 +693,12 @@ export default function Dashboard() {
                             <span className="font-semibold text-sm">{sim.client_name || "Sem nome"}</span>
                             <span className="text-muted-foreground">•</span>
                             <span className="text-sm text-muted-foreground">{sim.property_description || formatCurrency(sim.property_value)}</span>
+                            {hasProposal && (
+                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 gap-1">
+                                <Sparkles className="h-2.5 w-2.5" />
+                                IA
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-3 mt-0.5">
                             <span className="text-xs text-muted-foreground">{formatCurrency(sim.property_value)}</span>
@@ -709,6 +719,27 @@ export default function Dashboard() {
                         {/* Actions */}
                         <div className="flex items-center shrink-0">
                           <div className="flex items-center gap-0.5">
+                          {!hasProposal && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className={`h-8 w-8 ${canGenerateAI ? "text-primary hover:text-primary/80" : "text-muted-foreground opacity-50"}`}
+                                  onClick={() => {
+                                    if (!canGenerateAI) {
+                                      setShowPaywall(true);
+                                      return;
+                                    }
+                                    handleEditSimulation(sim);
+                                  }}
+                                >
+                                  <Brain className="h-4 w-4" strokeWidth={1.5} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{canGenerateAI ? "Gerar Proposta IA" : `Limite de ${proposalLimit} propostas IA atingido`}</TooltipContent>
+                            </Tooltip>
+                          )}
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
@@ -738,7 +769,8 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>
