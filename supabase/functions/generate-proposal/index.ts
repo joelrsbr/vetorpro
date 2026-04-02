@@ -123,6 +123,13 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Validate optional salesArguments
+    if (proposalData.salesArguments && (typeof proposalData.salesArguments !== "string" || proposalData.salesArguments.length > 500)) {
+      return new Response(JSON.stringify({ error: "Argumentos de venda inválidos (máximo 500 caracteres)." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Numeric validation
     const numericFields = [
       { key: "propertyValue", min: 1, max: 100_000_000 },
