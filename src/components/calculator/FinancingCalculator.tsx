@@ -423,8 +423,10 @@ export function FinancingCalculator() {
       }
     } else {
       // PRICE system
-      const fixedPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (
-      Math.pow(1 + monthlyRate, months) - 1);
+      const fixedPayment = monthlyRate === 0
+        ? principal / months
+        : principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (
+        Math.pow(1 + monthlyRate, months) - 1);
 
       for (let month = 1; month <= months && balance > 0; month++) {
         const currentDate = addMonths(startDate, month - 1);
