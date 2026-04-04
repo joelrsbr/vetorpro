@@ -87,6 +87,8 @@ export function FinancingCalculator() {
   const [simulationUnlocked, setSimulationUnlocked] = useState(false);
   const [clientName, setClientName] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
+  const [buyerAge, setBuyerAge] = useState("");
+  const [regionalM2Value, setRegionalM2Value] = useState("");
   const location = useLocation();
 
   // CRM edit tracking: store original values to detect changes
