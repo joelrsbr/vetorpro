@@ -724,7 +724,54 @@ export function FinancingCalculator() {
                   
                 </div>
               </div>
-              
+
+              {/* Idade do Comprador e Valor m² Regional */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="buyerAge">Idade do Comprador</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">A idade influencia o custo do seguro obrigatório (MIP) e o prazo máximo do financiamento.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="buyerAge"
+                    type="number"
+                    min="18"
+                    max="99"
+                    value={buyerAge}
+                    onChange={(e) => setBuyerAge(e.target.value)}
+                    placeholder="Ex: 35"
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="regionalM2">Valor Médio m² Regional (R$)</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Insira o valor médio da região para comparar se este imóvel é uma Oportunidade ou um Desafio de venda.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="regionalM2"
+                    value={formatCurrency(regionalM2Value)}
+                    onChange={(e) => handleCurrencyInput(e.target.value, setRegionalM2Value)}
+                    placeholder="8.500,00"
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
               {/* Amortization Type and Correction Index Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
                 <div className="space-y-2">

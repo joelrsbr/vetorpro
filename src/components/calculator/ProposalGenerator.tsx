@@ -333,14 +333,21 @@ export function ProposalGenerator({
               <Textarea
                 id="sales-arguments"
                 value={salesArguments}
-                onChange={(e) => setSalesArguments(e.target.value)}
-                placeholder="Ex: Próximo ao shopping, sol da manhã, excelente para investimento..."
+                onChange={(e) => {
+                  if (e.target.value.length <= 500) setSalesArguments(e.target.value);
+                }}
+                placeholder="Ex: Casa a 100m da praia, acabamento classe A, sol da manhã e alta valorização."
                 className="min-h-[80px] text-sm"
                 maxLength={500}
               />
-              <p className="text-xs text-muted-foreground">
-                A IA incorporará seus argumentos na proposta executiva para criar um texto consultivo e exclusivo.
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  A IA incorporará seus argumentos na proposta executiva para criar um texto consultivo e exclusivo.
+                </p>
+                <span className={`text-xs ${salesArguments.length >= 480 ? "text-destructive" : "text-muted-foreground"}`}>
+                  {salesArguments.length}/500
+                </span>
+              </div>
             </div>
           )}
 
