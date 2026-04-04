@@ -226,18 +226,20 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button
-                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="bg-success hover:bg-success/90 text-success-foreground font-medium"
                         disabled={isRedirectingBusiness}
                         onClick={handleUpgradeBusiness}
                       >
                         {isRedirectingBusiness ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <Zap className="h-3 w-3" />
+                          <Zap className="h-4 w-4" />
                         )}
                         Liberar Business
-                      </button>
+                      </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-[220px] text-center">
                       <p className="text-xs">Upgrade Inteligente: o valor já pago no plano atual será descontado proporcionalmente da primeira mensalidade Business.</p>
