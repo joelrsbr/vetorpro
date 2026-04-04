@@ -198,15 +198,16 @@ REGRAS OBRIGATÓRIAS:
 - Use linguagem em primeira pessoa do corretor: "Minha análise estratégica identificou...", "Esta recomendação pauta-se em..."
 - Substitua "dados precisos" por "dados acurados"
 - Use tom de exclusividade e urgência para fechamento do negócio
+- Se o corretor fornecer Argumentos de Venda, incorpore-os NATURALMENTE nos parágrafos como diferenciais do imóvel, sem criar uma seção separada para eles
 
 ESTRUTURA:
-1. Abertura executiva mencionando "Análise Estratégica" com dados-chave do investimento, em tom pessoal do corretor
+1. Abertura executiva mencionando "Análise Estratégica" com dados-chave do investimento, em tom pessoal do corretor. Se houver Argumentos de Venda, destaque os diferenciais do imóvel logo nesta abertura
 2. Destaque em parágrafo curto: Entrada, Parcela Inicial e Sistema escolhido
 3. "Antecipação de Cenários de Amortização": análise estratégica de economia com amortizações e projeção de ganho patrimonial
 4. "Segurança Patrimonial": use a frase "A Segurança Patrimonial é o pilar central desta recomendação, por isso buscamos apresentar aqui a rota de menor custo financeiro para o seu perfil"
-5. Fechamento focado no corretor com convite à ação (agendar contato, validar documentação). NÃO inclua assinatura de plataforma
+5. Fechamento focado no corretor com convite à ação (agendar contato, validar documentação). NÃO inclua assinatura de plataforma. NÃO mencione qualquer plataforma ou sistema
 
-Ter entre 300-500 palavras. Formato elegante para PDF corporativo.`;
+Ter entre 300-500 palavras. Formato elegante para PDF corporativo. O documento deve ser 100% White Label — nenhuma marca de software.`;
 
     const standardSystemPrompt = `Você é um ghostwriter de propostas de financiamento imobiliário para corretores profissionais. Escreva como se o próprio corretor estivesse assinando o documento. O protagonista é sempre o corretor, nunca uma plataforma ou sistema.
 

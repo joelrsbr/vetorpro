@@ -189,6 +189,18 @@ export function ProposalGenerator({
       yPos += 10;
     }
 
+    // Date/time of prospection
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(120);
+    doc.text(`Data e Hora da Prospeccao: ${dateStr} as ${timeStr}`, pageWidth - margin, yPos, { align: "right" });
+    doc.setTextColor(0);
+    yPos += 8;
+
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text("Relatorio Estrategico de Cenarios", pageWidth / 2, yPos, { align: "center" });
@@ -217,10 +229,33 @@ export function ProposalGenerator({
     doc.text(`Imovel: ${propertyDescription}`, margin, yPos);
     yPos += 10;
 
+    // Sales arguments block (Business only)
+    if (isBusiness && salesArguments.trim()) {
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("Diferenciais do Imovel:", margin, yPos);
+      yPos += 6;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      const argLines = doc.splitTextToSize(salesArguments.trim(), maxWidth);
+      for (const line of argLines) {
+        if (yPos > pageHeight - 30) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(line, margin, yPos);
+        yPos += 5;
+      }
+      yPos += 5;
+      doc.setDrawColor(220);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 8;
+    }
+
     doc.setFontSize(10);
     const lines = doc.splitTextToSize(proposalText, maxWidth);
     for (const line of lines) {
-      if (yPos > pageHeight - 25) {
+      if (yPos > pageHeight - 30) {
         doc.addPage();
         yPos = 20;
       }
@@ -229,24 +264,34 @@ export function ProposalGenerator({
     }
 
     const totalPages = doc.getNumberOfPages();
+    const validityText = "Esta prospeccao tem validade de 24 horas, devido a volatilidade dos indexadores financeiros e taxas bancarias.";
+
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
-      const footerY = pageHeight - 10;
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(160);
+      doc.text(validityText, pageWidth / 2, pageHeight - 14, { align: "center" });
+
+      const footerY = pageHeight - 8;
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
 
       if (reportConfig.isBusiness) {
+        // White Label: only broker/company data, NO VetorPro
         const parts = [reportConfig.companyName, reportConfig.creci].filter(Boolean);
         const businessLine = parts.length > 0
-          ? `${parts.join(" • ")} | Gerado por VetorPro — Inteligencia Estrategica`
-          : "Gerado por VetorPro — Inteligencia Estrategica";
-        doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
+          ? parts.join(" • ")
+          : "";
+        if (businessLine) {
+          doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
+        }
       } else if (isPro && (reportConfig.companyName || reportConfig.creci)) {
         const proFooter = [reportConfig.companyName, reportConfig.creci].filter(Boolean).join(" • ");
-        doc.text(`${proFooter} | Gerado por VetorPro — Inteligencia Estrategica`, pageWidth / 2, footerY, { align: "center" });
+        doc.text(`${proFooter} | Gerado por VetorPro`, pageWidth / 2, footerY, { align: "center" });
       } else {
-        doc.text("Gerado por VetorPro — Inteligencia Estrategica", pageWidth / 2, footerY, { align: "center" });
+        doc.text("Gerado por VetorPro", pageWidth / 2, footerY, { align: "center" });
       }
       doc.setTextColor(0);
     }
