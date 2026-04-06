@@ -27,8 +27,6 @@ export function Header() {
   const { toast } = useToast();
   
   const isLoginPage = location.pathname === "/login";
-  const logoLabel = getPlanLabel(plan, isActive);
-  const planBadge = isActive ? getPlanBadge(plan) : null;
 
   const handleManageSubscription = () => {
     window.open(STRIPE_PORTAL_URL, "_blank");
