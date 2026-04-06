@@ -13,8 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
-  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail
+  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
 import { Link } from "react-router-dom";
@@ -301,10 +302,28 @@ export default function Dashboard() {
           const simDisplay = Math.min(realSimUsage, simLimit);
           const proposalDisplay = Math.min(realProposalUsage, proposalLimit);
 
+          const simPercent = simLimit > 0 ? (simDisplay / simLimit) * 100 : 0;
+          const propPercent = proposalLimit > 0 ? (proposalDisplay / proposalLimit) * 100 : 0;
+
+          const getProgressColor = (percent: number) => {
+            if (percent >= 90) return "bg-amber-500";
+            if (percent >= 75) return "bg-yellow-500";
+            return "bg-primary";
+          };
+
+          // Conversion rate: simulations that became proposals
+          const conversionRate = simCount > 0 ? Math.round((propCount / simCount) * 100) : 0;
+
+          // Recent activity: simulations in last 7 days
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          const recentSims = simulations.filter(s => new Date(s.created_at) >= sevenDaysAgo).length;
+
           return (
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+              {/* Simulações - Limite */}
               <Card className="shadow-card">
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Simulações</p>
@@ -314,11 +333,18 @@ export default function Dashboard() {
                     </div>
                     <Calculator className="h-8 w-8 text-primary opacity-80" />
                   </div>
+                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all ${getProgressColor(simPercent)}`} 
+                      style={{ width: `${simPercent}%` }} 
+                    />
+                  </div>
                 </CardContent>
               </Card>
               
+              {/* Propostas IA - Limite */}
               <Card className="shadow-card">
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Propostas IA</p>
@@ -326,35 +352,46 @@ export default function Dashboard() {
                         {`${proposalDisplay} de ${proposalLimit}`}
                       </p>
                     </div>
-                    <Sparkles className="h-8 w-8 text-primary opacity-80" />
+                    <FileText className="h-8 w-8 text-primary opacity-80" />
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all ${getProgressColor(propPercent)}`} 
+                      style={{ width: `${propPercent}%` }} 
+                    />
                   </div>
                 </CardContent>
               </Card>
               
+              {/* Conversão */}
               <Card className="shadow-card">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Propostas</p>
-                      <p className="text-2xl font-semibold">{proposals.length}</p>
+                      <p className="text-sm text-muted-foreground">Conversão</p>
+                      <p className="text-2xl font-semibold">{conversionRate}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Simulações → Propostas</p>
                     </div>
-                    <FileText className="h-8 w-8 text-primary opacity-80" />
+                    <TrendingUp className="h-8 w-8 text-success opacity-80" />
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Atividade Recente */}
               <Card className="shadow-card">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Simulações</p>
-                      <p className="text-2xl font-semibold">{simCount}</p>
+                      <p className="text-sm text-muted-foreground">Últimos 7 dias</p>
+                      <p className="text-2xl font-semibold">{recentSims}</p>
+                      <p className="text-xs text-muted-foreground mt-1">simulações realizadas</p>
                     </div>
-                    <Calculator className="h-8 w-8 text-primary opacity-80" />
+                    <Activity className="h-8 w-8 text-primary opacity-80" />
                   </div>
                 </CardContent>
               </Card>
               
+              {/* Plano */}
               <Card className="shadow-card">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
