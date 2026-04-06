@@ -264,24 +264,14 @@ export default function Dashboard() {
             </h1>
             <p className="text-base text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
-          <div className="flex items-center gap-3">
-            {planBadge ? (
-              <Badge className={planBadge.className}>
-                <Crown className="h-3 w-3 mr-1" />
-                {planBadge.label}
-              </Badge>
-            ) : (
-              <>
-                <Badge variant="secondary">Plano não ativo</Badge>
-                <Button variant="hero" size="sm" asChild>
-                  <Link to="/precos">
-                    <Crown className="h-4 w-4 mr-1" />
-                    Ativar Assinatura
-                  </Link>
-                </Button>
-              </>
-            )}
-          </div>
+          {!isActive && (
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/precos">
+                <Crown className="h-4 w-4 mr-1" />
+                Ativar Assinatura
+              </Link>
+            </Button>
+          )}
         </div>
 
         {/* LGPD Notice */}
