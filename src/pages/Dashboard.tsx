@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription, getPlanBadge } from "@/hooks/useSubscription";
+import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
@@ -106,7 +106,7 @@ export default function Dashboard() {
     current_plan: string;
   } | null>(null);
 
-  const planBadge = isActive ? getPlanBadge(plan) : null;
+  
   const simLimit = dashCounts?.plan_limit ?? getPlanSimLimit(plan, isActive);
   const proposalLimit = getPlanProposalLimit(plan, isActive);
 
@@ -264,24 +264,14 @@ export default function Dashboard() {
             </h1>
             <p className="text-base text-muted-foreground">Bem-vindo ao seu painel de controle</p>
           </div>
-          <div className="flex items-center gap-3">
-            {planBadge ? (
-              <Badge className={planBadge.className}>
-                <Crown className="h-3 w-3 mr-1" />
-                {planBadge.label}
-              </Badge>
-            ) : (
-              <>
-                <Badge variant="secondary">Plano não ativo</Badge>
-                <Button variant="hero" size="sm" asChild>
-                  <Link to="/precos">
-                    <Crown className="h-4 w-4 mr-1" />
-                    Ativar Assinatura
-                  </Link>
-                </Button>
-              </>
-            )}
-          </div>
+          {!isActive && (
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/precos">
+                <Crown className="h-4 w-4 mr-1" />
+                Ativar Assinatura
+              </Link>
+            </Button>
+          )}
         </div>
 
         {/* LGPD Notice */}
@@ -397,11 +387,24 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Seu Plano</p>
-                      <p className="text-2xl font-semibold capitalize">
+                      <p className={`text-2xl font-semibold capitalize ${
+                        plan === "business" ? "text-emerald-600 dark:text-emerald-400" 
+                        : plan === "pro" ? "text-amber-600 dark:text-amber-400" 
+                        : ""
+                      }`}>
                         {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
                       </p>
+                      {isActive && (
+                        <Link to="/precos" className="text-xs text-muted-foreground hover:text-primary transition-colors mt-1 inline-block">
+                          Gerenciar Plano
+                        </Link>
+                      )}
                     </div>
-                    <Crown className="h-8 w-8 text-primary opacity-80" />
+                    <Crown className={`h-8 w-8 opacity-80 ${
+                      plan === "business" ? "text-emerald-600 dark:text-emerald-400" 
+                      : plan === "pro" ? "text-amber-600 dark:text-amber-400" 
+                      : "text-primary"
+                    }`} />
                   </div>
                 </CardContent>
               </Card>
