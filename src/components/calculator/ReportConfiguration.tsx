@@ -285,7 +285,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
 
         {canEditProfile ? (
           <div className="space-y-2">
-            <Button variant="default" size="sm" onClick={handleSaveCompanyInfo} className="w-full">
+            <Button variant="default" size="default" onClick={handleSaveCompanyInfo} className="w-full">
               Salvar Informações
             </Button>
             {isPro && (
