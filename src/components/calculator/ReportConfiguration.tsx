@@ -206,7 +206,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                     onChange={handleLogoUpload}
                     disabled={uploading}
                   />
-                  <Button variant="outline" size="sm" asChild disabled={uploading}>
+                  <Button variant="outline" size="default" asChild disabled={uploading}>
                     <span>
                       {uploading ? (
                         <Loader2 className="h-4 w-4 mr-1 animate-spin" />
@@ -219,7 +219,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                 </label>
               ) : (
               <div className="space-y-2">
-                <Button variant="outline" size="sm" disabled className="opacity-50">
+                <Button variant="outline" size="default" disabled className="opacity-50">
                   <Lock className="h-4 w-4 mr-1" />
                   Enviar Logo
                 </Button>
@@ -228,7 +228,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                     <TooltipTrigger asChild>
                       <Button
                         variant="default"
-                        size="sm"
+                        size="default"
                         className="bg-success hover:bg-success/90 text-success-foreground font-medium"
                         disabled={isRedirectingBusiness}
                         onClick={handleUpgradeBusiness}
@@ -285,7 +285,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
 
         {canEditProfile ? (
           <div className="space-y-2">
-            <Button variant="default" size="sm" onClick={handleSaveCompanyInfo} className="w-full">
+            <Button variant="default" size="default" onClick={handleSaveCompanyInfo} className="w-full">
               Salvar Informações
             </Button>
             {isPro && (
