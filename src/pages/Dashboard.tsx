@@ -13,8 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
-  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail
+  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
 import { Link } from "react-router-dom";
