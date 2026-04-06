@@ -228,7 +228,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                     <TooltipTrigger asChild>
                       <Button
                         variant="default"
-                        size="sm"
+                        size="default"
                         className="bg-success hover:bg-success/90 text-success-foreground font-medium"
                         disabled={isRedirectingBusiness}
                         onClick={handleUpgradeBusiness}
