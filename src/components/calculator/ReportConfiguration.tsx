@@ -219,7 +219,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                 </label>
               ) : (
               <div className="space-y-2">
-                <Button variant="outline" size="sm" disabled className="opacity-50">
+                <Button variant="outline" size="default" disabled className="opacity-50">
                   <Lock className="h-4 w-4 mr-1" />
                   Enviar Logo
                 </Button>
