@@ -522,15 +522,15 @@ export default function Dashboard() {
             <CardDescription>Suas simulações e propostas recentes</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="proposals">
+            <Tabs defaultValue="simulations">
               <TabsList className="mb-4">
-                <TabsTrigger value="proposals">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Propostas
-                </TabsTrigger>
                 <TabsTrigger value="simulations">
                   <Calculator className="h-4 w-4 mr-2" />
                   Simulações
+                </TabsTrigger>
+                <TabsTrigger value="proposals">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Propostas
                 </TabsTrigger>
               </TabsList>
               
