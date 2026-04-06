@@ -387,11 +387,24 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Seu Plano</p>
-                      <p className="text-2xl font-semibold capitalize">
+                      <p className={`text-2xl font-semibold capitalize ${
+                        plan === "business" ? "text-emerald-600 dark:text-emerald-400" 
+                        : plan === "pro" ? "text-amber-600 dark:text-amber-400" 
+                        : ""
+                      }`}>
                         {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Não ativo"}
                       </p>
+                      {isActive && (
+                        <Link to="/precos" className="text-xs text-muted-foreground hover:text-primary transition-colors mt-1 inline-block">
+                          Gerenciar Plano
+                        </Link>
+                      )}
                     </div>
-                    <Crown className="h-8 w-8 text-primary opacity-80" />
+                    <Crown className={`h-8 w-8 opacity-80 ${
+                      plan === "business" ? "text-emerald-600 dark:text-emerald-400" 
+                      : plan === "pro" ? "text-amber-600 dark:text-amber-400" 
+                      : "text-primary"
+                    }`} />
                   </div>
                 </CardContent>
               </Card>

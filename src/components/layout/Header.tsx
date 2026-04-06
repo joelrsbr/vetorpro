@@ -110,28 +110,6 @@ export function Header() {
             <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
           ) : user ? (
             <div className="flex items-center gap-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge className={`cursor-default text-[11px] font-medium px-2.5 py-0.5 border ${
-                      plan === "business" 
-                        ? "bg-emerald-600/15 text-emerald-700 border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30" 
-                        : plan === "pro" 
-                          ? "bg-amber-500/15 text-amber-700 border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30" 
-                          : "bg-muted text-muted-foreground border-border/60"
-                    }`}>
-                       Plano {plan === "basic" ? "Basic" : plan === "pro" ? "Pro" : plan === "business" ? "Business" : "—"}
-                     </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[260px] text-center">
-                    <p className="text-xs">
-                      {plan === "business" 
-                        ? "Você está no Plano Business. Todos os recursos estão liberados!" 
-                        : `Você está no Plano ${plan === "basic" ? "Basic" : plan === "pro" ? "Pro" : "—"}. Faça o upgrade para o Business para liberar todos os bancos e taxas em tempo real.`}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
               {!isActive && (
                 <Button variant="hero" size="sm" asChild>
                   <Link to="/precos">
