@@ -206,7 +206,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
                     onChange={handleLogoUpload}
                     disabled={uploading}
                   />
-                  <Button variant="outline" size="sm" asChild disabled={uploading}>
+                  <Button variant="outline" size="default" asChild disabled={uploading}>
                     <span>
                       {uploading ? (
                         <Loader2 className="h-4 w-4 mr-1 animate-spin" />
