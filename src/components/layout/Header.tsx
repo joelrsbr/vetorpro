@@ -54,7 +54,7 @@ export function Header() {
             <span className="text-primary">Vetor</span>
             <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
           </span>
-          {planSuffix && <span className="text-primary text-sm font-semibold">{planSuffix}</span>}
+          
         </Link>
 
         {/* Desktop Navigation */}
