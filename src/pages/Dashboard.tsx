@@ -106,7 +106,7 @@ export default function Dashboard() {
     current_plan: string;
   } | null>(null);
 
-  const planBadge = isActive ? getPlanBadge(plan) : null;
+  
   const simLimit = dashCounts?.plan_limit ?? getPlanSimLimit(plan, isActive);
   const proposalLimit = getPlanProposalLimit(plan, isActive);
 
