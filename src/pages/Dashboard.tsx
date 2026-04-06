@@ -333,12 +333,7 @@ export default function Dashboard() {
                     </div>
                     <Calculator className="h-8 w-8 text-primary opacity-80" />
                   </div>
-                  <Progress 
-                    value={simPercent} 
-                    className="h-2 bg-muted" 
-                    style={{ ["--progress-color" as string]: undefined }}
-                  />
-                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden -mt-5">
+                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                     <div 
                       className={`h-full rounded-full transition-all ${getProgressColor(simPercent)}`} 
                       style={{ width: `${simPercent}%` }} 
