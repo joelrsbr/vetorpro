@@ -205,12 +205,6 @@ export function Header() {
               {user ? (
                 <>
                   <p className="text-sm text-muted-foreground px-1">{profile?.email}</p>
-                  {planBadge && (
-                    <Badge className={`${planBadge.className} w-fit`}>
-                      <Crown className="h-3 w-3 mr-1" />
-                      {planBadge.label}
-                    </Badge>
-                  )}
                   {!isActive && (
                     <Button variant="hero" size="sm" asChild>
                       <Link to="/precos" onClick={() => setMobileMenuOpen(false)}>
