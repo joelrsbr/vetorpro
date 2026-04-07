@@ -343,7 +343,7 @@ export default function Dashboard() {
                         {`${proposalDisplay} de ${proposalLimit}`}
                       </p>
                     </div>
-                    <FileText className="h-8 w-8 text-primary opacity-80" />
+                    <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                   <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                     <div 
