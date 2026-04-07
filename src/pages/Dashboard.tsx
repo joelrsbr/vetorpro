@@ -482,15 +482,15 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-6 flex items-start gap-4">
-              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), hsl(260 60% 30%))" }}>
-                <Settings className="h-6 w-6 text-white" />
+              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #16a34a, #166534)" }}>
+                <BrainCog className="h-6 w-6 text-white" />
                 {plan !== "business" && (
                   <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
                 )}
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base">Personalização</h3>
+                  <h3 className="font-semibold text-base">Personalize sua IA</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -508,7 +508,7 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Identidade visual e taxas</p>
+                  <p className="text-sm text-muted-foreground">Tom de voz e identidade visual</p>
                 )}
               </div>
             </CardContent>

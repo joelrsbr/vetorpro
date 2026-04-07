@@ -1157,7 +1157,7 @@ export function FinancingCalculator() {
                       }}
                       disabled={savingSimulation || (!isUnlimited && !canSimulate) || !clientName.trim() || !propertyDescription.trim()}
                       variant="hero"
-                      className="gap-2"
+                      className="gap-2 h-12"
                     >
                       <Lock className="h-4 w-4" />
                       {savingSimulation ? "Desbloqueando..." : "Liberar Tabela Completa e Gerar Relatório"}
