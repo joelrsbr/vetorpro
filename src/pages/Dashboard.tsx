@@ -443,11 +443,11 @@ export default function Dashboard() {
           >
             <CardContent className="pt-6 flex items-start gap-4">
               <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
-                <Brain className="h-6 w-6 text-white" />
+                <Landmark className="h-6 w-6 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base">Sondagem Estratégica</h3>
+                  <h3 className="font-semibold text-base uppercase tracking-wide">Bancos</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -465,7 +465,7 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
+                  <p className="text-sm text-muted-foreground">Sondagem Estratégica</p>
                 )}
               </div>
             </CardContent>
