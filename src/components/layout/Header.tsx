@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { User, LogOut, CreditCard, TrendingUp } from "lucide-react";
+import { User, LogOut, CreditCard, TrendingUp, LayoutDashboard } from "lucide-react";
 import vetorproIcon from "@/assets/vetorpro-icon.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -60,6 +60,11 @@ export function Header() {
                     <DropdownMenuSeparator />
                   </>
                 )}
+                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Voltar ao Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
                   className="text-destructive focus:text-destructive"
