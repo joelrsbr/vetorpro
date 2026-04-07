@@ -363,7 +363,7 @@ export default function Dashboard() {
                       <p className="text-2xl font-semibold">{conversionRate}%</p>
                       <p className="text-xs text-muted-foreground mt-1">Simulações → Propostas</p>
                     </div>
-                    <TrendingUp className="h-8 w-8 text-success opacity-80" />
+                    <TrendingUp className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                 </CardContent>
               </Card>
