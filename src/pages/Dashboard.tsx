@@ -322,7 +322,7 @@ export default function Dashboard() {
                         {`${simDisplay} de ${simLimit}`}
                       </p>
                     </div>
-                    <Calculator className="h-8 w-8 text-primary opacity-80" />
+                    <Calculator className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                   <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                     <div 
