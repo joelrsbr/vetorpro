@@ -1144,10 +1144,10 @@ export function FinancingCalculator() {
             {user ? (
               <div className="flex flex-col gap-3">
                 {simulationUnlocked ? (
-                  <Button disabled className="gap-2 bg-success text-success-foreground font-medium cursor-default opacity-100">
+                   <Button disabled className="gap-2 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 font-medium cursor-default opacity-100">
                     <Save className="h-4 w-4" />
                     Simulação Salva no Histórico ✔️
-                  </Button>
+                   </Button>
                 ) : (
                   <div className="flex items-center gap-3">
                     <Button
