@@ -383,7 +383,11 @@ export default function Dashboard() {
               </Card>
               
               {/* Plano */}
-              <Card className="shadow-card">
+              <Card className={`shadow-card ${
+                plan === "business" 
+                  ? "ring-1 ring-emerald-500/40 shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)]" 
+                  : ""
+              }`} style={plan === "business" ? { borderImage: "linear-gradient(135deg, #4ade80, #16a34a) 1" } : undefined}>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
