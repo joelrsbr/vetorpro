@@ -396,7 +396,7 @@ export default function Dashboard() {
                       </p>
                       {isActive && (
                         <Link to="/precos" className="text-xs text-muted-foreground hover:text-primary transition-colors mt-1 inline-block">
-                          Gerenciar Plano
+                          Compare Benefícios
                         </Link>
                       )}
                     </div>
