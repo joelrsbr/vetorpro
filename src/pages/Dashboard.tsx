@@ -13,7 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
-  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity
+  CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity,
+  Landmark, BrainCog
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -321,7 +322,7 @@ export default function Dashboard() {
                         {`${simDisplay} de ${simLimit}`}
                       </p>
                     </div>
-                    <Calculator className="h-8 w-8 text-primary opacity-80" />
+                    <Calculator className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                   <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                     <div 
@@ -342,7 +343,7 @@ export default function Dashboard() {
                         {`${proposalDisplay} de ${proposalLimit}`}
                       </p>
                     </div>
-                    <FileText className="h-8 w-8 text-primary opacity-80" />
+                    <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                   <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                     <div 
@@ -362,7 +363,7 @@ export default function Dashboard() {
                       <p className="text-2xl font-semibold">{conversionRate}%</p>
                       <p className="text-xs text-muted-foreground mt-1">Simulações → Propostas</p>
                     </div>
-                    <TrendingUp className="h-8 w-8 text-success opacity-80" />
+                    <TrendingUp className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                 </CardContent>
               </Card>
@@ -376,13 +377,17 @@ export default function Dashboard() {
                       <p className="text-2xl font-semibold">{recentSims}</p>
                       <p className="text-xs text-muted-foreground mt-1">simulações realizadas</p>
                     </div>
-                    <Activity className="h-8 w-8 text-primary opacity-80" />
+                    <Activity className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                 </CardContent>
               </Card>
               
               {/* Plano */}
-              <Card className="shadow-card">
+              <Card className={`shadow-card ${
+                plan === "business" 
+                  ? "ring-1 ring-emerald-500/50 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]" 
+                  : ""
+              }`}>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -438,11 +443,11 @@ export default function Dashboard() {
           >
             <CardContent className="pt-6 flex items-start gap-4">
               <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
-                <Brain className="h-6 w-6 text-white" />
+                <Landmark className="h-6 w-6 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base">Sondagem Estratégica</h3>
+                  <h3 className="font-semibold text-base uppercase tracking-wide">Bancos</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -460,7 +465,7 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Inteligência multi-bancos</p>
+                  <p className="text-sm text-muted-foreground">Sondagem Estratégica</p>
                 )}
               </div>
             </CardContent>
@@ -477,15 +482,15 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-6 flex items-start gap-4">
-              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), hsl(260 60% 30%))" }}>
-                <Settings className="h-6 w-6 text-white" />
+              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #16a34a, #166534)" }}>
+                <BrainCog className="h-6 w-6 text-white" />
                 {plan !== "business" && (
                   <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
                 )}
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base">Personalização</h3>
+                  <h3 className="font-semibold text-base">Personalize sua IA</h3>
                   {plan !== "business" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -503,7 +508,7 @@ export default function Dashboard() {
                     Exclusivo-Business
                   </Button>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Identidade visual e taxas</p>
+                  <p className="text-sm text-muted-foreground">Tom de voz e identidade visual</p>
                 )}
               </div>
             </CardContent>
