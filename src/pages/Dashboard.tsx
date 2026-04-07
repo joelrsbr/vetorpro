@@ -377,7 +377,7 @@ export default function Dashboard() {
                       <p className="text-2xl font-semibold">{recentSims}</p>
                       <p className="text-xs text-muted-foreground mt-1">simulações realizadas</p>
                     </div>
-                    <Activity className="h-8 w-8 text-primary opacity-80" />
+                    <Activity className="h-8 w-8 text-emerald-600 dark:text-emerald-400 opacity-80" />
                   </div>
                 </CardContent>
               </Card>
