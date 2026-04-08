@@ -471,11 +471,12 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          {/* Personalize sua IA — opens voice tone dialog */}
           <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
-                navigate("/personalizacao");
+                setShowVoiceToneDialog(true);
               } else {
                 setShowCustomizationPaywall(true);
               }
@@ -509,6 +510,40 @@ export default function Dashboard() {
                   </Button>
                 ) : (
                   <p className="text-sm text-muted-foreground">Tom de voz e identidade visual</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Personalização — identity visual (navigates to /personalizacao) */}
+          <Card 
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              if (plan === "business") {
+                navigate("/personalizacao");
+              } else {
+                setShowCustomizationPaywall(true);
+              }
+            }}
+          >
+            <CardContent className="pt-6 flex items-start gap-4">
+              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #16a34a, #166534)" }}>
+                <Settings className="h-6 w-6 text-white" />
+                {plan !== "business" && (
+                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-semibold text-base">Personalização</h3>
+                </div>
+                {plan !== "business" ? (
+                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowCustomizationPaywall(true); }}>
+                    <Crown className="h-3.5 w-3.5 mr-1.5" />
+                    Exclusivo-Business
+                  </Button>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Identidade visual e marca</p>
                 )}
               </div>
             </CardContent>
