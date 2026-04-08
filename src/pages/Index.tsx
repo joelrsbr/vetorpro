@@ -64,6 +64,7 @@ const Index = () => {
         <PricingSection />
       </main>
 
+      <MarketTicker />
       <Footer />
     </div>
   );
