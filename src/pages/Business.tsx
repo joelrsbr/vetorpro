@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { BusinessHeader } from "@/components/business/BusinessHeader";
+import { MarketTicker } from "@/components/layout/MarketTicker";
 
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
 import { ArsenalPanel } from "@/components/business/ArsenalPanel";
