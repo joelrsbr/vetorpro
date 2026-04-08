@@ -135,7 +135,7 @@ const Login = () => {
           description: "Enviamos um link de confirmação para " + registerEmail + ". Confirme seu e-mail antes de fazer login.",
         });
       } else if (!checkoutPlan) {
-        navigate("/dashboard");
+        await redirectByPlan();
       }
     }
     
