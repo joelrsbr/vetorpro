@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlanType } from "@/contexts/SessionContext";
+import { supabase } from "@/integrations/supabase/client";
 
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
@@ -9,6 +11,28 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export default function LoginAndPlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("pro");
+  const navigate = useNavigate();
+
+  // Redirect authenticated users with active subscription to their dashboard
+  useEffect(() => {
+    const checkAndRedirect = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase.rpc("get_user_subscription", {
+        p_user_id: user.id,
+      });
+
+      if (data?.[0]?.is_active) {
+        if (data[0].plan === "business") {
+          navigate("/business", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
+      }
+    };
+    checkAndRedirect();
+  }, [navigate]);
 
   const handlePlanSelect = (planId: PlanType) => {
     setSelectedPlan(planId);
