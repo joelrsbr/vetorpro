@@ -45,9 +45,8 @@ export function Header() {
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <TrendingUp className="h-4 w-4 text-emerald-500" />
-                  <span className="font-semibold">{profile?.full_name?.split(" ")[0] || "Minha Conta"}</span>
+                <Button variant="outline" size="icon" className="h-9 w-9">
+                  <Settings className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
