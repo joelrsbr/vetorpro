@@ -97,6 +97,7 @@ export default function Dashboard() {
   const [loadingData, setLoadingData] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showCustomizationPaywall, setShowCustomizationPaywall] = useState(false);
+  const [showVoiceToneDialog, setShowVoiceToneDialog] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
   // Real-time counts from RPC (Single Source of Truth)

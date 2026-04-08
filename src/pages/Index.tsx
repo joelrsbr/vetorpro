@@ -24,8 +24,6 @@ const Index = () => {
       <main className="flex-1">
         {isLoggedIn ? (
           <>
-            {showQuotes && <QuotesStickyBar />}
-            <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-background">
               <div className="container">
                 <div className="text-center space-y-4 mb-12">
                   <h2 className="text-3xl md:text-4xl font-bold">
