@@ -549,17 +549,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                <Crown className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-base">Ver Planos</h3>
-                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
