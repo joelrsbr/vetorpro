@@ -17,7 +17,8 @@ const STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_14AbJ15XI4OD5
 export function Header() {
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
-  const { isActive, loading: subLoading } = useSubscription();
+  const { plan, isActive, loading: subLoading } = useSubscription();
+  const dashboardPath = plan === "business" && isActive ? "/business" : "/dashboard";
 
   const handleManageSubscription = () => {
     window.open(STRIPE_PORTAL_URL, "_blank");
