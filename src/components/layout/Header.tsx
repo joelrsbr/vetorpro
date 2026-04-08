@@ -60,7 +60,7 @@ export function Header() {
                     <DropdownMenuSeparator />
                   </>
                 )}
-                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                <DropdownMenuItem onClick={() => navigate(dashboardPath)}>
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Voltar ao Dashboard
                 </DropdownMenuItem>
