@@ -1,11 +1,11 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { MarketTicker } from "@/components/layout/MarketTicker";
 import { BusinessTeamHeader } from "@/components/layout/BusinessTeamHeader";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
-import { QuotesStickyBar } from "@/components/business/QuotesStickyBar";
 import { useSession } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
