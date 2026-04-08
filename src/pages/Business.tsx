@@ -80,7 +80,6 @@ function BusinessContent() {
           </TabsList>
 
           <TabsContent value="simulator" className="space-y-6">
-            <ArsenalPanel />
             <FinancingCalculator />
           </TabsContent>
 
