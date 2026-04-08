@@ -91,7 +91,7 @@ function BusinessContent() {
 
         </Tabs>
       </main>
-
+      <MarketTicker />
       <Footer />
     </div>);
 
