@@ -2,10 +2,9 @@ import { useEffect, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { BusinessHeader } from "@/components/business/BusinessHeader";
+import { MarketTicker } from "@/components/layout/MarketTicker";
 
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
-import { ArsenalPanel } from "@/components/business/ArsenalPanel";
 
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,7 +48,7 @@ function BusinessContent() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <BusinessHeader />
+      
       
       
 
@@ -81,7 +80,6 @@ function BusinessContent() {
           </TabsList>
 
           <TabsContent value="simulator" className="space-y-6">
-            <ArsenalPanel />
             <FinancingCalculator />
           </TabsContent>
 
@@ -91,7 +89,7 @@ function BusinessContent() {
 
         </Tabs>
       </main>
-
+      <MarketTicker />
       <Footer />
     </div>);
 

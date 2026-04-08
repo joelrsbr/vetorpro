@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { User, LogOut, CreditCard, TrendingUp, LayoutDashboard } from "lucide-react";
+import { User, LogOut, CreditCard, Settings, LayoutDashboard } from "lucide-react";
 import vetorproIcon from "@/assets/vetorpro-icon.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,9 +45,8 @@ export function Header() {
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <TrendingUp className="h-4 w-4 text-emerald-500" />
-                  <span className="font-semibold">{profile?.full_name?.split(" ")[0] || "Minha Conta"}</span>
+                <Button variant="outline" size="icon" className="h-9 w-9">
+                  <Settings className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">

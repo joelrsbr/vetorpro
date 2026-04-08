@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ArsenalFAB } from "@/components/business/ArsenalFAB";
+import { MarketTicker } from "@/components/layout/MarketTicker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +97,7 @@ export default function Dashboard() {
   const [loadingData, setLoadingData] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showCustomizationPaywall, setShowCustomizationPaywall] = useState(false);
+  const [showVoiceToneDialog, setShowVoiceToneDialog] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
   // Real-time counts from RPC (Single Source of Truth)
@@ -418,7 +419,7 @@ export default function Dashboard() {
         })()}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
@@ -471,11 +472,12 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          {/* Personalize sua IA — opens voice tone dialog */}
           <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
-                navigate("/personalizacao");
+                setShowVoiceToneDialog(true);
               } else {
                 setShowCustomizationPaywall(true);
               }
@@ -514,17 +516,40 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                <Crown className="h-6 w-6 text-white" />
+          {/* Personalização — identity visual (navigates to /personalizacao) */}
+          <Card 
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              if (plan === "business") {
+                navigate("/personalizacao");
+              } else {
+                setShowCustomizationPaywall(true);
+              }
+            }}
+          >
+            <CardContent className="pt-6 flex items-start gap-4">
+              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #16a34a, #166534)" }}>
+                <Settings className="h-6 w-6 text-white" />
+                {plan !== "business" && (
+                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
+                )}
               </div>
               <div>
-                <h3 className="font-semibold text-base">Ver Planos</h3>
-                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-semibold text-base">Personalização</h3>
+                </div>
+                {plan !== "business" ? (
+                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowCustomizationPaywall(true); }}>
+                    <Crown className="h-3.5 w-3.5 mr-1.5" />
+                    Exclusivo-Business
+                  </Button>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Identidade visual e marca</p>
+                )}
               </div>
             </CardContent>
           </Card>
+
         </div>
 
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
@@ -877,8 +902,45 @@ export default function Dashboard() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Voice Tone Dialog */}
+      <Dialog open={showVoiceToneDialog} onOpenChange={setShowVoiceToneDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <BrainCog className="h-5 w-5 text-emerald-600" />
+              Tom de Voz da IA
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Escolha o estilo de comunicação das propostas geradas pela IA:</p>
+          <div className="flex flex-col gap-3 mt-2">
+            {[
+              { value: "executivo", label: "Executivo", desc: "Conciso e direto ao ponto" },
+              { value: "consultivo", label: "Consultivo", desc: "Educativo e pedagógico" },
+              { value: "persuasivo", label: "Persuasivo", desc: "Focado em gatilhos de vendas" },
+            ].map((tone) => (
+              <button
+                key={tone.value}
+                onClick={() => {
+                  localStorage.setItem("vetorpro_ai_tone", tone.value);
+                  setShowVoiceToneDialog(false);
+                  toast({ title: `Tom "${tone.label}" selecionado`, description: tone.desc });
+                }}
+                className={`flex flex-col items-start p-4 rounded-lg border transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 ${
+                  (localStorage.getItem("vetorpro_ai_tone") || "executivo") === tone.value
+                    ? "border-emerald-500 bg-emerald-500/10"
+                    : "border-border"
+                }`}
+              >
+                <span className="font-semibold text-sm">{tone.label}</span>
+                <span className="text-xs text-muted-foreground">{tone.desc}</span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
       
-      <ArsenalFAB />
+      <MarketTicker />
       <Footer />
     </div>
   );

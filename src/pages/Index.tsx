@@ -1,11 +1,11 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { MarketTicker } from "@/components/layout/MarketTicker";
 import { BusinessTeamHeader } from "@/components/layout/BusinessTeamHeader";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { FinancingCalculator } from "@/components/calculator/FinancingCalculator";
-import { QuotesStickyBar } from "@/components/business/QuotesStickyBar";
 import { useSession } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -15,10 +15,7 @@ const Index = () => {
   const { user } = useAuth();
   const { plan, isActive } = useSubscription();
 
-  // User is logged in if either Supabase auth OR session context says so
   const isLoggedIn = !!user || session.isLoggedIn;
-  const showQuotes = isActive && (plan === "pro" || plan === "business");
-
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       {/* Show BusinessTeamHeader for session-based login, Header for Supabase auth or visitors */}
@@ -26,24 +23,21 @@ const Index = () => {
       
       <main className="flex-1">
         {isLoggedIn ? (
-          <>
-            {showQuotes && <QuotesStickyBar />}
-            <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-background">
-              <div className="container">
-                <div className="text-center space-y-4 mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold">
-                    Simulador de Financiamento
-                  </h2>
-                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    Faça uma simulação completa de financiamento imobiliário em segundos.
-                  </p>
-                </div>
-                <div className="max-w-4xl mx-auto">
-                  <FinancingCalculator />
-                </div>
+          <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-background">
+            <div className="container">
+              <div className="text-center space-y-4 mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold">
+                  Simulador de Financiamento
+                </h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Faça uma simulação completa de financiamento imobiliário em segundos.
+                </p>
               </div>
-            </section>
-          </>
+              <div className="max-w-4xl mx-auto">
+                <FinancingCalculator />
+              </div>
+            </div>
+          </section>
         ) : (
           <>
             {/* Visitor: Hero first */}
@@ -70,6 +64,7 @@ const Index = () => {
         <PricingSection />
       </main>
 
+      <MarketTicker />
       <Footer />
     </div>
   );
