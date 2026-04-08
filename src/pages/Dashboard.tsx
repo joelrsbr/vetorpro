@@ -865,44 +865,44 @@ export default function Dashboard() {
         </Card>
       </main>
 
-      {/* Proposal View Modal */}
-      <Dialog open={!!viewProposal} onOpenChange={(open) => !open && setViewProposal(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      {/* Voice Tone Dialog */}
+      <Dialog open={showVoiceToneDialog} onOpenChange={setShowVoiceToneDialog}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Proposta — {viewProposal?.client_name}
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <BrainCog className="h-5 w-5 text-emerald-600" />
+              Tom de Voz da IA
             </DialogTitle>
           </DialogHeader>
-          {viewProposal && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span>{viewProposal.property_description}</span>
-                <span>•</span>
-                <span>{formatDate(viewProposal.created_at)}</span>
-              </div>
-              <div className="whitespace-pre-wrap text-sm leading-relaxed border rounded-lg p-4 bg-muted/30">
-                {viewProposal.proposal_text}
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => handleCopyProposal(viewProposal.proposal_text)}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copiar
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleDownloadPdf(viewProposal)}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
-                <Button variant="default" size="sm" onClick={() => { setViewProposal(null); handleAdjustProposal(viewProposal); }}>
-                  Ajustar Proposta
-                </Button>
-              </div>
-            </div>
-          )}
+          <p className="text-sm text-muted-foreground">Escolha o estilo de comunicação das propostas geradas pela IA:</p>
+          <div className="flex flex-col gap-3 mt-2">
+            {[
+              { value: "executivo", label: "Executivo", desc: "Conciso e direto ao ponto" },
+              { value: "consultivo", label: "Consultivo", desc: "Educativo e pedagógico" },
+              { value: "persuasivo", label: "Persuasivo", desc: "Focado em gatilhos de vendas" },
+            ].map((tone) => (
+              <button
+                key={tone.value}
+                onClick={() => {
+                  localStorage.setItem("vetorpro_ai_tone", tone.value);
+                  setShowVoiceToneDialog(false);
+                  toast({ title: `Tom "${tone.label}" selecionado`, description: tone.desc });
+                }}
+                className={`flex flex-col items-start p-4 rounded-lg border transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 ${
+                  (localStorage.getItem("vetorpro_ai_tone") || "executivo") === tone.value
+                    ? "border-emerald-500 bg-emerald-500/10"
+                    : "border-border"
+                }`}
+              >
+                <span className="font-semibold text-sm">{tone.label}</span>
+                <span className="text-xs text-muted-foreground">{tone.desc}</span>
+              </button>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
       
-      <ArsenalFAB />
+      <MarketTicker />
       <Footer />
     </div>
   );
