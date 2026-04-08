@@ -91,6 +91,17 @@ const Login = () => {
     }
   };
 
+  const redirectByPlan = async () => {
+    const { data } = await supabase.rpc("get_user_subscription", {
+      p_user_id: (await supabase.auth.getUser()).data.user!.id,
+    });
+    if (data?.[0]?.is_active && data[0].plan === "business") {
+      navigate("/business");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -99,7 +110,7 @@ const Login = () => {
     const { error } = await signIn(loginEmail, loginPassword);
     
     if (!error && !checkoutPlan) {
-      navigate("/dashboard");
+      await redirectByPlan();
     }
     
     setIsLoading(false);
