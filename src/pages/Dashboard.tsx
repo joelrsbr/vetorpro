@@ -866,6 +866,43 @@ export default function Dashboard() {
         </Card>
       </main>
 
+      {/* Proposal View Modal */}
+      <Dialog open={!!viewProposal} onOpenChange={(open) => !open && setViewProposal(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Proposta — {viewProposal?.client_name}
+            </DialogTitle>
+          </DialogHeader>
+          {viewProposal && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>{viewProposal.property_description}</span>
+                <span>•</span>
+                <span>{formatDate(viewProposal.created_at)}</span>
+              </div>
+              <div className="whitespace-pre-wrap text-sm leading-relaxed border rounded-lg p-4 bg-muted/30">
+                {viewProposal.proposal_text}
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => handleCopyProposal(viewProposal.proposal_text)}>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copiar
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownloadPdf(viewProposal)}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button variant="default" size="sm" onClick={() => { setViewProposal(null); handleAdjustProposal(viewProposal); }}>
+                  Ajustar Proposta
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Voice Tone Dialog */}
       <Dialog open={showVoiceToneDialog} onOpenChange={setShowVoiceToneDialog}>
         <DialogContent className="sm:max-w-md">
