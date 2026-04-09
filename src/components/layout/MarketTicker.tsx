@@ -47,10 +47,10 @@ export function MarketTicker() {
   const tickerContent = [...items, ...items];
 
   return (
-    <div className="w-full bg-[#0a0a0a] border-t border-border/30 overflow-hidden select-none">
-      <div className="flex animate-ticker whitespace-nowrap py-2">
+    <div className="w-full bg-slate-900 border-t border-emerald-500/20 overflow-hidden select-none sticky bottom-0 z-50">
+      <div className="flex animate-ticker whitespace-nowrap py-3">
         {tickerContent.map((item, i) => (
-          <span key={i} className="inline-flex items-center gap-1.5 mx-4 text-xs font-mono shrink-0">
+          <span key={i} className="inline-flex items-center gap-1.5 mx-5 text-sm font-mono shrink-0">
             <span className="text-emerald-400 font-semibold">{item.label}</span>
             <span className="text-white/90">{item.value}</span>
             {item.variation !== undefined && (
@@ -58,7 +58,7 @@ export function MarketTicker() {
                 {item.variation >= 0 ? "▲" : "▼"} {Math.abs(item.variation).toFixed(2)}%
               </span>
             )}
-            <span className="text-white/20 ml-2">│</span>
+            <span className="text-emerald-500/30 ml-3">│</span>
           </span>
         ))}
       </div>
