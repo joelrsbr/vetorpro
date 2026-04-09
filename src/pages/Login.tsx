@@ -95,11 +95,7 @@ const Login = () => {
     const { data } = await supabase.rpc("get_user_subscription", {
       p_user_id: (await supabase.auth.getUser()).data.user!.id,
     });
-    if (data?.[0]?.is_active && data[0].plan === "business") {
-      navigate("/business");
-    } else {
-      navigate("/dashboard");
-    }
+    navigate("/dashboard");
   };
 
   const handleLogin = async (e: React.FormEvent) => {

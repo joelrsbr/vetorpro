@@ -419,7 +419,7 @@ export default function Dashboard() {
         })()}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
             <CardContent className="pt-6 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
@@ -436,7 +436,7 @@ export default function Dashboard() {
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
-                navigate("/business?tab=comparison");
+                navigate("/calculadora?tab=comparison");
               } else {
                 setShowPaywall(true);
               }
@@ -516,36 +516,15 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Personalização — identity visual (navigates to /personalizacao) */}
-          <Card 
-            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => {
-              if (plan === "business") {
-                navigate("/personalizacao");
-              } else {
-                setShowCustomizationPaywall(true);
-              }
-            }}
-          >
-            <CardContent className="pt-6 flex items-start gap-4">
-              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #16a34a, #166534)" }}>
-                <Settings className="h-6 w-6 text-white" />
-                {plan !== "business" && (
-                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
-                )}
+          {/* Ver Planos */}
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 bg-muted">
+                <Crown className="h-6 w-6 text-muted-foreground" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base">Personalização</h3>
-                </div>
-                {plan !== "business" ? (
-                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowCustomizationPaywall(true); }}>
-                    <Crown className="h-3.5 w-3.5 mr-1.5" />
-                    Exclusivo-Business
-                  </Button>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Identidade visual e marca</p>
-                )}
+                <h3 className="font-semibold text-base">Ver Planos</h3>
+                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
               </div>
             </CardContent>
           </Card>

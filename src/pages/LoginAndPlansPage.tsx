@@ -24,11 +24,7 @@ export default function LoginAndPlansPage() {
       });
 
       if (data?.[0]?.is_active) {
-        if (data[0].plan === "business") {
-          navigate("/business", { replace: true });
-        } else {
-          navigate("/dashboard", { replace: true });
-        }
+        navigate("/dashboard", { replace: true });
       }
     };
     checkAndRedirect();
