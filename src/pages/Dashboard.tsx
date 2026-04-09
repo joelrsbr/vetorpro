@@ -436,7 +436,7 @@ export default function Dashboard() {
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
               if (plan === "business") {
-                navigate("/business?tab=comparison");
+                navigate("/calculadora?tab=comparison");
               } else {
                 setShowPaywall(true);
               }
