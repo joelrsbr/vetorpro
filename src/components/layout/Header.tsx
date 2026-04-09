@@ -40,7 +40,7 @@ export function Header() {
         </Link>
 
         <div className="flex items-center">
-          {loading || subLoading ? (
+          {loading ? (
             <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
           ) : user ? (
             <DropdownMenu>
@@ -50,7 +50,7 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                {isActive && (
+                {user && (
                   <>
                     <DropdownMenuItem onClick={handleManageSubscription}>
                       <CreditCard className="h-4 w-4 mr-2" />
