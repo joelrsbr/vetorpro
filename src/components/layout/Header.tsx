@@ -3,7 +3,7 @@ import { User, LogOut, CreditCard, Settings, LayoutDashboard } from "lucide-reac
 import vetorproIcon from "@/assets/vetorpro-icon.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription } from "@/hooks/useSubscription";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +17,7 @@ const STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_14AbJ15XI4OD5
 export function Header() {
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
-  const { plan, isActive, loading: subLoading } = useSubscription();
-  const dashboardPath = plan === "business" && isActive ? "/business" : "/dashboard";
+  const dashboardPath = "/dashboard";
 
   const handleManageSubscription = () => {
     window.open(STRIPE_PORTAL_URL, "_blank");
