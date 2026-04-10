@@ -516,6 +516,22 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          {/* Sua Marca — White Label */}
+          <Card 
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => navigate("/personalizacao")}
+          >
+            <CardContent className="pt-6 flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
+                <Pencil className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Sua Marca</h3>
+                <p className="text-sm text-muted-foreground">Personalize PDFs com seu nome</p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Ver Planos */}
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
             <CardContent className="pt-6 flex items-center gap-4">
