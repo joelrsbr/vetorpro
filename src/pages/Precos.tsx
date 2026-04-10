@@ -42,15 +42,17 @@ const Precos = () => {
         <div className="pt-8 pb-4 md:pt-10 md:pb-6 gradient-hero">
           <div className="container">
             {user && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mb-4 -ml-2 text-white/80 hover:text-white hover:bg-white/10"
-                onClick={() => navigate("/dashboard")}
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Voltar ao Dashboard
-              </Button>
+              <div className="mb-6 flex justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-border bg-background/95 text-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Voltar ao Dashboard
+                </Button>
+              </div>
             )}
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-2">
