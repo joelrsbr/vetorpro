@@ -2,7 +2,10 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { Card, CardContent } from "@/components/ui/card";
-import { HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { HelpCircle, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const faqs = [
   {
@@ -28,19 +31,35 @@ const faqs = [
 ];
 
 const Precos = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1">
         <div className="pt-8 pb-4 md:pt-10 md:pb-6 gradient-hero">
-          <div className="container text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-              Planos e Preços
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Escolha o plano que melhor se adapta às suas necessidades.
-            </p>
+          <div className="container">
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mb-4 -ml-2 text-white/80 hover:text-white hover:bg-white/10"
+                onClick={() => navigate("/dashboard")}
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Voltar ao Dashboard
+              </Button>
+            )}
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                Planos e Preços
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Escolha o plano que melhor se adapta às suas necessidades.
+              </p>
+            </div>
           </div>
         </div>
 
