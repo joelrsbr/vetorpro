@@ -93,6 +93,10 @@ export interface BankSimulationResult {
   lastPayment: number;
   totalPaid: number;
   totalInterest: number;
+  /** Estimativa de seguro total (MIP+DFI) ao longo do prazo */
+  totalInsurance: number;
+  /** CET estimado = totalPaid + totalInsurance + custos iniciais */
+  totalCET: number;
   isBestRate: boolean;
   isLowestCost: boolean;
   isRegional: boolean;
@@ -149,6 +153,14 @@ export function simulateAllBanks(
     const baseRate = customRates?.[bank.id] ?? bank.defaultRate;
     const effectiveRate = baseRate + bank.spread;
     const calc = calculateBankSimulation(financedAmount, effectiveRate, termMonths, system);
+
+    // Estimativa de seguro MIP+DFI: taxa mensal sobre saldo devedor médio
+    const avgBalance = system === "SAC" ? financedAmount / 2 : financedAmount * 0.65;
+    const totalInsurance = avgBalance * (bank.hiddenCosts.insuranceRate / 100) * termMonths;
+
+    // CET = total pago + seguros + custos iniciais + admin acumulado
+    const totalCET = calc.totalPaid + totalInsurance + bank.hiddenCosts.engineeringAppraisal + (bank.hiddenCosts.monthlyAdmin * termMonths);
+
     return {
       bankId: bank.id,
       bankName: bank.name,
@@ -158,6 +170,8 @@ export function simulateAllBanks(
       effectiveRate,
       spread: bank.spread,
       ...calc,
+      totalInsurance,
+      totalCET,
       isBestRate: false,
       isLowestCost: false,
       isRegional: bank.isRegional ?? false,
@@ -167,10 +181,10 @@ export function simulateAllBanks(
 
   if (results.length > 0) {
     const minRate = Math.min(...results.map((s) => s.effectiveRate));
-    const minCost = Math.min(...results.map((s) => s.totalPaid));
+    const minCost = Math.min(...results.map((s) => s.totalCET));
     results.forEach((s) => {
       if (s.effectiveRate === minRate) s.isBestRate = true;
-      if (s.totalPaid === minCost) s.isLowestCost = true;
+      if (s.totalCET === minCost) s.isLowestCost = true;
     });
   }
 

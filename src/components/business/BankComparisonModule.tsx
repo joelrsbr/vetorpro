@@ -53,7 +53,7 @@ export function BankComparisonModule() {
       if (a.bankId === relationshipBank && b.bankId !== relationshipBank) return -1;
       if (b.bankId === relationshipBank && a.bankId !== relationshipBank) return 1;
     }
-    return a.totalPaid - b.totalPaid;
+    return a.totalCET - b.totalCET;
   });
 
   const toggleRelationship = (bankId: string) => {
@@ -304,10 +304,10 @@ export function BankComparisonModule() {
                       </div>
                     </div>
                     <div className="mt-3 pt-3 border-t">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Custo Total Pago</p>
-                      <p className="text-base font-bold text-foreground">{fmtBRL(result.totalPaid)}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">CET Estimado (Total)</p>
+                      <p className="text-base font-bold text-foreground">{fmtBRL(result.totalCET)}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                        Juros: {fmtBRL(result.totalInterest)}
+                        Juros: {fmtBRL(result.totalInterest)} · Seguros: {fmtBRL(result.totalInsurance)}
                       </p>
                     </div>
                     {result.note && (
