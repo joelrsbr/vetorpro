@@ -7,6 +7,8 @@ interface TickerItem {
   value: string;
   variation?: number;
   isCurrency?: boolean;
+  flag?: string;
+  color?: string;
 }
 
 export function MarketTicker() {
@@ -26,20 +28,23 @@ export function MarketTicker() {
 
   const items: TickerItem[] = [];
 
-  // Rates — always visible
-  if (data.rates.selic) items.push({ label: "SELIC", value: formatRate(data.rates.selic.value, data.rates.selic.period) });
-  if (data.rates.ipca) items.push({ label: "IPCA", value: formatRate(data.rates.ipca.value, data.rates.ipca.period) });
-  if (data.rates.igpm) items.push({ label: "IGP-M", value: formatRate(data.rates.igpm.value, data.rates.igpm.period) });
-  if (data.rates.incc) items.push({ label: "INCC", value: formatRate(data.rates.incc.value, data.rates.incc.period) });
-  if (data.rates.tr) items.push({ label: "TR", value: formatRate(data.rates.tr.value, data.rates.tr.period) });
-  if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period) });
-  if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period) });
+  // Rates — always visible with distinct colors
+  if (data.rates.selic) items.push({ label: "SELIC", value: formatRate(data.rates.selic.value, data.rates.selic.period), color: "text-cyan-400" });
+  if (data.rates.ipca) items.push({ label: "IPCA", value: formatRate(data.rates.ipca.value, data.rates.ipca.period), variation: data.rates.ipca.value >= 0 ? data.rates.ipca.value : -data.rates.ipca.value, color: "text-amber-400" });
+  if (data.rates.igpm) items.push({ label: "IGP-M", value: formatRate(data.rates.igpm.value, data.rates.igpm.period), color: "text-orange-400" });
+  if (data.rates.incc) items.push({ label: "INCC", value: formatRate(data.rates.incc.value, data.rates.incc.period), color: "text-violet-400" });
+  if (data.rates.tr) items.push({ label: "TR", value: formatRate(data.rates.tr.value, data.rates.tr.period), color: "text-teal-400" });
+  if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
+  if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
 
   // Currencies — hidden for Basic
   if (!isBasic) {
-    if (data.currencies.USD) items.push({ label: "USD/BRL", value: formatCurrency(data.currencies.USD.value), variation: data.currencies.USD.variation, isCurrency: true });
-    if (data.currencies.EUR) items.push({ label: "EUR/BRL", value: formatCurrency(data.currencies.EUR.value), variation: data.currencies.EUR.variation, isCurrency: true });
+    if (data.currencies.USD) items.push({ label: "USD", value: formatCurrency(data.currencies.USD.value), variation: data.currencies.USD.variation, isCurrency: true, flag: "🇺🇸", color: "text-green-400" });
+    if (data.currencies.EUR) items.push({ label: "EUR", value: formatCurrency(data.currencies.EUR.value), variation: data.currencies.EUR.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
   }
+
+  // Plan badge
+  const planLabel = plan === "business" ? "Business" : plan === "pro" ? "Professional" : "Basic";
 
   if (items.length === 0) return null;
 
@@ -47,20 +52,36 @@ export function MarketTicker() {
   const tickerContent = [...items, ...items];
 
   return (
-    <div className="w-full bg-slate-900 border-t border-emerald-500/20 overflow-hidden select-none sticky bottom-0 z-50">
-      <div className="flex animate-ticker whitespace-nowrap py-3">
-        {tickerContent.map((item, i) => (
-          <span key={i} className="inline-flex items-center gap-1.5 mx-5 text-sm font-mono shrink-0">
-            <span className="text-emerald-400 font-semibold">{item.label}</span>
-            <span className="text-white/90">{item.value}</span>
-            {item.variation !== undefined && (
-              <span className={item.variation >= 0 ? "text-emerald-400" : "text-red-400"}>
-                {item.variation >= 0 ? "▲" : "▼"} {Math.abs(item.variation).toFixed(2)}%
+    <div className="w-full bg-slate-900 border-t border-emerald-500/30 overflow-hidden select-none sticky bottom-0 z-[9999]">
+      <div className="flex items-center">
+        {/* Terminal label */}
+        <div className="shrink-0 px-4 py-3 border-r border-emerald-500/20 bg-slate-900/80">
+          <span className="text-emerald-400 font-bold text-xs tracking-wider">Terminal Financeiro</span>
+        </div>
+        
+        {/* Scrolling ticker */}
+        <div className="flex-1 overflow-hidden">
+          <div className="flex animate-ticker whitespace-nowrap py-3">
+            {tickerContent.map((item, i) => (
+              <span key={i} className="inline-flex items-center gap-1.5 mx-4 text-sm font-mono shrink-0">
+                {item.flag && <span className="text-base">{item.flag}</span>}
+                <span className={`font-semibold ${item.color || "text-emerald-400"}`}>{item.label}</span>
+                <span className="text-white/90">{item.value}</span>
+                {item.variation !== undefined && item.isCurrency && (
+                  <span className={item.variation >= 0 ? "text-emerald-400" : "text-red-400"}>
+                    {item.variation >= 0 ? "▲" : "▼"} {Math.abs(item.variation).toFixed(2)}%
+                  </span>
+                )}
+                <span className="text-emerald-500/30 ml-2">│</span>
               </span>
-            )}
-            <span className="text-emerald-500/30 ml-3">│</span>
-          </span>
-        ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Plan badge */}
+        <div className="shrink-0 px-4 py-3 border-l border-emerald-500/20 bg-slate-900/80">
+          <span className="text-emerald-400/70 text-xs font-mono">Plan: <span className="text-emerald-400 font-bold">{planLabel}</span></span>
+        </div>
       </div>
     </div>
   );
