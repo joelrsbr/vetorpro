@@ -972,7 +972,7 @@ export default function Dashboard() {
             </div>
           )}
           <div className="px-4 pb-4">
-            <HP12CCalculator />
+            <HP12CCalculatorBody />
           </div>
         </DialogContent>
       </Dialog>
