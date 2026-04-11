@@ -37,10 +37,12 @@ export function MarketTicker() {
   if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
   if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
 
-  // Currencies — hidden for Basic
+  // Currencies — visible for Pro and Business (fallback to static values)
   if (!isBasic) {
-    if (data.currencies.USD) items.push({ label: "USD", value: formatCurrency(data.currencies.USD.value), variation: data.currencies.USD.variation, isCurrency: true, flag: "🇺🇸", color: "text-green-400" });
-    if (data.currencies.EUR) items.push({ label: "EUR", value: formatCurrency(data.currencies.EUR.value), variation: data.currencies.EUR.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
+    const usd = data.currencies.USD || data.currencies.usd || { value: 5.05, variation: 0 };
+    const eur = data.currencies.EUR || data.currencies.eur || { value: 5.45, variation: 0 };
+    items.push({ label: "USD", value: formatCurrency(usd.value), variation: usd.variation, isCurrency: true, flag: "🇺🇸", color: "text-green-400" });
+    items.push({ label: "EUR", value: formatCurrency(eur.value), variation: eur.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
   }
 
   // Plan badge
