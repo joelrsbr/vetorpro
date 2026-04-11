@@ -547,7 +547,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-        </div>
 
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
 
