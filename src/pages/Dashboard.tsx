@@ -938,18 +938,18 @@ export default function Dashboard() {
 
       {/* HP 12C Modal */}
       <Dialog open={showHP12C} onOpenChange={setShowHP12C}>
-        <DialogContent className="sm:max-w-sm p-0 overflow-hidden z-[100]">
-          <DialogHeader className="px-4 pt-4 pb-2">
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden z-[100] bg-transparent border-none shadow-none">
+          <DialogHeader className="px-4 pt-3 pb-1 bg-[#2a2418] rounded-t-2xl">
             <DialogTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2 text-amber-700">
-                <Calculator className="h-5 w-5" />
+              <span className="flex items-center gap-2 text-amber-400 text-sm font-bold tracking-wide">
+                <Calculator className="h-4 w-4" />
                 HP 12C — Calculadora Financeira
               </span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => setShowHP12CGlossary(!showHP12CGlossary)}
-                    className="h-7 w-7 rounded-full border border-amber-400/50 bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-100 transition-colors text-xs font-bold"
+                    className="h-6 w-6 rounded-full border border-amber-500/50 bg-amber-900/50 text-amber-300 flex items-center justify-center hover:bg-amber-800/50 transition-colors text-[10px] font-bold"
                   >
                     i
                   </button>
@@ -961,17 +961,17 @@ export default function Dashboard() {
             </DialogTitle>
           </DialogHeader>
           {showHP12CGlossary && (
-            <div className="mx-4 mb-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs space-y-1.5">
-              <p className="font-bold text-amber-800 mb-1">📖 Glossário das Teclas</p>
-              <p><strong>n</strong> — Número de períodos (meses)</p>
-              <p><strong>i</strong> — Taxa de juros por período (%)</p>
-              <p><strong>PV</strong> — Valor Presente (valor financiado)</p>
-              <p><strong>PMT</strong> — Pagamento periódico (parcela)</p>
-              <p><strong>FV</strong> — Valor Futuro (saldo final)</p>
-              <p className="pt-1 border-t border-amber-200 text-amber-700"><strong>Dica:</strong> Digite o valor → tecle a variável para armazenar → tecle →[variável] para calcular a incógnita.</p>
+            <div className="mx-3 mb-1 p-3 rounded-lg bg-amber-900/40 border border-amber-700/30 text-xs space-y-1.5">
+              <p className="font-bold text-amber-300 mb-1">📖 Glossário das Teclas</p>
+              <p className="text-amber-200/80"><strong className="text-amber-300">n</strong> — Número de períodos (meses)</p>
+              <p className="text-amber-200/80"><strong className="text-amber-300">i</strong> — Taxa de juros por período (%)</p>
+              <p className="text-amber-200/80"><strong className="text-amber-300">PV</strong> — Valor Presente (valor financiado)</p>
+              <p className="text-amber-200/80"><strong className="text-amber-300">PMT</strong> — Pagamento periódico (parcela)</p>
+              <p className="text-amber-200/80"><strong className="text-amber-300">FV</strong> — Valor Futuro (saldo final)</p>
+              <p className="pt-1 border-t border-amber-700/30 text-amber-400/70"><strong>Dica:</strong> Digite o valor → tecle a variável para armazenar → tecle →[variável] para calcular a incógnita.</p>
             </div>
           )}
-          <div className="px-4 pb-4">
+          <div className="px-0 pb-0">
             <HP12CCalculatorBody />
           </div>
         </DialogContent>

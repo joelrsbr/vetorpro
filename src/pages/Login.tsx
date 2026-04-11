@@ -36,6 +36,14 @@ const Login = () => {
     [searchParams]
   );
 
+  // Redirect authenticated users without checkout plan to dashboard
+  useEffect(() => {
+    if (authLoading) return;
+    if (user && !checkoutPlan) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [authLoading, user, checkoutPlan, navigate]);
+
   useEffect(() => {
     if (authLoading || !user || !checkoutPlan || autoCheckoutTriggered.current) {
       return;

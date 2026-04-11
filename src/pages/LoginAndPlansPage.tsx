@@ -16,12 +16,24 @@ export default function LoginAndPlansPage() {
   // Redirect ALL authenticated users to dashboard (no landing page for logged-in users)
   useEffect(() => {
     const checkAndRedirect = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
         navigate("/dashboard", { replace: true });
+        return;
       }
     };
     checkAndRedirect();
+
+    // Also listen for auth state changes (e.g. OAuth redirect back)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN" && session?.user) {
+          navigate("/dashboard", { replace: true });
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handlePlanSelect = (planId: PlanType) => {
