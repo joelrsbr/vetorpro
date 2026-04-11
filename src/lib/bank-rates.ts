@@ -93,6 +93,10 @@ export interface BankSimulationResult {
   lastPayment: number;
   totalPaid: number;
   totalInterest: number;
+  /** Estimativa de seguro total (MIP+DFI) ao longo do prazo */
+  totalInsurance: number;
+  /** CET estimado = totalPaid + totalInsurance + custos iniciais */
+  totalCET: number;
   isBestRate: boolean;
   isLowestCost: boolean;
   isRegional: boolean;
