@@ -393,14 +393,6 @@ export function BankComparisonModule() {
             })}
 
           </div>
-                <div className="mt-3 pt-3 border-t">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Custo Total Pago</p>
-                  <p className="text-base font-bold text-foreground">—</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Juros: —</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           <p className="text-[11px] text-muted-foreground text-center">
             Taxas médias de mercado para referência. Valores sujeitos a análise de crédito individual. Fonte: Referência de Mercado VetorPro.
