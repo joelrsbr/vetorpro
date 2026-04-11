@@ -530,7 +530,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="font-semibold text-sm">Sua Marca</p>
-                <p className="text-xs text-muted-foreground">White Label</p>
+                <p className="text-xs text-muted-foreground">Seu Nome</p>
               </div>
             </CardContent>
           </Card>
