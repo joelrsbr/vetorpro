@@ -142,75 +142,78 @@ export function HP12CCalculatorBody() {
     }
   };
 
-  // HP 12c styled button
-  const hp12cBtn = (
+  // Button renderer matching HP 12c real hardware
+  const btn = (
     label: string,
     onClick: () => void,
-    variant: "black" | "beige" | "orange" | "blue" | "enter" = "black",
-    topLabel?: string,
-    bottomLabel?: string,
-    colSpan?: number,
+    variant: "white" | "beige" | "orange" | "blue" | "black" | "on" = "white",
+    fLabel?: string,  // orange f-function label (top)
+    gLabel?: string,  // blue g-function label (bottom)
+    wide?: boolean,
   ) => {
-    const base = "relative flex flex-col items-center justify-center font-bold shadow-[0_2px_0_rgba(0,0,0,0.4)] active:shadow-[0_0px_0_rgba(0,0,0,0.4)] active:translate-y-[2px] transition-all duration-75 select-none";
+    const base = "relative flex flex-col items-center justify-center font-bold transition-all duration-75 select-none active:brightness-90 active:translate-y-[1px]";
     
     const styles: Record<string, string> = {
-      black: "bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white border border-[#444] rounded-md h-10 text-xs",
-      beige: "bg-[#c8b98a] hover:bg-[#d4c89a] text-[#2a2a2a] border border-[#a89868] rounded-md h-10 text-xs font-bold",
-      orange: "bg-[#d4710a] hover:bg-[#e07b10] text-white border border-[#b05e08] rounded-md h-10 text-[11px] font-bold",
-      blue: "bg-[#2665a8] hover:bg-[#3075b8] text-white border border-[#1d5590] rounded-md h-10 text-[11px] font-bold",
-      enter: "bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white border border-[#444] rounded-md h-10 text-xs",
+      white: "bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[11px] shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)]",
+      beige: "bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[11px] shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)]",
+      orange: "bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[38px] text-[10px] shadow-[0_2px_0_#7a4510,inset_0_1px_0_rgba(255,255,255,0.15)]",
+      blue: "bg-[#1a5c9c] hover:bg-[#2268a8] text-white border border-[#0e4a80] rounded h-[38px] text-[10px] shadow-[0_2px_0_#0e3a68,inset_0_1px_0_rgba(255,255,255,0.15)]",
+      black: "bg-[#1e1e1e] hover:bg-[#2e2e2e] text-white border border-[#333] rounded h-[38px] text-[12px] shadow-[0_2px_0_#000,inset_0_1px_0_rgba(255,255,255,0.08)]",
+      on: "bg-[#1e1e1e] hover:bg-[#2e2e2e] text-white border border-[#333] rounded h-[38px] text-[10px] shadow-[0_2px_0_#000,inset_0_1px_0_rgba(255,255,255,0.08)]",
     };
 
     return (
-      <button
-        className={cn(base, styles[variant], colSpan && `col-span-${colSpan}`)}
-        style={colSpan ? { gridColumn: `span ${colSpan}` } : undefined}
-        onClick={onClick}
-      >
-        {topLabel && (
-          <span className="absolute -top-[14px] text-[8px] font-medium text-amber-500 leading-none whitespace-nowrap">
-            {topLabel}
-          </span>
+      <div className={cn("flex flex-col items-center", wide ? "col-span-2" : "")}>
+        {/* f-label (orange) above button */}
+        {fLabel ? (
+          <span className="text-[8px] font-semibold text-[#c26a14] leading-none mb-1 h-[10px] whitespace-nowrap">{fLabel}</span>
+        ) : (
+          <span className="h-[10px] mb-1" />
         )}
-        <span>{label}</span>
-        {bottomLabel && (
-          <span className="absolute -bottom-[13px] text-[7px] font-medium text-sky-400 leading-none whitespace-nowrap">
-            {bottomLabel}
-          </span>
+        <button className={cn(base, styles[variant], wide ? "w-full" : "w-full")} onClick={onClick}>
+          <span>{label}</span>
+        </button>
+        {/* g-label (blue) below button */}
+        {gLabel ? (
+          <span className="text-[7px] font-semibold text-[#1a5c9c] leading-none mt-1 h-[9px] whitespace-nowrap">{gLabel}</span>
+        ) : (
+          <span className="h-[9px] mt-1" />
         )}
-      </button>
+      </div>
     );
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* Calculator body — horizontal HP 12c style */}
-      <div className="rounded-2xl p-1" style={{ background: "linear-gradient(145deg, #1a1610, #2c261e, #1a1610)" }}>
-        <div className="rounded-xl overflow-hidden" style={{ background: "linear-gradient(180deg, #3a3428, #2a2418)" }}>
+    <div className="w-full max-w-[480px] mx-auto">
+      {/* Calculator body */}
+      <div className="rounded-2xl p-[3px]" style={{ background: "linear-gradient(145deg, #2a2520, #1a1610, #2a2520)" }}>
+        <div className="rounded-xl overflow-hidden" style={{ background: "linear-gradient(180deg, #3a3428, #2e2820)" }}>
           
-          {/* Top branding bar */}
-          <div className="flex items-center justify-between px-4 py-2">
+          {/* Top branding */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-1">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60" />
-              <span className="text-[10px] font-bold tracking-[0.3em] text-amber-200/60 uppercase">Hewlett-Packard</span>
+              <div className="w-1 h-1 rounded-full bg-amber-500/50" />
+              <span className="text-[9px] font-bold tracking-[0.25em] text-amber-200/50 uppercase">Hewlett-Packard</span>
             </div>
-            <span className="text-[10px] font-bold tracking-wider text-amber-200/40">12C</span>
+            <span className="text-[10px] font-bold tracking-wider text-amber-200/30">12C</span>
           </div>
           
-          {/* Display */}
-          <div className="mx-3 mb-1">
+          {/* LCD Display */}
+          <div className="mx-3 mb-2">
             <div 
-              className="rounded-lg p-3 font-mono text-right text-2xl shadow-inner border"
+              className="rounded-lg px-4 py-3 font-mono text-right text-2xl shadow-inner border"
               style={{ 
-                background: "linear-gradient(180deg, #b8c490, #a8b480)",
+                background: "linear-gradient(180deg, #bcc898, #a8b480)",
                 borderColor: "#7a8060",
                 color: "#1a1a1a",
+                fontFamily: "'Courier New', monospace",
+                letterSpacing: "2px",
               }}
             >
               {display}
             </div>
-            {/* Financial register readouts */}
-            <div className="flex justify-between text-[9px] mt-1.5 px-1 font-mono" style={{ color: "#a89868" }}>
+            {/* Financial register readout */}
+            <div className="flex justify-between text-[8px] mt-1 px-1 font-mono" style={{ color: "#8a7e60" }}>
               <span>n:{financialValues.n.toFixed(0)}</span>
               <span>i:{financialValues.i.toFixed(2)}%</span>
               <span>PV:{financialValues.pv.toFixed(0)}</span>
@@ -219,71 +222,107 @@ export function HP12CCalculatorBody() {
             </div>
           </div>
 
-          {/* Button area */}
-          <div className="px-3 pb-4 pt-3 space-y-5">
-            
-            {/* Row 1: Financial keys (top labels = orange functions) */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("n", () => handleFinancialStore("n"), "beige", "AMORT")}
-              {hp12cBtn("i", () => handleFinancialStore("i"), "beige", "INT")}
-              {hp12cBtn("PV", () => handleFinancialStore("pv"), "beige", "NPV")}
-              {hp12cBtn("PMT", () => handleFinancialStore("pmt"), "beige", "RND")}
-              {hp12cBtn("FV", () => handleFinancialStore("fv"), "beige", "IRR")}
+          {/* Buttons area — 10-column grid matching real HP 12c */}
+          <div className="px-3 pb-4 pt-2">
+            <div className="grid grid-cols-10 gap-x-1 gap-y-0">
+
+              {/* Row 1: n  i  PV  PMT  FV  |  CHS  7  8  9  ÷ */}
+              {btn("n", () => handleFinancialStore("n"), "beige", "AMORT", "12×")}
+              {btn("i", () => handleFinancialStore("i"), "beige", "INT", "12÷")}
+              {btn("PV", () => handleFinancialStore("pv"), "beige", "NPV", "CF₀")}
+              {btn("PMT", () => handleFinancialStore("pmt"), "beige", "RND", "CFⱼ")}
+              {btn("FV", () => handleFinancialStore("fv"), "beige", "IRR", "Nⱼ")}
+              {btn("CHS", () => handleOperator("CHS"), "beige", undefined, undefined)}
+              {btn("7", () => handleNumber("7"), "white", undefined, "BEG")}
+              {btn("8", () => handleNumber("8"), "white", undefined, "END")}
+              {btn("9", () => handleNumber("9"), "white", undefined, "MEM")}
+              {btn("÷", () => handleOperator("÷"), "beige")}
+
+              {/* Row 2: yˣ  1/x  %T  Δ%  %  |  EEX  4  5  6  × */}
+              {btn("yˣ", () => handleOperator("yˣ"), "beige", "PRICE", "√x")}
+              {btn("1/x", () => handleOperator("1/x"), "beige", "YTM", "eˣ")}
+              {btn("%T", () => handleOperator("%T"), "beige", "SL", "LN")}
+              {btn("Δ%", () => handleOperator("Δ%"), "beige", "SOYD", "FRAC")}
+              {btn("%", () => handleOperator("%T"), "beige", "DB", "INTG")}
+              {btn("EEX", () => handleNumber("e"), "beige", undefined, "ΔDYS")}
+              {btn("4", () => handleNumber("4"), "white", undefined, "D.MY")}
+              {btn("5", () => handleNumber("5"), "white", undefined, "M.DY")}
+              {btn("6", () => handleNumber("6"), "white", undefined, "x̄w")}
+              {btn("×", () => handleOperator("×"), "beige")}
+
+              {/* Row 3: R/S  SST  R↓  x⇌y  CLx  |  ENTER (2-wide)  1  2  3  − */}
+              {btn("R/S", () => {}, "beige", "P/R", "PSE")}
+              {btn("SST", () => {}, "beige", "Σ", "BST")}
+              {btn("R↓", () => {}, "beige", "PRGM", "GTO")}
+              {btn("x⇌y", () => {
+                const x = parseFloat(display);
+                setDisplay(stack[0].toString());
+                setStack(prev => [x, prev[1], prev[2], prev[3]]);
+                setIsNewEntry(true);
+              }, "beige", "FIN", "x≤y")}
+              {btn("CLx", handleClear, "beige", "REG", "x=0")}
+              {/* ENTER key — spans 2 cols */}
+              <div className="col-span-2 flex flex-col items-center">
+                <span className="h-[10px] mb-1 text-[8px] font-semibold text-[#c26a14] leading-none">PREFIX</span>
+                <button
+                  className="w-full bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[10px] font-bold shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)] active:brightness-90 active:translate-y-[1px] flex flex-col items-center justify-center leading-[1]"
+                  onClick={handleEnter}
+                >
+                  <span className="text-[8px] leading-none">E</span>
+                  <span className="text-[8px] leading-none">N</span>
+                  <span className="text-[8px] leading-none">T</span>
+                  <span className="text-[8px] leading-none">E</span>
+                  <span className="text-[8px] leading-none">R</span>
+                </button>
+                <span className="h-[9px] mt-1 text-[7px] font-semibold text-[#1a5c9c] leading-none">LSTx</span>
+              </div>
+              {btn("1", () => handleNumber("1"), "white", undefined, "x̂,r")}
+              {btn("2", () => handleNumber("2"), "white", undefined, "ŷ,r")}
+              {btn("3", () => handleNumber("3"), "white", undefined, "n!")}
+              {btn("−", () => handleOperator("-"), "beige")}
+
+              {/* Row 4: ON  f  g  STO  RCL  |  (empty)  0  .  Σ+  + */}
+              {btn("ON", handleClearAll, "on")}
+              <div className="flex flex-col items-center">
+                <span className="h-[10px] mb-1" />
+                <button className="w-full bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[38px] text-[10px] font-bold shadow-[0_2px_0_#7a4510,inset_0_1px_0_rgba(255,255,255,0.15)] active:brightness-90 active:translate-y-[1px]" onClick={() => {}}>
+                  f
+                </button>
+                <span className="h-[9px] mt-1" />
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="h-[10px] mb-1" />
+                <button className="w-full bg-[#1a5c9c] hover:bg-[#2268a8] text-white border border-[#0e4a80] rounded h-[38px] text-[10px] font-bold shadow-[0_2px_0_#0e3a68,inset_0_1px_0_rgba(255,255,255,0.15)] active:brightness-90 active:translate-y-[1px]" onClick={() => {}}>
+                  g
+                </button>
+                <span className="h-[9px] mt-1" />
+              </div>
+              {btn("STO", () => {}, "beige")}
+              {btn("RCL", () => {}, "beige")}
+              {/* Solve row (orange) — displayed as small secondary label row */}
+              <div className="flex flex-col items-center">
+                <span className="h-[10px] mb-1" />
+                <button
+                  className="w-full bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[12px] font-bold shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)] active:brightness-90 active:translate-y-[1px]"
+                  onClick={() => handleNumber("0")}
+                >
+                  0
+                </button>
+                <span className="h-[9px] mt-1 text-[7px] font-semibold text-[#1a5c9c] leading-none">x̄</span>
+              </div>
+              {btn(".", () => handleNumber("."), "white", undefined, "s")}
+              {btn("Σ+", () => {}, "beige", undefined, "Σ−")}
+              {btn("+", () => handleOperator("+"), "beige")}
             </div>
 
-            {/* Row 2: Solve keys (orange) */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("→n", () => calculateFinancial("n"), "orange")}
-              {hp12cBtn("→i", () => calculateFinancial("i"), "orange")}
-              {hp12cBtn("→PV", () => calculateFinancial("pv"), "orange")}
-              {hp12cBtn("→PMT", () => calculateFinancial("pmt"), "orange")}
-              {hp12cBtn("→FV", () => calculateFinancial("fv"), "orange")}
+            {/* Solve row — orange buttons for financial solving */}
+            <div className="grid grid-cols-5 gap-1 mt-3 px-0">
+              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("n")}>→n</button>
+              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("i")}>→i</button>
+              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("pv")}>→PV</button>
+              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("pmt")}>→PMT</button>
+              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("fv")}>→FV</button>
             </div>
-
-            {/* Row 3: Percentage / math functions (blue-labeled) */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("Δ%", () => handleOperator("Δ%"), "blue")}
-              {hp12cBtn("%T", () => handleOperator("%T"), "blue")}
-              {hp12cBtn("1/x", () => handleOperator("1/x"), "black", "", "e^x")}
-              {hp12cBtn("√x", () => handleOperator("√x"), "black", "", "LN")}
-              {hp12cBtn("yˣ", () => handleOperator("yˣ"), "black")}
-            </div>
-
-            {/* Row 4: 7 8 9 ÷ CLX */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("7", () => handleNumber("7"), "black")}
-              {hp12cBtn("8", () => handleNumber("8"), "black")}
-              {hp12cBtn("9", () => handleNumber("9"), "black")}
-              {hp12cBtn("÷", () => handleOperator("÷"), "beige")}
-              {hp12cBtn("CLX", handleClear, "beige")}
-            </div>
-
-            {/* Row 5: 4 5 6 × CLR */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("4", () => handleNumber("4"), "black")}
-              {hp12cBtn("5", () => handleNumber("5"), "black")}
-              {hp12cBtn("6", () => handleNumber("6"), "black")}
-              {hp12cBtn("×", () => handleOperator("×"), "beige")}
-              {hp12cBtn("CLR", handleClearAll, "beige")}
-            </div>
-
-            {/* Row 6: 1 2 3 − CHS */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("1", () => handleNumber("1"), "black")}
-              {hp12cBtn("2", () => handleNumber("2"), "black")}
-              {hp12cBtn("3", () => handleNumber("3"), "black")}
-              {hp12cBtn("−", () => handleOperator("-"), "beige")}
-              {hp12cBtn("CHS", () => handleOperator("CHS"), "black")}
-            </div>
-
-            {/* Row 7: 0 . ENTER + */}
-            <div className="grid grid-cols-5 gap-1.5">
-              {hp12cBtn("0", () => handleNumber("0"), "black")}
-              {hp12cBtn(".", () => handleNumber("."), "black")}
-              {hp12cBtn("ENTER", handleEnter, "beige", undefined, undefined, 2)}
-              {hp12cBtn("+", () => handleOperator("+"), "beige")}
-            </div>
-
           </div>
         </div>
       </div>

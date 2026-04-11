@@ -14,7 +14,7 @@ import {
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
   CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity,
-  Landmark, BrainCog
+  Landmark, BrainCog, X
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -530,7 +530,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="font-semibold text-sm">Sua Marca</p>
-                <p className="text-xs text-muted-foreground">White Label</p>
+                <p className="text-xs text-muted-foreground">Seu Nome</p>
               </div>
             </CardContent>
           </Card>
@@ -938,13 +938,14 @@ export default function Dashboard() {
 
       {/* HP 12C Modal */}
       <Dialog open={showHP12C} onOpenChange={setShowHP12C}>
-        <DialogContent className="sm:max-w-md p-0 overflow-hidden z-[100] bg-transparent border-none shadow-none">
-          <DialogHeader className="px-4 pt-3 pb-1 bg-[#2a2418] rounded-t-2xl">
-            <DialogTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2 text-amber-400 text-sm font-bold tracking-wide">
-                <Calculator className="h-4 w-4" />
-                HP 12C — Calculadora Financeira
-              </span>
+        <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden z-[10000] bg-transparent border-none shadow-2xl [&>button]:hidden">
+          {/* Custom header with separated X and i buttons */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-1 bg-[#2a2418] rounded-t-lg">
+            <span className="flex items-center gap-2 text-amber-400 text-sm font-bold tracking-wide">
+              <Calculator className="h-4 w-4" />
+              HP 12C — Calculadora Financeira
+            </span>
+            <div className="flex items-center gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
@@ -954,12 +955,18 @@ export default function Dashboard() {
                     i
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-[200px] text-xs">
+                <TooltipContent side="bottom" className="max-w-[200px] text-xs">
                   Clique para ver o glossário das teclas
                 </TooltipContent>
               </Tooltip>
-            </DialogTitle>
-          </DialogHeader>
+              <button
+                onClick={() => setShowHP12C(false)}
+                className="h-6 w-6 rounded-full border border-white/20 bg-white/10 text-white/70 flex items-center justify-center hover:bg-white/20 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
           {showHP12CGlossary && (
             <div className="mx-3 mb-1 p-3 rounded-lg bg-amber-900/40 border border-amber-700/30 text-xs space-y-1.5">
               <p className="font-bold text-amber-300 mb-1">📖 Glossário das Teclas</p>
