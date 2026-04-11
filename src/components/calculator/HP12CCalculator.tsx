@@ -1,15 +1,4 @@
 import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Calculator, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type FinancialValues = {
@@ -21,7 +10,7 @@ type FinancialValues = {
 };
 
 export function HP12CCalculatorBody() {
-  const [display, setDisplay] = useState("0");
+  const [display, setDisplay] = useState("0.00");
   const [memory, setMemory] = useState(0);
   const [stack, setStack] = useState<number[]>([0, 0, 0, 0]);
   const [financialValues, setFinancialValues] = useState<FinancialValues>({
@@ -55,7 +44,7 @@ export function HP12CCalculatorBody() {
   };
 
   const handleClearAll = () => {
-    setDisplay("0");
+    setDisplay("0.00");
     setStack([0, 0, 0, 0]);
     setFinancialValues({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 });
     setMemory(0);
@@ -142,187 +131,191 @@ export function HP12CCalculatorBody() {
     }
   };
 
-  // Button renderer matching HP 12c real hardware
-  const btn = (
-    label: string,
-    onClick: () => void,
-    variant: "white" | "beige" | "orange" | "blue" | "black" | "on" = "white",
-    fLabel?: string,  // orange f-function label (top)
-    gLabel?: string,  // blue g-function label (bottom)
-    wide?: boolean,
-  ) => {
-    const base = "relative flex flex-col items-center justify-center font-bold transition-all duration-75 select-none active:brightness-90 active:translate-y-[1px]";
-    
-    const styles: Record<string, string> = {
-      white: "bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[11px] shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)]",
-      beige: "bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[11px] shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)]",
-      orange: "bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[38px] text-[10px] shadow-[0_2px_0_#7a4510,inset_0_1px_0_rgba(255,255,255,0.15)]",
-      blue: "bg-[#1a5c9c] hover:bg-[#2268a8] text-white border border-[#0e4a80] rounded h-[38px] text-[10px] shadow-[0_2px_0_#0e3a68,inset_0_1px_0_rgba(255,255,255,0.15)]",
-      black: "bg-[#1e1e1e] hover:bg-[#2e2e2e] text-white border border-[#333] rounded h-[38px] text-[12px] shadow-[0_2px_0_#000,inset_0_1px_0_rgba(255,255,255,0.08)]",
-      on: "bg-[#1e1e1e] hover:bg-[#2e2e2e] text-white border border-[#333] rounded h-[38px] text-[10px] shadow-[0_2px_0_#000,inset_0_1px_0_rgba(255,255,255,0.08)]",
+  // Button component matching HP 12c real hardware exactly
+  const Key = ({
+    label,
+    onClick,
+    variant = "dark",
+    fLabel,
+    gLabel,
+    wide,
+    className: extraClass,
+  }: {
+    label: string;
+    onClick: () => void;
+    variant?: "dark" | "beige" | "orange" | "blue";
+    fLabel?: string;
+    gLabel?: string;
+    wide?: boolean;
+    className?: string;
+  }) => {
+    const styles = {
+      dark: "bg-[#2a2a2a] hover:bg-[#353535] text-white border-[#444] shadow-[0_3px_0_#111,inset_0_1px_0_rgba(255,255,255,0.06)]",
+      beige: "bg-[#c8bc9e] hover:bg-[#d4c8aa] text-[#1a1a1a] border-[#a89c80] shadow-[0_3px_0_#8a7e66,inset_0_1px_0_rgba(255,255,255,0.35)]",
+      orange: "bg-[#d4760a] hover:bg-[#e0860f] text-white border-[#aa5e08] shadow-[0_3px_0_#7a4406,inset_0_1px_0_rgba(255,255,255,0.12)]",
+      blue: "bg-[#2874a6] hover:bg-[#3085b7] text-white border-[#1c5a82] shadow-[0_3px_0_#134060,inset_0_1px_0_rgba(255,255,255,0.12)]",
     };
 
     return (
-      <div className={cn("flex flex-col items-center", wide ? "col-span-2" : "")}>
-        {/* f-label (orange) above button */}
-        {fLabel ? (
-          <span className="text-[8px] font-semibold text-[#c26a14] leading-none mb-1 h-[10px] whitespace-nowrap">{fLabel}</span>
-        ) : (
-          <span className="h-[10px] mb-1" />
-        )}
-        <button className={cn(base, styles[variant], wide ? "w-full" : "w-full")} onClick={onClick}>
-          <span>{label}</span>
+      <div className={cn("flex flex-col items-center gap-0", wide ? "col-span-2" : "")}>
+        {/* f-label (orange) above */}
+        <span className={cn("text-[7px] font-bold leading-none h-[11px] whitespace-nowrap", fLabel ? "text-[#d4760a]" : "invisible")}>
+          {fLabel || "."}
+        </span>
+        <button
+          className={cn(
+            "w-full font-bold select-none transition-all duration-50 active:translate-y-[2px] active:shadow-none border rounded-[3px]",
+            "h-[34px] text-[11px] min-w-0",
+            styles[variant],
+            extraClass,
+          )}
+          onClick={onClick}
+        >
+          {label}
         </button>
-        {/* g-label (blue) below button */}
-        {gLabel ? (
-          <span className="text-[7px] font-semibold text-[#1a5c9c] leading-none mt-1 h-[9px] whitespace-nowrap">{gLabel}</span>
-        ) : (
-          <span className="h-[9px] mt-1" />
-        )}
+        {/* g-label (blue) below */}
+        <span className={cn("text-[6.5px] font-bold leading-none h-[10px] whitespace-nowrap", gLabel ? "text-[#2874a6]" : "invisible")}>
+          {gLabel || "."}
+        </span>
       </div>
     );
   };
 
   return (
-    <div className="w-full max-w-[480px] mx-auto">
-      {/* Calculator body */}
-      <div className="rounded-2xl p-[3px]" style={{ background: "linear-gradient(145deg, #2a2520, #1a1610, #2a2520)" }}>
-        <div className="rounded-xl overflow-hidden" style={{ background: "linear-gradient(180deg, #3a3428, #2e2820)" }}>
+    <div className="w-full max-w-[540px] mx-auto select-none">
+      {/* Outer beige shell */}
+      <div className="rounded-xl overflow-hidden" style={{ background: "#c8b98a", padding: "12px 10px 6px" }}>
+        
+        {/* LCD Display — greenish with digital font */}
+        <div
+          className="rounded-md mx-auto mb-3 px-5 py-4 text-right font-mono text-3xl tracking-[3px] border"
+          style={{
+            background: "linear-gradient(180deg, #c5cca0, #b0b888)",
+            borderColor: "#8a9060",
+            color: "#1a1e10",
+            fontFamily: "'Courier New', 'Lucida Console', monospace",
+            textShadow: "0 0 2px rgba(0,0,0,0.15)",
+            maxWidth: "320px",
+          }}
+        >
+          {display}
+        </div>
+
+        {/* Dark body with keys */}
+        <div className="rounded-lg p-3 pt-2" style={{ background: "linear-gradient(180deg, #3a3630, #2e2a24, #262220)" }}>
           
-          {/* Top branding */}
-          <div className="flex items-center justify-between px-4 pt-3 pb-1">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-amber-500/50" />
-              <span className="text-[9px] font-bold tracking-[0.25em] text-amber-200/50 uppercase">Hewlett-Packard</span>
-            </div>
-            <span className="text-[10px] font-bold tracking-wider text-amber-200/30">12C</span>
-          </div>
-          
-          {/* LCD Display */}
-          <div className="mx-3 mb-2">
-            <div 
-              className="rounded-lg px-4 py-3 font-mono text-right text-2xl shadow-inner border"
-              style={{ 
-                background: "linear-gradient(180deg, #bcc898, #a8b480)",
-                borderColor: "#7a8060",
-                color: "#1a1a1a",
-                fontFamily: "'Courier New', monospace",
-                letterSpacing: "2px",
-              }}
-            >
-              {display}
-            </div>
-            {/* Financial register readout */}
-            <div className="flex justify-between text-[8px] mt-1 px-1 font-mono" style={{ color: "#8a7e60" }}>
-              <span>n:{financialValues.n.toFixed(0)}</span>
-              <span>i:{financialValues.i.toFixed(2)}%</span>
-              <span>PV:{financialValues.pv.toFixed(0)}</span>
-              <span>PMT:{financialValues.pmt.toFixed(0)}</span>
-              <span>FV:{financialValues.fv.toFixed(0)}</span>
-            </div>
+          {/* Financial register readout */}
+          <div className="flex justify-between text-[8px] mb-2 px-1 font-mono text-amber-400/70">
+            <span>n={financialValues.n.toFixed(0)}</span>
+            <span>i={financialValues.i.toFixed(2)}%</span>
+            <span>PV={financialValues.pv.toFixed(0)}</span>
+            <span>PMT={financialValues.pmt.toFixed(0)}</span>
+            <span>FV={financialValues.fv.toFixed(0)}</span>
           </div>
 
-          {/* Buttons area — 10-column grid matching real HP 12c */}
-          <div className="px-3 pb-4 pt-2">
-            <div className="grid grid-cols-10 gap-x-1 gap-y-0">
+          {/* Key grid — 10 columns, 4 rows — matching real HP 12c */}
+          <div className="grid grid-cols-10 gap-x-[3px] gap-y-[1px]">
 
-              {/* Row 1: n  i  PV  PMT  FV  |  CHS  7  8  9  ÷ */}
-              {btn("n", () => handleFinancialStore("n"), "beige", "AMORT", "12×")}
-              {btn("i", () => handleFinancialStore("i"), "beige", "INT", "12÷")}
-              {btn("PV", () => handleFinancialStore("pv"), "beige", "NPV", "CF₀")}
-              {btn("PMT", () => handleFinancialStore("pmt"), "beige", "RND", "CFⱼ")}
-              {btn("FV", () => handleFinancialStore("fv"), "beige", "IRR", "Nⱼ")}
-              {btn("CHS", () => handleOperator("CHS"), "beige", undefined, undefined)}
-              {btn("7", () => handleNumber("7"), "white", undefined, "BEG")}
-              {btn("8", () => handleNumber("8"), "white", undefined, "END")}
-              {btn("9", () => handleNumber("9"), "white", undefined, "MEM")}
-              {btn("÷", () => handleOperator("÷"), "beige")}
+            {/* ─── Row 1: n i PV PMT FV │ CHS 7 8 9 ÷ ─── */}
+            <Key label="n" onClick={() => handleFinancialStore("n")} variant="beige" fLabel="AMORT" gLabel="12×" />
+            <Key label="i" onClick={() => handleFinancialStore("i")} variant="beige" fLabel="INT" gLabel="12÷" />
+            <Key label="PV" onClick={() => handleFinancialStore("pv")} variant="beige" fLabel="NPV" gLabel="CFo" />
+            <Key label="PMT" onClick={() => handleFinancialStore("pmt")} variant="beige" fLabel="RND" gLabel="CFj" />
+            <Key label="FV" onClick={() => handleFinancialStore("fv")} variant="beige" fLabel="IRR" gLabel="Nj" />
+            <Key label="CHS" onClick={() => handleOperator("CHS")} variant="dark" fLabel="DATE" />
+            <Key label="7" onClick={() => handleNumber("7")} variant="dark" gLabel="BEG" />
+            <Key label="8" onClick={() => handleNumber("8")} variant="dark" gLabel="END" />
+            <Key label="9" onClick={() => handleNumber("9")} variant="dark" gLabel="MEM" />
+            <Key label="÷" onClick={() => handleOperator("÷")} variant="dark" />
 
-              {/* Row 2: yˣ  1/x  %T  Δ%  %  |  EEX  4  5  6  × */}
-              {btn("yˣ", () => handleOperator("yˣ"), "beige", "PRICE", "√x")}
-              {btn("1/x", () => handleOperator("1/x"), "beige", "YTM", "eˣ")}
-              {btn("%T", () => handleOperator("%T"), "beige", "SL", "LN")}
-              {btn("Δ%", () => handleOperator("Δ%"), "beige", "SOYD", "FRAC")}
-              {btn("%", () => handleOperator("%T"), "beige", "DB", "INTG")}
-              {btn("EEX", () => handleNumber("e"), "beige", undefined, "ΔDYS")}
-              {btn("4", () => handleNumber("4"), "white", undefined, "D.MY")}
-              {btn("5", () => handleNumber("5"), "white", undefined, "M.DY")}
-              {btn("6", () => handleNumber("6"), "white", undefined, "x̄w")}
-              {btn("×", () => handleOperator("×"), "beige")}
+            {/* ─── Row 2: yˣ 1/x %T Δ% % │ EEX 4 5 6 × ─── */}
+            <Key label="yˣ" onClick={() => handleOperator("yˣ")} variant="beige" fLabel="PRICE" gLabel="√x" />
+            <Key label="1/x" onClick={() => handleOperator("1/x")} variant="beige" fLabel="YTM" gLabel="eˣ" />
+            <Key label="%T" onClick={() => handleOperator("%T")} variant="beige" fLabel="SL" gLabel="LN" />
+            <Key label="Δ%" onClick={() => handleOperator("Δ%")} variant="beige" fLabel="SOYD" gLabel="FRAC" />
+            <Key label="%" onClick={() => handleOperator("%T")} variant="beige" fLabel="DB" gLabel="INTG" />
+            <Key label="EEX" onClick={() => handleNumber("e")} variant="dark" fLabel="ΔDYS" />
+            <Key label="4" onClick={() => handleNumber("4")} variant="dark" gLabel="D.MY" />
+            <Key label="5" onClick={() => handleNumber("5")} variant="dark" gLabel="M.DY" />
+            <Key label="6" onClick={() => handleNumber("6")} variant="dark" gLabel="x̄w" />
+            <Key label="×" onClick={() => handleOperator("×")} variant="dark" />
 
-              {/* Row 3: R/S  SST  R↓  x⇌y  CLx  |  ENTER (2-wide)  1  2  3  − */}
-              {btn("R/S", () => {}, "beige", "P/R", "PSE")}
-              {btn("SST", () => {}, "beige", "Σ", "BST")}
-              {btn("R↓", () => {}, "beige", "PRGM", "GTO")}
-              {btn("x⇌y", () => {
-                const x = parseFloat(display);
-                setDisplay(stack[0].toString());
-                setStack(prev => [x, prev[1], prev[2], prev[3]]);
-                setIsNewEntry(true);
-              }, "beige", "FIN", "x≤y")}
-              {btn("CLx", handleClear, "beige", "REG", "x=0")}
-              {/* ENTER key — spans 2 cols */}
-              <div className="col-span-2 flex flex-col items-center">
-                <span className="h-[10px] mb-1 text-[8px] font-semibold text-[#c26a14] leading-none">PREFIX</span>
-                <button
-                  className="w-full bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[10px] font-bold shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)] active:brightness-90 active:translate-y-[1px] flex flex-col items-center justify-center leading-[1]"
-                  onClick={handleEnter}
-                >
-                  <span className="text-[8px] leading-none">E</span>
-                  <span className="text-[8px] leading-none">N</span>
-                  <span className="text-[8px] leading-none">T</span>
-                  <span className="text-[8px] leading-none">E</span>
-                  <span className="text-[8px] leading-none">R</span>
-                </button>
-                <span className="h-[9px] mt-1 text-[7px] font-semibold text-[#1a5c9c] leading-none">LSTx</span>
-              </div>
-              {btn("1", () => handleNumber("1"), "white", undefined, "x̂,r")}
-              {btn("2", () => handleNumber("2"), "white", undefined, "ŷ,r")}
-              {btn("3", () => handleNumber("3"), "white", undefined, "n!")}
-              {btn("−", () => handleOperator("-"), "beige")}
+            {/* ─── Row 3: R/S SST R↓ x⇌y CLx │ ENTER(2col) 1 2 3 − ─── */}
+            <Key label="R/S" onClick={() => {}} variant="beige" fLabel="P/R" gLabel="PSE" />
+            <Key label="SST" onClick={() => {}} variant="beige" fLabel="Σ" gLabel="BST" />
+            <Key label="R↓" onClick={() => {}} variant="beige" fLabel="PRGM" gLabel="GTO" />
+            <Key label="x⇌y" onClick={() => {
+              const x = parseFloat(display);
+              setDisplay(stack[0].toString());
+              setStack(prev => [x, prev[1], prev[2], prev[3]]);
+              setIsNewEntry(true);
+            }} variant="beige" fLabel="FIN" gLabel="x≤y" />
+            <Key label="CLx" onClick={handleClear} variant="beige" fLabel="REG" gLabel="x=0" />
 
-              {/* Row 4: ON  f  g  STO  RCL  |  (empty)  0  .  Σ+  + */}
-              {btn("ON", handleClearAll, "on")}
-              <div className="flex flex-col items-center">
-                <span className="h-[10px] mb-1" />
-                <button className="w-full bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[38px] text-[10px] font-bold shadow-[0_2px_0_#7a4510,inset_0_1px_0_rgba(255,255,255,0.15)] active:brightness-90 active:translate-y-[1px]" onClick={() => {}}>
-                  f
-                </button>
-                <span className="h-[9px] mt-1" />
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="h-[10px] mb-1" />
-                <button className="w-full bg-[#1a5c9c] hover:bg-[#2268a8] text-white border border-[#0e4a80] rounded h-[38px] text-[10px] font-bold shadow-[0_2px_0_#0e3a68,inset_0_1px_0_rgba(255,255,255,0.15)] active:brightness-90 active:translate-y-[1px]" onClick={() => {}}>
-                  g
-                </button>
-                <span className="h-[9px] mt-1" />
-              </div>
-              {btn("STO", () => {}, "beige")}
-              {btn("RCL", () => {}, "beige")}
-              {/* Solve row (orange) — displayed as small secondary label row */}
-              <div className="flex flex-col items-center">
-                <span className="h-[10px] mb-1" />
-                <button
-                  className="w-full bg-[#d4cbb3] hover:bg-[#ded5bd] text-[#1a1a1a] border border-[#b0a78f] rounded h-[38px] text-[12px] font-bold shadow-[0_2px_0_#8a8272,inset_0_1px_0_rgba(255,255,255,0.4)] active:brightness-90 active:translate-y-[1px]"
-                  onClick={() => handleNumber("0")}
-                >
-                  0
-                </button>
-                <span className="h-[9px] mt-1 text-[7px] font-semibold text-[#1a5c9c] leading-none">x̄</span>
-              </div>
-              {btn(".", () => handleNumber("."), "white", undefined, "s")}
-              {btn("Σ+", () => {}, "beige", undefined, "Σ−")}
-              {btn("+", () => handleOperator("+"), "beige")}
+            {/* ENTER — spans 2 cols */}
+            <div className="col-span-2 flex flex-col items-center gap-0">
+              <span className="text-[7px] font-bold leading-none h-[11px] text-[#d4760a]">PREFIX</span>
+              <button
+                className="w-full bg-[#c8bc9e] hover:bg-[#d4c8aa] text-[#1a1a1a] border border-[#a89c80] rounded-[3px] h-[34px] text-[8px] font-bold shadow-[0_3px_0_#8a7e66,inset_0_1px_0_rgba(255,255,255,0.35)] active:translate-y-[2px] active:shadow-none flex flex-col items-center justify-center leading-[1] tracking-wider"
+                onClick={handleEnter}
+              >
+                E N T E R
+              </button>
+              <span className="text-[6.5px] font-bold leading-none h-[10px] text-[#2874a6]">LSTx</span>
             </div>
 
-            {/* Solve row — orange buttons for financial solving */}
-            <div className="grid grid-cols-5 gap-1 mt-3 px-0">
-              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("n")}>→n</button>
-              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("i")}>→i</button>
-              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("pv")}>→PV</button>
-              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("pmt")}>→PMT</button>
-              <button className="bg-[#c26a14] hover:bg-[#d47a20] text-white border border-[#9a5510] rounded h-[30px] text-[9px] font-bold shadow-[0_1px_0_#7a4510] active:brightness-90 active:translate-y-[1px]" onClick={() => calculateFinancial("fv")}>→FV</button>
+            <Key label="1" onClick={() => handleNumber("1")} variant="dark" gLabel="x̂,r" />
+            <Key label="2" onClick={() => handleNumber("2")} variant="dark" gLabel="ŷ,r" />
+            <Key label="3" onClick={() => handleNumber("3")} variant="dark" gLabel="n!" />
+            <Key label="−" onClick={() => handleOperator("-")} variant="dark" />
+
+            {/* ─── Row 4: ON f g STO RCL │ (spacer) 0 . Σ+ + ─── */}
+            <Key label="ON" onClick={handleClearAll} variant="dark" />
+            {/* f key — orange */}
+            <div className="flex flex-col items-center gap-0">
+              <span className="text-[7px] font-bold leading-none h-[11px] invisible">.</span>
+              <button
+                className="w-full bg-[#d4760a] hover:bg-[#e0860f] text-white border border-[#aa5e08] rounded-[3px] h-[34px] text-[11px] font-bold shadow-[0_3px_0_#7a4406,inset_0_1px_0_rgba(255,255,255,0.12)] active:translate-y-[2px] active:shadow-none"
+                onClick={() => {}}
+              >
+                f
+              </button>
+              <span className="text-[6.5px] font-bold leading-none h-[10px] invisible">.</span>
             </div>
+            {/* g key — blue */}
+            <div className="flex flex-col items-center gap-0">
+              <span className="text-[7px] font-bold leading-none h-[11px] invisible">.</span>
+              <button
+                className="w-full bg-[#2874a6] hover:bg-[#3085b7] text-white border border-[#1c5a82] rounded-[3px] h-[34px] text-[11px] font-bold shadow-[0_3px_0_#134060,inset_0_1px_0_rgba(255,255,255,0.12)] active:translate-y-[2px] active:shadow-none"
+                onClick={() => {}}
+              >
+                g
+              </button>
+              <span className="text-[6.5px] font-bold leading-none h-[10px] invisible">.</span>
+            </div>
+            <Key label="STO" onClick={() => {}} variant="beige" />
+            <Key label="RCL" onClick={() => {}} variant="beige" />
+
+            {/* spacer for col 6 — occupied by 0 below in original but we keep grid aligned */}
+            <div className="flex flex-col items-center gap-0">
+              <span className="text-[7px] font-bold leading-none h-[11px] invisible">.</span>
+              <span className="h-[34px]" />
+              <span className="text-[6.5px] font-bold leading-none h-[10px] invisible">.</span>
+            </div>
+
+            <Key label="0" onClick={() => handleNumber("0")} variant="dark" gLabel="x̄" />
+            <Key label="." onClick={() => handleNumber(".")} variant="dark" gLabel="s" />
+            <Key label="Σ+" onClick={() => {}} variant="dark" gLabel="Σ−" />
+            <Key label="+" onClick={() => handleOperator("+")} variant="dark" />
+          </div>
+
+          {/* ─── Solve row — orange buttons ─── */}
+          <div className="grid grid-cols-5 gap-1 mt-3">
+            <button className="bg-[#d4760a] hover:bg-[#e0860f] text-white border border-[#aa5e08] rounded-[3px] h-[28px] text-[9px] font-bold shadow-[0_2px_0_#7a4406] active:translate-y-[1px] active:shadow-none" onClick={() => calculateFinancial("n")}>→n</button>
+            <button className="bg-[#d4760a] hover:bg-[#e0860f] text-white border border-[#aa5e08] rounded-[3px] h-[28px] text-[9px] font-bold shadow-[0_2px_0_#7a4406] active:translate-y-[1px] active:shadow-none" onClick={() => calculateFinancial("i")}>→i</button>
+            <button className="bg-[#d4760a] hover:bg-[#e0860f] text-white border border-[#aa5e08] rounded-[3px] h-[28px] text-[9px] font-bold shadow-[0_2px_0_#7a4406] active:translate-y-[1px] active:shadow-none" onClick={() => calculateFinancial("pv")}>→PV</button>
+            <button className="bg-[#d4760a] hover:bg-[#e0860f] text-white border border-[#aa5e08] rounded-[3px] h-[28px] text-[9px] font-bold shadow-[0_2px_0_#7a4406] active:translate-y-[1px] active:shadow-none" onClick={() => calculateFinancial("pmt")}>→PMT</button>
+            <button className="bg-[#d4760a] hover:bg-[#e0860f] text-white border border-[#aa5e08] rounded-[3px] h-[28px] text-[9px] font-bold shadow-[0_2px_0_#7a4406] active:translate-y-[1px] active:shadow-none" onClick={() => calculateFinancial("fv")}>→FV</button>
           </div>
         </div>
       </div>
@@ -330,39 +323,7 @@ export function HP12CCalculatorBody() {
   );
 }
 
-// Legacy wrapper with Drawer for use in other contexts
+// Legacy wrapper with Drawer
 export function HP12CCalculator() {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerTrigger asChild>
-        <button
-          className="text-xs font-semibold border border-warning/40 rounded-md px-2 py-0.5 text-warning bg-warning/5 hover:bg-warning/15 hover:border-warning/60 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md"
-          title="Calculadora HP12C"
-        >
-          HP-12C
-        </button>
-      </DrawerTrigger>
-      <DrawerContent className="max-h-[90vh]">
-        <div className="relative">
-          <DrawerClose className="absolute right-4 top-2 z-10">
-            <X className="h-5 w-5" />
-          </DrawerClose>
-        </div>
-        <DrawerHeader className="text-center pb-1 pt-2 px-4">
-          <DrawerTitle className="flex items-center justify-center gap-2 text-amber-700">
-            <Calculator className="h-5 w-5" />
-            HP 12C - Calculadora Financeira
-          </DrawerTitle>
-          <DrawerDescription className="text-center">
-            Calculadora financeira profissional
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="px-4 pb-5 overflow-y-auto flex flex-col items-center">
-          <HP12CCalculatorBody />
-        </div>
-      </DrawerContent>
-    </Drawer>
-  );
+  return null;
 }
