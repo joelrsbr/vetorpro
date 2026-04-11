@@ -421,20 +421,51 @@ export default function Dashboard() {
           );
         })()}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
-                <Calculator className="h-6 w-6 text-primary-foreground" />
+        {/* Quick Actions — Linha de Comando */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
+          {/* Seu Plano */}
+          <Card className={`shadow-card hover:shadow-lg transition-shadow cursor-pointer ${
+            plan === "business" ? "ring-1 ring-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]" : ""
+          }`} onClick={() => navigate("/precos")}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: plan === "business" ? "linear-gradient(135deg, #059669, #166534)" : plan === "pro" ? "linear-gradient(135deg, #d97706, #92400e)" : "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7))" }}>
+                <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-base">Nova Simulação</h3>
-                <p className="text-sm text-muted-foreground">Calcule um novo financiamento</p>
+                <p className="text-xs text-muted-foreground">Seu Plano</p>
+                <p className={`font-bold text-sm capitalize ${plan === "business" ? "text-emerald-600" : plan === "pro" ? "text-amber-600" : ""}`}>
+                  {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Inativo"}
+                </p>
               </div>
             </CardContent>
           </Card>
-          
+
+          {/* Nova Simulação */}
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600">
+                <Calculator className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Nova Simulação</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* HP 12c Financeira */}
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowHP12C(true)}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #b8860b, #8b6914)" }}>
+                <Calculator className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">HP 12c</p>
+                <p className="text-xs text-muted-foreground">Financeira</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* BANCOS — Sondagem Estratégica */}
           <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
@@ -445,37 +476,23 @@ export default function Dashboard() {
               }
             }}
           >
-            <CardContent className="pt-6 flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, hsl(220 70% 18%), #166534)" }}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600 relative">
                 <Landmark className="h-6 w-6 text-white" />
+                {plan !== "business" && (
+                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
+                )}
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base uppercase tracking-wide">Bancos</h3>
-                  {plan !== "business" && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
-                        Ao migrar para o Business, o valor do seu plano atual é descontado proporcionalmente.
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-                {plan !== "business" ? (
-                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
-                    <Crown className="h-3.5 w-3.5 mr-1.5" />
-                    Exclusivo-Business
-                  </Button>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Sondagem Estratégica</p>
+                <p className="font-semibold text-sm uppercase tracking-wide">Bancos</p>
+                {plan !== "business" && (
+                  <p className="text-[10px] text-muted-foreground">Business</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Personalize sua IA — opens voice tone dialog */}
+          {/* Personalize sua IA */}
           <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
@@ -486,34 +503,17 @@ export default function Dashboard() {
               }
             }}
           >
-            <CardContent className="pt-6 flex items-start gap-4">
-              <div className="relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #16a34a, #166534)" }}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600 relative">
                 <BrainCog className="h-6 w-6 text-white" />
                 {plan !== "business" && (
                   <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
                 )}
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="font-semibold text-base">Personalize sua IA</h3>
-                  {plan !== "business" && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
-                        Ao migrar para o Business, o valor do seu plano atual é descontado proporcionalmente.
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-                {plan !== "business" ? (
-                  <Button variant="outline" size="sm" className="whitespace-nowrap mt-1" onClick={(e) => { e.stopPropagation(); setShowCustomizationPaywall(true); }}>
-                    <Crown className="h-3.5 w-3.5 mr-1.5" />
-                    Exclusivo-Business
-                  </Button>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Tom de voz e identidade visual</p>
+                <p className="font-semibold text-sm">Personalize IA</p>
+                {plan !== "business" && (
+                  <p className="text-[10px] text-muted-foreground">Business</p>
                 )}
               </div>
             </CardContent>
@@ -524,30 +524,29 @@ export default function Dashboard() {
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => navigate("/personalizacao")}
           >
-            <CardContent className="pt-6 flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600">
                 <Pencil className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-base">Sua Marca</h3>
-                <p className="text-sm text-muted-foreground">Personalize PDFs com seu nome</p>
+                <p className="font-semibold text-sm">Sua Marca</p>
+                <p className="text-xs text-muted-foreground">White Label</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Ver Planos */}
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 bg-muted">
-                <Crown className="h-6 w-6 text-muted-foreground" />
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600">
+                <Crown className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-base">Ver Planos</h3>
-                <p className="text-sm text-muted-foreground">Compare os benefícios</p>
+                <p className="font-semibold text-sm">Ver Planos</p>
               </div>
             </CardContent>
           </Card>
-
+        </div>
         </div>
 
         <BusinessPaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
