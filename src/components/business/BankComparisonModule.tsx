@@ -236,6 +236,12 @@ export function BankComparisonModule() {
                         Menor Custo
                       </Badge>
                     )}
+                    {result.isRegional && (
+                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 gap-1 border-amber-500/50 text-amber-600 dark:text-amber-400">
+                        <MapPin className="h-3 w-3" />
+                        Destaque Regional
+                      </Badge>
+                    )}
                   </div>
 
                   <CardHeader className="pb-2 pt-4">
@@ -275,6 +281,9 @@ export function BankComparisonModule() {
                               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                             >
                               {result.rate.toFixed(2)}% a.a.
+                              {result.spread > 0 && (
+                                <span className="text-[10px] text-muted-foreground ml-1">(+{result.spread.toFixed(2)}% spread = {result.effectiveRate.toFixed(2)}%)</span>
+                              )}
                               <Edit3 className="h-3 w-3" />
                             </button>
                           )}
