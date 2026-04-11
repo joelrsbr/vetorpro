@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Info, X } from "lucide-react";
 
 type FinancialValues = { n: number; i: number; pv: number; pmt: number; fv: number };
@@ -8,15 +8,22 @@ function useHP12CEngine() {
   const [stack, setStack] = useState<number[]>([0, 0, 0, 0]);
   const [fin, setFin] = useState<FinancialValues>({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 });
   const [isNew, setIsNew] = useState(true);
+  const [isOn, setIsOn] = useState(true);
   const push = useCallback((v: number) => { setStack((s) => [v, s[0], s[1], s[2]]); }, []);
   const num = (d: string) => {
+    if (!isOn) return;
     if (isNew) { setDisplay(d === "." ? "0." : d); setIsNew(false); }
     else { if (d === "." && display.includes(".")) return; setDisplay(display + d); }
   };
   const enter = () => { push(parseFloat(display)); setIsNew(true); };
   const clx = () => { setDisplay("0"); setIsNew(true); };
-  const clAll = () => { setDisplay("0.00"); setStack([0, 0, 0, 0]); setFin({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 }); setIsNew(true); };
+  const clAll = () => { setDisplay("0.00"); setStack([0, 0, 0, 0]); setFin({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 }); setIsNew(true); setIsOn(true); };
+  const onKey = () => {
+    if (!isOn) { setIsOn(true); setDisplay("0.00"); setIsNew(true); return; }
+    num(".");
+  };
   const op = (o: string) => {
+    if (!isOn) return;
     const x = parseFloat(display), y = stack[0]; let r = 0;
     switch (o) {
       case "+": r = y + x; break; case "-": r = y - x; break;
@@ -28,7 +35,7 @@ function useHP12CEngine() {
     }
     setStack((s) => [s[1], s[2], s[3], x]); setDisplay(r.toFixed(6).replace(/\.?0+$/, "")); setIsNew(true);
   };
-  const storeFin = (k: keyof FinancialValues) => { setFin((p) => ({ ...p, [k]: parseFloat(display) })); enter(); };
+  const storeFin = (k: keyof FinancialValues) => { if (!isOn) return; setFin((p) => ({ ...p, [k]: parseFloat(display) })); enter(); };
   const swapXY = () => { const x = parseFloat(display); setDisplay(stack[0].toString()); setStack((s) => [x, s[1], s[2], s[3]]); setIsNew(true); };
   const solve = (k: keyof FinancialValues) => {
     const { n, i, pv, pmt, fv } = fin; const r = i / 100; let res = 0;
@@ -43,7 +50,7 @@ function useHP12CEngine() {
       setFin((p) => ({ ...p, [k]: res })); setDisplay(res.toFixed(2)); setIsNew(true);
     } catch { setDisplay("Error"); setIsNew(true); }
   };
-  return { display, fin, num, enter, clx, clAll, op, storeFin, swapXY, solve };
+  return { display, fin, isOn, num, enter, clx, clAll, onKey, op, storeFin, swapXY, solve };
 }
 
 function GlossaryPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -74,7 +81,6 @@ function GlossaryPanel({ open, onClose }: { open: boolean; onClose: () => void }
 /* ═══ Styles — desaturated, matte, hardware-like ═══ */
 
 const S = {
-  // Matte dark plastic button — worn, not glossy
   btn: {
     width: "42px", height: "27px",
     border: "1px solid #3d3830",
@@ -149,20 +155,38 @@ function Btn({ label, fLabel, gLabel, styleOverride, onClick, small }: {
   );
 }
 
+function useResponsiveScale(baseWidth: number) {
+  const [scale, setScale] = useState(1.25);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) { setScale(1.25); }
+      else if (w >= 768) { setScale(Math.min(1.0, (w - 40) / baseWidth)); }
+      else { setScale(Math.min(1.0, (w - 24) / baseWidth)); }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [baseWidth]);
+  return scale;
+}
+
 export function HP12CCalculatorBody() {
   const e = useHP12CEngine();
   const [glossary, setGlossary] = useState(false);
+  const scale = useResponsiveScale(500);
 
   return (
-    <div style={{ width: "500px", margin: "0 auto", userSelect: "none", position: "relative" }}>
-      {/* Beige shell — desaturated, matte */}
+    <div style={{ width: "100%", display: "flex", justifyContent: "center", userSelect: "none", position: "relative" }}>
+      <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", width: "500px" }}>
+      {/* Beige shell */}
       <div style={{
         background: "linear-gradient(170deg, #b5aa88 0%, #a89e7a 50%, #9e9470 100%)",
         borderRadius: "6px",
         padding: "10px 10px 5px",
         boxShadow: "0 4px 12px rgba(0,0,0,0.35), inset 0 0.5px 0 rgba(255,255,255,0.2)",
       }}>
-        {/* LCD — dark olive, matte, frosted */}
+        {/* LCD */}
         <div style={{ display: "flex", alignItems: "stretch", gap: "4px", marginBottom: "6px" }}>
           <div style={{
             flex: 1, borderRadius: "3px", padding: "8px 14px", textAlign: "right" as const,
@@ -249,7 +273,7 @@ export function HP12CCalculatorBody() {
                 <Btn label="CLx" fLabel="REG"  gLabel="x=0" onClick={e.clx} small />
               </div>
               <div style={{ display: "flex", gap: "3px" }}>
-                <Btn label="ON"  onClick={e.clAll} />
+                <Btn label="ON"  onClick={e.onKey} />
                 <Btn label="f"   onClick={() => {}} styleOverride={S.btnOrange} />
                 <Btn label="g"   onClick={() => {}} styleOverride={S.btnBlue} />
                 <Btn label="STO" onClick={() => {}} small />
@@ -293,6 +317,7 @@ export function HP12CCalculatorBody() {
             </div>
           </div>
         </div>
+      </div>
       </div>
       <GlossaryPanel open={glossary} onClose={() => setGlossary(false)} />
     </div>
