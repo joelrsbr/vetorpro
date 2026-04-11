@@ -491,13 +491,15 @@ export function HP12CCalculatorBody() {
           border: "1px solid #3a3630",
           boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
         }}>
-          {/* Financial readout */}
+          {/* Financial readout + modifier indicator */}
           <div style={{
             display: "flex", justifyContent: "space-between",
             fontSize: "6.5px", fontFamily: "monospace", color: "rgba(180,150,80,0.45)",
             padding: "0 1px 3px", lineHeight: 1,
           }}>
-            <span>n={e.fin.n.toFixed(0)}</span>
+            <span style={{ color: e.modifier === "f" ? "#a06810" : e.modifier === "g" ? "#3580a0" : e.stoMode ? "#c8c0b0" : e.rclMode ? "#c8c0b0" : "rgba(180,150,80,0.45)", fontWeight: (e.modifier || e.stoMode || e.rclMode) ? 700 : 400 }}>
+              {e.modifier === "f" ? "f" : e.modifier === "g" ? "g" : e.stoMode ? "STO_" : e.rclMode ? "RCL_" : `n=${e.fin.n.toFixed(0)}`}
+            </span>
             <span>i={e.fin.i.toFixed(2)}%</span>
             <span>PV={e.fin.pv.toFixed(0)}</span>
             <span>PMT={e.fin.pmt.toFixed(0)}</span>
