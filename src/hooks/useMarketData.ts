@@ -21,8 +21,8 @@ export interface MarketData {
 // Fallback values in case API is unreachable
 const FALLBACK_DATA: MarketData = {
   currencies: {
-    usd: { value: 5.21, variation: 0 },
-    eur: { value: 5.68, variation: 0 },
+    usd: { value: 5.01, variation: 0 },
+    eur: { value: 5.43, variation: 0 },
   },
   rates: {
     selic: { value: 13.25, period: "a.a." },

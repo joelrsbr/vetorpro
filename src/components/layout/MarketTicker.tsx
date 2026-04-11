@@ -28,7 +28,15 @@ export function MarketTicker() {
 
   const items: TickerItem[] = [];
 
-  // Rates — always visible with distinct colors
+  // Currencies FIRST for Pro/Business — always visible at the start
+  if (!isBasic) {
+    const usd = data.currencies.USD || data.currencies.usd || { value: 5.01, variation: 0 };
+    const eur = data.currencies.EUR || data.currencies.eur || { value: 5.43, variation: 0 };
+    items.push({ label: "USD", value: formatCurrency(usd.value), variation: usd.variation, isCurrency: true, flag: "🇺🇸", color: "text-green-400" });
+    items.push({ label: "EUR", value: formatCurrency(eur.value), variation: eur.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
+  }
+
+  // Rates
   if (data.rates.selic) items.push({ label: "SELIC", value: formatRate(data.rates.selic.value, data.rates.selic.period), color: "text-cyan-400" });
   if (data.rates.ipca) items.push({ label: "IPCA", value: formatRate(data.rates.ipca.value, data.rates.ipca.period), variation: data.rates.ipca.value >= 0 ? data.rates.ipca.value : -data.rates.ipca.value, color: "text-amber-400" });
   if (data.rates.igpm) items.push({ label: "IGP-M", value: formatRate(data.rates.igpm.value, data.rates.igpm.period), color: "text-orange-400" });
@@ -36,14 +44,6 @@ export function MarketTicker() {
   if (data.rates.tr) items.push({ label: "TR", value: formatRate(data.rates.tr.value, data.rates.tr.period), color: "text-teal-400" });
   if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
   if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
-
-  // Currencies — visible for Pro and Business (fallback to static values)
-  if (!isBasic) {
-    const usd = data.currencies.USD || data.currencies.usd || { value: 5.05, variation: 0 };
-    const eur = data.currencies.EUR || data.currencies.eur || { value: 5.45, variation: 0 };
-    items.push({ label: "USD", value: formatCurrency(usd.value), variation: usd.variation, isCurrency: true, flag: "🇺🇸", color: "text-green-400" });
-    items.push({ label: "EUR", value: formatCurrency(eur.value), variation: eur.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
-  }
 
   // Plan badge
   const planLabel = plan === "business" ? "Business" : plan === "pro" ? "Professional" : "Basic";
