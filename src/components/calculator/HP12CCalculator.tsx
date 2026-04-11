@@ -21,7 +21,7 @@ type FinancialValues = {
   fv: number;
 };
 
-export function HP12CCalculator() {
+export function HP12CCalculatorBody() {
   const [display, setDisplay] = useState("0");
   const [memory, setMemory] = useState(0);
   const [stack, setStack] = useState<number[]>([0, 0, 0, 0]); // Y, Z, T, Last X
@@ -197,6 +197,86 @@ export function HP12CCalculator() {
   };
 
   return (
+    <Card className="bg-[#1e2024] border-[#33363b] w-full max-w-xs shadow-2xl mx-auto">
+      <CardHeader className="py-3 px-3">
+        <CardTitle className="sr-only">HP 12C</CardTitle>
+        <div className="bg-[#c8d4a2] rounded-lg p-3 font-mono text-right text-2xl text-neutral-800 shadow-inner border-2 border-neutral-600">
+          {display}
+        </div>
+        <div className="flex justify-between text-[10px] text-amber-400/70 mt-2 px-0.5">
+          <span>n:{financialValues.n.toFixed(0)}</span>
+          <span>i:{financialValues.i.toFixed(2)}%</span>
+          <span>PV:{financialValues.pv.toFixed(0)}</span>
+          <span>PMT:{financialValues.pmt.toFixed(0)}</span>
+          <span>FV:{financialValues.fv.toFixed(0)}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-1.5 px-3 pb-3">
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("n", () => handleFinancialStore("n"), "financial")}
+          {hp12cButton("i", () => handleFinancialStore("i"), "financial")}
+          {hp12cButton("PV", () => handleFinancialStore("pv"), "financial")}
+          {hp12cButton("PMT", () => handleFinancialStore("pmt"), "financial")}
+          {hp12cButton("FV", () => handleFinancialStore("fv"), "financial")}
+        </div>
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("→n", () => calculateFinancial("n"), "operator")}
+          {hp12cButton("→i", () => calculateFinancial("i"), "operator")}
+          {hp12cButton("→PV", () => calculateFinancial("pv"), "operator")}
+          {hp12cButton("→PMT", () => calculateFinancial("pmt"), "operator")}
+          {hp12cButton("→FV", () => calculateFinancial("fv"), "operator")}
+        </div>
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("Δ%", () => handleOperator("Δ%"), "financial")}
+          {hp12cButton("%T", () => handleOperator("%T"), "financial")}
+          {hp12cButton("1/x", () => handleOperator("1/x"), "financial")}
+          {hp12cButton("√x", () => handleOperator("√x"), "financial")}
+          {hp12cButton("yˣ", () => handleOperator("yˣ"), "financial")}
+        </div>
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("7", () => handleNumber("7"))}
+          {hp12cButton("8", () => handleNumber("8"))}
+          {hp12cButton("9", () => handleNumber("9"))}
+          {hp12cButton("÷", () => handleOperator("÷"), "operator")}
+          {hp12cButton("CLX", handleClear, "clear")}
+        </div>
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("4", () => handleNumber("4"))}
+          {hp12cButton("5", () => handleNumber("5"))}
+          {hp12cButton("6", () => handleNumber("6"))}
+          {hp12cButton("×", () => handleOperator("×"), "operator")}
+          {hp12cButton("CLR", handleClearAll, "clear")}
+        </div>
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("1", () => handleNumber("1"))}
+          {hp12cButton("2", () => handleNumber("2"))}
+          {hp12cButton("3", () => handleNumber("3"))}
+          {hp12cButton("-", () => handleOperator("-"), "operator")}
+          {hp12cButton("CHS", () => handleOperator("CHS"), "financial")}
+        </div>
+        <div className="grid grid-cols-5 gap-1">
+          {hp12cButton("0", () => handleNumber("0"))}
+          {hp12cButton(".", () => handleNumber("."))}
+          <Button
+            variant="outline"
+            className="h-10 text-sm font-semibold bg-neutral-700 hover:bg-neutral-600 text-white border-neutral-600 col-span-1 shadow-md active:translate-y-0.5 transition-transform"
+            onClick={handleEnter}
+          >
+            ENT
+          </Button>
+          {hp12cButton("+", () => handleOperator("+"), "operator")}
+          <div />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Legacy wrapper with Drawer for use in other contexts
+export function HP12CCalculator() {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
         <button
@@ -221,94 +301,8 @@ export function HP12CCalculator() {
             Calculadora financeira profissional
           </DrawerDescription>
         </DrawerHeader>
-        
         <div className="px-4 pb-5 overflow-y-auto flex flex-col items-center">
-          <Card className="bg-[#1e2024] border-[#33363b] w-full max-w-xs shadow-2xl">
-            <CardHeader className="py-3 px-3">
-              <CardTitle className="sr-only">HP 12C</CardTitle>
-              {/* Display */}
-              <div className="bg-[#c8d4a2] rounded-lg p-3 font-mono text-right text-2xl text-neutral-800 shadow-inner border-2 border-neutral-600">
-                {display}
-              </div>
-              {/* Financial Register Indicators */}
-              <div className="flex justify-between text-[10px] text-amber-400/70 mt-2 px-0.5">
-                <span>n:{financialValues.n.toFixed(0)}</span>
-                <span>i:{financialValues.i.toFixed(2)}%</span>
-                <span>PV:{financialValues.pv.toFixed(0)}</span>
-                <span>PMT:{financialValues.pmt.toFixed(0)}</span>
-                <span>FV:{financialValues.fv.toFixed(0)}</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-1.5 px-3 pb-3">
-              {/* Financial Keys Row */}
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("n", () => handleFinancialStore("n"), "financial")}
-                {hp12cButton("i", () => handleFinancialStore("i"), "financial")}
-                {hp12cButton("PV", () => handleFinancialStore("pv"), "financial")}
-                {hp12cButton("PMT", () => handleFinancialStore("pmt"), "financial")}
-                {hp12cButton("FV", () => handleFinancialStore("fv"), "financial")}
-              </div>
-              
-              {/* Solve Keys Row */}
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("→n", () => calculateFinancial("n"), "operator")}
-                {hp12cButton("→i", () => calculateFinancial("i"), "operator")}
-                {hp12cButton("→PV", () => calculateFinancial("pv"), "operator")}
-                {hp12cButton("→PMT", () => calculateFinancial("pmt"), "operator")}
-                {hp12cButton("→FV", () => calculateFinancial("fv"), "operator")}
-              </div>
-              
-              {/* Function Keys */}
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("Δ%", () => handleOperator("Δ%"), "financial")}
-                {hp12cButton("%T", () => handleOperator("%T"), "financial")}
-                {hp12cButton("1/x", () => handleOperator("1/x"), "financial")}
-                {hp12cButton("√x", () => handleOperator("√x"), "financial")}
-                {hp12cButton("yˣ", () => handleOperator("yˣ"), "financial")}
-              </div>
-              
-              {/* Number Pad */}
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("7", () => handleNumber("7"))}
-                {hp12cButton("8", () => handleNumber("8"))}
-                {hp12cButton("9", () => handleNumber("9"))}
-                {hp12cButton("÷", () => handleOperator("÷"), "operator")}
-                {hp12cButton("CLX", handleClear, "clear")}
-              </div>
-              
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("4", () => handleNumber("4"))}
-                {hp12cButton("5", () => handleNumber("5"))}
-                {hp12cButton("6", () => handleNumber("6"))}
-                {hp12cButton("×", () => handleOperator("×"), "operator")}
-                {hp12cButton("CLR", handleClearAll, "clear")}
-              </div>
-              
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("1", () => handleNumber("1"))}
-                {hp12cButton("2", () => handleNumber("2"))}
-                {hp12cButton("3", () => handleNumber("3"))}
-                {hp12cButton("-", () => handleOperator("-"), "operator")}
-                {hp12cButton("CHS", () => handleOperator("CHS"), "financial")}
-              </div>
-              
-              <div className="grid grid-cols-5 gap-1">
-                {hp12cButton("0", () => handleNumber("0"))}
-                {hp12cButton(".", () => handleNumber("."))}
-                <Button
-                  variant="outline"
-                  className="h-10 text-sm font-semibold bg-neutral-700 hover:bg-neutral-600 text-white border-neutral-600 col-span-1 shadow-md active:translate-y-0.5 transition-transform"
-                  onClick={handleEnter}
-                >
-                  ENT
-                </Button>
-                {hp12cButton("+", () => handleOperator("+"), "operator")}
-                <div />
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Instructions */}
+          <HP12CCalculatorBody />
           <div className="mt-3 text-center text-xs text-muted-foreground max-w-xs">
             <p className="mb-1"><strong>Como usar:</strong></p>
             <p>Digite valores e pressione as teclas (n, i, PV, PMT, FV) para armazenar.</p>
