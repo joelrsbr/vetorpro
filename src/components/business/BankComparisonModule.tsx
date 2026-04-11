@@ -53,7 +53,7 @@ export function BankComparisonModule() {
       if (a.bankId === relationshipBank && b.bankId !== relationshipBank) return -1;
       if (b.bankId === relationshipBank && a.bankId !== relationshipBank) return 1;
     }
-    return a.totalPaid - b.totalPaid;
+    return a.totalCET - b.totalCET;
   });
 
   const toggleRelationship = (bankId: string) => {

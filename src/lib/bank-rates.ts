@@ -181,10 +181,10 @@ export function simulateAllBanks(
 
   if (results.length > 0) {
     const minRate = Math.min(...results.map((s) => s.effectiveRate));
-    const minCost = Math.min(...results.map((s) => s.totalPaid));
+    const minCost = Math.min(...results.map((s) => s.totalCET));
     results.forEach((s) => {
       if (s.effectiveRate === minRate) s.isBestRate = true;
-      if (s.totalPaid === minCost) s.isLowestCost = true;
+      if (s.totalCET === minCost) s.isLowestCost = true;
     });
   }
 
