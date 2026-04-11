@@ -46,7 +46,7 @@ const Precos = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-border bg-background/95 text-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-accent-foreground"
+                  className="border-border shadow-sm backdrop-blur text-muted-foreground bg-accent-foreground"
                   onClick={() => navigate("/dashboard")}
                 >
                   <ArrowLeft className="h-4 w-4 mr-1" />
