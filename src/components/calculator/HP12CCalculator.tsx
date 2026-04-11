@@ -1,56 +1,326 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Info, X } from "lucide-react";
 
 type FinancialValues = { n: number; i: number; pv: number; pmt: number; fv: number };
+type Modifier = null | "f" | "g";
+
+const STORAGE_KEY = "hp12c_session";
+
+interface HP12CState {
+  display: string;
+  stack: [number, number, number, number];
+  fin: FinancialValues;
+  mem: number[];
+  isOn: boolean;
+  isNew: boolean;
+  lastX: number;
+}
+
+function defaultState(): HP12CState {
+  return {
+    display: "0.00",
+    stack: [0, 0, 0, 0],
+    fin: { n: 0, i: 0, pv: 0, pmt: 0, fv: 0 },
+    mem: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    isOn: true,
+    isNew: true,
+    lastX: 0,
+  };
+}
+
+function loadState(): HP12CState {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return defaultState();
+}
 
 function useHP12CEngine() {
-  const [display, setDisplay] = useState("0.00");
-  const [stack, setStack] = useState<number[]>([0, 0, 0, 0]);
-  const [fin, setFin] = useState<FinancialValues>({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 });
-  const [isNew, setIsNew] = useState(true);
-  const [isOn, setIsOn] = useState(true);
-  const push = useCallback((v: number) => { setStack((s) => [v, s[0], s[1], s[2]]); }, []);
-  const num = (d: string) => {
-    if (!isOn) return;
-    if (isNew) { setDisplay(d === "." ? "0." : d); setIsNew(false); }
-    else { if (d === "." && display.includes(".")) return; setDisplay(display + d); }
-  };
-  const enter = () => { push(parseFloat(display)); setIsNew(true); };
-  const clx = () => { setDisplay("0"); setIsNew(true); };
-  const clAll = () => { setDisplay("0.00"); setStack([0, 0, 0, 0]); setFin({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 }); setIsNew(true); setIsOn(true); };
-  const onKey = () => {
-    if (!isOn) { setIsOn(true); setDisplay("0.00"); setIsNew(true); return; }
-    num(".");
-  };
-  const op = (o: string) => {
-    if (!isOn) return;
-    const x = parseFloat(display), y = stack[0]; let r = 0;
-    switch (o) {
-      case "+": r = y + x; break; case "-": r = y - x; break;
-      case "×": r = y * x; break; case "÷": r = x !== 0 ? y / x : 0; break;
-      case "Δ%": r = x !== 0 ? ((y - x) / x) * 100 : 0; break;
-      case "%T": r = y !== 0 ? (x / y) * 100 : 0; break;
-      case "yˣ": r = Math.pow(y, x); break; case "1/x": r = x !== 0 ? 1 / x : 0; break;
-      case "√x": r = Math.sqrt(x); break; case "CHS": setDisplay((-x).toString()); return;
+  const [s, setS] = useState<HP12CState>(loadState);
+  const [modifier, setModifier] = useState<Modifier>(null);
+  const [stoMode, setStoMode] = useState(false);
+  const [rclMode, setRclMode] = useState(false);
+
+  // Persist to sessionStorage on every state change
+  useEffect(() => {
+    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+  }, [s]);
+
+  const x = parseFloat(s.display) || 0;
+
+  const upd = useCallback((partial: Partial<HP12CState>) => {
+    setS(prev => ({ ...prev, ...partial }));
+  }, []);
+
+  const pushStack = useCallback((v: number, st: [number, number, number, number]): [number, number, number, number] => {
+    return [v, st[0], st[1], st[2]];
+  }, []);
+
+  const num = useCallback((d: string) => {
+    if (!s.isOn) return;
+    // If STO/RCL mode is active and digit 0-9 pressed
+    if (stoMode && d >= "0" && d <= "9") {
+      const idx = parseInt(d);
+      setS(prev => {
+        const newMem = [...prev.mem];
+        newMem[idx] = parseFloat(prev.display) || 0;
+        return { ...prev, mem: newMem };
+      });
+      setStoMode(false);
+      return;
     }
-    setStack((s) => [s[1], s[2], s[3], x]); setDisplay(r.toFixed(6).replace(/\.?0+$/, "")); setIsNew(true);
-  };
-  const storeFin = (k: keyof FinancialValues) => { if (!isOn) return; setFin((p) => ({ ...p, [k]: parseFloat(display) })); enter(); };
-  const swapXY = () => { const x = parseFloat(display); setDisplay(stack[0].toString()); setStack((s) => [x, s[1], s[2], s[3]]); setIsNew(true); };
-  const solve = (k: keyof FinancialValues) => {
-    const { n, i, pv, pmt, fv } = fin; const r = i / 100; let res = 0;
+    if (rclMode && d >= "0" && d <= "9") {
+      const idx = parseInt(d);
+      setS(prev => ({
+        ...prev,
+        display: prev.mem[idx].toString(),
+        isNew: true,
+      }));
+      setRclMode(false);
+      return;
+    }
+    setStoMode(false);
+    setRclMode(false);
+
+    if (s.isNew) {
+      upd({ display: d === "." ? "0." : d, isNew: false });
+    } else {
+      if (d === "." && s.display.includes(".")) return;
+      upd({ display: s.display + d });
+    }
+    setModifier(null);
+  }, [s.isOn, s.isNew, s.display, stoMode, rclMode, upd]);
+
+  const enter = useCallback(() => {
+    if (!s.isOn) return;
+    const val = parseFloat(s.display) || 0;
+    upd({ stack: pushStack(val, s.stack), isNew: true });
+    setModifier(null);
+  }, [s.isOn, s.display, s.stack, upd, pushStack]);
+
+  const clx = useCallback(() => {
+    if (!s.isOn) return;
+    upd({ display: "0", isNew: true });
+  }, [s.isOn, upd]);
+
+  const clAll = useCallback(() => {
+    const fresh = defaultState();
+    setS(fresh);
+    setModifier(null);
+    setStoMode(false);
+    setRclMode(false);
+  }, []);
+
+  const onKey = useCallback(() => {
+    if (!s.isOn) {
+      upd({ isOn: true, display: "0.00", isNew: true });
+      return;
+    }
+    num(".");
+  }, [s.isOn, upd, num]);
+
+  const op = useCallback((o: string) => {
+    if (!s.isOn) return;
+    const xVal = parseFloat(s.display) || 0;
+    const yVal = s.stack[0];
+    let r = 0;
+    let unary = false;
+
+    switch (o) {
+      case "+": r = yVal + xVal; break;
+      case "-": r = yVal - xVal; break;
+      case "×": r = yVal * xVal; break;
+      case "÷": r = xVal !== 0 ? yVal / xVal : 0; break;
+      case "Δ%": r = xVal !== 0 ? ((yVal - xVal) / xVal) * 100 : 0; break;
+      case "%T": r = yVal !== 0 ? (xVal / yVal) * 100 : 0; break;
+      case "yˣ": r = Math.pow(yVal, xVal); break;
+      case "1/x": r = xVal !== 0 ? 1 / xVal : 0; unary = true; break;
+      case "√x": r = Math.sqrt(Math.abs(xVal)); unary = true; break;
+      case "CHS":
+        upd({ display: (-(parseFloat(s.display) || 0)).toString() });
+        setModifier(null);
+        return;
+    }
+
+    if (unary) {
+      upd({
+        display: formatResult(r),
+        isNew: true,
+        lastX: xVal,
+      });
+    } else {
+      // Binary op: consume Y, drop stack
+      upd({
+        stack: [s.stack[1], s.stack[2], s.stack[3], s.stack[3]],
+        display: formatResult(r),
+        isNew: true,
+        lastX: xVal,
+      });
+    }
+    setModifier(null);
+  }, [s, upd]);
+
+  const swapXY = useCallback(() => {
+    if (!s.isOn) return;
+    const xVal = parseFloat(s.display) || 0;
+    upd({
+      display: s.stack[0].toString(),
+      stack: [xVal, s.stack[1], s.stack[2], s.stack[3]],
+      isNew: true,
+    });
+  }, [s, upd]);
+
+  const rollDown = useCallback(() => {
+    if (!s.isOn) return;
+    const xVal = parseFloat(s.display) || 0;
+    upd({
+      display: s.stack[0].toString(),
+      stack: [s.stack[1], s.stack[2], xVal, s.stack[3]],
+      isNew: true,
+    });
+  }, [s, upd]);
+
+  const storeFin = useCallback((k: keyof FinancialValues) => {
+    if (!s.isOn) return;
+    const val = parseFloat(s.display) || 0;
+    upd({
+      fin: { ...s.fin, [k]: val },
+      isNew: true,
+    });
+    setModifier(null);
+  }, [s, upd]);
+
+  // TVM solver using Newton-Raphson for i, and exact formulas for others
+  const solveFin = useCallback((k: keyof FinancialValues) => {
+    if (!s.isOn) return;
+    const { n, i, pv, pmt, fv } = s.fin;
+    const rate = i / 100;
+    let res = 0;
+
     try {
       switch (k) {
-        case "n": if (r !== 0 && pmt !== 0) res = Math.log((pmt - fv * r) / (pmt + pv * r)) / Math.log(1 + r); break;
-        case "i": res = ((-pmt * n - fv - pv) / (pv * n)) * 100; break;
-        case "pv": if (r !== 0) res = -pmt * (1 - Math.pow(1 + r, -n)) / r - fv * Math.pow(1 + r, -n); break;
-        case "pmt": if (r !== 0 && n > 0) { const f = Math.pow(1 + r, n); res = -(pv * r * f) / (f - 1) - (fv * r) / (f - 1); } break;
-        case "fv": if (r !== 0) { const f = Math.pow(1 + r, n); res = -pv * f - pmt * (f - 1) / r; } break;
+        case "n": {
+          if (rate === 0) {
+            if (pmt !== 0) res = -(pv + fv) / pmt;
+          } else {
+            const num = Math.log((pmt - fv * rate) / (pmt + pv * rate));
+            const den = Math.log(1 + rate);
+            res = num / den;
+          }
+          break;
+        }
+        case "i": {
+          // Newton-Raphson to solve for i
+          let guess = 0.01;
+          for (let iter = 0; iter < 200; iter++) {
+            const g = guess;
+            if (g === 0) { guess = 0.0001; continue; }
+            const f1 = Math.pow(1 + g, n);
+            const pvCalc = pmt * (1 - 1 / f1) / g + fv / f1 + pv;
+            const dPv = -pmt * (1 / (g * g) * (1 - 1 / f1) - n / (g * f1)) - n * fv / (f1 * (1 + g));
+            const delta = pvCalc / dPv;
+            guess -= delta;
+            if (Math.abs(delta) < 1e-12) break;
+          }
+          res = guess * 100;
+          break;
+        }
+        case "pv": {
+          if (rate === 0) {
+            res = -pmt * n - fv;
+          } else {
+            const f1 = Math.pow(1 + rate, n);
+            res = -pmt * (1 - 1 / f1) / rate - fv / f1;
+          }
+          break;
+        }
+        case "pmt": {
+          if (rate === 0) {
+            if (n !== 0) res = -(pv + fv) / n;
+          } else {
+            const f1 = Math.pow(1 + rate, n);
+            res = -(pv * rate * f1 + fv * rate) / (f1 - 1);
+          }
+          break;
+        }
+        case "fv": {
+          if (rate === 0) {
+            res = -pv - pmt * n;
+          } else {
+            const f1 = Math.pow(1 + rate, n);
+            res = -pv * f1 - pmt * (f1 - 1) / rate;
+          }
+          break;
+        }
       }
-      setFin((p) => ({ ...p, [k]: res })); setDisplay(res.toFixed(2)); setIsNew(true);
-    } catch { setDisplay("Error"); setIsNew(true); }
+      upd({
+        fin: { ...s.fin, [k]: res },
+        display: res.toFixed(2),
+        isNew: true,
+      });
+    } catch {
+      upd({ display: "Error", isNew: true });
+    }
+    setModifier(null);
+  }, [s, upd]);
+
+  const setMod = useCallback((m: Modifier) => {
+    setModifier(prev => prev === m ? null : m);
+  }, []);
+
+  const handleSto = useCallback(() => {
+    if (!s.isOn) return;
+    setStoMode(true);
+    setRclMode(false);
+  }, [s.isOn]);
+
+  const handleRcl = useCallback(() => {
+    if (!s.isOn) return;
+    setRclMode(true);
+    setStoMode(false);
+  }, [s.isOn]);
+
+  // Financial key handler: STO stores value, RCL recalls, normal press stores, f-prefix solves
+  const handleFinKey = useCallback((k: keyof FinancialValues) => {
+    if (!s.isOn) return;
+    if (stoMode) {
+      storeFin(k);
+      setStoMode(false);
+      return;
+    }
+    if (rclMode) {
+      upd({ display: s.fin[k].toString(), isNew: true });
+      setRclMode(false);
+      return;
+    }
+    if (modifier === "f") {
+      solveFin(k);
+      setModifier(null);
+      return;
+    }
+    storeFin(k);
+  }, [s, modifier, stoMode, rclMode, storeFin, solveFin, upd]);
+
+  return {
+    display: s.display,
+    fin: s.fin,
+    isOn: s.isOn,
+    modifier,
+    stoMode,
+    rclMode,
+    num, enter, clx, clAll, onKey, op, swapXY, rollDown,
+    handleFinKey, handleSto, handleRcl,
+    setMod,
   };
-  return { display, fin, isOn, num, enter, clx, clAll, onKey, op, storeFin, swapXY, solve };
+}
+
+function formatResult(v: number): string {
+  if (!isFinite(v)) return "Error";
+  const s = v.toFixed(10);
+  // Remove trailing zeros but keep at least 2 decimals for financial display
+  const trimmed = s.replace(/\.?0+$/, "");
+  return trimmed.includes(".") ? trimmed : trimmed;
 }
 
 function GlossaryPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -221,13 +491,15 @@ export function HP12CCalculatorBody() {
           border: "1px solid #3a3630",
           boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
         }}>
-          {/* Financial readout */}
+          {/* Financial readout + modifier indicator */}
           <div style={{
             display: "flex", justifyContent: "space-between",
             fontSize: "6.5px", fontFamily: "monospace", color: "rgba(180,150,80,0.45)",
             padding: "0 1px 3px", lineHeight: 1,
           }}>
-            <span>n={e.fin.n.toFixed(0)}</span>
+            <span style={{ color: e.modifier === "f" ? "#a06810" : e.modifier === "g" ? "#3580a0" : e.stoMode ? "#c8c0b0" : e.rclMode ? "#c8c0b0" : "rgba(180,150,80,0.45)", fontWeight: (e.modifier || e.stoMode || e.rclMode) ? 700 : 400 }}>
+              {e.modifier === "f" ? "f" : e.modifier === "g" ? "g" : e.stoMode ? "STO_" : e.rclMode ? "RCL_" : `n=${e.fin.n.toFixed(0)}`}
+            </span>
             <span>i={e.fin.i.toFixed(2)}%</span>
             <span>PV={e.fin.pv.toFixed(0)}</span>
             <span>PMT={e.fin.pmt.toFixed(0)}</span>
@@ -236,11 +508,11 @@ export function HP12CCalculatorBody() {
 
           {/* ROW 1 */}
           <div style={{ display: "flex", gap: "3px", justifyContent: "center" }}>
-            <Btn label="n"   fLabel="AMORT" gLabel="12×"  onClick={() => e.storeFin("n")} />
-            <Btn label="i"   fLabel="INT"   gLabel="12÷"  onClick={() => e.storeFin("i")} />
-            <Btn label="PV"  fLabel="NPV"   gLabel="CFo"  onClick={() => e.storeFin("pv")} />
-            <Btn label="PMT" fLabel="RND"   gLabel="CFj"  onClick={() => e.storeFin("pmt")} small />
-            <Btn label="FV"  fLabel="IRR"   gLabel="Nj"   onClick={() => e.storeFin("fv")} />
+            <Btn label="n"   fLabel="AMORT" gLabel="12×"  onClick={() => e.handleFinKey("n")} />
+            <Btn label="i"   fLabel="INT"   gLabel="12÷"  onClick={() => e.handleFinKey("i")} />
+            <Btn label="PV"  fLabel="NPV"   gLabel="CFo"  onClick={() => e.handleFinKey("pv")} />
+            <Btn label="PMT" fLabel="RND"   gLabel="CFj"  onClick={() => e.handleFinKey("pmt")} small />
+            <Btn label="FV"  fLabel="IRR"   gLabel="Nj"   onClick={() => e.handleFinKey("fv")} />
             <Btn label="CHS" fLabel="DATE"                onClick={() => e.op("CHS")} small />
             <Btn label="7"                  gLabel="BEG"  onClick={() => e.num("7")} />
             <Btn label="8"                  gLabel="END"  onClick={() => e.num("8")} />
@@ -268,16 +540,16 @@ export function HP12CCalculatorBody() {
               <div style={{ display: "flex", gap: "3px" }}>
                 <Btn label="R/S" fLabel="P/R"  gLabel="PSE" onClick={() => {}} small />
                 <Btn label="SST" fLabel="Σ"    gLabel="BST" onClick={() => {}} small />
-                <Btn label="R↓"  fLabel="PRGM" gLabel="GTO" onClick={() => {}} />
+                <Btn label="R↓"  fLabel="PRGM" gLabel="GTO" onClick={() => e.rollDown()} />
                 <Btn label="x⇌y" fLabel="FIN"  gLabel="x≤y" onClick={() => e.swapXY()} small />
                 <Btn label="CLx" fLabel="REG"  gLabel="x=0" onClick={e.clx} small />
               </div>
               <div style={{ display: "flex", gap: "3px" }}>
                 <Btn label="ON"  onClick={e.onKey} />
-                <Btn label="f"   onClick={() => {}} styleOverride={S.btnOrange} />
-                <Btn label="g"   onClick={() => {}} styleOverride={S.btnBlue} />
-                <Btn label="STO" onClick={() => {}} small />
-                <Btn label="RCL" onClick={() => {}} small />
+                <Btn label="f"   onClick={() => e.setMod("f")} styleOverride={S.btnOrange} />
+                <Btn label="g"   onClick={() => e.setMod("g")} styleOverride={S.btnBlue} />
+                <Btn label="STO" onClick={() => e.handleSto()} small />
+                <Btn label="RCL" onClick={() => e.handleRcl()} small />
               </div>
             </div>
 
