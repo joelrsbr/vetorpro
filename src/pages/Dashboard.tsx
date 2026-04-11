@@ -935,6 +935,47 @@ export default function Dashboard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* HP 12C Modal */}
+      <Dialog open={showHP12C} onOpenChange={setShowHP12C}>
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden z-[100]">
+          <DialogHeader className="px-4 pt-4 pb-2">
+            <DialogTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-amber-700">
+                <Calculator className="h-5 w-5" />
+                HP 12C — Calculadora Financeira
+              </span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setShowHP12CGlossary(!showHP12CGlossary)}
+                    className="h-7 w-7 rounded-full border border-amber-400/50 bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-100 transition-colors text-xs font-bold"
+                  >
+                    i
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-[200px] text-xs">
+                  Clique para ver o glossário das teclas
+                </TooltipContent>
+              </Tooltip>
+            </DialogTitle>
+          </DialogHeader>
+          {showHP12CGlossary && (
+            <div className="mx-4 mb-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs space-y-1.5">
+              <p className="font-bold text-amber-800 mb-1">📖 Glossário das Teclas</p>
+              <p><strong>n</strong> — Número de períodos (meses)</p>
+              <p><strong>i</strong> — Taxa de juros por período (%)</p>
+              <p><strong>PV</strong> — Valor Presente (valor financiado)</p>
+              <p><strong>PMT</strong> — Pagamento periódico (parcela)</p>
+              <p><strong>FV</strong> — Valor Futuro (saldo final)</p>
+              <p className="pt-1 border-t border-amber-200 text-amber-700"><strong>Dica:</strong> Digite o valor → tecle a variável para armazenar → tecle →[variável] para calcular a incógnita.</p>
+            </div>
+          )}
+          <div className="px-4 pb-4">
+            <HP12CCalculator />
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <MarketTicker />
       <Footer />
