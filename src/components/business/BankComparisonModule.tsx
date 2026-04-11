@@ -310,9 +310,9 @@ export function BankComparisonModule() {
                         Juros: {fmtBRL(result.totalInterest)}
                       </p>
                     </div>
-                    {isBanrisul && (
+                    {result.note && (
                       <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 italic">
-                        {"\n"}
+                        ℹ {result.note}
                       </p>
                     )}
 
