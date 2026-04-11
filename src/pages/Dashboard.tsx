@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { HP12CCalculator } from "@/components/calculator/HP12CCalculator";
+import { HP12CCalculatorBody } from "@/components/calculator/HP12CCalculator";
 
 interface Proposal {
   id: string;
