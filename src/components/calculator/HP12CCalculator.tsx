@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Drawer,
   DrawerClose,
@@ -24,16 +23,11 @@ type FinancialValues = {
 export function HP12CCalculatorBody() {
   const [display, setDisplay] = useState("0");
   const [memory, setMemory] = useState(0);
-  const [stack, setStack] = useState<number[]>([0, 0, 0, 0]); // Y, Z, T, Last X
+  const [stack, setStack] = useState<number[]>([0, 0, 0, 0]);
   const [financialValues, setFinancialValues] = useState<FinancialValues>({
-    n: 0,
-    i: 0,
-    pv: 0,
-    pmt: 0,
-    fv: 0,
+    n: 0, i: 0, pv: 0, pmt: 0, fv: 0,
   });
   const [isNewEntry, setIsNewEntry] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
 
   const pushStack = useCallback((value: number) => {
     setStack((prev) => [value, prev[0], prev[1], prev[2]]);
@@ -74,33 +68,15 @@ export function HP12CCalculatorBody() {
     let result = 0;
 
     switch (op) {
-      case "+":
-        result = y + x;
-        break;
-      case "-":
-        result = y - x;
-        break;
-      case "×":
-        result = y * x;
-        break;
-      case "÷":
-        result = x !== 0 ? y / x : 0;
-        break;
-      case "Δ%":
-        result = x !== 0 ? ((y - x) / x) * 100 : 0;
-        break;
-      case "%T":
-        result = y !== 0 ? (x / y) * 100 : 0;
-        break;
-      case "yˣ":
-        result = Math.pow(y, x);
-        break;
-      case "1/x":
-        result = x !== 0 ? 1 / x : 0;
-        break;
-      case "√x":
-        result = Math.sqrt(x);
-        break;
+      case "+": result = y + x; break;
+      case "-": result = y - x; break;
+      case "×": result = y * x; break;
+      case "÷": result = x !== 0 ? y / x : 0; break;
+      case "Δ%": result = x !== 0 ? ((y - x) / x) * 100 : 0; break;
+      case "%T": result = y !== 0 ? (x / y) * 100 : 0; break;
+      case "yˣ": result = Math.pow(y, x); break;
+      case "1/x": result = x !== 0 ? 1 / x : 0; break;
+      case "√x": result = Math.sqrt(x); break;
       case "CHS":
         result = -x;
         setDisplay(result.toString());
@@ -131,30 +107,25 @@ export function HP12CCalculatorBody() {
     try {
       switch (solveFor) {
         case "n":
-          // n = ln((PMT - FV*i) / (PMT + PV*i)) / ln(1+i)
           if (rate !== 0 && pmt !== 0) {
             result = Math.log((pmt - fv * rate) / (pmt + pv * rate)) / Math.log(1 + rate);
           }
           break;
         case "i":
-          // Iterative solution needed - simplified approximation
           result = ((-pmt * n - fv - pv) / (pv * n)) * 100;
           break;
         case "pv":
-          // PV = -PMT * (1 - (1+i)^-n) / i - FV * (1+i)^-n
           if (rate !== 0) {
             result = -pmt * (1 - Math.pow(1 + rate, -n)) / rate - fv * Math.pow(1 + rate, -n);
           }
           break;
         case "pmt":
-          // PMT = (PV * i * (1+i)^n) / ((1+i)^n - 1)
           if (rate !== 0 && n > 0) {
             const factor = Math.pow(1 + rate, n);
             result = -(pv * rate * factor) / (factor - 1) - (fv * rate) / (factor - 1);
           }
           break;
         case "fv":
-          // FV = -PV*(1+i)^n - PMT*((1+i)^n - 1)/i
           if (rate !== 0) {
             const factor = Math.pow(1 + rate, n);
             result = -pv * factor - pmt * (factor - 1) / rate;
@@ -171,104 +142,152 @@ export function HP12CCalculatorBody() {
     }
   };
 
-  const hp12cButton = (
+  // HP 12c styled button
+  const hp12cBtn = (
     label: string,
     onClick: () => void,
-    variant: "number" | "operator" | "financial" | "enter" | "clear" = "number"
+    variant: "black" | "beige" | "orange" | "blue" | "enter" = "black",
+    topLabel?: string,
+    bottomLabel?: string,
+    colSpan?: number,
   ) => {
-    const baseClasses = "h-10 text-sm font-semibold shadow-md active:translate-y-0.5 transition-transform";
-    const variantClasses = {
-      number: "bg-neutral-700 hover:bg-neutral-600 text-white border-neutral-600",
-      operator: "bg-amber-600 hover:bg-amber-500 text-white border-amber-500",
-      financial: "bg-neutral-800 hover:bg-neutral-700 text-amber-400 border-neutral-600 text-xs",
-      enter: "bg-neutral-700 hover:bg-neutral-600 text-white border-neutral-600",
-      clear: "bg-neutral-800 hover:bg-neutral-700 text-amber-400 border-neutral-600",
+    const base = "relative flex flex-col items-center justify-center font-bold shadow-[0_2px_0_rgba(0,0,0,0.4)] active:shadow-[0_0px_0_rgba(0,0,0,0.4)] active:translate-y-[2px] transition-all duration-75 select-none";
+    
+    const styles: Record<string, string> = {
+      black: "bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white border border-[#444] rounded-md h-10 text-xs",
+      beige: "bg-[#c8b98a] hover:bg-[#d4c89a] text-[#2a2a2a] border border-[#a89868] rounded-md h-10 text-xs font-bold",
+      orange: "bg-[#d4710a] hover:bg-[#e07b10] text-white border border-[#b05e08] rounded-md h-10 text-[11px] font-bold",
+      blue: "bg-[#2665a8] hover:bg-[#3075b8] text-white border border-[#1d5590] rounded-md h-10 text-[11px] font-bold",
+      enter: "bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white border border-[#444] rounded-md h-10 text-xs",
     };
 
     return (
-      <Button
-        variant="outline"
-        className={cn(baseClasses, variantClasses[variant])}
+      <button
+        className={cn(base, styles[variant], colSpan && `col-span-${colSpan}`)}
+        style={colSpan ? { gridColumn: `span ${colSpan}` } : undefined}
         onClick={onClick}
       >
-        {label}
-      </Button>
+        {topLabel && (
+          <span className="absolute -top-[14px] text-[8px] font-medium text-amber-500 leading-none whitespace-nowrap">
+            {topLabel}
+          </span>
+        )}
+        <span>{label}</span>
+        {bottomLabel && (
+          <span className="absolute -bottom-[13px] text-[7px] font-medium text-sky-400 leading-none whitespace-nowrap">
+            {bottomLabel}
+          </span>
+        )}
+      </button>
     );
   };
 
   return (
-    <Card className="bg-[#1e2024] border-[#33363b] w-full max-w-xs shadow-2xl mx-auto">
-      <CardHeader className="py-3 px-3">
-        <CardTitle className="sr-only">HP 12C</CardTitle>
-        <div className="bg-[#c8d4a2] rounded-lg p-3 font-mono text-right text-2xl text-neutral-800 shadow-inner border-2 border-neutral-600">
-          {display}
+    <div className="w-full max-w-md mx-auto">
+      {/* Calculator body — horizontal HP 12c style */}
+      <div className="rounded-2xl p-1" style={{ background: "linear-gradient(145deg, #1a1610, #2c261e, #1a1610)" }}>
+        <div className="rounded-xl overflow-hidden" style={{ background: "linear-gradient(180deg, #3a3428, #2a2418)" }}>
+          
+          {/* Top branding bar */}
+          <div className="flex items-center justify-between px-4 py-2">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60" />
+              <span className="text-[10px] font-bold tracking-[0.3em] text-amber-200/60 uppercase">Hewlett-Packard</span>
+            </div>
+            <span className="text-[10px] font-bold tracking-wider text-amber-200/40">12C</span>
+          </div>
+          
+          {/* Display */}
+          <div className="mx-3 mb-1">
+            <div 
+              className="rounded-lg p-3 font-mono text-right text-2xl shadow-inner border"
+              style={{ 
+                background: "linear-gradient(180deg, #b8c490, #a8b480)",
+                borderColor: "#7a8060",
+                color: "#1a1a1a",
+              }}
+            >
+              {display}
+            </div>
+            {/* Financial register readouts */}
+            <div className="flex justify-between text-[9px] mt-1.5 px-1 font-mono" style={{ color: "#a89868" }}>
+              <span>n:{financialValues.n.toFixed(0)}</span>
+              <span>i:{financialValues.i.toFixed(2)}%</span>
+              <span>PV:{financialValues.pv.toFixed(0)}</span>
+              <span>PMT:{financialValues.pmt.toFixed(0)}</span>
+              <span>FV:{financialValues.fv.toFixed(0)}</span>
+            </div>
+          </div>
+
+          {/* Button area */}
+          <div className="px-3 pb-4 pt-3 space-y-5">
+            
+            {/* Row 1: Financial keys (top labels = orange functions) */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("n", () => handleFinancialStore("n"), "beige", "AMORT")}
+              {hp12cBtn("i", () => handleFinancialStore("i"), "beige", "INT")}
+              {hp12cBtn("PV", () => handleFinancialStore("pv"), "beige", "NPV")}
+              {hp12cBtn("PMT", () => handleFinancialStore("pmt"), "beige", "RND")}
+              {hp12cBtn("FV", () => handleFinancialStore("fv"), "beige", "IRR")}
+            </div>
+
+            {/* Row 2: Solve keys (orange) */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("→n", () => calculateFinancial("n"), "orange")}
+              {hp12cBtn("→i", () => calculateFinancial("i"), "orange")}
+              {hp12cBtn("→PV", () => calculateFinancial("pv"), "orange")}
+              {hp12cBtn("→PMT", () => calculateFinancial("pmt"), "orange")}
+              {hp12cBtn("→FV", () => calculateFinancial("fv"), "orange")}
+            </div>
+
+            {/* Row 3: Percentage / math functions (blue-labeled) */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("Δ%", () => handleOperator("Δ%"), "blue")}
+              {hp12cBtn("%T", () => handleOperator("%T"), "blue")}
+              {hp12cBtn("1/x", () => handleOperator("1/x"), "black", "", "e^x")}
+              {hp12cBtn("√x", () => handleOperator("√x"), "black", "", "LN")}
+              {hp12cBtn("yˣ", () => handleOperator("yˣ"), "black")}
+            </div>
+
+            {/* Row 4: 7 8 9 ÷ CLX */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("7", () => handleNumber("7"), "black")}
+              {hp12cBtn("8", () => handleNumber("8"), "black")}
+              {hp12cBtn("9", () => handleNumber("9"), "black")}
+              {hp12cBtn("÷", () => handleOperator("÷"), "beige")}
+              {hp12cBtn("CLX", handleClear, "beige")}
+            </div>
+
+            {/* Row 5: 4 5 6 × CLR */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("4", () => handleNumber("4"), "black")}
+              {hp12cBtn("5", () => handleNumber("5"), "black")}
+              {hp12cBtn("6", () => handleNumber("6"), "black")}
+              {hp12cBtn("×", () => handleOperator("×"), "beige")}
+              {hp12cBtn("CLR", handleClearAll, "beige")}
+            </div>
+
+            {/* Row 6: 1 2 3 − CHS */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("1", () => handleNumber("1"), "black")}
+              {hp12cBtn("2", () => handleNumber("2"), "black")}
+              {hp12cBtn("3", () => handleNumber("3"), "black")}
+              {hp12cBtn("−", () => handleOperator("-"), "beige")}
+              {hp12cBtn("CHS", () => handleOperator("CHS"), "black")}
+            </div>
+
+            {/* Row 7: 0 . ENTER + */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {hp12cBtn("0", () => handleNumber("0"), "black")}
+              {hp12cBtn(".", () => handleNumber("."), "black")}
+              {hp12cBtn("ENTER", handleEnter, "beige", undefined, undefined, 2)}
+              {hp12cBtn("+", () => handleOperator("+"), "beige")}
+            </div>
+
+          </div>
         </div>
-        <div className="flex justify-between text-[10px] text-amber-400/70 mt-2 px-0.5">
-          <span>n:{financialValues.n.toFixed(0)}</span>
-          <span>i:{financialValues.i.toFixed(2)}%</span>
-          <span>PV:{financialValues.pv.toFixed(0)}</span>
-          <span>PMT:{financialValues.pmt.toFixed(0)}</span>
-          <span>FV:{financialValues.fv.toFixed(0)}</span>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-1.5 px-3 pb-3">
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("n", () => handleFinancialStore("n"), "financial")}
-          {hp12cButton("i", () => handleFinancialStore("i"), "financial")}
-          {hp12cButton("PV", () => handleFinancialStore("pv"), "financial")}
-          {hp12cButton("PMT", () => handleFinancialStore("pmt"), "financial")}
-          {hp12cButton("FV", () => handleFinancialStore("fv"), "financial")}
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("→n", () => calculateFinancial("n"), "operator")}
-          {hp12cButton("→i", () => calculateFinancial("i"), "operator")}
-          {hp12cButton("→PV", () => calculateFinancial("pv"), "operator")}
-          {hp12cButton("→PMT", () => calculateFinancial("pmt"), "operator")}
-          {hp12cButton("→FV", () => calculateFinancial("fv"), "operator")}
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("Δ%", () => handleOperator("Δ%"), "financial")}
-          {hp12cButton("%T", () => handleOperator("%T"), "financial")}
-          {hp12cButton("1/x", () => handleOperator("1/x"), "financial")}
-          {hp12cButton("√x", () => handleOperator("√x"), "financial")}
-          {hp12cButton("yˣ", () => handleOperator("yˣ"), "financial")}
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("7", () => handleNumber("7"))}
-          {hp12cButton("8", () => handleNumber("8"))}
-          {hp12cButton("9", () => handleNumber("9"))}
-          {hp12cButton("÷", () => handleOperator("÷"), "operator")}
-          {hp12cButton("CLX", handleClear, "clear")}
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("4", () => handleNumber("4"))}
-          {hp12cButton("5", () => handleNumber("5"))}
-          {hp12cButton("6", () => handleNumber("6"))}
-          {hp12cButton("×", () => handleOperator("×"), "operator")}
-          {hp12cButton("CLR", handleClearAll, "clear")}
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("1", () => handleNumber("1"))}
-          {hp12cButton("2", () => handleNumber("2"))}
-          {hp12cButton("3", () => handleNumber("3"))}
-          {hp12cButton("-", () => handleOperator("-"), "operator")}
-          {hp12cButton("CHS", () => handleOperator("CHS"), "financial")}
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {hp12cButton("0", () => handleNumber("0"))}
-          {hp12cButton(".", () => handleNumber("."))}
-          <Button
-            variant="outline"
-            className="h-10 text-sm font-semibold bg-neutral-700 hover:bg-neutral-600 text-white border-neutral-600 col-span-1 shadow-md active:translate-y-0.5 transition-transform"
-            onClick={handleEnter}
-          >
-            ENT
-          </Button>
-          {hp12cButton("+", () => handleOperator("+"), "operator")}
-          <div />
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -303,11 +322,6 @@ export function HP12CCalculator() {
         </DrawerHeader>
         <div className="px-4 pb-5 overflow-y-auto flex flex-col items-center">
           <HP12CCalculatorBody />
-          <div className="mt-3 text-center text-xs text-muted-foreground max-w-xs">
-            <p className="mb-1"><strong>Como usar:</strong></p>
-            <p>Digite valores e pressione as teclas (n, i, PV, PMT, FV) para armazenar.</p>
-            <p>Pressione →[tecla] para calcular o valor desejado.</p>
-          </div>
         </div>
       </DrawerContent>
     </Drawer>
