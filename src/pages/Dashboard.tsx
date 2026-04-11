@@ -34,6 +34,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { HP12CCalculator } from "@/components/calculator/HP12CCalculator";
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { BusinessPaywallModal } from "@/components/business/BusinessPaywallModal";
+import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Proposal {
   id: string;
@@ -98,6 +117,8 @@ export default function Dashboard() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [showCustomizationPaywall, setShowCustomizationPaywall] = useState(false);
   const [showVoiceToneDialog, setShowVoiceToneDialog] = useState(false);
+  const [showHP12C, setShowHP12C] = useState(false);
+  const [showHP12CGlossary, setShowHP12CGlossary] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
   // Real-time counts from RPC (Single Source of Truth)
