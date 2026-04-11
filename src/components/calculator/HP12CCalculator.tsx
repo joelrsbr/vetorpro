@@ -1,25 +1,13 @@
 import { useState, useCallback } from "react";
-import { cn } from "@/lib/utils";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
-import { Info, X, Calculator } from "lucide-react";
+import { Info, X } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════
-   HP 12C — Pixel-perfect skeuomorphic recreation
-   Reference: https://simulado.estacio.br/img/Hp/
+   HP 12C — Pixel-perfect reproduction from Estácio reference
+   https://simulado.estacio.br/img/Hp/
    ═══════════════════════════════════════════════════════════ */
 
-type FinancialValues = {
-  n: number;
-  i: number;
-  pv: number;
-  pmt: number;
-  fv: number;
-};
+type FinancialValues = { n: number; i: number; pv: number; pmt: number; fv: number };
 
-/* ─── Financial engine (RPN) ─── */
 function useHP12CEngine() {
   const [display, setDisplay] = useState("0.00");
   const [stack, setStack] = useState<number[]>([0, 0, 0, 0]);
@@ -36,9 +24,7 @@ function useHP12CEngine() {
   };
 
   const enter = () => { push(parseFloat(display)); setIsNew(true); };
-
   const clx = () => { setDisplay("0"); setIsNew(true); };
-
   const clAll = () => {
     setDisplay("0.00"); setStack([0, 0, 0, 0]);
     setFin({ n: 0, i: 0, pv: 0, pmt: 0, fv: 0 }); setIsNew(true);
@@ -93,64 +79,14 @@ function useHP12CEngine() {
   return { display, fin, num, enter, clx, clAll, op, storeFin, swapXY, solve };
 }
 
-/* ─── Key component ─── */
-const KEY_H = "h-[38px]";
-
-function Key({
-  label, onClick, fLabel, gLabel, variant = "dark", wide, tall, className: extra,
-}: {
-  label: string; onClick: () => void;
-  variant?: "dark" | "orange" | "blue";
-  fLabel?: string; gLabel?: string; wide?: boolean; tall?: boolean;
-  className?: string;
-}) {
-  const base = cn(
-    "relative font-bold select-none transition-all duration-75 border rounded-[4px]",
-    "active:translate-y-[2px] active:shadow-none cursor-pointer",
-    "flex items-center justify-center text-center leading-tight",
-    wide ? "min-w-0" : "min-w-0",
-    tall ? "row-span-2" : KEY_H,
-  );
-
-  const styles: Record<string, string> = {
-    dark: "bg-gradient-to-b from-[#3a3a3a] via-[#2a2a2a] to-[#1e1e1e] text-white/90 border-[#555] shadow-[0_3px_0_#0a0a0a,inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3)] hover:from-[#444] hover:via-[#333] hover:to-[#252525]",
-    orange: "bg-gradient-to-b from-[#e8860f] via-[#d4760a] to-[#b86208] text-white border-[#aa5e08] shadow-[0_3px_0_#6a3a04,inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.2)] hover:from-[#f09020] hover:via-[#e0860f] hover:to-[#c06e0a]",
-    blue: "bg-gradient-to-b from-[#3a8ec8] via-[#2874a6] to-[#1c5a82] text-white border-[#1c5a82] shadow-[0_3px_0_#0e3450,inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.2)] hover:from-[#4599d3] hover:via-[#3085b7] hover:to-[#206690]",
-  };
-
-  return (
-    <div className={cn("flex flex-col items-center gap-0", wide ? "col-span-2" : "", tall ? "row-span-2" : "", extra)}>
-      {/* f-label (orange) */}
-      <span className={cn(
-        "text-[8px] font-bold leading-none h-[12px] whitespace-nowrap tracking-tight",
-        fLabel ? "text-[#e8860f]" : "invisible"
-      )}>
-        {fLabel || "."}
-      </span>
-      <button className={cn(base, styles[variant], tall && "h-full")} onClick={onClick}>
-        <span className={cn("text-[12px]", label.length > 3 && "text-[10px]")}>{label}</span>
-      </button>
-      {/* g-label (blue) */}
-      <span className={cn(
-        "text-[7px] font-bold leading-none h-[11px] whitespace-nowrap tracking-tight",
-        gLabel ? "text-[#2a8ec8]" : "invisible"
-      )}>
-        {gLabel || "."}
-      </span>
-    </div>
-  );
-}
-
 /* ─── Glossary Modal ─── */
 function GlossaryPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
   return (
-    <div className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 rounded-xl">
-      <div className="bg-[#1a1a1a] border border-amber-700/40 rounded-xl p-4 max-w-[420px] w-full max-h-[90%] overflow-y-auto text-xs space-y-2 shadow-2xl">
-        <div className="flex items-center justify-between mb-2">
-          <p className="font-bold text-amber-300 text-sm">📖 Glossário HP 12C</p>
-          <button onClick={onClose} className="text-white/60 hover:text-white"><X className="h-4 w-4" /></button>
-        </div>
+    <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#1a1a1a] border border-[#444] rounded-lg p-5 max-w-[420px] w-full max-h-[80vh] overflow-y-auto text-xs space-y-2 shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-3 right-3 text-white/50 hover:text-white"><X className="h-4 w-4" /></button>
+        <p className="font-bold text-amber-300 text-sm mb-3">📖 Glossário HP 12C</p>
         <div className="space-y-1.5 text-amber-200/80">
           <p><strong className="text-amber-300">n</strong> — Número de períodos (meses)</p>
           <p><strong className="text-amber-300">i</strong> — Taxa de juros por período (%)</p>
@@ -158,14 +94,14 @@ function GlossaryPanel({ open, onClose }: { open: boolean; onClose: () => void }
           <p><strong className="text-amber-300">PMT</strong> — Pagamento periódico (parcela)</p>
           <p><strong className="text-amber-300">FV</strong> — Valor Futuro (saldo final)</p>
           <p><strong className="text-amber-300">CHS</strong> — Troca o sinal (+/−)</p>
-          <p><strong className="text-amber-300">ENTER</strong> — Empilha o valor no registrador</p>
-          <p><strong className="text-amber-300">CLx</strong> — Limpa o visor</p>
-          <p><strong className="text-amber-300">ON</strong> — Reinicia todos os registros</p>
-          <p><strong className="text-amber-300">x⇌y</strong> — Troca X e Y na pilha</p>
-          <p><strong className="text-amber-300">→n / →i / →PV / →PMT / →FV</strong> — Resolve a variável</p>
+          <p><strong className="text-amber-300">ENTER</strong> — Confirma entrada (empilha)</p>
+          <p><strong className="text-amber-300">RCL</strong> — Recuperar valor armazenado</p>
+          <p><strong className="text-amber-300">STO</strong> — Armazenar valor</p>
+          <p><strong className="text-amber-300">CLx</strong> — Limpar registrador</p>
+          <p><strong className="text-amber-300">f / g</strong> — Funções secundárias (laranja / azul)</p>
         </div>
-        <p className="pt-2 border-t border-amber-700/30 text-amber-400/70 text-[10px]">
-          <strong>Dica:</strong> Digite o valor → pressione a tecla da variável para armazenar → pressione o botão laranja "→" para resolver.
+        <p className="pt-2 border-t border-[#444] text-amber-400/60 text-[10px] mt-3">
+          <strong>Dica:</strong> Digite o valor → pressione a tecla da variável para armazenar. Para resolver, armazene todas as variáveis conhecidas e pressione a variável desconhecida.
         </p>
       </div>
     </div>
@@ -173,78 +109,167 @@ function GlossaryPanel({ open, onClose }: { open: boolean; onClose: () => void }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MAIN COMPONENT — HP 12C Body (Landscape, skeuomorphic)
+   MAIN — Exact reproduction of Estácio HP 12C image
    ═══════════════════════════════════════════════════════════ */
+
+// Button styles matching the reference exactly
+const btnBase: React.CSSProperties = {
+  width: "42px",
+  height: "28px",
+  border: "1px solid #555",
+  borderRadius: "3px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontFamily: "Arial, Helvetica, sans-serif",
+  fontWeight: 700,
+  fontSize: "12px",
+  color: "#e0e0e0",
+  position: "relative",
+  userSelect: "none" as const,
+  transition: "transform 50ms",
+  background: "linear-gradient(180deg, #4a4540 0%, #3a3530 40%, #2e2a25 100%)",
+  boxShadow: "0 2px 0 #1a1815, inset 0 1px 0 rgba(255,255,255,0.08)",
+};
+
+const btnOrange: React.CSSProperties = {
+  ...btnBase,
+  background: "linear-gradient(180deg, #d4780a 0%, #c06a05 50%, #a85a02 100%)",
+  boxShadow: "0 2px 0 #5a3000, inset 0 1px 0 rgba(255,255,255,0.15)",
+  color: "#fff",
+};
+
+const btnBlue: React.CSSProperties = {
+  ...btnBase,
+  background: "linear-gradient(180deg, #3a90b8 0%, #2878a0 50%, #1c6088 100%)",
+  boxShadow: "0 2px 0 #0c3550, inset 0 1px 0 rgba(255,255,255,0.15)",
+  color: "#fff",
+};
+
+type BtnProps = {
+  label: string;
+  fLabel?: string;
+  gLabel?: string;
+  style?: React.CSSProperties;
+  onClick: () => void;
+  small?: boolean;
+};
+
+function Btn({ label, fLabel, gLabel, style, onClick, small }: BtnProps) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, width: "42px" }}>
+      {/* f-label (orange) */}
+      <span style={{
+        fontSize: "8px", fontWeight: 700, color: "#d4780a", height: "11px",
+        fontFamily: "Arial, sans-serif", whiteSpace: "nowrap", lineHeight: "11px",
+        visibility: fLabel ? "visible" : "hidden",
+      }}>
+        {fLabel || "."}
+      </span>
+      <button
+        onClick={onClick}
+        style={{ ...btnBase, ...style, fontSize: small ? "10px" : "12px" }}
+        onMouseDown={e => (e.currentTarget.style.transform = "translateY(1px)")}
+        onMouseUp={e => (e.currentTarget.style.transform = "none")}
+        onMouseLeave={e => (e.currentTarget.style.transform = "none")}
+      >
+        {label}
+      </button>
+      {/* g-label (blue) */}
+      <span style={{
+        fontSize: "7px", fontWeight: 700, color: "#2a90c0", height: "10px",
+        fontFamily: "Arial, sans-serif", whiteSpace: "nowrap", lineHeight: "10px",
+        visibility: gLabel ? "visible" : "hidden",
+      }}>
+        {gLabel || "."}
+      </span>
+    </div>
+  );
+}
+
 export function HP12CCalculatorBody() {
   const e = useHP12CEngine();
   const [glossary, setGlossary] = useState(false);
 
-  return (
-    <div className="w-full max-w-[600px] mx-auto select-none relative">
-      {/* Outer beige shell — chamfered look */}
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{
-          background: "linear-gradient(145deg, #d4c89a, #c0b480, #b8a870)",
-          padding: "14px 12px 8px",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.15)",
-        }}
-      >
-        {/* Brand line */}
-        <div className="flex items-center justify-between px-2 mb-1">
-          <span className="text-[9px] font-bold text-[#3a3020] tracking-[2px] uppercase opacity-70">HEWLETT · PACKARD</span>
-          <span className="text-[10px] font-extrabold text-[#3a3020] tracking-wider">12C</span>
-        </div>
+  const cellW = 46; // 42px button + 4px gap
+  const cols = 10;
+  const bodyW = cellW * cols + 16; // +padding
 
-        {/* LCD Display */}
-        <div className="relative mb-3 flex items-stretch gap-0">
-          <div
-            className="flex-1 rounded-md px-5 py-3 text-right border"
-            style={{
-              background: "linear-gradient(180deg, #b8bc8a, #a8ac78, #9ea272)",
-              borderColor: "#7a7e56",
-              boxShadow: "inset 0 2px 8px rgba(0,0,0,0.25), inset 0 -1px 0 rgba(255,255,255,0.15)",
-            }}
-          >
-            <span
-              className="block text-[32px] tracking-[4px] leading-none"
-              style={{
-                fontFamily: "'Orbitron', 'Courier New', monospace",
-                fontWeight: 700,
-                color: "#1a1e10",
-                textShadow: "0 0 1px rgba(0,0,0,0.2)",
-              }}
-            >
+  return (
+    <div style={{
+      width: `${bodyW + 24}px`,
+      margin: "0 auto",
+      userSelect: "none",
+      position: "relative",
+    }}>
+      {/* ═══ Beige shell ═══ */}
+      <div style={{
+        background: "linear-gradient(160deg, #c8bf98 0%, #beb48a 50%, #b0a87a 100%)",
+        borderRadius: "8px",
+        padding: "12px 12px 6px",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
+        overflow: "hidden",
+      }}>
+        {/* ═══ LCD Display ═══ */}
+        <div style={{ display: "flex", alignItems: "stretch", gap: "6px", marginBottom: "8px" }}>
+          <div style={{
+            flex: 1,
+            background: "linear-gradient(180deg, #b0b888 0%, #a0a878 50%, #949c6c 100%)",
+            border: "1px solid #7a7e56",
+            borderRadius: "4px",
+            padding: "10px 16px",
+            boxShadow: "inset 0 2px 6px rgba(0,0,0,0.25), inset 0 -1px 0 rgba(255,255,255,0.1)",
+            textAlign: "right" as const,
+          }}>
+            <span style={{
+              fontFamily: "'Orbitron', 'Courier New', monospace",
+              fontSize: "28px",
+              fontWeight: 700,
+              color: "#1a1e10",
+              letterSpacing: "3px",
+              lineHeight: 1,
+              textShadow: "0 0 1px rgba(0,0,0,0.15)",
+            }}>
               {e.display}
             </span>
           </div>
 
-          {/* Info button — physical, integrated into the shell to the right of the LCD */}
+          {/* (i) info button — matches calculator visual language */}
           <button
             onClick={() => setGlossary(true)}
-            className="w-[32px] flex-shrink-0 ml-2 rounded-md border flex items-center justify-center hover:opacity-80 transition-opacity"
             style={{
-              background: "linear-gradient(180deg, #b8bc8a, #a8ac78)",
-              borderColor: "#7a7e56",
-              boxShadow: "inset 0 2px 6px rgba(0,0,0,0.2)",
+              width: "26px",
+              background: "linear-gradient(180deg, #b0b888, #a0a878)",
+              border: "1px solid #7a7e56",
+              borderRadius: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.15)",
+              flexShrink: 0,
             }}
             title="Glossário"
           >
-            <Info className="h-4 w-4 text-[#3a4020]" />
+            <Info style={{ width: "14px", height: "14px", color: "#3a4020" }} />
           </button>
         </div>
 
-        {/* Dark body with keys */}
-        <div
-          className="rounded-lg p-3 pt-2"
-          style={{
-            background: "linear-gradient(180deg, #3a3630, #2e2a24, #262220)",
-            boxShadow: "inset 0 2px 6px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.1)",
-            border: "1px solid #4a4640",
-          }}
-        >
+        {/* ═══ Dark body ═══ */}
+        <div style={{
+          background: "linear-gradient(180deg, #3a3630 0%, #2e2a24 40%, #262220 100%)",
+          borderRadius: "5px",
+          padding: "6px 8px 8px",
+          border: "1px solid #4a4540",
+          boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)",
+        }}>
           {/* Financial register readout */}
-          <div className="flex justify-between text-[8px] mb-2 px-1 font-mono text-amber-400/70">
+          <div style={{
+            display: "flex", justifyContent: "space-between",
+            fontSize: "7px", fontFamily: "monospace", color: "rgba(210,170,80,0.55)",
+            padding: "0 2px 4px", lineHeight: 1,
+          }}>
             <span>n={e.fin.n.toFixed(0)}</span>
             <span>i={e.fin.i.toFixed(2)}%</span>
             <span>PV={e.fin.pv.toFixed(0)}</span>
@@ -252,102 +277,107 @@ export function HP12CCalculatorBody() {
             <span>FV={e.fin.fv.toFixed(0)}</span>
           </div>
 
-          {/* ══════════════ KEY GRID — 10 cols × 4 rows ══════════════ */}
-          <div className="grid grid-cols-10 gap-x-[4px] gap-y-0">
+          {/* ══════ ROW 1: n i PV PMT FV CHS 7 8 9 ÷ ══════ */}
+          <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+            <Btn label="n"   fLabel="AMORT" gLabel="12×"  onClick={() => e.storeFin("n")} />
+            <Btn label="i"   fLabel="INT"   gLabel="12÷"  onClick={() => e.storeFin("i")} />
+            <Btn label="PV"  fLabel="NPV"   gLabel="CFo"  onClick={() => e.storeFin("pv")} />
+            <Btn label="PMT" fLabel="RND"   gLabel="CFj"  onClick={() => e.storeFin("pmt")} small />
+            <Btn label="FV"  fLabel="IRR"   gLabel="Nj"   onClick={() => e.storeFin("fv")} />
+            <Btn label="CHS" fLabel="DATE"                onClick={() => e.op("CHS")} small />
+            <Btn label="7"                  gLabel="BEG"  onClick={() => e.num("7")} />
+            <Btn label="8"                  gLabel="END"  onClick={() => e.num("8")} />
+            <Btn label="9"                  gLabel="MEM"  onClick={() => e.num("9")} />
+            <Btn label="÷"                                onClick={() => e.op("÷")} />
+          </div>
 
-            {/* ─── Row 1: n i PV PMT FV  CHS 7 8 9 ÷ ─── */}
-            <Key label="n"   onClick={() => e.storeFin("n")}   fLabel="AMORT" gLabel="12×"  />
-            <Key label="i"   onClick={() => e.storeFin("i")}   fLabel="INT"   gLabel="12÷"  />
-            <Key label="PV"  onClick={() => e.storeFin("pv")}  fLabel="NPV"   gLabel="CFo"  />
-            <Key label="PMT" onClick={() => e.storeFin("pmt")} fLabel="RND"   gLabel="CFj"  />
-            <Key label="FV"  onClick={() => e.storeFin("fv")}  fLabel="IRR"   gLabel="Nj"   />
-            <Key label="CHS" onClick={() => e.op("CHS")}       fLabel="DATE"                />
-            <Key label="7"   onClick={() => e.num("7")}                        gLabel="BEG"  />
-            <Key label="8"   onClick={() => e.num("8")}                        gLabel="END"  />
-            <Key label="9"   onClick={() => e.num("9")}                        gLabel="MEM"  />
-            <Key label="÷"   onClick={() => e.op("÷")}                                      />
+          {/* ══════ ROW 2: Yˣ 1/x %T Δ% % EEX 4 5 6 × ══════ */}
+          <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+            <Btn label="Yˣ"  fLabel="PRICE" gLabel="√x"   onClick={() => e.op("yˣ")} />
+            <Btn label="1/x" fLabel="YTM"   gLabel="eˣ"   onClick={() => e.op("1/x")} small />
+            <Btn label="%T"  fLabel="SL"    gLabel="LN"   onClick={() => e.op("%T")} />
+            <Btn label="Δ%"  fLabel="SOYD"  gLabel="FRAC" onClick={() => e.op("Δ%")} />
+            <Btn label="%"   fLabel="DB"    gLabel="INTG" onClick={() => e.op("%T")} />
+            <Btn label="EEX" fLabel="ΔDYS"                onClick={() => e.num("e")} small />
+            <Btn label="4"                  gLabel="D.MY" onClick={() => e.num("4")} />
+            <Btn label="5"                  gLabel="M.DY" onClick={() => e.num("5")} />
+            <Btn label="6"                  gLabel="x̄w"  onClick={() => e.num("6")} />
+            <Btn label="×"                                onClick={() => e.op("×")} />
+          </div>
 
-            {/* ─── Row 2: yˣ 1/x %T Δ% %  EEX 4 5 6 × ─── */}
-            <Key label="yˣ"  onClick={() => e.op("yˣ")}   fLabel="PRICE" gLabel="√x"   />
-            <Key label="1/x" onClick={() => e.op("1/x")}  fLabel="YTM"   gLabel="eˣ"   />
-            <Key label="%T"  onClick={() => e.op("%T")}    fLabel="SL"    gLabel="LN"   />
-            <Key label="Δ%"  onClick={() => e.op("Δ%")}   fLabel="SOYD"  gLabel="FRAC" />
-            <Key label="%"   onClick={() => e.op("%T")}    fLabel="DB"    gLabel="INTG" />
-            <Key label="EEX" onClick={() => e.num("e")}    fLabel="ΔDYS"                />
-            <Key label="4"   onClick={() => e.num("4")}                   gLabel="D.MY" />
-            <Key label="5"   onClick={() => e.num("5")}                   gLabel="M.DY" />
-            <Key label="6"   onClick={() => e.num("6")}                   gLabel="x̄w"  />
-            <Key label="×"   onClick={() => e.op("×")}                                  />
+          {/* ══════ ROW 3 + 4 with ENTER spanning ══════ */}
+          <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+            {/* Left 5 keys of row 3 */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <div style={{ display: "flex", gap: "4px" }}>
+                <Btn label="R/S" fLabel="P/R"  gLabel="PSE" onClick={() => {}} small />
+                <Btn label="SST" fLabel="Σ"    gLabel="BST" onClick={() => {}} small />
+                <Btn label="R↓"  fLabel="PRGM" gLabel="GTO" onClick={() => {}} />
+                <Btn label="x⇌y" fLabel="FIN"  gLabel="x≤y" onClick={() => e.swapXY()} small />
+                <Btn label="CLx" fLabel="REG"  gLabel="x=0" onClick={e.clx} small />
+              </div>
+              {/* Row 4: ON f g STO RCL */}
+              <div style={{ display: "flex", gap: "4px" }}>
+                <Btn label="ON"  onClick={e.clAll} />
+                <Btn label="f"   onClick={() => {}} style={btnOrange} />
+                <Btn label="g"   onClick={() => {}} style={btnBlue} />
+                <Btn label="STO" onClick={() => {}} small />
+                <Btn label="RCL" onClick={() => {}} small />
+              </div>
+            </div>
 
-            {/* ─── Row 3: R/S SST R↓ x⇌y CLx  ENTER 1 2 3 − ─── */}
-            <Key label="R/S"  onClick={() => {}} fLabel="P/R"  gLabel="PSE" />
-            <Key label="SST"  onClick={() => {}} fLabel="Σ"    gLabel="BST" />
-            <Key label="R↓"   onClick={() => {}} fLabel="PRGM" gLabel="GTO" />
-            <Key label="x⇌y"  onClick={e.swapXY} fLabel="FIN"  gLabel="x≤y" />
-            <Key label="CLx"  onClick={e.clx}     fLabel="REG"  gLabel="x=0" />
-
-            {/* ENTER — spans 2 rows (col 6) */}
-            <div className="row-span-2 flex flex-col items-center gap-0">
-              <span className="text-[8px] font-bold leading-none h-[12px] text-[#e8860f]">PREFIX</span>
+            {/* ENTER key — spans 2 rows */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, width: "42px" }}>
+              <span style={{
+                fontSize: "8px", fontWeight: 700, color: "#d4780a", height: "11px",
+                fontFamily: "Arial, sans-serif", lineHeight: "11px",
+              }}>
+                PREFIX
+              </span>
               <button
-                className={cn(
-                  "w-full rounded-[4px] border font-bold select-none transition-all duration-75",
-                  "active:translate-y-[2px] active:shadow-none cursor-pointer",
-                  "bg-gradient-to-b from-[#3a3a3a] via-[#2a2a2a] to-[#1e1e1e] text-white/90 border-[#555]",
-                  "shadow-[0_3px_0_#0a0a0a,inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3)]",
-                  "hover:from-[#444] hover:via-[#333] hover:to-[#252525]",
-                  "flex flex-col items-center justify-center text-[9px] tracking-[3px] leading-[1.4]"
-                )}
-                style={{ height: "calc(100% - 23px)" }}
                 onClick={e.enter}
+                style={{
+                  ...btnBase,
+                  height: "calc(28px * 2 + 21px)",
+                  flexDirection: "column" as const,
+                  fontSize: "9px",
+                  letterSpacing: "2px",
+                  lineHeight: "1.3",
+                }}
+                onMouseDown={ev => (ev.currentTarget.style.transform = "translateY(1px)")}
+                onMouseUp={ev => (ev.currentTarget.style.transform = "none")}
+                onMouseLeave={ev => (ev.currentTarget.style.transform = "none")}
               >
                 E<br/>N<br/>T<br/>E<br/>R
               </button>
-              <span className="text-[7px] font-bold leading-none h-[11px] text-[#2a8ec8]">LSTx</span>
+              <span style={{
+                fontSize: "7px", fontWeight: 700, color: "#2a90c0", height: "10px",
+                fontFamily: "Arial, sans-serif", lineHeight: "10px",
+              }}>
+                LSTx
+              </span>
             </div>
 
-            <Key label="1" onClick={() => e.num("1")} gLabel="x̂,r" />
-            <Key label="2" onClick={() => e.num("2")} gLabel="ŷ,r" />
-            <Key label="3" onClick={() => e.num("3")} gLabel="n!"  />
-            <Key label="−" onClick={() => e.op("-")}               />
-
-            {/* ─── Row 4: ON f g STO RCL  (enter cont.) 0 · Σ+ + ─── */}
-            <Key label="ON"  onClick={e.clAll} />
-            <Key label="f"   onClick={() => {}} variant="orange" />
-            <Key label="g"   onClick={() => {}} variant="blue"   />
-            <Key label="STO" onClick={() => {}} />
-            <Key label="RCL" onClick={() => {}} />
-            {/* col 6 occupied by ENTER row-span */}
-
-            <Key label="0"  onClick={() => e.num("0")} gLabel="x̄"  />
-            <Key label="·"  onClick={() => e.num(".")} gLabel="s"  />
-            <Key label="Σ+" onClick={() => {}}          gLabel="Σ−" />
-            <Key label="+"  onClick={() => e.op("+")}               />
-          </div>
-
-          {/* ═══ Solve row — orange buttons ═══ */}
-          <div className="grid grid-cols-5 gap-1 mt-3">
-            {(["n", "i", "pv", "pmt", "fv"] as const).map((k) => (
-              <button
-                key={k}
-                className={cn(
-                  "rounded-[4px] border font-bold select-none transition-all duration-75",
-                  "active:translate-y-[1px] active:shadow-none cursor-pointer",
-                  "bg-gradient-to-b from-[#e8860f] via-[#d4760a] to-[#b86208] text-white border-[#aa5e08]",
-                  "shadow-[0_2px_0_#6a3a04,inset_0_1px_0_rgba(255,255,255,0.2)]",
-                  "hover:from-[#f09020] hover:via-[#e0860f] hover:to-[#c06e0a]",
-                  "h-[30px] text-[10px]"
-                )}
-                onClick={() => e.solve(k)}
-              >
-                →{k === "pv" ? "PV" : k === "pmt" ? "PMT" : k === "fv" ? "FV" : k}
-              </button>
-            ))}
+            {/* Right 4 keys of row 3 */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <div style={{ display: "flex", gap: "4px" }}>
+                <Btn label="1"              gLabel="x̂,r" onClick={() => e.num("1")} />
+                <Btn label="2"              gLabel="ŷ,r" onClick={() => e.num("2")} />
+                <Btn label="3"              gLabel="n!"  onClick={() => e.num("3")} />
+                <Btn label="—"                           onClick={() => e.op("-")} />
+              </div>
+              {/* Row 4 right: 0 · Σ+ + */}
+              <div style={{ display: "flex", gap: "4px" }}>
+                <Btn label="0"              gLabel="x̄"  onClick={() => e.num("0")} />
+                <Btn label="·"              gLabel="s"   onClick={() => e.num(".")} />
+                <Btn label="Σ+"             gLabel="Σ−"  onClick={() => {}} />
+                <Btn label="+"                           onClick={() => e.op("+")} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Glossary overlay */}
       <GlossaryPanel open={glossary} onClose={() => setGlossary(false)} />
     </div>
   );
