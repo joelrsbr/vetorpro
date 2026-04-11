@@ -938,50 +938,15 @@ export default function Dashboard() {
 
       {/* HP 12C Modal */}
       <Dialog open={showHP12C} onOpenChange={setShowHP12C}>
-        <DialogContent className="sm:max-w-[560px] p-0 overflow-hidden z-[10000] bg-transparent border-none shadow-2xl [&>button]:hidden">
-          {/* Header: i on LEFT, X on RIGHT — well separated */}
-          <div className="flex items-center justify-between px-4 pt-3 pb-2 bg-[#2a2418] rounded-t-lg">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setShowHP12CGlossary(!showHP12CGlossary)}
-                  className="h-7 w-7 rounded-full border border-amber-500/50 bg-amber-900/50 text-amber-300 flex items-center justify-center hover:bg-amber-800/50 transition-colors text-[11px] font-bold"
-                >
-                  i
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-[220px] text-xs">
-                Clique para ver o glossário das teclas
-              </TooltipContent>
-            </Tooltip>
-
-            <span className="flex items-center gap-2 text-amber-400 text-sm font-bold tracking-wide">
-              <Calculator className="h-4 w-4" />
-              HP 12C
-            </span>
-
-            <button
-              onClick={() => setShowHP12C(false)}
-              className="h-7 w-7 rounded-full border border-white/20 bg-white/10 text-white/70 flex items-center justify-center hover:bg-white/20 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          {showHP12CGlossary && (
-            <div className="mx-3 mb-1 p-3 rounded-lg bg-amber-900/40 border border-amber-700/30 text-xs space-y-1.5">
-              <p className="font-bold text-amber-300 mb-1">📖 Glossário das Teclas</p>
-              <p className="text-amber-200/80"><strong className="text-amber-300">n</strong> — Número de períodos (meses)</p>
-              <p className="text-amber-200/80"><strong className="text-amber-300">i</strong> — Taxa de juros por período (%)</p>
-              <p className="text-amber-200/80"><strong className="text-amber-300">PV</strong> — Valor Presente (valor financiado)</p>
-              <p className="text-amber-200/80"><strong className="text-amber-300">PMT</strong> — Pagamento periódico (parcela)</p>
-              <p className="text-amber-200/80"><strong className="text-amber-300">FV</strong> — Valor Futuro (saldo final)</p>
-              <p className="pt-1 border-t border-amber-700/30 text-amber-400/70"><strong>Dica:</strong> Digite → tecle a variável para armazenar → tecle →[variável] para resolver.</p>
-            </div>
-          )}
-          <div className="px-1 pb-1">
-            <HP12CCalculatorBody />
-          </div>
+        <DialogContent className="sm:max-w-[640px] p-0 overflow-visible z-[10000] bg-transparent border-none shadow-none [&>button]:hidden">
+          {/* Close button — floating top-right outside the calculator */}
+          <button
+            onClick={() => setShowHP12C(false)}
+            className="absolute -top-3 -right-3 z-50 h-8 w-8 rounded-full bg-black/80 border border-white/20 text-white/80 flex items-center justify-center hover:bg-black hover:text-white transition-colors shadow-lg"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <HP12CCalculatorBody />
         </DialogContent>
       </Dialog>
       
