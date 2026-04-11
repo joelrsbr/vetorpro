@@ -32,7 +32,7 @@ const Index = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate("/dashboard")}
-            className="gap-1.5 text-muted-foreground hover:text-foreground"
+            className="gap-1.5 text-muted-foreground hover:text-foreground border"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar ao Dashboard
