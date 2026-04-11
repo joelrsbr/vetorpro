@@ -13,17 +13,11 @@ export default function LoginAndPlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("pro");
   const navigate = useNavigate();
 
-  // Redirect authenticated users with active subscription to their dashboard
+  // Redirect ALL authenticated users to dashboard (no landing page for logged-in users)
   useEffect(() => {
     const checkAndRedirect = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase.rpc("get_user_subscription", {
-        p_user_id: user.id,
-      });
-
-      if (data?.[0]?.is_active) {
+      if (user) {
         navigate("/dashboard", { replace: true });
       }
     };

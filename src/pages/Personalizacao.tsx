@@ -40,15 +40,17 @@ function PersonalizacaoContent() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-          onClick={() => navigate("/dashboard")}
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Voltar ao Dashboard
-        </Button>
+        <div className="mb-6 flex justify-start">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-border bg-background/95 text-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-accent-foreground"
+            onClick={() => navigate("/dashboard")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Voltar ao Dashboard
+          </Button>
+        </div>
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Building2 className="h-8 w-8 text-primary" />
