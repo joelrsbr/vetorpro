@@ -189,7 +189,7 @@ export function BankComparisonModule() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedResults.map((result) => {
               const isRelationship = relationshipBank === result.bankId;
-              const isBanrisul = result.bankId === "banrisul";
+              
               // If relationship bank is not the best rate, tag it as strategic suggestion
               const isStrategicSuggestion = isRelationship && !result.isBestRate && !result.isLowestCost;
 
