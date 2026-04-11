@@ -506,11 +506,11 @@ export function HP12CCalculatorBody() {
 
           {/* ROW 1 */}
           <div style={{ display: "flex", gap: "3px", justifyContent: "center" }}>
-            <Btn label="n"   fLabel="AMORT" gLabel="12×"  onClick={() => e.storeFin("n")} />
-            <Btn label="i"   fLabel="INT"   gLabel="12÷"  onClick={() => e.storeFin("i")} />
-            <Btn label="PV"  fLabel="NPV"   gLabel="CFo"  onClick={() => e.storeFin("pv")} />
-            <Btn label="PMT" fLabel="RND"   gLabel="CFj"  onClick={() => e.storeFin("pmt")} small />
-            <Btn label="FV"  fLabel="IRR"   gLabel="Nj"   onClick={() => e.storeFin("fv")} />
+            <Btn label="n"   fLabel="AMORT" gLabel="12×"  onClick={() => e.handleFinKey("n")} />
+            <Btn label="i"   fLabel="INT"   gLabel="12÷"  onClick={() => e.handleFinKey("i")} />
+            <Btn label="PV"  fLabel="NPV"   gLabel="CFo"  onClick={() => e.handleFinKey("pv")} />
+            <Btn label="PMT" fLabel="RND"   gLabel="CFj"  onClick={() => e.handleFinKey("pmt")} small />
+            <Btn label="FV"  fLabel="IRR"   gLabel="Nj"   onClick={() => e.handleFinKey("fv")} />
             <Btn label="CHS" fLabel="DATE"                onClick={() => e.op("CHS")} small />
             <Btn label="7"                  gLabel="BEG"  onClick={() => e.num("7")} />
             <Btn label="8"                  gLabel="END"  onClick={() => e.num("8")} />
@@ -538,16 +538,16 @@ export function HP12CCalculatorBody() {
               <div style={{ display: "flex", gap: "3px" }}>
                 <Btn label="R/S" fLabel="P/R"  gLabel="PSE" onClick={() => {}} small />
                 <Btn label="SST" fLabel="Σ"    gLabel="BST" onClick={() => {}} small />
-                <Btn label="R↓"  fLabel="PRGM" gLabel="GTO" onClick={() => {}} />
+                <Btn label="R↓"  fLabel="PRGM" gLabel="GTO" onClick={() => e.rollDown()} />
                 <Btn label="x⇌y" fLabel="FIN"  gLabel="x≤y" onClick={() => e.swapXY()} small />
                 <Btn label="CLx" fLabel="REG"  gLabel="x=0" onClick={e.clx} small />
               </div>
               <div style={{ display: "flex", gap: "3px" }}>
                 <Btn label="ON"  onClick={e.onKey} />
-                <Btn label="f"   onClick={() => {}} styleOverride={S.btnOrange} />
-                <Btn label="g"   onClick={() => {}} styleOverride={S.btnBlue} />
-                <Btn label="STO" onClick={() => {}} small />
-                <Btn label="RCL" onClick={() => {}} small />
+                <Btn label="f"   onClick={() => e.setMod("f")} styleOverride={S.btnOrange} />
+                <Btn label="g"   onClick={() => e.setMod("g")} styleOverride={S.btnBlue} />
+                <Btn label="STO" onClick={() => e.handleSto()} small />
+                <Btn label="RCL" onClick={() => e.handleRcl()} small />
               </div>
             </div>
 
