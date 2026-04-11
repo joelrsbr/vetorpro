@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Landmark, Handshake, Users, Info, ChevronDown, ChevronUp, AlertCircle, AlertTriangle } from "lucide-react";
+import { Landmark, Handshake, Users, Info, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -189,7 +189,7 @@ export function BankComparisonModule() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedResults.map((result) => {
               const isRelationship = relationshipBank === result.bankId;
-              const isBanrisul = result.bankId === "banrisul";
+              
               // If relationship bank is not the best rate, tag it as strategic suggestion
               const isStrategicSuggestion = isRelationship && !result.isBestRate && !result.isLowestCost;
 
@@ -236,6 +236,12 @@ export function BankComparisonModule() {
                         Menor Custo
                       </Badge>
                     )}
+                    {result.isRegional && (
+                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 gap-1 border-amber-500/50 text-amber-600 dark:text-amber-400">
+                        <MapPin className="h-3 w-3" />
+                        Destaque Regional
+                      </Badge>
+                    )}
                   </div>
 
                   <CardHeader className="pb-2 pt-4">
@@ -275,6 +281,9 @@ export function BankComparisonModule() {
                               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                             >
                               {result.rate.toFixed(2)}% a.a.
+                              {result.spread > 0 && (
+                                <span className="text-[10px] text-muted-foreground ml-1">(+{result.spread.toFixed(2)}% spread = {result.effectiveRate.toFixed(2)}%)</span>
+                              )}
                               <Edit3 className="h-3 w-3" />
                             </button>
                           )}
@@ -301,9 +310,9 @@ export function BankComparisonModule() {
                         Juros: {fmtBRL(result.totalInterest)}
                       </p>
                     </div>
-                    {isBanrisul && (
+                    {result.note && (
                       <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 italic">
-                        {"\n"}
+                        ℹ {result.note}
                       </p>
                     )}
 
@@ -383,43 +392,6 @@ export function BankComparisonModule() {
               );
             })}
 
-            {/* BNDES - Enterprise teaser */}
-            <Card className="relative overflow-hidden border transition-all duration-200 grayscale opacity-50 select-none pointer-events-none">
-              <div className="h-1.5 w-full bg-muted-foreground" />
-              <div className="absolute top-3 right-3">
-                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 whitespace-nowrap">
-                  Enterprise (Em Breve)
-                </Badge>
-              </div>
-              <CardHeader className="pb-2 pt-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-md flex items-center justify-center bg-muted-foreground text-white text-xs font-bold shrink-0">
-                    <Landmark className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-sm">BNDES</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">—% a.a.</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-2 pb-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">1ª Parcela</p>
-                    <p className="text-sm font-semibold text-foreground">—</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Última Parcela</p>
-                    <p className="text-sm font-semibold text-foreground">—</p>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Custo Total Pago</p>
-                  <p className="text-base font-bold text-foreground">—</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Juros: —</p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           <p className="text-[11px] text-muted-foreground text-center">
