@@ -878,43 +878,43 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
   style?: React.CSSProperties; onClick: () => void; tall?: boolean; className?: string;
 }) {
   const base: React.CSSProperties = {
-    background: "#2A2A2A",
-    border: "1px solid #3a3a3a",
+    background: "#1A1A1A",
+    border: "1px solid #333",
     borderTop: "1px solid #444",
-    borderBottom: "2px solid #111",
-    borderRadius: "3px",
+    borderBottom: "2px solid #000",
+    borderRadius: "4px",
     color: "#fff",
     fontWeight: 700,
-    fontSize: "12px",
+    fontSize: "11px",
     fontFamily: "'Helvetica Neue', Arial, sans-serif",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 2px 0 #0a0a0a, inset 0 1px 0 rgba(255,255,255,0.08)",
+    boxShadow: "0 2px 0 #000, inset 0 1px 0 #444",
     userSelect: "none",
     lineHeight: 1,
     padding: 0,
     width: "100%",
-    height: tall ? "100%" : "28px",
+    height: tall ? "100%" : "36px",
     ...so,
   };
 
   return (
     <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center", gap: "1px",
+      display: "flex", flexDirection: "column", alignItems: "center", gap: "0px",
       gridRow: tall ? "span 2" : undefined,
     }} className={cn}>
       <span style={{
-        fontSize: "7.5px", fontWeight: 700, color: "#F47B20",
-        height: "10px", lineHeight: "10px", whiteSpace: "nowrap",
+        fontSize: "7px", fontWeight: 700, color: "#F47B20",
+        height: "9px", lineHeight: "9px", whiteSpace: "nowrap",
         fontFamily: "Arial, sans-serif",
         visibility: fLbl ? "visible" : "hidden",
       }}>{fLbl || "."}</span>
       <button
         onClick={onClick}
         style={base}
-        onMouseDown={ev => { ev.currentTarget.style.transform = "translateY(1px)"; ev.currentTarget.style.boxShadow = "0 0 0 #0a0a0a, inset 0 2px 3px rgba(0,0,0,0.5)"; }}
+        onMouseDown={ev => { ev.currentTarget.style.transform = "translateY(1px)"; ev.currentTarget.style.boxShadow = "0 0 0 #000, inset 0 2px 3px rgba(0,0,0,0.5)"; }}
         onMouseUp={ev => { ev.currentTarget.style.transform = ""; ev.currentTarget.style.boxShadow = base.boxShadow!; }}
         onMouseLeave={ev => { ev.currentTarget.style.transform = ""; ev.currentTarget.style.boxShadow = base.boxShadow!; }}
       >
@@ -926,8 +926,32 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
         fontSize: "7px", fontWeight: 700, color: "#3FC0C0",
         height: "9px", lineHeight: "9px", whiteSpace: "nowrap",
         fontFamily: "Arial, sans-serif",
-        visibility: gLbl ? "visible" : "hidden",
-      }}>{gLbl || "."}</span>
+      }}>{gLbl || "\u00A0"}</span>
+    </div>
+  );
+}
+
+// ─── Group label helpers ───
+function GroupLabel({ text, span = 1 }: { text: string; span?: number }) {
+  return (
+    <div style={{
+      gridColumn: `span ${span}`,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
+    }}>
+      <span style={{ fontSize: "7px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
+    </div>
+  );
+}
+
+function BracketLabel({ text, span }: { text: string; span: number }) {
+  return (
+    <div style={{
+      gridColumn: `span ${span}`,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
+      gap: "1px",
+    }}>
+      <span style={{ fontSize: "7px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
+      <div style={{ width: "90%", height: "1px", background: "#F47B20", opacity: 0.6 }} />
     </div>
   );
 }
@@ -953,8 +977,25 @@ function useResponsiveScale(baseW: number) {
 export function HP12CCalculatorBody() {
   const e = useHP12CEngine();
   const [glossary, setGlossary] = useState(false);
-  const scale = useResponsiveScale(520);
+  const [useBrazilianFormat, setUseBrazilianFormat] = useState(false);
+  const scale = useResponsiveScale(480);
   const containerRef = useRef<HTMLDivElement>(null);
+  const onClickTimerRef = useRef<number | null>(null);
+
+  // Double-click ON handler
+  const handleOnClick = useCallback(() => {
+    if (onClickTimerRef.current !== null) {
+      // Double click detected
+      clearTimeout(onClickTimerRef.current);
+      onClickTimerRef.current = null;
+      setUseBrazilianFormat(prev => !prev);
+    } else {
+      onClickTimerRef.current = window.setTimeout(() => {
+        onClickTimerRef.current = null;
+        e.onKey();
+      }, 300);
+    }
+  }, [e]);
 
   // Keyboard support
   useEffect(() => {
@@ -981,80 +1022,83 @@ export function HP12CCalculatorBody() {
     normal();
   };
 
+  const displayText = e.getDisplay(useBrazilianFormat);
+
   const gridStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: "repeat(10, 1fr)",
-    gap: "4px 3px",
-    padding: "6px",
+    gap: "3px",
+    padding: "4px 6px 6px",
   };
 
   return (
     <div style={{ width: "100%", display: "flex", justifyContent: "center", userSelect: "none" }} ref={containerRef}>
-      <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", width: "520px" }}>
+      <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", width: "480px" }}>
         {/* Calculator body */}
         <div style={{
-          background: "#B8A060",
-          borderRadius: "16px",
-          padding: "12px",
-          border: "2px solid #5A4A1A",
+          background: "#A89050",
+          borderRadius: "12px",
+          padding: "10px",
+          border: "2px solid #5A4010",
           boxShadow: "0 8px 24px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)",
         }}>
           {/* ─── Display ─── */}
           <div style={{ display: "flex", gap: "6px", marginBottom: "0" }}>
             <div style={{
-              flex: 1, borderRadius: "4px", padding: "4px 12px",
-              background: "#5C5E3A",
-              border: "2px solid #3a3c22",
+              flex: 1, borderRadius: "4px", padding: "4px 10px",
+              background: "#4A4C2A",
+              border: "2px solid #3a3c1a",
               boxShadow: "inset 0 4px 12px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.03)",
             }}>
               {/* Status indicators */}
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                fontSize: "8px", fontFamily: "Arial, sans-serif", color: "#8a8a60",
-                height: "12px", opacity: 0.9, padding: "0 2px",
+                fontSize: "9px", fontFamily: "Arial, sans-serif",
+                height: "12px", padding: "0 2px",
               }}>
                 <span style={{ fontWeight: 700, color: e.modifier === "f" ? "#F47B20" : e.modifier === "g" ? "#3FC0C0" : "transparent" }}>
                   {e.modifier === "f" ? "f" : e.modifier === "g" ? "g" : "."}
                 </span>
-                <span style={{ fontWeight: 700, color: "#8a8a60", visibility: e.beginMode ? "visible" : "hidden" }}>BEGIN</span>
-                <span style={{ fontWeight: 700, color: "#8a8a60", visibility: e.stoMode ? "visible" : (e.rclMode ? "visible" : "hidden") }}>
+                <span style={{ fontWeight: 700, color: "#ddd", fontSize: "8px", visibility: e.beginMode ? "visible" : "hidden" }}>BEGIN</span>
+                <span style={{ fontWeight: 700, color: "#8a8a60", fontSize: "8px", visibility: e.stoMode ? "visible" : (e.rclMode ? "visible" : "hidden") }}>
                   {e.stoMode ? "STO" : "RCL"}
                 </span>
               </div>
               {/* LCD digits */}
               <div style={{
-                background: "#4A4C2A",
+                background: "#6B7040",
                 borderRadius: "2px",
                 padding: "6px 10px",
                 textAlign: "right",
-                border: "1px solid #3a3c1a",
+                border: "1px solid #555830",
                 boxShadow: "inset 0 2px 6px rgba(0,0,0,0.3)",
               }}>
                 <span style={{
-                  fontFamily: "'DSEG7 Classic', 'Orbitron', 'Courier New', monospace",
-                  fontSize: "30px", fontWeight: 400, color: "#C8D820",
-                  letterSpacing: "3px", lineHeight: 1,
+                  fontFamily: "'DSEG7 Classic', monospace",
+                  fontSize: "2.5rem", fontWeight: 400, color: "#C8D820",
+                  letterSpacing: "2px", lineHeight: 1,
                   textShadow: "0 0 6px rgba(200,216,32,0.3)",
+                  display: "block",
                 }}>
-                  {e.display}
+                  {displayText}
                 </span>
               </div>
             </div>
             {/* Info button */}
             <button onClick={() => setGlossary(true)} style={{
-              width: "24px", flexShrink: 0, borderRadius: "4px", display: "flex",
+              width: "22px", flexShrink: 0, borderRadius: "4px", display: "flex",
               alignItems: "center", justifyContent: "center", cursor: "pointer",
-              background: "#5C5E3A", border: "2px solid #3a3c22",
+              background: "#4A4C2A", border: "2px solid #3a3c1a",
               boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
             }}>
-              <Info style={{ width: "14px", height: "14px", color: "#8a8a60", opacity: 0.8 }} />
+              <Info style={{ width: "12px", height: "12px", color: "#8a8a60", opacity: 0.8 }} />
             </button>
           </div>
 
           {/* Dark separator strip */}
           <div style={{
-            height: "3px", background: "linear-gradient(to right, transparent, #3a3018, #3a3018, transparent)",
-            margin: "8px 0 6px",
+            height: "2px", background: "linear-gradient(to right, transparent, #3a3018, #3a3018, transparent)",
+            margin: "6px 0 4px",
             borderRadius: "1px",
           }} />
 
@@ -1069,7 +1113,7 @@ export function HP12CCalculatorBody() {
             {/* Financial register readout */}
             <div style={{
               display: "flex", justifyContent: "space-around",
-              fontSize: "7px", fontFamily: "monospace", color: "rgba(200,184,122,0.5)",
+              fontSize: "9px", fontFamily: "monospace", color: "#999",
               padding: "3px 8px 0",
             }}>
               <span>n={e.fin.n.toFixed(0)}</span>
@@ -1079,36 +1123,75 @@ export function HP12CCalculatorBody() {
               <span>FV={e.fin.fv.toFixed(0)}</span>
             </div>
 
+            {/* Row 1 group labels */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "3px",
+              padding: "2px 6px 0",
+            }}>
+              <GroupLabel text="AMORT" />
+              <GroupLabel text="INT" />
+              <GroupLabel text="NPV" />
+              <GroupLabel text="RND" />
+              <GroupLabel text="IRR" />
+              <div /><div /><div /><div /><div />
+            </div>
+
             <div style={gridStyle}>
               {/* ══ ROW 1 ══ */}
-              <Btn label="n"   fLbl="AMORT" gLbl="12×"  onClick={() => e.handleFinKey("n")} />
-              <Btn label="i"   fLbl="INT"   gLbl="12÷"  onClick={() => e.handleFinKey("i")} />
-              <Btn label="PV"  fLbl="NPV"   gLbl="CFo"  onClick={() => e.handleFinKey("pv")} />
-              <Btn label="PMT" fLbl="RND"   gLbl="CFj"  onClick={() => e.handleFinKey("pmt")} />
-              <Btn label="FV"  fLbl="IRR"   gLbl="Nj"   onClick={() => e.handleFinKey("fv")} />
+              <Btn label="n"   fLbl="" gLbl="12×"  onClick={() => e.handleFinKey("n")} />
+              <Btn label="i"   fLbl="" gLbl="12÷"  onClick={() => e.handleFinKey("i")} />
+              <Btn label="PV"  fLbl="" gLbl="CFo"  onClick={() => e.handleFinKey("pv")} />
+              <Btn label="PMT" fLbl="" gLbl="CFj"  onClick={() => e.handleFinKey("pmt")} />
+              <Btn label="FV"  fLbl="" gLbl="Nj"   onClick={() => e.handleFinKey("fv")} />
               <Btn label="CHS" fLbl="DATE"               onClick={() => e.op("CHS")} />
               <Btn label="7"                gLbl="BEG"   onClick={() => handleWithModifier(() => e.num("7"), undefined, () => e.toggleBeg(true))} />
               <Btn label="8"                gLbl="END"   onClick={() => handleWithModifier(() => e.num("8"), undefined, () => e.toggleBeg(false))} />
               <Btn label="9"                gLbl="MEM"   onClick={() => e.num("9")} />
               <Btn label="÷"                              onClick={() => e.op("÷")} />
 
+              {/* Row 2 group labels inline */}
+            </div>
+
+            {/* Row 2 group labels */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "3px",
+              padding: "2px 6px 0",
+            }}>
+              <BracketLabel text="BOND" span={2} />
+              <BracketLabel text="DEPRECIATION" span={3} />
+              <div /><div /><div /><div /><div />
+            </div>
+
+            <div style={gridStyle}>
               {/* ══ ROW 2 ══ */}
-              <Btn label="Yˣ"  fLbl="PRICE" gLbl="√x"   onClick={() => handleWithModifier(() => e.op("yˣ"), undefined, () => e.op("√x"))} />
-              <Btn label="1/x" fLbl="YTM"   gLbl="eˣ"   onClick={() => handleWithModifier(() => e.op("1/x"), undefined, () => e.op("eˣ"))} />
-              <Btn label="%T"  fLbl="SL"     gLbl="LN"   onClick={() => handleWithModifier(() => e.op("%T"), undefined, () => e.op("LN"))} />
-              <Btn label="Δ%"  fLbl="SOYD"   gLbl="FRAC" onClick={() => handleWithModifier(() => e.op("Δ%"), undefined, () => e.op("FRAC"))} />
-              <Btn label="%"   fLbl="DB"     gLbl="INTG" onClick={() => handleWithModifier(() => e.op("%"), undefined, () => e.op("INTG"))} />
+              <Btn label="Yˣ"  fLbl="" gLbl="√x"   onClick={() => handleWithModifier(() => e.op("yˣ"), undefined, () => e.op("√x"))} />
+              <Btn label="1/x" fLbl="" gLbl="eˣ"   onClick={() => handleWithModifier(() => e.op("1/x"), undefined, () => e.op("eˣ"))} />
+              <Btn label="%T"  fLbl="" gLbl="LN"   onClick={() => handleWithModifier(() => e.op("%T"), undefined, () => e.op("LN"))} />
+              <Btn label="Δ%"  fLbl="" gLbl="FRAC" onClick={() => handleWithModifier(() => e.op("Δ%"), undefined, () => e.op("FRAC"))} />
+              <Btn label="%"   fLbl="" gLbl="INTG" onClick={() => handleWithModifier(() => e.op("%"), undefined, () => e.op("INTG"))} />
               <Btn label="EEX" fLbl="ΔDYS"               onClick={() => {}} />
               <Btn label="4"                gLbl="D.MY"  onClick={() => handleWithModifier(() => e.num("4"), () => e.setFix(4))} />
               <Btn label="5"                gLbl="M.DY"  onClick={() => handleWithModifier(() => e.num("5"), () => e.setFix(5))} />
               <Btn label="6"                gLbl="x̄w"   onClick={() => handleWithModifier(() => e.num("6"), () => e.setFix(6))} />
               <Btn label="×"                              onClick={() => e.op("×")} />
+            </div>
 
+            {/* Row 3 group labels */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "3px",
+              padding: "2px 6px 0",
+            }}>
+              <div /><div /><div />
+              <BracketLabel text="CLEAR" span={2} />
+              <div /><div /><div /><div /><div />
+            </div>
+
+            <div style={gridStyle}>
               {/* ══ ROW 3 ══ */}
               <Btn label="R/S" fLbl="P/R"   gLbl="PSE"  onClick={() => {}} />
               <Btn label="SST" fLbl="Σ"     gLbl="BST"  onClick={() => {}} />
               <Btn label="R↓"  fLbl="PRGM"  gLbl="GTO"  onClick={() => e.rollDown()} />
-              <Btn label="x⇌y" fLbl="FIN"   gLbl="x≤y"  onClick={() => handleWithModifier(() => e.swapXY(), () => e.clearFin())} />
+              <Btn label="x⇌y" fLbl="FIN"  gLbl="x≤y"  onClick={() => handleWithModifier(() => e.swapXY(), () => e.clearFin())} />
               <Btn label="CLx" fLbl="REG"   gLbl="x=0"  onClick={() => handleWithModifier(() => e.clx(), () => e.clearReg())} />
               {/* ENTER — spans rows 3 & 4 */}
               <Btn label="ENTER" fLbl="PREFIX" gLbl="LSTx" tall
@@ -1119,7 +1202,7 @@ export function HP12CCalculatorBody() {
               <Btn label="–"                              onClick={() => e.op("-")} />
 
               {/* ══ ROW 4 ══ */}
-              <Btn label="ON"                             onClick={e.onKey} />
+              <Btn label="ON"                             onClick={handleOnClick} />
               <Btn label="f" onClick={() => e.setMod("f")} style={{
                 background: "#F47B20", border: "1px solid #c55f10",
                 borderTop: "1px solid #ff8c30", borderBottom: "2px solid #9a4a08",
