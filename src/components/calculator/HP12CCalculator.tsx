@@ -1218,6 +1218,7 @@ export function HP12CCalculatorBody() {
           </div>
         </div>
       </div>
+      </div>
       <GlossaryPanel open={glossary} onClose={() => setGlossary(false)} />
     </div>
   );
