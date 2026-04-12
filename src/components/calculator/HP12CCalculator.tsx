@@ -931,6 +931,31 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
   );
 }
 
+// ─── Group label helpers ───
+function GroupLabel({ text, span = 1 }: { text: string; span?: number }) {
+  return (
+    <div style={{
+      gridColumn: `span ${span}`,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
+    }}>
+      <span style={{ fontSize: "6px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
+    </div>
+  );
+}
+
+function BracketLabel({ text, span }: { text: string; span: number }) {
+  return (
+    <div style={{
+      gridColumn: `span ${span}`,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
+      gap: "1px",
+    }}>
+      <span style={{ fontSize: "6px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
+      <div style={{ width: "90%", height: "1px", background: "#F47B20", opacity: 0.6 }} />
+    </div>
+  );
+}
+
 // ─── Responsive scaling ───
 function useResponsiveScale(baseW: number) {
   const [scale, setScale] = useState(1);
