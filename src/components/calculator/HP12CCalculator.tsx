@@ -1025,50 +1025,66 @@ export function HP12CCalculatorBody() {
         padding: "4px 12px",
         display: "flex",
         alignItems: "center",
-        gap: "12px",
+        justifyContent: "space-between",
         fontSize: "12px",
         color: "white",
         marginBottom: "8px",
+        width: "480px",
+        transform: `scale(${zoom})`,
+        transformOrigin: "top center",
       }}>
-        <button
-          onClick={decreaseZoom}
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "50%",
-            background: "#F47B20",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: "bold",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Minus size={16} />
-        </button>
-        <span>Zoom: {Math.round(zoom * 100)}%</span>
-        <button
-          onClick={increaseZoom}
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "50%",
-            background: "#F47B20",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: "bold",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Plus size={16} />
-        </button>
+        {/* Zoom controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button
+            onClick={decreaseZoom}
+            style={{
+              width: "28px", height: "28px", borderRadius: "50%",
+              background: "#F47B20", color: "white", fontSize: "16px",
+              fontWeight: "bold", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          ><Minus size={16} /></button>
+          <span>Zoom: {Math.round(zoom * 100)}%</span>
+          <button
+            onClick={increaseZoom}
+            style={{
+              width: "28px", height: "28px", borderRadius: "50%",
+              background: "#F47B20", color: "white", fontSize: "16px",
+              fontWeight: "bold", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          ><Plus size={16} /></button>
+        </div>
+        {/* BR/US toggle */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{
+            fontSize: "11px",
+            fontWeight: useBrazilianFormat ? "normal" : "bold",
+            color: useBrazilianFormat ? "#666" : "white",
+          }}>US 🇺🇸</span>
+          <button
+            onClick={() => setUseBrazilianFormat(prev => !prev)}
+            style={{
+              width: "52px", height: "24px", borderRadius: "12px",
+              background: useBrazilianFormat ? "#009C3B" : "#3C3B6E",
+              border: "none", cursor: "pointer", position: "relative",
+              transition: "background 0.3s",
+              padding: 0,
+            }}
+          >
+            <div style={{
+              width: "20px", height: "20px", borderRadius: "50%",
+              background: "white", position: "absolute", top: "2px",
+              transition: "transform 0.3s",
+              transform: useBrazilianFormat ? "translateX(28px)" : "translateX(2px)",
+            }} />
+          </button>
+          <span style={{
+            fontSize: "11px",
+            fontWeight: useBrazilianFormat ? "bold" : "normal",
+            color: useBrazilianFormat ? "#009C3B" : "#666",
+          }}>🇧🇷 BR</span>
+        </div>
       </div>
 
       <div style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: "fit-content", margin: "0 auto" }}>
@@ -1250,7 +1266,7 @@ export function HP12CCalculatorBody() {
               <Btn label="–"                              onClick={() => e.op("-")} />
 
               {/* ══ ROW 4 ══ */}
-              <Btn label="ON"                             onClick={handleOnClick} />
+              <Btn label="ON"                             onClick={() => e.onKey()} />
               <Btn label="f" onClick={() => e.setMod("f")} style={{
                 background: "#F47B20", border: "1px solid #c55f10",
                 borderTop: "1px solid #ff8c30", borderBottom: "2px solid #9a4a08",
