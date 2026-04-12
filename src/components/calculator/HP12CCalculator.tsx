@@ -1283,7 +1283,7 @@ export function HP12CCalculatorBody() {
               <Btn label="RCL"                           onClick={e.handleRcl} />
               {/* col 6 is occupied by ENTER span */}
               <Btn label="0"                gLbl="x̄"   onClick={() => handleWithModifier(() => e.num("0"), () => e.setFix(0), () => e.statMeanX())} />
-              <Btn label="·"                gLbl="ȳ,r"    onClick={() => handleWithModifier(() => e.num("."), undefined, () => e.statMeanYX())} />
+              <Btn label={useBrazilianFormat ? "," : "·"}  gLbl="ȳ,r"    onClick={() => handleWithModifier(() => e.num("."), undefined, () => e.statMeanYX())} />
               <Btn label="Σ+"               gLbl="Σ−"  onClick={() => handleWithModifier(() => e.sigmaPlus(), undefined, () => e.sigmaMinus())} />
               <Btn label="+"                             onClick={() => e.op("+")} />
             </div>
