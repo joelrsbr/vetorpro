@@ -826,8 +826,10 @@ function useHP12CEngine() {
     setModifier(null);
   }, [upd]);
 
+  const getDisplay = useCallback((brazilian: boolean) => getDisplayValue(s, brazilian), [s]);
+
   return {
-    display: getDisplayValue(s), fin: s.fin, isOn: s.isOn, modifier, stoMode, rclMode,
+    display: getDisplayValue(s), getDisplay, fin: s.fin, isOn: s.isOn, modifier, stoMode, rclMode,
     beginMode: s.beginMode, fix: s.fix, error: s.error,
     num, enter, clx, clAll, clearFin, clearReg, onKey,
     op: doOp, swapXY, rollDown, rclLastX,
