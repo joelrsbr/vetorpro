@@ -960,24 +960,14 @@ function BracketLabel({ text, span }: { text: string; span: number }) {
 export function HP12CCalculatorBody() {
   const e = useHP12CEngine();
   const [glossary, setGlossary] = useState(false);
-  const [useBrazilianFormat, setUseBrazilianFormat] = useState(false);
+  const [useBrazilianFormat, setUseBrazilianFormat] = useState(() => {
+    return localStorage.getItem('hp12c-format') === 'BR';
+  });
   const containerRef = useRef<HTMLDivElement>(null);
-  const onClickTimerRef = useRef<number | null>(null);
 
-  // Double-click ON handler
-  const handleOnClick = useCallback(() => {
-    if (onClickTimerRef.current !== null) {
-      // Double click detected
-      clearTimeout(onClickTimerRef.current);
-      onClickTimerRef.current = null;
-      setUseBrazilianFormat(prev => !prev);
-    } else {
-      onClickTimerRef.current = window.setTimeout(() => {
-        onClickTimerRef.current = null;
-        e.onKey();
-      }, 300);
-    }
-  }, [e]);
+  useEffect(() => {
+    localStorage.setItem('hp12c-format', useBrazilianFormat ? 'BR' : 'US');
+  }, [useBrazilianFormat]);
 
   // Keyboard support
   useEffect(() => {
@@ -1035,50 +1025,66 @@ export function HP12CCalculatorBody() {
         padding: "4px 12px",
         display: "flex",
         alignItems: "center",
-        gap: "12px",
+        justifyContent: "space-between",
         fontSize: "12px",
         color: "white",
         marginBottom: "8px",
+        width: "480px",
+        transform: `scale(${zoom})`,
+        transformOrigin: "top center",
       }}>
-        <button
-          onClick={decreaseZoom}
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "50%",
-            background: "#F47B20",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: "bold",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Minus size={16} />
-        </button>
-        <span>Zoom: {Math.round(zoom * 100)}%</span>
-        <button
-          onClick={increaseZoom}
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "50%",
-            background: "#F47B20",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: "bold",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Plus size={16} />
-        </button>
+        {/* Zoom controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button
+            onClick={decreaseZoom}
+            style={{
+              width: "28px", height: "28px", borderRadius: "50%",
+              background: "#F47B20", color: "white", fontSize: "16px",
+              fontWeight: "bold", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          ><Minus size={16} /></button>
+          <span>Zoom: {Math.round(zoom * 100)}%</span>
+          <button
+            onClick={increaseZoom}
+            style={{
+              width: "28px", height: "28px", borderRadius: "50%",
+              background: "#F47B20", color: "white", fontSize: "16px",
+              fontWeight: "bold", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          ><Plus size={16} /></button>
+        </div>
+        {/* BR/US toggle */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{
+            fontSize: "11px",
+            fontWeight: useBrazilianFormat ? "normal" : "bold",
+            color: useBrazilianFormat ? "#666" : "white",
+          }}>US 🇺🇸</span>
+          <button
+            onClick={() => setUseBrazilianFormat(prev => !prev)}
+            style={{
+              width: "52px", height: "24px", borderRadius: "12px",
+              background: useBrazilianFormat ? "#009C3B" : "#3C3B6E",
+              border: "none", cursor: "pointer", position: "relative",
+              transition: "background 0.3s",
+              padding: 0,
+            }}
+          >
+            <div style={{
+              width: "20px", height: "20px", borderRadius: "50%",
+              background: "white", position: "absolute", top: "2px",
+              transition: "transform 0.3s",
+              transform: useBrazilianFormat ? "translateX(28px)" : "translateX(2px)",
+            }} />
+          </button>
+          <span style={{
+            fontSize: "11px",
+            fontWeight: useBrazilianFormat ? "bold" : "normal",
+            color: useBrazilianFormat ? "#009C3B" : "#666",
+          }}>🇧🇷 BR</span>
+        </div>
       </div>
 
       <div style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: "fit-content", margin: "0 auto" }}>
@@ -1260,7 +1266,7 @@ export function HP12CCalculatorBody() {
               <Btn label="–"                              onClick={() => e.op("-")} />
 
               {/* ══ ROW 4 ══ */}
-              <Btn label="ON"                             onClick={handleOnClick} />
+              <Btn label="ON"                             onClick={() => e.onKey()} />
               <Btn label="f" onClick={() => e.setMod("f")} style={{
                 background: "#F47B20", border: "1px solid #c55f10",
                 borderTop: "1px solid #ff8c30", borderBottom: "2px solid #9a4a08",
@@ -1277,7 +1283,7 @@ export function HP12CCalculatorBody() {
               <Btn label="RCL"                           onClick={e.handleRcl} />
               {/* col 6 is occupied by ENTER span */}
               <Btn label="0"                gLbl="x̄"   onClick={() => handleWithModifier(() => e.num("0"), () => e.setFix(0), () => e.statMeanX())} />
-              <Btn label="·"                gLbl="ȳ,r"    onClick={() => handleWithModifier(() => e.num("."), undefined, () => e.statMeanYX())} />
+              <Btn label={useBrazilianFormat ? "," : "·"}  gLbl="ȳ,r"    onClick={() => handleWithModifier(() => e.num("."), undefined, () => e.statMeanYX())} />
               <Btn label="Σ+"               gLbl="Σ−"  onClick={() => handleWithModifier(() => e.sigmaPlus(), undefined, () => e.sigmaMinus())} />
               <Btn label="+"                             onClick={() => e.op("+")} />
             </div>
