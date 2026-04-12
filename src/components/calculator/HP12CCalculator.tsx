@@ -885,7 +885,7 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
     borderRadius: "4px",
     color: "#fff",
     fontWeight: 700,
-    fontSize: "10px",
+    fontSize: "12px",
     fontFamily: "'Helvetica Neue', Arial, sans-serif",
     cursor: "pointer",
     display: "flex",
@@ -896,7 +896,7 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
     lineHeight: 1,
     padding: "2px 1px",
     width: "100%",
-    height: tall ? "100%" : "32px",
+    height: tall ? "100%" : "42px",
     ...so,
   };
 
@@ -906,8 +906,8 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
       gridRow: tall ? "span 2" : undefined,
     }} className={cn}>
       <span style={{
-        fontSize: "6px", fontWeight: 700, color: "#F47B20",
-        height: "8px", lineHeight: "8px", whiteSpace: "nowrap",
+        fontSize: "8px", fontWeight: 700, color: "#F47B20",
+        height: "10px", lineHeight: "10px", whiteSpace: "nowrap",
         fontFamily: "Arial, sans-serif",
         visibility: fLbl ? "visible" : "hidden",
       }}>{fLbl || "."}</span>
@@ -923,8 +923,8 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
         ) : label}
       </button>
       <span style={{
-        fontSize: "6px", fontWeight: 700, color: "#3FC0C0",
-        height: "8px", lineHeight: "8px", whiteSpace: "nowrap",
+        fontSize: "8px", fontWeight: 700, color: "#3FC0C0",
+        height: "10px", lineHeight: "10px", whiteSpace: "nowrap",
         fontFamily: "Arial, sans-serif",
       }}>{gLbl || "\u00A0"}</span>
     </div>
@@ -938,7 +938,7 @@ function GroupLabel({ text, span = 1 }: { text: string; span?: number }) {
       gridColumn: `span ${span}`,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
     }}>
-      <span style={{ fontSize: "6px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
+      <span style={{ fontSize: "8px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
     </div>
   );
 }
@@ -950,31 +950,10 @@ function BracketLabel({ text, span }: { text: string; span: number }) {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
       gap: "1px",
     }}>
-      <span style={{ fontSize: "6px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
+      <span style={{ fontSize: "8px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
       <div style={{ width: "90%", height: "1px", background: "#F47B20", opacity: 0.6 }} />
     </div>
   );
-}
-
-// ─── Responsive scaling ───
-function useResponsiveScale(baseW: number) {
-  const [scale, setScale] = useState(1);
-  useEffect(() => {
-    const update = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      // Height-based scaling
-      if (h <= 680) setScale(0.75);
-      else if (h <= 780) setScale(0.88);
-      else if (w >= 1024) setScale(1.15);
-      else if (w >= 768) setScale(Math.min(1.05, (w - 40) / baseW));
-      else setScale(Math.min(0.95, (w - 16) / baseW));
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, [baseW]);
-  return scale;
 }
 
 // ─── Main component ───
@@ -982,7 +961,6 @@ export function HP12CCalculatorBody() {
   const e = useHP12CEngine();
   const [glossary, setGlossary] = useState(false);
   const [useBrazilianFormat, setUseBrazilianFormat] = useState(false);
-  const scale = useResponsiveScale(480);
   const containerRef = useRef<HTMLDivElement>(null);
   const onClickTimerRef = useRef<number | null>(null);
 
@@ -1031,13 +1009,14 @@ export function HP12CCalculatorBody() {
   const gridStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: "repeat(10, 1fr)",
-    gap: "2px",
-    padding: "2px 4px 4px",
+    gap: "3px",
+    padding: "3px 6px 6px",
   };
 
   return (
-    <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", padding: "10px 10px 70px 10px", userSelect: "none" }} ref={containerRef}>
-      <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", width: "420px", maxHeight: "95vh" }}>
+    <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", paddingBottom: "60px", userSelect: "none" }} ref={containerRef}>
+      <div style={{ transform: "scale(0.70)", transformOrigin: "top center", width: "fit-content", margin: "0 auto" }}>
+        <div style={{ width: "480px" }}>
         {/* Calculator body */}
         <div style={{
           background: "#A89050",
@@ -1083,14 +1062,14 @@ export function HP12CCalculatorBody() {
                 justifyContent: "flex-end",
               }}>
                 <span style={{
-                  fontFamily: "'DSEG7 Classic', 'DSEG7Classic', monospace",
-                  fontSize: "2rem",
+                  fontFamily: "'DSEG7 Classic', 'DSEG7Classic', 'Courier New', monospace",
+                  fontSize: "2.4rem",
                   fontStyle: "italic",
                   fontWeight: 400,
                   color: "#C8D820",
-                  letterSpacing: "4px",
+                  letterSpacing: "6px",
                   lineHeight: 1,
-                  textShadow: "0 0 8px rgba(200,216,32,0.5), 0 0 2px rgba(200,216,32,0.3)",
+                  textShadow: "0 0 10px rgba(200,216,32,0.5), 0 0 4px rgba(168,184,0,0.4)",
                   display: "block",
                 }}>
                   {displayText}
