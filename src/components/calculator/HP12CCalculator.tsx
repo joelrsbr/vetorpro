@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Info, X } from "lucide-react";
+import { Info, X, Minus, Plus } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════
    HP 12C Financial Calculator — Pixel-Accurate Simulator
@@ -1006,6 +1006,19 @@ export function HP12CCalculatorBody() {
 
   const displayText = e.getDisplay(useBrazilianFormat);
 
+  // ─── Zoom state ───
+  const [zoom, setZoom] = useState(() => {
+    const saved = localStorage.getItem('hp12c-zoom');
+    return saved ? parseFloat(saved) : 0.70;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hp12c-zoom', String(zoom));
+  }, [zoom]);
+
+  const increaseZoom = () => setZoom(prev => Math.min(prev + 0.05, 1.30));
+  const decreaseZoom = () => setZoom(prev => Math.max(prev - 0.05, 0.50));
+
   const gridStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: "repeat(10, 1fr)",
@@ -1014,8 +1027,61 @@ export function HP12CCalculatorBody() {
   };
 
   return (
-    <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", paddingBottom: "60px", userSelect: "none" }} ref={containerRef}>
-      <div style={{ transform: "scale(0.70)", transformOrigin: "top center", width: "fit-content", margin: "0 auto" }}>
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", paddingBottom: "60px", userSelect: "none" }} ref={containerRef}>
+      {/* Zoom Control Bar */}
+      <div style={{
+        background: "rgba(0,0,0,0.5)",
+        borderRadius: "20px",
+        padding: "4px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        fontSize: "12px",
+        color: "white",
+        marginBottom: "8px",
+      }}>
+        <button
+          onClick={decreaseZoom}
+          style={{
+            width: "28px",
+            height: "28px",
+            borderRadius: "50%",
+            background: "#F47B20",
+            color: "white",
+            fontSize: "16px",
+            fontWeight: "bold",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Minus size={16} />
+        </button>
+        <span>Zoom: {Math.round(zoom * 100)}%</span>
+        <button
+          onClick={increaseZoom}
+          style={{
+            width: "28px",
+            height: "28px",
+            borderRadius: "50%",
+            background: "#F47B20",
+            color: "white",
+            fontSize: "16px",
+            fontWeight: "bold",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+
+      <div style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: "fit-content", margin: "0 auto" }}>
         <div style={{ width: "480px" }}>
         {/* Calculator body */}
         <div style={{
