@@ -87,12 +87,24 @@ function loadState(): HP12CState {
   return defaultState();
 }
 
-function fmt(v: number, fix: number): string {
+function fmt(v: number, fix: number, brazilian = false): string {
   if (!isFinite(v)) return "Error";
   if (Math.abs(v) > 9999999999 || (Math.abs(v) < 0.0000001 && v !== 0)) {
-    return v.toExponential(fix);
+    const s = v.toExponential(fix);
+    return brazilian ? s.replace(".", ",") : s;
   }
-  return v.toFixed(fix);
+  const s = v.toFixed(fix);
+  if (!brazilian) return s;
+  // Brazilian: swap dot/comma
+  const [intPart, decPart] = s.split(".");
+  const neg = intPart.startsWith("-");
+  const digits = neg ? intPart.slice(1) : intPart;
+  let formatted = "";
+  for (let i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 === 0) formatted += ".";
+    formatted += digits[i];
+  }
+  return (neg ? "-" : "") + formatted + (decPart !== undefined ? "," + decPart : "");
 }
 
 // ─── Stack helpers ───
