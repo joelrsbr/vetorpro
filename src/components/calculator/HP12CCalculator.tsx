@@ -15,6 +15,15 @@ type Stack4 = [number, number, number, number]; // [T, Z, Y, X]
 
 interface StatRegs { n: number; sumX: number; sumX2: number; sumY: number; sumY2: number; sumXY: number }
 
+interface CashFlowRegs {
+  cf0: number;
+  cfs: number[];
+  njs: number[];
+  cfCount: number;
+}
+
+function defaultCF(): CashFlowRegs { return { cf0: 0, cfs: [], njs: [], cfCount: 0 }; }
+
 interface HP12CState {
   stack: Stack4;
   lastX: number;
@@ -25,6 +34,7 @@ interface HP12CState {
   fin: FinRegs;
   mem: number[];
   stat: StatRegs;
+  cf: CashFlowRegs;
   isOn: boolean;
   beginMode: boolean;
   fix: number;
