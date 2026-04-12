@@ -561,7 +561,12 @@ function useHP12CEngine() {
       setRclMode(false); return;
     }
     if (modifier === "f") { solveFin(k); return; }
-    storeFin(k);
+    // TVM rule: if user entered a number → STORE, otherwise → CALCULATE
+    if (s.isEnteringNumber) {
+      storeFin(k);
+    } else {
+      solveFin(k);
+    }
   }, [s, modifier, rclMode, storeFin, solveFin, upd]);
 
   const setMod = useCallback((m: Modifier) => { setModifier(prev => prev === m ? null : m); }, []);
