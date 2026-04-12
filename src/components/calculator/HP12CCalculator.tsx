@@ -13,12 +13,12 @@ type Modifier = null | "f" | "g";
 
 interface HP12CState {
   display: string;
-  stack: [number, number, number, number]; // X Y Z T
+  stack: [number, number, number, number]; // [Y, Z, T, T_copy] — X lives in display
   fin: FinRegs;
   mem: number[]; // 10 registers
   isOn: boolean;
-  isNew: boolean; // next digit starts new number
-  liftEnabled: boolean; // stack lift on next digit
+  entering: boolean; // currently building a number (digit by digit)
+  stackLiftEnabled: boolean; // if true, next digit press lifts stack first
   lastX: number;
   beginMode: boolean;
   fix: number; // decimal places
@@ -29,7 +29,7 @@ function defaultState(): HP12CState {
   return {
     display: "0.00", stack: [0, 0, 0, 0],
     fin: { n: 0, i: 0, pv: 0, pmt: 0, fv: 0 },
-    mem: Array(10).fill(0), isOn: true, isNew: true, liftEnabled: true,
+    mem: Array(10).fill(0), isOn: true, entering: false, stackLiftEnabled: true,
     lastX: 0, beginMode: false, fix: 2, error: false,
   };
 }
@@ -50,6 +50,17 @@ function fmt(v: number, fix: number): string {
   return v.toFixed(fix);
 }
 
+// ─── Stack helpers ───
+// Stack = [Y, Z, T, T_copy]. X = display.
+function liftStack(xVal: number, st: [number, number, number, number]): [number, number, number, number] {
+  // T=Z, Z=Y, Y=X, (T lost)
+  return [xVal, st[0], st[1], st[2]];
+}
+function dropStack(st: [number, number, number, number]): [number, number, number, number] {
+  // Y becomes new (goes to display as X), Z→Y, T→Z, T stays
+  return [st[1], st[2], st[3], st[3]];
+}
+
 // ─── RPN Engine ───
 function useHP12CEngine() {
   const [s, setS] = useState<HP12CState>(loadState);
@@ -68,15 +79,10 @@ function useHP12CEngine() {
     setS(prev => ({ ...prev, ...partial }));
   }, []);
 
-  const push = (v: number, st: [number, number, number, number]): [number, number, number, number] =>
-    [v, st[0], st[1], st[2]];
-
-  const drop = (st: [number, number, number, number]): [number, number, number, number] =>
-    [st[1], st[2], st[3], st[3]];
-
   // ── Digit entry ──
   const num = useCallback((d: string) => {
     if (!s.isOn) return;
+    // STO mode handling
     if (stoMode && !stoArith) {
       if (d >= "0" && d <= "9") {
         const idx = parseInt(d);
@@ -103,36 +109,55 @@ function useHP12CEngine() {
         setStoMode(false); setStoArith(null); return;
       }
     }
+    // RCL mode handling
     if (rclMode) {
       if (d >= "0" && d <= "9") {
         const idx = parseInt(d);
-        setS(prev => ({ ...prev, display: fmt(prev.mem[idx], prev.fix), isNew: true, liftEnabled: true }));
+        setS(prev => {
+          const xv = parseFloat(prev.display) || 0;
+          const newStack = prev.stackLiftEnabled ? liftStack(xv, prev.stack) : prev.stack;
+          return { ...prev, display: fmt(prev.mem[idx], prev.fix), entering: false, stackLiftEnabled: true, stack: newStack };
+        });
         setRclMode(false); return;
       }
       setRclMode(false); return;
     }
     setStoMode(false); setRclMode(false); setStoArith(null);
 
-    if (s.isNew) {
-      const newStack = s.liftEnabled ? push(x(), s.stack) : s.stack;
-      upd({ display: d === "." ? "0." : d, isNew: false, liftEnabled: false, stack: newStack, error: false });
+    // ── Core digit entry with stackLiftEnabled flag ──
+    if (!s.entering) {
+      // Starting a new number
+      if (s.stackLiftEnabled) {
+        // Lift the stack: push current X into Y
+        const xv = x();
+        const newStack = liftStack(xv, s.stack);
+        upd({ display: d === "." ? "0." : d, entering: true, stackLiftEnabled: false, stack: newStack, error: false });
+      } else {
+        // Don't lift (after ENTER or CLx) — just overwrite X
+        upd({ display: d === "." ? "0." : d, entering: true, stackLiftEnabled: false, error: false });
+      }
     } else {
+      // Continuing to build the current number
       if (d === "." && s.display.includes(".")) return;
       upd({ display: s.display + d, error: false });
     }
     setModifier(null);
   }, [s, stoMode, rclMode, stoArith, upd]);
 
+  // ── ENTER ──
   const enter = useCallback(() => {
     if (!s.isOn) return;
     const v = x();
-    upd({ stack: push(v, s.stack), isNew: true, liftEnabled: false });
+    // ENTER: duplicate X into Y (lift stack), set lift DISABLED so next digit overwrites X
+    upd({ stack: liftStack(v, s.stack), entering: false, stackLiftEnabled: false });
     setModifier(null);
   }, [s, upd]);
 
+  // ── CLx ──
   const clx = useCallback(() => {
     if (!s.isOn) return;
-    upd({ display: "0", isNew: true, liftEnabled: false, error: false });
+    // CLx: clear X, disable stack lift
+    upd({ display: "0", entering: false, stackLiftEnabled: false, error: false });
   }, [s.isOn, upd]);
 
   const clAll = useCallback(() => {
@@ -151,7 +176,7 @@ function useHP12CEngine() {
   }, [upd]);
 
   const onKey = useCallback(() => {
-    if (!s.isOn) { upd({ isOn: true, display: "0.00", isNew: true }); return; }
+    if (!s.isOn) { upd({ isOn: true, display: "0.00", entering: false }); return; }
     num(".");
   }, [s.isOn, upd, num]);
 
@@ -159,7 +184,7 @@ function useHP12CEngine() {
   const doOp = useCallback((o: string) => {
     if (!s.isOn || s.error) return;
     const xv = x();
-    const yv = s.stack[0];
+    const yv = s.stack[0]; // Y register
     let r = 0; let unary = false;
 
     switch (o) {
@@ -167,11 +192,11 @@ function useHP12CEngine() {
       case "-": r = yv - xv; break;
       case "×": r = yv * xv; break;
       case "÷":
-        if (xv === 0) { upd({ display: "Error", isNew: true, error: true }); setModifier(null); return; }
+        if (xv === 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); setModifier(null); return; }
         r = yv / xv; break;
       case "yˣ": r = Math.pow(yv, xv); break;
       case "1/x":
-        if (xv === 0) { upd({ display: "Error", isNew: true, error: true }); return; }
+        if (xv === 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
         r = 1 / xv; unary = true; break;
       case "%T": r = yv !== 0 ? (xv / yv) * 100 : 0; unary = true; break;
       case "Δ%": r = yv !== 0 ? ((xv - yv) / yv) * 100 : 0; unary = true; break;
@@ -180,26 +205,26 @@ function useHP12CEngine() {
         upd({ display: s.display.startsWith("-") ? s.display.slice(1) : "-" + s.display });
         setModifier(null); return;
       case "√x":
-        if (xv < 0) { upd({ display: "Error", isNew: true, error: true }); return; }
+        if (xv < 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
         r = Math.sqrt(xv); unary = true; break;
       case "eˣ": r = Math.exp(xv); unary = true; break;
       case "LN":
-        if (xv <= 0) { upd({ display: "Error", isNew: true, error: true }); return; }
+        if (xv <= 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
         r = Math.log(xv); unary = true; break;
       case "FRAC": r = xv - Math.trunc(xv); unary = true; break;
       case "INTG": r = Math.trunc(xv); unary = true; break;
       case "n!":
-        if (xv < 0 || xv > 69 || xv !== Math.floor(xv)) { upd({ display: "Error", isNew: true, error: true }); return; }
+        if (xv < 0 || xv > 69 || xv !== Math.floor(xv)) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
         r = 1; for (let i = 2; i <= xv; i++) r *= i; unary = true; break;
       default: return;
     }
 
-    if (!isFinite(r)) { upd({ display: "Error", isNew: true, error: true }); setModifier(null); return; }
+    if (!isFinite(r)) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); setModifier(null); return; }
 
     if (unary) {
-      upd({ display: fmt(r, s.fix), isNew: true, liftEnabled: true, lastX: xv });
+      upd({ display: fmt(r, s.fix), entering: false, stackLiftEnabled: true, lastX: xv });
     } else {
-      upd({ stack: drop(s.stack), display: fmt(r, s.fix), isNew: true, liftEnabled: true, lastX: xv });
+      upd({ stack: dropStack(s.stack), display: fmt(r, s.fix), entering: false, stackLiftEnabled: true, lastX: xv });
     }
     setModifier(null);
   }, [s, upd]);
@@ -207,25 +232,25 @@ function useHP12CEngine() {
   const swapXY = useCallback(() => {
     if (!s.isOn) return;
     const xv = x();
-    upd({ display: fmt(s.stack[0], s.fix), stack: [xv, s.stack[1], s.stack[2], s.stack[3]], isNew: true });
+    upd({ display: fmt(s.stack[0], s.fix), stack: [xv, s.stack[1], s.stack[2], s.stack[3]], entering: false, stackLiftEnabled: true });
   }, [s, upd]);
 
   const rollDown = useCallback(() => {
     if (!s.isOn) return;
     const xv = x();
-    upd({ display: fmt(s.stack[0], s.fix), stack: [s.stack[1], s.stack[2], xv, s.stack[3]], isNew: true });
+    upd({ display: fmt(s.stack[0], s.fix), stack: [s.stack[1], s.stack[2], xv, s.stack[3]], entering: false, stackLiftEnabled: true });
   }, [s, upd]);
 
   const rclLastX = useCallback(() => {
     if (!s.isOn) return;
     const xv = x();
-    upd({ display: fmt(s.lastX, s.fix), stack: push(xv, s.stack), isNew: true, liftEnabled: true });
+    upd({ display: fmt(s.lastX, s.fix), stack: liftStack(xv, s.stack), entering: false, stackLiftEnabled: true });
   }, [s, upd]);
 
   // ── Financial ──
   const storeFin = useCallback((k: keyof FinRegs) => {
     const v = x();
-    upd({ fin: { ...s.fin, [k]: v }, isNew: true, liftEnabled: true });
+    upd({ fin: { ...s.fin, [k]: v }, entering: false, stackLiftEnabled: true });
     setModifier(null);
   }, [s, upd]);
 
@@ -238,13 +263,13 @@ function useHP12CEngine() {
       switch (k) {
         case "n": {
           if (rate === 0) {
-            if (pmt === 0) { upd({ display: "Error", isNew: true, error: true }); return; }
+            if (pmt === 0) { upd({ display: "Error", entering: false, error: true }); return; }
             res = -(pv + fv) / pmt;
           } else {
             const c = 1 + rate * beg;
-            const num = Math.log((-fv * rate + pmt * c) / (pv * rate + pmt * c));
+            const nm = Math.log((-fv * rate + pmt * c) / (pv * rate + pmt * c));
             const den = Math.log(1 + rate);
-            res = num / den;
+            res = nm / den;
           }
           break;
         }
@@ -256,7 +281,6 @@ function useHP12CEngine() {
             const c = 1 + g * beg;
             const f1 = Math.pow(1 + g, n);
             const fVal = pv * f1 + pmt * c * (f1 - 1) / g + fv;
-            // derivative
             const df1 = n * Math.pow(1 + g, n - 1);
             const dfVal = pv * df1 + pmt * (beg * (f1 - 1) / g + c * (df1 * g - (f1 - 1)) / (g * g));
             const delta = fVal / dfVal;
@@ -294,17 +318,22 @@ function useHP12CEngine() {
           break;
         }
       }
-      if (!isFinite(res)) { upd({ display: "Error", isNew: true, error: true }); setModifier(null); return; }
-      upd({ fin: { ...s.fin, [k]: res }, display: fmt(res, s.fix), isNew: true, liftEnabled: true });
+      if (!isFinite(res)) { upd({ display: "Error", entering: false, error: true }); setModifier(null); return; }
+      upd({ fin: { ...s.fin, [k]: res }, display: fmt(res, s.fix), entering: false, stackLiftEnabled: true });
     } catch {
-      upd({ display: "Error", isNew: true, error: true });
+      upd({ display: "Error", entering: false, error: true });
     }
     setModifier(null);
   }, [s, upd]);
 
   const handleFinKey = useCallback((k: keyof FinRegs) => {
     if (!s.isOn) return;
-    if (rclMode) { upd({ display: fmt(s.fin[k], s.fix), isNew: true, liftEnabled: true }); setRclMode(false); return; }
+    if (rclMode) {
+      const xv = x();
+      const newStack = s.stackLiftEnabled ? liftStack(xv, s.stack) : s.stack;
+      upd({ display: fmt(s.fin[k], s.fix), entering: false, stackLiftEnabled: true, stack: newStack });
+      setRclMode(false); return;
+    }
     if (modifier === "f") { solveFin(k); return; }
     storeFin(k);
   }, [s, modifier, rclMode, storeFin, solveFin, upd]);
@@ -313,17 +342,12 @@ function useHP12CEngine() {
   const handleSto = useCallback(() => { if (s.isOn) { setStoMode(true); setRclMode(false); setStoArith(null); } }, [s.isOn]);
   const handleRcl = useCallback(() => {
     if (!s.isOn) return;
-    if (modifier === "g") {
-      // g RCL = LASTX
-      rclLastX();
-      setModifier(null);
-      return;
-    }
+    if (modifier === "g") { rclLastX(); setModifier(null); return; }
     setRclMode(true); setStoMode(false);
   }, [s.isOn, modifier, rclLastX]);
 
   const setFix = useCallback((n: number) => {
-    upd({ fix: n, display: fmt(x(), n), isNew: true });
+    upd({ fix: n, display: fmt(x(), n), entering: false });
     setModifier(null);
   }, [s, upd]);
 
@@ -408,7 +432,6 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
       display: "flex", flexDirection: "column", alignItems: "center", gap: "1px",
       gridRow: tall ? "span 2" : undefined,
     }} className={cn}>
-      {/* f-shift label (orange) */}
       <span style={{
         fontSize: "7.5px", fontWeight: 700, color: "#F47B20",
         height: "10px", lineHeight: "10px", whiteSpace: "nowrap",
@@ -426,7 +449,6 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
           <span style={{ writingMode: "vertical-lr", letterSpacing: "2px", fontSize: "9px" }}>ENTER</span>
         ) : label}
       </button>
-      {/* g-shift label (blue/teal) */}
       <span style={{
         fontSize: "7px", fontWeight: 700, color: "#3FC0C0",
         height: "9px", lineHeight: "9px", whiteSpace: "nowrap",
@@ -480,7 +502,6 @@ export function HP12CCalculatorBody() {
     return () => window.removeEventListener("keydown", handler);
   }, [e]);
 
-  // Dispatch handler for g-shift functions
   const handleWithModifier = (normal: () => void, fFn?: () => void, gFn?: () => void) => {
     if (e.modifier === "f" && fFn) { fFn(); return; }
     if (e.modifier === "g" && gFn) { gFn(); return; }
@@ -499,47 +520,48 @@ export function HP12CCalculatorBody() {
       <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", width: "520px" }}>
         {/* Calculator body */}
         <div style={{
-          background: "#C8B87A",
-          borderRadius: "8px",
+          background: "#B8A060",
+          borderRadius: "16px",
           padding: "12px",
-          border: "2px solid #4a4030",
+          border: "2px solid #5A4A1A",
           boxShadow: "0 8px 24px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)",
         }}>
           {/* ─── Display ─── */}
-          <div style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
+          <div style={{ display: "flex", gap: "6px", marginBottom: "0" }}>
             <div style={{
               flex: 1, borderRadius: "4px", padding: "4px 12px",
-              background: "#8A9070",
-              border: "2px solid #5a5e3a",
-              boxShadow: "inset 0 3px 10px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.05)",
+              background: "#5C5E3A",
+              border: "2px solid #3a3c22",
+              boxShadow: "inset 0 4px 12px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.03)",
             }}>
               {/* Status indicators */}
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                fontSize: "8px", fontFamily: "Arial, sans-serif", color: "#2a2a18",
-                height: "12px", opacity: 0.7, padding: "0 2px",
+                fontSize: "8px", fontFamily: "Arial, sans-serif", color: "#8a8a60",
+                height: "12px", opacity: 0.9, padding: "0 2px",
               }}>
                 <span style={{ fontWeight: 700, color: e.modifier === "f" ? "#F47B20" : e.modifier === "g" ? "#3FC0C0" : "transparent" }}>
                   {e.modifier === "f" ? "f" : e.modifier === "g" ? "g" : "."}
                 </span>
-                <span style={{ fontWeight: 700, visibility: e.beginMode ? "visible" : "hidden" }}>BEGIN</span>
-                <span style={{ fontWeight: 700, visibility: e.stoMode ? "visible" : (e.rclMode ? "visible" : "hidden") }}>
+                <span style={{ fontWeight: 700, color: "#8a8a60", visibility: e.beginMode ? "visible" : "hidden" }}>BEGIN</span>
+                <span style={{ fontWeight: 700, color: "#8a8a60", visibility: e.stoMode ? "visible" : (e.rclMode ? "visible" : "hidden") }}>
                   {e.stoMode ? "STO" : "RCL"}
                 </span>
               </div>
               {/* LCD digits */}
               <div style={{
-                background: "#B5B89A",
+                background: "#4A4C2A",
                 borderRadius: "2px",
                 padding: "6px 10px",
                 textAlign: "right",
-                border: "1px solid #8a8e70",
-                boxShadow: "inset 0 1px 4px rgba(0,0,0,0.15)",
+                border: "1px solid #3a3c1a",
+                boxShadow: "inset 0 2px 6px rgba(0,0,0,0.3)",
               }}>
                 <span style={{
-                  fontFamily: "'Orbitron', 'Courier New', monospace",
-                  fontSize: "30px", fontWeight: 700, color: "#1a1c0e",
+                  fontFamily: "'DSEG7 Classic', 'Orbitron', 'Courier New', monospace",
+                  fontSize: "30px", fontWeight: 400, color: "#C8D820",
                   letterSpacing: "3px", lineHeight: 1,
+                  textShadow: "0 0 6px rgba(200,216,32,0.3)",
                 }}>
                   {e.display}
                 </span>
@@ -549,17 +571,24 @@ export function HP12CCalculatorBody() {
             <button onClick={() => setGlossary(true)} style={{
               width: "24px", flexShrink: 0, borderRadius: "4px", display: "flex",
               alignItems: "center", justifyContent: "center", cursor: "pointer",
-              background: "#8A9070", border: "2px solid #5a5e3a",
-              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)",
+              background: "#5C5E3A", border: "2px solid #3a3c22",
+              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
             }}>
-              <Info style={{ width: "14px", height: "14px", color: "#2a3018", opacity: 0.7 }} />
+              <Info style={{ width: "14px", height: "14px", color: "#8a8a60", opacity: 0.8 }} />
             </button>
           </div>
+
+          {/* Dark separator strip */}
+          <div style={{
+            height: "3px", background: "linear-gradient(to right, transparent, #3a3018, #3a3018, transparent)",
+            margin: "8px 0 6px",
+            borderRadius: "1px",
+          }} />
 
           {/* ─── Button Grid (10 columns) ─── */}
           <div style={{
             background: "#2a2620",
-            borderRadius: "5px",
+            borderRadius: "8px",
             border: "1px solid #3a3630",
             boxShadow: "inset 0 1px 4px rgba(0,0,0,0.3)",
             overflow: "hidden",
