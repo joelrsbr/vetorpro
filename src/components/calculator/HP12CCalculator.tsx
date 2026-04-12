@@ -609,32 +609,10 @@ function useHP12CEngine() {
   }, []);
 
   const calcNPV = useCallback(() => {
-    const rate = s.fin.i / 100;
-    const { cf0, cfs, njs, cfCount } = s.cf;
-    let npv = cf0;
-    let t = 1;
-    for (let j = 0; j < cfCount; j++) {
-      for (let k = 0; k < njs[j]; k++) {
-        npv += cfs[j] / Math.pow(1 + rate, t);
-        t++;
-      }
-    }
-    if (!isFinite(npv)) { setError(); return; }
-    setS(prev => ({
-      ...prev,
-      stack: setX(prev.stack, npv),
-      currentInput: valueToInput(npv),
-      isEnteringNumber: false,
-      stackLiftEnabled: true,
-      enterJustPressed: false,
-      error: false,
-    }));
-    setModifier(null);
-  }, [s.fin.i, s.cf, setError]);
-
-  const calcIRR = useCallback(() => {
-    const { cf0, cfs, njs, cfCount } = s.cf;
-    const computeNPV = (rate: number): number => {
+    setS(prev => {
+      const rate = prev.fin.i / 100;
+      const { cf0, cfs, njs, cfCount } = prev.cf;
+      console.log("NPV calc — CF0:", cf0, "CFs:", cfs, "Njs:", njs, "cfCount:", cfCount, "rate:", rate);
       let npv = cf0;
       let t = 1;
       for (let j = 0; j < cfCount; j++) {
@@ -643,32 +621,60 @@ function useHP12CEngine() {
           t++;
         }
       }
-      return npv;
-    };
-    let guess = 0.1;
-    for (let iter = 0; iter < 200; iter++) {
-      const npvVal = computeNPV(guess);
-      const npvDelta = computeNPV(guess + 0.0001);
-      const deriv = (npvDelta - npvVal) / 0.0001;
-      if (Math.abs(deriv) < 1e-20) break;
-      const newGuess = guess - npvVal / deriv;
-      if (Math.abs(newGuess - guess) < 1e-9) { guess = newGuess; break; }
-      guess = newGuess;
-    }
-    const result = guess * 100;
-    if (!isFinite(result)) { setError(); return; }
-    setS(prev => ({
-      ...prev,
-      stack: setX(prev.stack, result),
-      currentInput: valueToInput(result),
-      fin: { ...prev.fin, i: result },
-      isEnteringNumber: false,
-      stackLiftEnabled: true,
-      enterJustPressed: false,
-      error: false,
-    }));
+      console.log("NPV result:", npv);
+      if (!isFinite(npv)) return { ...prev, error: true };
+      return {
+        ...prev,
+        stack: setX(prev.stack, npv),
+        currentInput: valueToInput(npv),
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
     setModifier(null);
-  }, [s.cf, setError]);
+  }, []);
+
+  const calcIRR = useCallback(() => {
+    setS(prev => {
+      const { cf0, cfs, njs, cfCount } = prev.cf;
+      const computeNPV = (rate: number): number => {
+        let npv = cf0;
+        let t = 1;
+        for (let j = 0; j < cfCount; j++) {
+          for (let k = 0; k < njs[j]; k++) {
+            npv += cfs[j] / Math.pow(1 + rate, t);
+            t++;
+          }
+        }
+        return npv;
+      };
+      let guess = 0.1;
+      for (let iter = 0; iter < 200; iter++) {
+        const npvVal = computeNPV(guess);
+        const npvDelta = computeNPV(guess + 0.0001);
+        const deriv = (npvDelta - npvVal) / 0.0001;
+        if (Math.abs(deriv) < 1e-20) break;
+        const newGuess = guess - npvVal / deriv;
+        if (Math.abs(newGuess - guess) < 1e-9) { guess = newGuess; break; }
+        guess = newGuess;
+      }
+      const result = guess * 100;
+      if (!isFinite(result)) return { ...prev, error: true };
+      return {
+        ...prev,
+        stack: setX(prev.stack, result),
+        currentInput: valueToInput(result),
+        fin: { ...prev.fin, i: result },
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
+    setModifier(null);
+  }, []);
 
   const handleFinKey = useCallback((k: keyof FinRegs) => {
     if (!s.isOn) return;
