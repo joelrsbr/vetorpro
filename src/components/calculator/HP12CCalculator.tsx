@@ -54,6 +54,7 @@ function defaultState(): HP12CState {
     fin: { n: 0, i: 0, pv: 0, pmt: 0, fv: 0 },
     mem: Array(10).fill(0),
     stat: defaultStat(),
+    cf: defaultCF(),
     isOn: true,
     beginMode: false,
     fix: 2,
