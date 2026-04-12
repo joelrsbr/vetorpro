@@ -885,7 +885,7 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
     borderRadius: "4px",
     color: "#fff",
     fontWeight: 700,
-    fontSize: "11px",
+    fontSize: "10px",
     fontFamily: "'Helvetica Neue', Arial, sans-serif",
     cursor: "pointer",
     display: "flex",
@@ -894,9 +894,9 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
     boxShadow: "0 2px 0 #000, inset 0 1px 0 #444",
     userSelect: "none",
     lineHeight: 1,
-    padding: 0,
+    padding: "2px 1px",
     width: "100%",
-    height: tall ? "100%" : "36px",
+    height: tall ? "100%" : "32px",
     ...so,
   };
 
@@ -906,8 +906,8 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
       gridRow: tall ? "span 2" : undefined,
     }} className={cn}>
       <span style={{
-        fontSize: "7px", fontWeight: 700, color: "#F47B20",
-        height: "9px", lineHeight: "9px", whiteSpace: "nowrap",
+        fontSize: "6px", fontWeight: 700, color: "#F47B20",
+        height: "8px", lineHeight: "8px", whiteSpace: "nowrap",
         fontFamily: "Arial, sans-serif",
         visibility: fLbl ? "visible" : "hidden",
       }}>{fLbl || "."}</span>
@@ -923,35 +923,10 @@ function Btn({ label, fLbl, gLbl, style: so, onClick, tall, className: cn }: {
         ) : label}
       </button>
       <span style={{
-        fontSize: "7px", fontWeight: 700, color: "#3FC0C0",
-        height: "9px", lineHeight: "9px", whiteSpace: "nowrap",
+        fontSize: "6px", fontWeight: 700, color: "#3FC0C0",
+        height: "8px", lineHeight: "8px", whiteSpace: "nowrap",
         fontFamily: "Arial, sans-serif",
       }}>{gLbl || "\u00A0"}</span>
-    </div>
-  );
-}
-
-// ─── Group label helpers ───
-function GroupLabel({ text, span = 1 }: { text: string; span?: number }) {
-  return (
-    <div style={{
-      gridColumn: `span ${span}`,
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
-    }}>
-      <span style={{ fontSize: "7px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
-    </div>
-  );
-}
-
-function BracketLabel({ text, span }: { text: string; span: number }) {
-  return (
-    <div style={{
-      gridColumn: `span ${span}`,
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
-      gap: "1px",
-    }}>
-      <span style={{ fontSize: "7px", fontWeight: 700, color: "#F47B20", fontFamily: "Arial, sans-serif", whiteSpace: "nowrap" }}>{text}</span>
-      <div style={{ width: "90%", height: "1px", background: "#F47B20", opacity: 0.6 }} />
     </div>
   );
 }
@@ -962,9 +937,13 @@ function useResponsiveScale(baseW: number) {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w >= 1024) setScale(1.25);
-      else if (w >= 768) setScale(Math.min(1.1, (w - 40) / baseW));
-      else setScale(Math.min(1.0, (w - 16) / baseW));
+      const h = window.innerHeight;
+      // Height-based scaling
+      if (h <= 680) setScale(0.75);
+      else if (h <= 780) setScale(0.88);
+      else if (w >= 1024) setScale(1.15);
+      else if (w >= 768) setScale(Math.min(1.05, (w - 40) / baseW));
+      else setScale(Math.min(0.95, (w - 16) / baseW));
     };
     update();
     window.addEventListener("resize", update);
