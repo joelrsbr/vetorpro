@@ -11,33 +11,61 @@ const STORAGE_KEY = "hp12c_session";
 interface FinRegs { n: number; i: number; pv: number; pmt: number; fv: number }
 type Modifier = null | "f" | "g";
 
+type Stack4 = [number, number, number, number]; // [T, Z, Y, X]
+
 interface HP12CState {
-  display: string;
-  stack: [number, number, number, number]; // [Y, Z, T, T_copy] — X lives in display
-  fin: FinRegs;
-  mem: number[]; // 10 registers
-  isOn: boolean;
-  entering: boolean; // currently building a number (digit by digit)
-  stackLiftEnabled: boolean; // if true, next digit press lifts stack first
+  stack: Stack4;
   lastX: number;
+  stackLiftEnabled: boolean;
+  enterJustPressed: boolean;
+  currentInput: string;
+  isEnteringNumber: boolean;
+  fin: FinRegs;
+  mem: number[];
+  isOn: boolean;
   beginMode: boolean;
-  fix: number; // decimal places
+  fix: number;
   error: boolean;
 }
 
 function defaultState(): HP12CState {
   return {
-    display: "0.00", stack: [0, 0, 0, 0],
+    stack: [0, 0, 0, 0],
+    lastX: 0,
+    stackLiftEnabled: false,
+    enterJustPressed: false,
+    currentInput: "0",
+    isEnteringNumber: false,
     fin: { n: 0, i: 0, pv: 0, pmt: 0, fv: 0 },
-    mem: Array(10).fill(0), isOn: true, entering: false, stackLiftEnabled: true,
-    lastX: 0, beginMode: false, fix: 2, error: false,
+    mem: Array(10).fill(0),
+    isOn: true,
+    beginMode: false,
+    fix: 2,
+    error: false,
   };
+}
+
+function isValidState(value: unknown): value is HP12CState {
+  if (!value || typeof value !== "object") return false;
+  const state = value as Partial<HP12CState>;
+  return Array.isArray(state.stack)
+    && state.stack.length === 4
+    && typeof state.lastX === "number"
+    && typeof state.stackLiftEnabled === "boolean"
+    && typeof state.enterJustPressed === "boolean"
+    && typeof state.currentInput === "string"
+    && typeof state.isEnteringNumber === "boolean"
+    && Array.isArray(state.mem)
+    && typeof state.fix === "number";
 }
 
 function loadState(): HP12CState {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) { const p = JSON.parse(raw); if (p && typeof p.fix === "number") return p; }
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (isValidState(parsed)) return parsed;
+    }
   } catch {}
   return defaultState();
 }
@@ -51,14 +79,44 @@ function fmt(v: number, fix: number): string {
 }
 
 // ─── Stack helpers ───
-// Stack = [Y, Z, T, T_copy]. X = display.
-function liftStack(xVal: number, st: [number, number, number, number]): [number, number, number, number] {
-  // T=Z, Z=Y, Y=X, (T lost)
-  return [xVal, st[0], st[1], st[2]];
+function parseInput(input: string): number {
+  const value = parseFloat(input);
+  return Number.isFinite(value) ? value : 0;
 }
-function dropStack(st: [number, number, number, number]): [number, number, number, number] {
-  // Y becomes new (goes to display as X), Z→Y, T→Z, T stays
-  return [st[1], st[2], st[3], st[3]];
+
+function valueToInput(value: number): string {
+  if (!Number.isFinite(value) || Object.is(value, -0)) return "0";
+  return String(value);
+}
+
+function getX(stack: Stack4): number {
+  return stack[3];
+}
+
+function setX(stack: Stack4, value: number): Stack4 {
+  return [stack[0], stack[1], stack[2], value];
+}
+
+function liftStack(stack: Stack4): Stack4 {
+  return [stack[1], stack[2], stack[3], stack[3]];
+}
+
+function dropStack(stack: Stack4, result: number): Stack4 {
+  return [stack[0], stack[0], stack[1], result];
+}
+
+function swapXYStack(stack: Stack4): Stack4 {
+  return [stack[0], stack[1], stack[3], stack[2]];
+}
+
+function rollDownStack(stack: Stack4): Stack4 {
+  return [stack[1], stack[2], stack[3], stack[0]];
+}
+
+function getDisplayValue(state: HP12CState): string {
+  if (state.error) return "Error";
+  if (state.isEnteringNumber) return state.currentInput;
+  return fmt(getX(state.stack), state.fix);
 }
 
 // ─── RPN Engine ───
@@ -73,8 +131,6 @@ function useHP12CEngine() {
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
   }, [s]);
 
-  const x = () => parseFloat(s.display) || 0;
-
   const upd = useCallback((partial: Partial<HP12CState>) => {
     setS(prev => ({ ...prev, ...partial }));
   }, []);
@@ -86,7 +142,11 @@ function useHP12CEngine() {
     if (stoMode && !stoArith) {
       if (d >= "0" && d <= "9") {
         const idx = parseInt(d);
-        setS(prev => { const m = [...prev.mem]; m[idx] = parseFloat(prev.display) || 0; return { ...prev, mem: m }; });
+        setS(prev => {
+          const m = [...prev.mem];
+          m[idx] = getX(prev.stack);
+          return { ...prev, mem: m };
+        });
         setStoMode(false); return;
       }
       if (["+", "-", "×", "÷"].includes(d)) { setStoArith(d); return; }
@@ -95,9 +155,9 @@ function useHP12CEngine() {
     if (stoMode && stoArith) {
       if (d >= "0" && d <= "9") {
         const idx = parseInt(d);
-        const xv = parseFloat(s.display) || 0;
         setS(prev => {
           const m = [...prev.mem];
+          const xv = getX(prev.stack);
           switch (stoArith) {
             case "+": m[idx] += xv; break;
             case "-": m[idx] -= xv; break;
@@ -113,51 +173,85 @@ function useHP12CEngine() {
     if (rclMode) {
       if (d >= "0" && d <= "9") {
         const idx = parseInt(d);
-        setS(prev => {
-          const xv = parseFloat(prev.display) || 0;
-          const newStack = prev.stackLiftEnabled ? liftStack(xv, prev.stack) : prev.stack;
-          return { ...prev, display: fmt(prev.mem[idx], prev.fix), entering: false, stackLiftEnabled: true, stack: newStack };
-        });
+        setS(prev => ({
+          ...prev,
+          stack: setX(prev.stack, prev.mem[idx]),
+          currentInput: valueToInput(prev.mem[idx]),
+          stackLiftEnabled: true,
+          isEnteringNumber: false,
+          enterJustPressed: false,
+          error: false,
+        }));
         setRclMode(false); return;
       }
       setRclMode(false); return;
     }
     setStoMode(false); setRclMode(false); setStoArith(null);
 
-    // ── Core digit entry with stackLiftEnabled flag ──
-    if (!s.entering) {
-      // Starting a new number
-      if (s.stackLiftEnabled) {
-        // Lift the stack: push current X into Y
-        const xv = x();
-        const newStack = liftStack(xv, s.stack);
-        upd({ display: d === "." ? "0." : d, entering: true, stackLiftEnabled: false, stack: newStack, error: false });
-      } else {
-        // Don't lift (after ENTER or CLx) — just overwrite X
-        upd({ display: d === "." ? "0." : d, entering: true, stackLiftEnabled: false, error: false });
+    setS(prev => {
+      let stack = prev.stack;
+      let currentInput = prev.currentInput;
+      let stackLiftEnabled = prev.stackLiftEnabled;
+
+      if (stackLiftEnabled === true && prev.isEnteringNumber === false) {
+        stack = liftStack(stack);
+        stackLiftEnabled = false;
+        currentInput = "0";
       }
-    } else {
-      // Continuing to build the current number
-      if (d === "." && s.display.includes(".")) return;
-      upd({ display: s.display + d, error: false });
-    }
+
+      let nextInput = currentInput;
+      if (d === ".") {
+        if (nextInput.includes(".")) return prev;
+        nextInput = `${nextInput}.`;
+      } else if (nextInput === "0") {
+        nextInput = d;
+      } else {
+        nextInput = nextInput + d;
+      }
+
+      return {
+        ...prev,
+        stack: setX(stack, parseInput(nextInput)),
+        currentInput: nextInput,
+        isEnteringNumber: true,
+        enterJustPressed: false,
+        stackLiftEnabled: false,
+        error: false,
+      };
+    });
     setModifier(null);
-  }, [s, stoMode, rclMode, stoArith, upd]);
+  }, [s, stoMode, rclMode, stoArith]);
 
   // ── ENTER ──
   const enter = useCallback(() => {
     if (!s.isOn) return;
-    const v = x();
-    // ENTER: duplicate X into Y (lift stack), set lift DISABLED so next digit overwrites X
-    upd({ stack: liftStack(v, s.stack), entering: false, stackLiftEnabled: false });
+    setS(prev => {
+      const normalizedX = parseInput(prev.currentInput);
+      const stackWithX = setX(prev.stack, normalizedX);
+      return {
+        ...prev,
+        stack: liftStack(stackWithX),
+        stackLiftEnabled: true,
+        isEnteringNumber: false,
+        enterJustPressed: true,
+        currentInput: valueToInput(normalizedX),
+        error: false,
+      };
+    });
     setModifier(null);
-  }, [s, upd]);
+  }, [s.isOn]);
 
   // ── CLx ──
   const clx = useCallback(() => {
     if (!s.isOn) return;
-    // CLx: clear X, disable stack lift
-    upd({ display: "0", entering: false, stackLiftEnabled: false, error: false });
+    setS(prev => ({
+      ...prev,
+      stack: setX(prev.stack, 0),
+      currentInput: "0",
+      stackLiftEnabled: false,
+      isEnteringNumber: false,
+      error: false,
+    }));
   }, [s.isOn, upd]);
 
   const clAll = useCallback(() => {
@@ -176,80 +270,197 @@ function useHP12CEngine() {
   }, [upd]);
 
   const onKey = useCallback(() => {
-    if (!s.isOn) { upd({ isOn: true, display: "0.00", entering: false }); return; }
+    if (!s.isOn) {
+      upd({ isOn: true, currentInput: "0", isEnteringNumber: false, error: false });
+      return;
+    }
     num(".");
   }, [s.isOn, upd, num]);
 
+  const setError = useCallback(() => {
+    setS(prev => ({
+      ...prev,
+      error: true,
+      stackLiftEnabled: true,
+      isEnteringNumber: false,
+      enterJustPressed: false,
+    }));
+    setModifier(null);
+  }, []);
+
+  const applyUnary = useCallback((fn: (x: number) => number) => {
+    setS(prev => {
+      if (!prev.isOn || prev.error) return prev;
+      const stackWithX = setX(prev.stack, parseInput(prev.currentInput));
+      const xv = getX(stackWithX);
+      const result = fn(xv);
+      if (!Number.isFinite(result)) {
+        return {
+          ...prev,
+          error: true,
+          stackLiftEnabled: true,
+          isEnteringNumber: false,
+          enterJustPressed: false,
+        };
+      }
+
+      return {
+        ...prev,
+        stack: setX(stackWithX, result),
+        lastX: xv,
+        currentInput: valueToInput(result),
+        stackLiftEnabled: true,
+        isEnteringNumber: false,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
+    setModifier(null);
+  }, []);
+
+  const applyBinary = useCallback((fn: (a: number, b: number) => number) => {
+    setS(prev => {
+      if (!prev.isOn || prev.error) return prev;
+      const stackWithX = setX(prev.stack, parseInput(prev.currentInput));
+      const a = stackWithX[2];
+      const b = stackWithX[3];
+      const result = fn(a, b);
+      if (!Number.isFinite(result)) {
+        return {
+          ...prev,
+          error: true,
+          stackLiftEnabled: true,
+          isEnteringNumber: false,
+          enterJustPressed: false,
+        };
+      }
+
+      return {
+        ...prev,
+        stack: dropStack(stackWithX, result),
+        lastX: b,
+        currentInput: valueToInput(result),
+        stackLiftEnabled: true,
+        isEnteringNumber: false,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
+    setModifier(null);
+  }, []);
+
   // ── Arithmetic ──
   const doOp = useCallback((o: string) => {
-    if (!s.isOn || s.error) return;
-    const xv = x();
-    const yv = s.stack[0]; // Y register
-    let r = 0; let unary = false;
-
     switch (o) {
-      case "+": r = yv + xv; break;
-      case "-": r = yv - xv; break;
-      case "×": r = yv * xv; break;
+      case "+": applyBinary((a, b) => a + b); return;
+      case "-": applyBinary((a, b) => a - b); return;
+      case "×": applyBinary((a, b) => a * b); return;
       case "÷":
-        if (xv === 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); setModifier(null); return; }
-        r = yv / xv; break;
-      case "yˣ": r = Math.pow(yv, xv); break;
+        applyBinary((a, b) => {
+          if (b === 0) return Number.NaN;
+          return a / b;
+        });
+        return;
+      case "yˣ": applyBinary((a, b) => Math.pow(a, b)); return;
       case "1/x":
-        if (xv === 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
-        r = 1 / xv; unary = true; break;
-      case "%T": r = yv !== 0 ? (xv / yv) * 100 : 0; unary = true; break;
-      case "Δ%": r = yv !== 0 ? ((xv - yv) / yv) * 100 : 0; unary = true; break;
-      case "%": r = yv * xv / 100; unary = true; break;
+        applyUnary((xv) => (xv === 0 ? Number.NaN : 1 / xv));
+        return;
+      case "%T":
+        applyUnary((xv) => {
+          const yv = s.stack[2];
+          return yv !== 0 ? (xv / yv) * 100 : 0;
+        });
+        return;
+      case "Δ%":
+        applyUnary((xv) => {
+          const yv = s.stack[2];
+          return yv !== 0 ? ((xv - yv) / yv) * 100 : 0;
+        });
+        return;
+      case "%":
+        applyUnary((xv) => s.stack[2] * xv / 100);
+        return;
       case "CHS":
-        upd({ display: s.display.startsWith("-") ? s.display.slice(1) : "-" + s.display });
-        setModifier(null); return;
+        setS(prev => {
+          if (!prev.isOn) return prev;
+          const stackWithX = setX(prev.stack, parseInput(prev.currentInput));
+          const nextX = getX(stackWithX) * -1;
+          return {
+            ...prev,
+            stack: setX(stackWithX, nextX),
+            currentInput: valueToInput(nextX),
+            error: false,
+          };
+        });
+        setModifier(null);
+        return;
       case "√x":
-        if (xv < 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
-        r = Math.sqrt(xv); unary = true; break;
-      case "eˣ": r = Math.exp(xv); unary = true; break;
+        applyUnary((xv) => (xv < 0 ? Number.NaN : Math.sqrt(xv)));
+        return;
+      case "eˣ": applyUnary((xv) => Math.exp(xv)); return;
       case "LN":
-        if (xv <= 0) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
-        r = Math.log(xv); unary = true; break;
-      case "FRAC": r = xv - Math.trunc(xv); unary = true; break;
-      case "INTG": r = Math.trunc(xv); unary = true; break;
+        applyUnary((xv) => (xv <= 0 ? Number.NaN : Math.log(xv)));
+        return;
+      case "FRAC": applyUnary((xv) => xv - Math.trunc(xv)); return;
+      case "INTG": applyUnary((xv) => Math.trunc(xv)); return;
       case "n!":
-        if (xv < 0 || xv > 69 || xv !== Math.floor(xv)) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); return; }
-        r = 1; for (let i = 2; i <= xv; i++) r *= i; unary = true; break;
-      default: return;
+        applyUnary((xv) => {
+          if (xv < 0 || xv > 69 || xv !== Math.floor(xv)) return Number.NaN;
+          let result = 1;
+          for (let i = 2; i <= xv; i++) result *= i;
+          return result;
+        });
+        return;
+      default:
+        return;
     }
-
-    if (!isFinite(r)) { upd({ display: "Error", entering: false, error: true, stackLiftEnabled: true }); setModifier(null); return; }
-
-    if (unary) {
-      upd({ display: fmt(r, s.fix), entering: false, stackLiftEnabled: true, lastX: xv });
-    } else {
-      upd({ stack: dropStack(s.stack), display: fmt(r, s.fix), entering: false, stackLiftEnabled: true, lastX: xv });
-    }
-    setModifier(null);
-  }, [s, upd]);
+  }, [applyBinary, applyUnary, s.stack]);
 
   const swapXY = useCallback(() => {
     if (!s.isOn) return;
-    const xv = x();
-    upd({ display: fmt(s.stack[0], s.fix), stack: [xv, s.stack[1], s.stack[2], s.stack[3]], entering: false, stackLiftEnabled: true });
-  }, [s, upd]);
+    setS(prev => ({
+      ...prev,
+      stack: swapXYStack(setX(prev.stack, parseInput(prev.currentInput))),
+      currentInput: valueToInput(swapXYStack(setX(prev.stack, parseInput(prev.currentInput)))[3]),
+      isEnteringNumber: false,
+      stackLiftEnabled: true,
+      enterJustPressed: false,
+      error: false,
+    }));
+  }, [s.isOn]);
 
   const rollDown = useCallback(() => {
     if (!s.isOn) return;
-    const xv = x();
-    upd({ display: fmt(s.stack[0], s.fix), stack: [s.stack[1], s.stack[2], xv, s.stack[3]], entering: false, stackLiftEnabled: true });
-  }, [s, upd]);
+    setS(prev => {
+      const nextStack = rollDownStack(setX(prev.stack, parseInput(prev.currentInput)));
+      return {
+        ...prev,
+        stack: nextStack,
+        currentInput: valueToInput(nextStack[3]),
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
+  }, [s.isOn]);
 
   const rclLastX = useCallback(() => {
     if (!s.isOn) return;
-    const xv = x();
-    upd({ display: fmt(s.lastX, s.fix), stack: liftStack(xv, s.stack), entering: false, stackLiftEnabled: true });
-  }, [s, upd]);
+    setS(prev => ({
+      ...prev,
+      stack: setX(prev.stack, prev.lastX),
+      currentInput: valueToInput(prev.lastX),
+      isEnteringNumber: false,
+      stackLiftEnabled: true,
+      enterJustPressed: false,
+      error: false,
+    }));
+  }, [s.isOn]);
 
   // ── Financial ──
   const storeFin = useCallback((k: keyof FinRegs) => {
-    const v = x();
+    const v = getX(s.stack);
     upd({ fin: { ...s.fin, [k]: v }, entering: false, stackLiftEnabled: true });
     setModifier(null);
   }, [s, upd]);
@@ -263,7 +474,7 @@ function useHP12CEngine() {
       switch (k) {
         case "n": {
           if (rate === 0) {
-            if (pmt === 0) { upd({ display: "Error", entering: false, error: true }); return; }
+            if (pmt === 0) { setError(); return; }
             res = -(pv + fv) / pmt;
           } else {
             const c = 1 + rate * beg;
@@ -318,20 +529,35 @@ function useHP12CEngine() {
           break;
         }
       }
-      if (!isFinite(res)) { upd({ display: "Error", entering: false, error: true }); setModifier(null); return; }
-      upd({ fin: { ...s.fin, [k]: res }, display: fmt(res, s.fix), entering: false, stackLiftEnabled: true });
+      if (!isFinite(res)) { setError(); return; }
+      setS(prev => ({
+        ...prev,
+        fin: { ...prev.fin, [k]: res },
+        stack: setX(prev.stack, res),
+        currentInput: valueToInput(res),
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      }));
     } catch {
-      upd({ display: "Error", entering: false, error: true });
+      setError();
     }
     setModifier(null);
-  }, [s, upd]);
+  }, [s, setError]);
 
   const handleFinKey = useCallback((k: keyof FinRegs) => {
     if (!s.isOn) return;
     if (rclMode) {
-      const xv = x();
-      const newStack = s.stackLiftEnabled ? liftStack(xv, s.stack) : s.stack;
-      upd({ display: fmt(s.fin[k], s.fix), entering: false, stackLiftEnabled: true, stack: newStack });
+      setS(prev => ({
+        ...prev,
+        stack: setX(prev.stack, prev.fin[k]),
+        currentInput: valueToInput(prev.fin[k]),
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      }));
       setRclMode(false); return;
     }
     if (modifier === "f") { solveFin(k); return; }
@@ -347,9 +573,9 @@ function useHP12CEngine() {
   }, [s.isOn, modifier, rclLastX]);
 
   const setFix = useCallback((n: number) => {
-    upd({ fix: n, display: fmt(x(), n), entering: false });
+    upd({ fix: n, isEnteringNumber: false });
     setModifier(null);
-  }, [s, upd]);
+  }, [upd]);
 
   const toggleBeg = useCallback((on: boolean) => {
     upd({ beginMode: on });
@@ -357,7 +583,7 @@ function useHP12CEngine() {
   }, [upd]);
 
   return {
-    display: s.display, fin: s.fin, isOn: s.isOn, modifier, stoMode, rclMode,
+    display: getDisplayValue(s), fin: s.fin, isOn: s.isOn, modifier, stoMode, rclMode,
     beginMode: s.beginMode, fix: s.fix, error: s.error,
     num, enter, clx, clAll, clearFin, clearReg, onKey,
     op: doOp, swapXY, rollDown, rclLastX,
