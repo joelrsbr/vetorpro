@@ -960,24 +960,14 @@ function BracketLabel({ text, span }: { text: string; span: number }) {
 export function HP12CCalculatorBody() {
   const e = useHP12CEngine();
   const [glossary, setGlossary] = useState(false);
-  const [useBrazilianFormat, setUseBrazilianFormat] = useState(false);
+  const [useBrazilianFormat, setUseBrazilianFormat] = useState(() => {
+    return localStorage.getItem('hp12c-format') === 'BR';
+  });
   const containerRef = useRef<HTMLDivElement>(null);
-  const onClickTimerRef = useRef<number | null>(null);
 
-  // Double-click ON handler
-  const handleOnClick = useCallback(() => {
-    if (onClickTimerRef.current !== null) {
-      // Double click detected
-      clearTimeout(onClickTimerRef.current);
-      onClickTimerRef.current = null;
-      setUseBrazilianFormat(prev => !prev);
-    } else {
-      onClickTimerRef.current = window.setTimeout(() => {
-        onClickTimerRef.current = null;
-        e.onKey();
-      }, 300);
-    }
-  }, [e]);
+  useEffect(() => {
+    localStorage.setItem('hp12c-format', useBrazilianFormat ? 'BR' : 'US');
+  }, [useBrazilianFormat]);
 
   // Keyboard support
   useEffect(() => {
