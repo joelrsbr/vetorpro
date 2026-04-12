@@ -563,6 +563,113 @@ function useHP12CEngine() {
     setModifier(null);
   }, [s, setError]);
 
+  // ── Cash Flow helpers ──
+  const storeCFo = useCallback(() => {
+    const v = getX(s.stack);
+    upd({ cf: { ...s.cf, cf0: v }, isEnteringNumber: false, stackLiftEnabled: true, enterJustPressed: false });
+    setModifier(null);
+  }, [s, upd]);
+
+  const storeCFj = useCallback(() => {
+    setS(prev => {
+      const x = getX(prev.stack);
+      const newCfs = [...prev.cf.cfs, x];
+      const newNjs = [...prev.cf.njs, 1];
+      const newCount = prev.cf.cfCount + 1;
+      return {
+        ...prev,
+        cf: { ...prev.cf, cfs: newCfs, njs: newNjs, cfCount: newCount },
+        stack: setX(prev.stack, newCount),
+        currentInput: valueToInput(newCount),
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
+    setModifier(null);
+  }, []);
+
+  const storeNj = useCallback(() => {
+    setS(prev => {
+      if (prev.cf.cfCount === 0) return { ...prev, error: true };
+      const x = getX(prev.stack);
+      const newNjs = [...prev.cf.njs];
+      newNjs[prev.cf.cfCount - 1] = x;
+      return {
+        ...prev,
+        cf: { ...prev.cf, njs: newNjs },
+        isEnteringNumber: false,
+        stackLiftEnabled: true,
+        enterJustPressed: false,
+        error: false,
+      };
+    });
+    setModifier(null);
+  }, []);
+
+  const calcNPV = useCallback(() => {
+    const rate = s.fin.i / 100;
+    const { cf0, cfs, njs, cfCount } = s.cf;
+    let npv = cf0;
+    let t = 1;
+    for (let j = 0; j < cfCount; j++) {
+      for (let k = 0; k < njs[j]; k++) {
+        npv += cfs[j] / Math.pow(1 + rate, t);
+        t++;
+      }
+    }
+    if (!isFinite(npv)) { setError(); return; }
+    setS(prev => ({
+      ...prev,
+      stack: setX(prev.stack, npv),
+      currentInput: valueToInput(npv),
+      isEnteringNumber: false,
+      stackLiftEnabled: true,
+      enterJustPressed: false,
+      error: false,
+    }));
+    setModifier(null);
+  }, [s.fin.i, s.cf, setError]);
+
+  const calcIRR = useCallback(() => {
+    const { cf0, cfs, njs, cfCount } = s.cf;
+    const computeNPV = (rate: number): number => {
+      let npv = cf0;
+      let t = 1;
+      for (let j = 0; j < cfCount; j++) {
+        for (let k = 0; k < njs[j]; k++) {
+          npv += cfs[j] / Math.pow(1 + rate, t);
+          t++;
+        }
+      }
+      return npv;
+    };
+    let guess = 0.1;
+    for (let iter = 0; iter < 200; iter++) {
+      const npvVal = computeNPV(guess);
+      const npvDelta = computeNPV(guess + 0.0001);
+      const deriv = (npvDelta - npvVal) / 0.0001;
+      if (Math.abs(deriv) < 1e-20) break;
+      const newGuess = guess - npvVal / deriv;
+      if (Math.abs(newGuess - guess) < 1e-9) { guess = newGuess; break; }
+      guess = newGuess;
+    }
+    const result = guess * 100;
+    if (!isFinite(result)) { setError(); return; }
+    setS(prev => ({
+      ...prev,
+      stack: setX(prev.stack, result),
+      currentInput: valueToInput(result),
+      fin: { ...prev.fin, i: result },
+      isEnteringNumber: false,
+      stackLiftEnabled: true,
+      enterJustPressed: false,
+      error: false,
+    }));
+    setModifier(null);
+  }, [s.cf, setError]);
+
   const handleFinKey = useCallback((k: keyof FinRegs) => {
     if (!s.isOn) return;
     if (rclMode) {
@@ -577,14 +684,27 @@ function useHP12CEngine() {
       }));
       setRclMode(false); return;
     }
-    if (modifier === "f") { solveFin(k); return; }
-    // TVM rule: if user entered a number → STORE, otherwise → CALCULATE
+    // g-shift: CFo, CFj, Nj
+    if (modifier === "g") {
+      if (k === "pv") { storeCFo(); return; }
+      if (k === "pmt") { storeCFj(); return; }
+      if (k === "fv") { storeNj(); return; }
+      // g+n = 12×, g+i = 12÷ — fall through to other handling or ignore
+      setModifier(null); return;
+    }
+    // f-shift: NPV, IRR (and TVM solve for n, i, pmt)
+    if (modifier === "f") {
+      if (k === "pv") { calcNPV(); return; }
+      if (k === "fv") { calcIRR(); return; }
+      solveFin(k); return;
+    }
+    // Normal: store if entering, else calculate
     if (s.isEnteringNumber) {
       storeFin(k);
     } else {
       solveFin(k);
     }
-  }, [s, modifier, rclMode, storeFin, solveFin, upd]);
+  }, [s, modifier, rclMode, storeFin, solveFin, storeCFo, storeCFj, storeNj, calcNPV, calcIRR, upd]);
 
   // ── Statistics ──
   const sigmaPlus = useCallback(() => {
