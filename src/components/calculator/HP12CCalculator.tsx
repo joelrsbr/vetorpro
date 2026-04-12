@@ -13,6 +13,8 @@ type Modifier = null | "f" | "g";
 
 type Stack4 = [number, number, number, number]; // [T, Z, Y, X]
 
+interface StatRegs { n: number; sumX: number; sumX2: number; sumY: number; sumY2: number; sumXY: number }
+
 interface HP12CState {
   stack: Stack4;
   lastX: number;
@@ -22,11 +24,14 @@ interface HP12CState {
   isEnteringNumber: boolean;
   fin: FinRegs;
   mem: number[];
+  stat: StatRegs;
   isOn: boolean;
   beginMode: boolean;
   fix: number;
   error: boolean;
 }
+
+function defaultStat(): StatRegs { return { n: 0, sumX: 0, sumX2: 0, sumY: 0, sumY2: 0, sumXY: 0 }; }
 
 function defaultState(): HP12CState {
   return {
@@ -38,6 +43,7 @@ function defaultState(): HP12CState {
     isEnteringNumber: false,
     fin: { n: 0, i: 0, pv: 0, pmt: 0, fv: 0 },
     mem: Array(10).fill(0),
+    stat: defaultStat(),
     isOn: true,
     beginMode: false,
     fix: 2,
@@ -265,7 +271,7 @@ function useHP12CEngine() {
   }, [upd]);
 
   const clearReg = useCallback(() => {
-    upd({ mem: Array(10).fill(0) });
+    upd({ mem: Array(10).fill(0), stat: defaultStat() });
     setModifier(null);
   }, [upd]);
 
@@ -569,6 +575,87 @@ function useHP12CEngine() {
     }
   }, [s, modifier, rclMode, storeFin, solveFin, upd]);
 
+  // ── Statistics ──
+  const sigmaPlus = useCallback(() => {
+    if (!s.isOn) return;
+    setS(prev => {
+      const stackWithX = setX(prev.stack, parseInput(prev.currentInput));
+      const x = getX(stackWithX);
+      const y = stackWithX[2]; // Y register
+      const st = prev.stat;
+      const newStat: StatRegs = {
+        n: st.n + 1, sumX: st.sumX + x, sumX2: st.sumX2 + x * x,
+        sumY: st.sumY + y, sumY2: st.sumY2 + y * y, sumXY: st.sumXY + x * y,
+      };
+      const newStack = setX(stackWithX, newStat.n);
+      return { ...prev, stack: newStack, stat: newStat, currentInput: valueToInput(newStat.n), stackLiftEnabled: true, isEnteringNumber: false, enterJustPressed: false, error: false };
+    });
+    setModifier(null);
+  }, [s.isOn]);
+
+  const sigmaMinus = useCallback(() => {
+    if (!s.isOn) return;
+    setS(prev => {
+      const stackWithX = setX(prev.stack, parseInput(prev.currentInput));
+      const x = getX(stackWithX);
+      const y = stackWithX[2];
+      const st = prev.stat;
+      const newStat: StatRegs = {
+        n: st.n - 1, sumX: st.sumX - x, sumX2: st.sumX2 - x * x,
+        sumY: st.sumY - y, sumY2: st.sumY2 - y * y, sumXY: st.sumXY - x * y,
+      };
+      const newStack = setX(stackWithX, newStat.n);
+      return { ...prev, stack: newStack, stat: newStat, currentInput: valueToInput(newStat.n), stackLiftEnabled: true, isEnteringNumber: false, enterJustPressed: false, error: false };
+    });
+    setModifier(null);
+  }, [s.isOn]);
+
+  const statMeanX = useCallback(() => {
+    if (!s.isOn) return;
+    setS(prev => {
+      if (prev.stat.n === 0) return { ...prev, error: true, stackLiftEnabled: true, isEnteringNumber: false };
+      const mean = prev.stat.sumX / prev.stat.n;
+      return { ...prev, stack: setX(prev.stack, mean), currentInput: valueToInput(mean), stackLiftEnabled: true, isEnteringNumber: false, enterJustPressed: false, error: false };
+    });
+    setModifier(null);
+  }, [s.isOn]);
+
+  const statMeanYX = useCallback(() => {
+    if (!s.isOn) return;
+    setS(prev => {
+      if (prev.stat.n === 0) return { ...prev, error: true, stackLiftEnabled: true, isEnteringNumber: false };
+      const meanY = prev.stat.sumY / prev.stat.n;
+      const meanX = prev.stat.sumX / prev.stat.n;
+      const newStack: Stack4 = [prev.stack[0], prev.stack[1], meanX, meanY];
+      return { ...prev, stack: newStack, currentInput: valueToInput(meanY), stackLiftEnabled: true, isEnteringNumber: false, enterJustPressed: false, error: false };
+    });
+    setModifier(null);
+  }, [s.isOn]);
+
+  const statStdDevX = useCallback(() => {
+    if (!s.isOn) return;
+    setS(prev => {
+      const { n, sumX, sumX2 } = prev.stat;
+      if (n < 2) return { ...prev, error: true, stackLiftEnabled: true, isEnteringNumber: false };
+      const mean = sumX / n;
+      const sd = Math.sqrt((sumX2 - n * mean * mean) / (n - 1));
+      return { ...prev, stack: setX(prev.stack, sd), currentInput: valueToInput(sd), stackLiftEnabled: true, isEnteringNumber: false, enterJustPressed: false, error: false };
+    });
+    setModifier(null);
+  }, [s.isOn]);
+
+  const statStdDevY = useCallback(() => {
+    if (!s.isOn) return;
+    setS(prev => {
+      const { n, sumY, sumY2 } = prev.stat;
+      if (n < 2) return { ...prev, error: true, stackLiftEnabled: true, isEnteringNumber: false };
+      const mean = sumY / n;
+      const sd = Math.sqrt((sumY2 - n * mean * mean) / (n - 1));
+      return { ...prev, stack: setX(prev.stack, sd), currentInput: valueToInput(sd), stackLiftEnabled: true, isEnteringNumber: false, enterJustPressed: false, error: false };
+    });
+    setModifier(null);
+  }, [s.isOn]);
+
   const setMod = useCallback((m: Modifier) => { setModifier(prev => prev === m ? null : m); }, []);
   const handleSto = useCallback(() => { if (s.isOn) { setStoMode(true); setRclMode(false); setStoArith(null); } }, [s.isOn]);
   const handleRcl = useCallback(() => {
@@ -594,6 +681,7 @@ function useHP12CEngine() {
     op: doOp, swapXY, rollDown, rclLastX,
     handleFinKey, handleSto, handleRcl,
     setMod, setFix, toggleBeg,
+    sigmaPlus, sigmaMinus, statMeanX, statMeanYX, statStdDevX, statStdDevY,
   };
 }
 
@@ -871,8 +959,8 @@ export function HP12CCalculatorBody() {
               {/* ENTER — spans rows 3 & 4 */}
               <Btn label="ENTER" fLbl="PREFIX" gLbl="LSTx" tall
                 onClick={() => handleWithModifier(() => e.enter(), undefined, () => e.rclLastX())} />
-              <Btn label="1"                gLbl="x̂,r"  onClick={() => handleWithModifier(() => e.num("1"), () => e.setFix(1))} />
-              <Btn label="2"                gLbl="ŷ,r"  onClick={() => handleWithModifier(() => e.num("2"), () => e.setFix(2))} />
+              <Btn label="1"                gLbl="x̂,r"  onClick={() => handleWithModifier(() => e.num("1"), () => e.setFix(1), () => e.statStdDevX())} />
+              <Btn label="2"                gLbl="ŷ,r"  onClick={() => handleWithModifier(() => e.num("2"), () => e.setFix(2), () => e.statStdDevY())} />
               <Btn label="3"                gLbl="n!"   onClick={() => handleWithModifier(() => e.num("3"), () => e.setFix(3), () => e.op("n!"))} />
               <Btn label="–"                              onClick={() => e.op("-")} />
 
@@ -893,9 +981,9 @@ export function HP12CCalculatorBody() {
               <Btn label="STO"                           onClick={e.handleSto} />
               <Btn label="RCL"                           onClick={e.handleRcl} />
               {/* col 6 is occupied by ENTER span */}
-              <Btn label="0"                gLbl="x̄"   onClick={() => handleWithModifier(() => e.num("0"), () => e.setFix(0))} />
-              <Btn label="·"                gLbl="s"    onClick={() => e.num(".")} />
-              <Btn label="Σ+"               gLbl="Σ−"  onClick={() => {}} />
+              <Btn label="0"                gLbl="x̄"   onClick={() => handleWithModifier(() => e.num("0"), () => e.setFix(0), () => e.statMeanX())} />
+              <Btn label="·"                gLbl="ȳ,r"    onClick={() => handleWithModifier(() => e.num("."), undefined, () => e.statMeanYX())} />
+              <Btn label="Σ+"               gLbl="Σ−"  onClick={() => handleWithModifier(() => e.sigmaPlus(), undefined, () => e.sigmaMinus())} />
               <Btn label="+"                             onClick={() => e.op("+")} />
             </div>
           </div>
