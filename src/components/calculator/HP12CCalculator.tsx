@@ -282,7 +282,7 @@ function useHP12CEngine() {
   }, [upd]);
 
   const clearReg = useCallback(() => {
-    upd({ mem: Array(10).fill(0), stat: defaultStat() });
+    upd({ mem: Array(10).fill(0), stat: defaultStat(), cf: defaultCF() });
     setModifier(null);
   }, [upd]);
 
