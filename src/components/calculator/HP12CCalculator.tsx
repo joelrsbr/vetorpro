@@ -461,7 +461,7 @@ function useHP12CEngine() {
   // ── Financial ──
   const storeFin = useCallback((k: keyof FinRegs) => {
     const v = getX(s.stack);
-    upd({ fin: { ...s.fin, [k]: v }, entering: false, stackLiftEnabled: true });
+    upd({ fin: { ...s.fin, [k]: v }, isEnteringNumber: false, stackLiftEnabled: true, enterJustPressed: false });
     setModifier(null);
   }, [s, upd]);
 
