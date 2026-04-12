@@ -674,7 +674,7 @@ function useHP12CEngine() {
       };
     });
     setModifier(null);
-  }, [s.cf, setError]);
+  }, []);
 
   const handleFinKey = useCallback((k: keyof FinRegs) => {
     if (!s.isOn) return;
