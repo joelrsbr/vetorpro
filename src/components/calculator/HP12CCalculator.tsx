@@ -142,10 +142,13 @@ function rollDownStack(stack: Stack4): Stack4 {
   return [stack[1], stack[2], stack[3], stack[0]];
 }
 
-function getDisplayValue(state: HP12CState): string {
+function getDisplayValue(state: HP12CState, brazilian = false): string {
   if (state.error) return "Error";
-  if (state.isEnteringNumber) return state.currentInput;
-  return fmt(getX(state.stack), state.fix);
+  if (state.isEnteringNumber) {
+    if (brazilian) return state.currentInput.replace(".", ",");
+    return state.currentInput;
+  }
+  return fmt(getX(state.stack), state.fix, brazilian);
 }
 
 // ─── RPN Engine ───
