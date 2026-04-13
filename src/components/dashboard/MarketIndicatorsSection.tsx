@@ -558,8 +558,8 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       }
                       label={{
                         value: viewMode === "percent"
-                          ? `${selectedIndicator?.display_name ?? ""} (%)`
-                          : `${selectedIndicator?.display_name ?? ""} ${selectedUnit === "currency" ? "(R$)" : "(%")}`,
+                          ? selectedIndicator?.display_name + " (%)"
+                          : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
                         angle: -90,
                         position: "insideLeft",
                         offset: 12,
@@ -580,7 +580,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         domain={["auto", "auto"]}
                         tickFormatter={(v) => formatAxisTick(v, compareUnit, compareKey)}
                         label={{
-                          value: `${compareIndicator?.display_name ?? ""} ${compareUnit === "currency" ? "(R$)" : "(%")}`,
+                          value: compareIndicator?.display_name + (compareUnit === "currency" ? " (R$)" : " (%)"),
                           angle: 90,
                           position: "insideRight",
                           offset: 12,
