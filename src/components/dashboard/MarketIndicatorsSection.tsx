@@ -67,6 +67,7 @@ interface Insight {
   icon: React.ReactNode;
   text: string;
   type: "opportunity" | "alert" | "info";
+  actionText?: string;
 }
 
 function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): Insight[] {
@@ -87,6 +88,7 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
         icon: <ArrowDownRight className="h-4 w-4 text-emerald-600" />,
         text: "Queda de juros detectada — oportunidade para financiamento",
         type: "opportunity",
+        actionText: "Use com seu cliente: 'Com a Selic em queda, o custo do financiamento tende a cair. Esse é o momento de travar a taxa antes que o mercado ajuste os preços dos imóveis.'",
       });
     }
   }
@@ -102,6 +104,7 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
         icon: <TrendingUp className="h-4 w-4 text-blue-600" />,
         text: "Juro real elevado — ambiente favorável para investimento",
         type: "info",
+        actionText: "Use com seu cliente: 'O juro real está elevado, o que significa que o dinheiro parado rende bem — mas imóveis historicamente superam a renda fixa no longo prazo nesse cenário.'",
       });
     }
   }
@@ -116,6 +119,7 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
         icon: <ArrowDownRight className="h-4 w-4 text-emerald-600" />,
         text: "Inflação em desaceleração — maior previsibilidade de mercado",
         type: "opportunity",
+        actionText: "Use com seu cliente: 'Com a inflação desacelerando, o poder de compra se estabiliza. É um sinal positivo para quem está planejando uma compra de médio prazo.'",
       });
     }
   }
@@ -131,6 +135,7 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
           icon: <AlertTriangle className="h-4 w-4 text-amber-600" />,
           text: "Alta do dólar — possível aumento no custo da construção",
           type: "alert",
+          actionText: "Use com seu cliente: 'A alta do dólar pressiona o custo da construção civil. Imóveis na planta tendem a sofrer reajuste — quem compra agora se protege desse aumento.'",
         });
       }
     }
@@ -633,7 +638,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   {insights.map(insight => (
                     <div
                       key={insight.id}
-                      className={`flex items-start gap-2.5 p-3 rounded-lg border text-sm ${
+                      className={`flex flex-col gap-2 p-3 rounded-lg border text-sm ${
                         insight.type === "opportunity"
                           ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/40 dark:bg-emerald-950/20"
                           : insight.type === "alert"
@@ -641,8 +646,27 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                             : "border-blue-200 bg-blue-50/50 dark:border-blue-900/40 dark:bg-blue-950/20"
                       }`}
                     >
-                      {insight.icon}
-                      <span>{insight.text}</span>
+                      <div className="flex items-start gap-2.5">
+                        {insight.icon}
+                        <span>{insight.text}</span>
+                      </div>
+                      {insight.actionText && (
+                        <div className="mt-2 pt-2 border-t border-current/10 w-full">
+                          <p className="text-xs text-muted-foreground italic leading-relaxed">
+                            {insight.actionText}
+                          </p>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(insight.actionText!)}
+                            className="mt-1.5 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                            </svg>
+                            Copiar para WhatsApp
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
