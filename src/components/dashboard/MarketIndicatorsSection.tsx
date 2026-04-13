@@ -536,6 +536,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </div>
               )}
               {hasAnyData ? (
+                <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
@@ -681,6 +682,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     )}
                   </div>
                 )}
+                </>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <Info className="h-10 w-10 mx-auto mb-3 opacity-40" />
