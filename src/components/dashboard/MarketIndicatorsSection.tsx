@@ -343,7 +343,22 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Unit detection from indicator metadata
   const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
   const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
-  const isMixedUnits = viewMode === "absolute" && !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
+  const isMixedUnits = viewMode === "absolute" && !!(
+    compareKey &&
+    compareIndicator &&
+    (() => {
+      const getUnit = (key: string, ind: IndicatorMeta | null | undefined) => {
+        if (ind?.unit) return ind.unit;
+        if (key.startsWith("crypto_")) return "crypto";
+        if (key.startsWith("currency_")) return "currency";
+        if (key.startsWith("rate_") || key.startsWith("index_")) return "percent";
+        return "percent";
+      };
+      const uA = getUnit(selectedKey, selectedIndicator);
+      const uB = getUnit(compareKey, compareIndicator);
+      return uA !== uB;
+    })()
+  );
 
   // Assign colors based on position in validIndicators
   const colorMap = useMemo(() => {
