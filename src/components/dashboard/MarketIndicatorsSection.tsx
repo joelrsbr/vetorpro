@@ -294,6 +294,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
 
   const isPercent = selectedKey.startsWith("rate_");
   const isCurrency = selectedKey.startsWith("currency_") || selectedKey.startsWith("crypto_");
+  const isMixedTypes = compareKey && (
+    (selectedKey.startsWith("rate_") && !compareKey.startsWith("rate_")) ||
+    (!selectedKey.startsWith("rate_") && compareKey.startsWith("rate_"))
+  );
 
   // Assign colors based on position in validIndicators
   const colorMap = useMemo(() => {
@@ -309,6 +313,9 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   if (compareIndicator && compareKey) {
     chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || COLORS[1] };
   }
+
+  // Debug log for comparison validation
+  console.log("[MarketIndicators]", { selectedKey, compareKey, chartDataLength: chartData.length, series: Object.keys(chartConfig) });
 
   // Comparison options: accessible indicators excluding selected
   const compareOptions = accessibleIndicators.filter(i => i.key !== selectedKey);
@@ -464,6 +471,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       domain={["auto", "auto"]}
                       tickFormatter={(v) => {
                         const n = Number(v);
+                        if (isMixedTypes) return String(n.toFixed(1));
                         if (isCurrency && !compareKey) {
                           if (selectedKey === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
                           return `R$${n.toFixed(1)}`;
