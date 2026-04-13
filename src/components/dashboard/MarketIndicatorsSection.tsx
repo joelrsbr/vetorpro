@@ -243,7 +243,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   }, [fetchHistory]);
 
   /* ─── Build chart data ─── */
-  const chartData = useMemo(() => {
+  const chartDataAbsolute = useMemo(() => {
     const keysToPlot = [selectedKey];
     if (compareKey) keysToPlot.push(compareKey);
 
@@ -271,6 +271,38 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       return row;
     });
   }, [history, selectedKey, compareKey]);
+
+  /* ─── Normalized (percent variation) chart data ─── */
+  const chartDataPercent = useMemo(() => {
+    if (chartDataAbsolute.length === 0) return [];
+    const keysToPlot = [selectedKey];
+    if (compareKey) keysToPlot.push(compareKey);
+
+    // Find initial values (first non-null for each key)
+    const initials: Record<string, number> = {};
+    for (const row of chartDataAbsolute) {
+      for (const k of keysToPlot) {
+        if (initials[k] === undefined && row[k] != null && Number(row[k]) !== 0) {
+          initials[k] = Number(row[k]);
+        }
+      }
+    }
+
+    return chartDataAbsolute.map(row => {
+      const newRow: Record<string, string | number | null> = { date: row.date };
+      for (const k of keysToPlot) {
+        const v = row[k];
+        if (v != null && initials[k] !== undefined) {
+          newRow[k] = parseFloat((((Number(v) - initials[k]) / initials[k]) * 100).toFixed(2));
+        } else {
+          newRow[k] = null;
+        }
+      }
+      return newRow;
+    });
+  }, [chartDataAbsolute, selectedKey, compareKey]);
+
+  const chartData = viewMode === "percent" ? chartDataPercent : chartDataAbsolute;
 
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
