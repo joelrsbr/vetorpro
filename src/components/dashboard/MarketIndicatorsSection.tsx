@@ -169,6 +169,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [period, setPeriod] = useState<Period>("6m");
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [compareKey, setCompareKey] = useState<string>("");
+  const [viewMode, setViewMode] = useState<ViewMode>("absolute");
   const { plan, isActive } = useSubscription();
   const { data: marketData } = useMarketData();
   const navigate = useNavigate();
