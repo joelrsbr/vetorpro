@@ -1,46 +1,33 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface CurrencyData {
-  value: number;
-  variation: number;
-}
-
-interface RateData {
-  value: number;
-  period: string;
-  name?: string;
+export interface IndicatorMeta {
+  key: string;
+  display_name: string;
+  description: string;
+  category: string;
+  plan_level: "basic" | "pro" | "business";
+  unit: string;
+  status: string;
+  updated_at: string;
+  accessible: boolean;
+  value: Record<string, unknown> | null;
 }
 
 export interface MarketData {
-  currencies: Record<string, CurrencyData>;
-  crypto: Record<string, CurrencyData>;
-  rates: Record<string, RateData>;
+  indicators: IndicatorMeta[];
   updatedAt: string;
   source: string;
 }
 
 const FALLBACK_DATA: MarketData = {
-  currencies: {
-    usd: { value: 5.01, variation: 0 },
-    eur: { value: 5.43, variation: 0 },
-  },
-  crypto: {},
-  rates: {
-    selic: { value: 13.25, period: "a.a." },
-    ipca: { value: 4.75, period: "a.a." },
-    igpm: { value: 4.20, period: "a.a." },
-    incc: { value: 3.85, period: "a.a." },
-    tr: { value: 0.04, period: "a.m." },
-    cdi: { value: 10.9, period: "a.a." },
-    poupanca: { value: 0.63, period: "a.m." },
-  },
+  indicators: [],
   updatedAt: new Date().toISOString(),
   source: "Dados de referência (offline)",
 };
 
-const CACHE_KEY = "vetorpro-market-data-v2";
-const CACHE_TTL = 60 * 1000; // 1 min local cache to avoid excessive calls
+const CACHE_KEY = "vetorpro-market-data-v3";
+const CACHE_TTL = 60 * 1000;
 
 function getCachedData(): { data: MarketData; timestamp: number } | null {
   try {
@@ -91,11 +78,9 @@ export function useMarketData() {
 
       if (error) throw error;
 
-      if (result && result.rates) {
+      if (result && result.indicators) {
         const merged: MarketData = {
-          rates: { ...FALLBACK_DATA.rates, ...result.rates },
-          currencies: { ...FALLBACK_DATA.currencies, ...(result.currencies || {}) },
-          crypto: result.crypto || {},
+          indicators: result.indicators,
           updatedAt: result.updatedAt || new Date().toISOString(),
           source: result.source || "market_cache",
         };
