@@ -581,6 +581,9 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
+        {/* Market Indicators */}
+        <MarketIndicatorsSection />
+
         {/* History Tabs */}
         <Card className="shadow-card">
           <CardHeader>
