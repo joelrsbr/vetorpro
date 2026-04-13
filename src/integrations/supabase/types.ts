@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      market_cache: {
+        Row: {
+          expires_at: string
+          key: string
+          source: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          expires_at?: string
+          key: string
+          source?: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          expires_at?: string
+          key?: string
+          source?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company: string | null
