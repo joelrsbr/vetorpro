@@ -102,6 +102,7 @@ export default function Dashboard() {
   const [showVoiceToneDialog, setShowVoiceToneDialog] = useState(false);
   const [showHP12C, setShowHP12C] = useState(false);
   const [showHP12CGlossary, setShowHP12CGlossary] = useState(false);
+  const [showIndicatorsModal, setShowIndicatorsModal] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
   // Real-time counts from RPC (Single Source of Truth)
