@@ -536,8 +536,9 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </div>
               )}
               {hasAnyData ? (
+                <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
-                  <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 50 : 10, bottom: 5, left: 10 }}>
+                  <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
                     <XAxis
                       dataKey="date"
@@ -556,6 +557,19 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                           ? `${Number(v).toFixed(1)}%`
                           : formatAxisTick(v, selectedUnit, selectedKey)
                       }
+                      label={{
+                        value: viewMode === "percent"
+                          ? selectedIndicator?.display_name + " (%)"
+                          : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
+                        angle: -90,
+                        position: "insideLeft",
+                        offset: 12,
+                        style: {
+                          fontSize: 10,
+                          fill: colorMap[selectedKey] ?? "hsl(210, 80%, 55%)",
+                          fontWeight: 500,
+                        },
+                      }}
                     />
                     {/* Right Y-axis — comparison (only when mixed units) */}
                     {isMixedUnits && (
@@ -566,6 +580,17 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         className="fill-muted-foreground"
                         domain={["auto", "auto"]}
                         tickFormatter={(v) => formatAxisTick(v, compareUnit, compareKey)}
+                        label={{
+                          value: compareIndicator?.display_name + (compareUnit === "currency" ? " (R$)" : " (%)"),
+                          angle: 90,
+                          position: "insideRight",
+                          offset: 12,
+                          style: {
+                            fontSize: 10,
+                            fill: colorMap[compareKey] ?? "hsl(25, 90%, 55%)",
+                            fontWeight: 500,
+                          },
+                        }}
                       />
                     )}
                     <ChartTooltip
@@ -617,6 +642,47 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     )}
                   </LineChart>
                 </ChartContainer>
+                {(selectedIndicator || (compareIndicator && compareKey)) && (
+                  <div className="flex items-center gap-4 mt-2 flex-wrap">
+                    {selectedIndicator && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span
+                          className="inline-block rounded"
+                          style={{
+                            width: 20,
+                            height: 2.5,
+                            backgroundColor: colorMap[selectedKey],
+                          }}
+                        />
+                        <span>{selectedIndicator.display_name}</span>
+                        {viewMode === "absolute" && latestValues[selectedKey] !== undefined && (
+                          <span className="font-medium text-foreground">
+                            {formatValue(selectedKey, latestValues[selectedKey])}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {compareIndicator && compareKey && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span
+                          className="inline-block rounded"
+                          style={{
+                            width: 20,
+                            height: 2.5,
+                            background: `repeating-linear-gradient(90deg, ${colorMap[compareKey]} 0px, ${colorMap[compareKey]} 5px, transparent 5px, transparent 8px)`,
+                          }}
+                        />
+                        <span>{compareIndicator.display_name}</span>
+                        {viewMode === "absolute" && latestValues[compareKey] !== undefined && (
+                          <span className="font-medium text-foreground">
+                            {formatValue(compareKey, latestValues[compareKey])}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                </>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <Info className="h-10 w-10 mx-auto mb-3 opacity-40" />
