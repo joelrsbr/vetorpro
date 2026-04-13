@@ -146,6 +146,15 @@ function formatValue(key: string, val: number): string {
   return `${val.toFixed(2)}%`;
 }
 
+function formatAxisTick(v: number | string, unit: string, key: string): string {
+  const n = Number(v);
+  if (unit === "currency") {
+    if (key === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
+    return `R$${n.toFixed(1)}`;
+  }
+  return `${n.toFixed(1)}%`;
+}
+
 /* ─── Exported props for focus modal ─── */
 export interface MarketIndicatorsSectionProps {
   expanded?: boolean;
@@ -292,12 +301,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const hasAnyData = chartData.length > 0;
   const chartHeight = expanded ? 340 : 225;
 
-  const isPercent = selectedKey.startsWith("rate_");
-  const isCurrency = selectedKey.startsWith("currency_") || selectedKey.startsWith("crypto_");
-  const isMixedTypes = compareKey && (
-    (selectedKey.startsWith("rate_") && !compareKey.startsWith("rate_")) ||
-    (!selectedKey.startsWith("rate_") && compareKey.startsWith("rate_"))
-  );
+  // Unit detection from indicator metadata
+  const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
+  const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
+  const isMixedUnits = !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
 
   // Assign colors based on position in validIndicators
   const colorMap = useMemo(() => {
@@ -457,7 +464,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
             <div className="relative">
               {hasAnyData ? (
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
-                  <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
+                  <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 50 : 10, bottom: 5, left: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
                     <XAxis
                       dataKey="date"
@@ -465,20 +472,25 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       className="fill-muted-foreground"
                       interval="preserveStartEnd"
                     />
+                    {/* Left Y-axis — primary indicator */}
                     <YAxis
+                      yAxisId="left"
                       tick={{ fontSize: 11 }}
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
-                      tickFormatter={(v) => {
-                        const n = Number(v);
-                        if (isMixedTypes) return String(n.toFixed(1));
-                        if (isCurrency && !compareKey) {
-                          if (selectedKey === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
-                          return `R$${n.toFixed(1)}`;
-                        }
-                        return `${n.toFixed(1)}%`;
-                      }}
+                      tickFormatter={(v) => formatAxisTick(v, selectedUnit, selectedKey)}
                     />
+                    {/* Right Y-axis — comparison (only when mixed units) */}
+                    {isMixedUnits && (
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        tick={{ fontSize: 11 }}
+                        className="fill-muted-foreground"
+                        domain={["auto", "auto"]}
+                        tickFormatter={(v) => formatAxisTick(v, compareUnit, compareKey)}
+                      />
+                    )}
                     <ChartTooltip
                       content={
                         <ChartTooltipContent
@@ -499,6 +511,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       <Line
                         type="monotone"
                         dataKey={selectedKey}
+                        yAxisId="left"
                         stroke={colorMap[selectedKey] || COLORS[0]}
                         strokeWidth={2.5}
                         dot={false}
@@ -512,6 +525,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       <Line
                         type="monotone"
                         dataKey={compareKey}
+                        yAxisId={isMixedUnits ? "right" : "left"}
                         stroke={colorMap[compareKey] || COLORS[1]}
                         strokeWidth={1.5}
                         strokeDasharray="5 3"
