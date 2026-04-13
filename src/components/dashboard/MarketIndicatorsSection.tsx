@@ -492,10 +492,44 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   </Select>
                 </>
               )}
+
+              {/* View mode toggle */}
+              {compareKey && (
+                <>
+                  <div className="h-5 w-px bg-border mx-1" />
+                  <div className="flex items-center bg-muted/50 rounded-md p-0.5">
+                    <button
+                      onClick={() => setViewMode("absolute")}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        viewMode === "absolute"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Absoluto
+                    </button>
+                    <button
+                      onClick={() => setViewMode("percent")}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        viewMode === "percent"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Variação %
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* ─── Chart ─── */}
             <div className="relative">
+              {viewMode === "percent" && compareKey && (
+                <div className="text-xs text-muted-foreground mb-1 italic">
+                  Variação no período (%)
+                </div>
+              )}
               {hasAnyData ? (
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 50 : 10, bottom: 5, left: 10 }}>
@@ -506,13 +540,17 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       className="fill-muted-foreground"
                       interval="preserveStartEnd"
                     />
-                    {/* Left Y-axis — primary indicator */}
+                    {/* Left Y-axis */}
                     <YAxis
                       yAxisId="left"
                       tick={{ fontSize: 11 }}
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
-                      tickFormatter={(v) => formatAxisTick(v, selectedUnit, selectedKey)}
+                      tickFormatter={(v) =>
+                        viewMode === "percent"
+                          ? `${Number(v).toFixed(1)}%`
+                          : formatAxisTick(v, selectedUnit, selectedKey)
+                      }
                     />
                     {/* Right Y-axis — comparison (only when mixed units) */}
                     {isMixedUnits && (
