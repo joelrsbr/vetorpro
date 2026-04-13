@@ -9,21 +9,23 @@ interface CurrencyData {
 interface RateData {
   value: number;
   period: string;
+  name?: string;
 }
 
 export interface MarketData {
   currencies: Record<string, CurrencyData>;
+  crypto: Record<string, CurrencyData>;
   rates: Record<string, RateData>;
   updatedAt: string;
   source: string;
 }
 
-// Fallback values in case API is unreachable
 const FALLBACK_DATA: MarketData = {
   currencies: {
     usd: { value: 5.01, variation: 0 },
     eur: { value: 5.43, variation: 0 },
   },
+  crypto: {},
   rates: {
     selic: { value: 13.25, period: "a.a." },
     ipca: { value: 4.75, period: "a.a." },
@@ -37,9 +39,8 @@ const FALLBACK_DATA: MarketData = {
   source: "Dados de referência (offline)",
 };
 
-const CACHE_KEY = "vetorpro-market-data";
-const CURRENCY_CACHE_TTL = 60 * 60 * 1000; // 1 hour
-const RATE_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_KEY = "vetorpro-market-data-v2";
+const CACHE_TTL = 60 * 1000; // 1 min local cache to avoid excessive calls
 
 function getCachedData(): { data: MarketData; timestamp: number } | null {
   try {
@@ -53,15 +54,11 @@ function getCachedData(): { data: MarketData; timestamp: number } | null {
 
 function setCachedData(data: MarketData) {
   try {
-    localStorage.setItem(
-      CACHE_KEY,
-      JSON.stringify({ data, timestamp: Date.now() })
-    );
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
   } catch {}
 }
 
 export function useMarketData() {
-  // Initialize from localStorage cache to avoid empty fields on load
   const [data, setData] = useState<MarketData>(() => {
     const cached = getCachedData();
     return cached ? cached.data : FALLBACK_DATA;
@@ -69,7 +66,7 @@ export function useMarketData() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLive, setIsLive] = useState(() => {
     const cached = getCachedData();
-    return cached ? (Date.now() - cached.timestamp) < CURRENCY_CACHE_TTL : false;
+    return cached ? (Date.now() - cached.timestamp) < CACHE_TTL : false;
   });
   const [lastFetch, setLastFetch] = useState<Date | null>(() => {
     const cached = getCachedData();
@@ -77,52 +74,41 @@ export function useMarketData() {
   });
 
   const fetchData = useCallback(async (force = false) => {
-    // Check cache first
     if (!force) {
       const cached = getCachedData();
-      if (cached) {
-        const age = Date.now() - cached.timestamp;
-        if (age < CURRENCY_CACHE_TTL) {
-          setData(cached.data);
-          setIsLive(true);
-          setLastFetch(new Date(cached.timestamp));
-          setIsLoading(false);
-          return;
-        }
+      if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+        setData(cached.data);
+        setIsLive(true);
+        setLastFetch(new Date(cached.timestamp));
+        setIsLoading(false);
+        return;
       }
     }
 
     setIsLoading(true);
     try {
-      const { data: result, error } = await supabase.functions.invoke(
-        "fetch-market-data"
-      );
+      const { data: result, error } = await supabase.functions.invoke("market-data-service");
 
       if (error) throw error;
 
-      if (result && result.currencies && result.rates) {
-        // Merge with fallback: if API returned empty currencies, keep fallback
-        const mergedCurrencies = {
-          ...FALLBACK_DATA.currencies,
-          ...result.currencies,
+      if (result && result.rates) {
+        const merged: MarketData = {
+          rates: { ...FALLBACK_DATA.rates, ...result.rates },
+          currencies: { ...FALLBACK_DATA.currencies, ...(result.currencies || {}) },
+          crypto: result.crypto || {},
+          updatedAt: result.updatedAt || new Date().toISOString(),
+          source: result.source || "market_cache",
         };
-        const mergedRates = {
-          ...FALLBACK_DATA.rates,
-          ...result.rates,
-        };
-        const merged = { ...result, currencies: mergedCurrencies, rates: mergedRates } as MarketData;
         setData(merged);
         setIsLive(true);
         setLastFetch(new Date());
         setCachedData(merged);
       } else {
-        // API returned but with no useful data - use fallback
         setData(FALLBACK_DATA);
         setIsLive(false);
       }
     } catch (err) {
       console.error("Failed to fetch market data:", err);
-      // Use cached data if available, otherwise fallback
       const cached = getCachedData();
       if (cached) {
         setData(cached.data);
