@@ -1,46 +1,79 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface CurrencyData {
-  value: number;
-  variation: number;
+export interface IndicatorMeta {
+  key: string;
+  display_name: string;
+  description: string;
+  category: string;
+  plan_level: "basic" | "pro" | "business";
+  unit: string;
+  status: string;
+  updated_at: string;
+  accessible: boolean;
+  value: Record<string, unknown> | null;
 }
 
 interface RateData {
   value: number;
   period: string;
   name?: string;
+  status?: string;
+}
+
+interface CurrencyData {
+  value: number;
+  variation: number;
+  status?: string;
 }
 
 export interface MarketData {
-  currencies: Record<string, CurrencyData>;
-  crypto: Record<string, CurrencyData>;
+  indicators: IndicatorMeta[];
+  /** @deprecated Use indicators instead */
   rates: Record<string, RateData>;
+  /** @deprecated Use indicators instead */
+  currencies: Record<string, CurrencyData>;
+  /** @deprecated Use indicators instead */
+  crypto: Record<string, CurrencyData>;
   updatedAt: string;
   source: string;
 }
 
+function deriveCompat(indicators: IndicatorMeta[]): Pick<MarketData, "rates" | "currencies" | "crypto"> {
+  const rates: Record<string, RateData> = {};
+  const currencies: Record<string, CurrencyData> = {};
+  const crypto: Record<string, CurrencyData> = {};
+
+  for (const ind of indicators) {
+    if (!ind.accessible || !ind.value) continue;
+    const val = ind.value as Record<string, unknown>;
+
+    if (ind.key.startsWith("rate_")) {
+      const k = ind.key.replace("rate_", "");
+      rates[k] = { value: Number(val.value), period: String(val.period || ""), name: String(val.name || ""), status: ind.status };
+    } else if (ind.key.startsWith("currency_")) {
+      const k = ind.key.replace("currency_", "");
+      currencies[k] = { value: Number(val.value), variation: Number(val.variation || 0), status: ind.status };
+    } else if (ind.key.startsWith("crypto_")) {
+      const k = ind.key.replace("crypto_", "");
+      crypto[k] = { value: Number(val.value), variation: Number(val.variation || 0), status: ind.status };
+    }
+  }
+
+  return { rates, currencies, crypto };
+}
+
 const FALLBACK_DATA: MarketData = {
-  currencies: {
-    usd: { value: 5.01, variation: 0 },
-    eur: { value: 5.43, variation: 0 },
-  },
+  indicators: [],
+  rates: {},
+  currencies: {},
   crypto: {},
-  rates: {
-    selic: { value: 13.25, period: "a.a." },
-    ipca: { value: 4.75, period: "a.a." },
-    igpm: { value: 4.20, period: "a.a." },
-    incc: { value: 3.85, period: "a.a." },
-    tr: { value: 0.04, period: "a.m." },
-    cdi: { value: 10.9, period: "a.a." },
-    poupanca: { value: 0.63, period: "a.m." },
-  },
   updatedAt: new Date().toISOString(),
   source: "Dados de referência (offline)",
 };
 
-const CACHE_KEY = "vetorpro-market-data-v2";
-const CACHE_TTL = 60 * 1000; // 1 min local cache to avoid excessive calls
+const CACHE_KEY = "vetorpro-market-data-v3";
+const CACHE_TTL = 60 * 1000;
 
 function getCachedData(): { data: MarketData; timestamp: number } | null {
   try {
@@ -91,11 +124,11 @@ export function useMarketData() {
 
       if (error) throw error;
 
-      if (result && result.rates) {
+      if (result && result.indicators) {
+        const compat = deriveCompat(result.indicators);
         const merged: MarketData = {
-          rates: { ...FALLBACK_DATA.rates, ...result.rates },
-          currencies: { ...FALLBACK_DATA.currencies, ...(result.currencies || {}) },
-          crypto: result.crypto || {},
+          indicators: result.indicators,
+          ...compat,
           updatedAt: result.updatedAt || new Date().toISOString(),
           source: result.source || "market_cache",
         };
