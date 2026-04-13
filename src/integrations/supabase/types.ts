@@ -16,8 +16,12 @@ export type Database = {
     Tables: {
       market_cache: {
         Row: {
+          category: string
+          description: string
+          display_name: string
           expires_at: string
           key: string
+          plan_level: string
           source: string
           status: string
           unit: string
@@ -25,8 +29,12 @@ export type Database = {
           value: Json
         }
         Insert: {
+          category?: string
+          description?: string
+          display_name?: string
           expires_at?: string
           key: string
+          plan_level?: string
           source?: string
           status?: string
           unit?: string
@@ -34,8 +42,12 @@ export type Database = {
           value: Json
         }
         Update: {
+          category?: string
+          description?: string
+          display_name?: string
           expires_at?: string
           key?: string
+          plan_level?: string
           source?: string
           status?: string
           unit?: string
