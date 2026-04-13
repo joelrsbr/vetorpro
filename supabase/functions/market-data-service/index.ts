@@ -68,6 +68,24 @@ async function upsertCache(
     { onConflict: "key" },
   );
   if (error) log("error", `Cache upsert failed for ${key}`, { error: error.message });
+
+  // Insert history record (extract numeric value)
+  if (status === "ok") {
+    let numericValue: number | null = null;
+    if (typeof value === "object" && value !== null && "value" in (value as Record<string, unknown>)) {
+      numericValue = Number((value as Record<string, unknown>).value);
+    } else if (typeof value === "number") {
+      numericValue = value;
+    }
+    if (numericValue !== null && !isNaN(numericValue)) {
+      const { error: histErr } = await admin.from("market_history").insert({
+        key,
+        value: numericValue,
+        recorded_at: now.toISOString(),
+      });
+      if (histErr) log("error", `History insert failed for ${key}`, { error: histErr.message });
+    }
+  }
 }
 
 async function getCached(admin: ReturnType<typeof getSupabaseAdmin>, key: string) {

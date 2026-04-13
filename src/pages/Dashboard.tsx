@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { HP12CCalculatorBody } from "@/components/calculator/HP12CCalculator";
+import { MarketIndicatorsSection } from "@/components/dashboard/MarketIndicatorsSection";
 
 interface Proposal {
   id: string;
@@ -580,6 +581,9 @@ export default function Dashboard() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Market Indicators */}
+        <MarketIndicatorsSection />
 
         {/* History Tabs */}
         <Card className="shadow-card">

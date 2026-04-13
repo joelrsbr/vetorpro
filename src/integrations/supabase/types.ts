@@ -44,6 +44,27 @@ export type Database = {
         }
         Relationships: []
       }
+      market_history: {
+        Row: {
+          id: string
+          key: string
+          recorded_at: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          key: string
+          recorded_at?: string
+          value: number
+        }
+        Update: {
+          id?: string
+          key?: string
+          recorded_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company: string | null
