@@ -584,6 +584,19 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
+        {/* Indicators Focus Modal */}
+        <Dialog open={showIndicatorsModal} onOpenChange={setShowIndicatorsModal}>
+          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-lg">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Indicadores de Mercado — Modo Foco
+              </DialogTitle>
+            </DialogHeader>
+            <MarketIndicatorsSection expanded />
+          </DialogContent>
+        </Dialog>
+
         {/* Two-column layout: Indicators (60%) + History (40%) */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Indicators — 60% */}
