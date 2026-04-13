@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface IndicatorMeta {
@@ -14,14 +14,60 @@ export interface IndicatorMeta {
   value: Record<string, unknown> | null;
 }
 
+interface RateData {
+  value: number;
+  period: string;
+  name?: string;
+  status?: string;
+}
+
+interface CurrencyData {
+  value: number;
+  variation: number;
+  status?: string;
+}
+
 export interface MarketData {
   indicators: IndicatorMeta[];
+  /** @deprecated Use indicators instead */
+  rates: Record<string, RateData>;
+  /** @deprecated Use indicators instead */
+  currencies: Record<string, CurrencyData>;
+  /** @deprecated Use indicators instead */
+  crypto: Record<string, CurrencyData>;
   updatedAt: string;
   source: string;
 }
 
+function deriveCompat(indicators: IndicatorMeta[]): Pick<MarketData, "rates" | "currencies" | "crypto"> {
+  const rates: Record<string, RateData> = {};
+  const currencies: Record<string, CurrencyData> = {};
+  const crypto: Record<string, CurrencyData> = {};
+
+  for (const ind of indicators) {
+    if (!ind.accessible || !ind.value) continue;
+    const val = ind.value as Record<string, unknown>;
+
+    if (ind.key.startsWith("rate_")) {
+      const k = ind.key.replace("rate_", "");
+      rates[k] = { value: Number(val.value), period: String(val.period || ""), name: String(val.name || ""), status: ind.status };
+    } else if (ind.key.startsWith("currency_")) {
+      const k = ind.key.replace("currency_", "");
+      currencies[k] = { value: Number(val.value), variation: Number(val.variation || 0), status: ind.status };
+    } else if (ind.key.startsWith("crypto_")) {
+      const k = ind.key.replace("crypto_", "");
+      crypto[k] = { value: Number(val.value), variation: Number(val.variation || 0), status: ind.status };
+    }
+  }
+
+  return { rates, currencies, crypto };
+}
+
 const FALLBACK_DATA: MarketData = {
   indicators: [],
+  rates: {},
+  currencies: {},
+  crypto: {},
   updatedAt: new Date().toISOString(),
   source: "Dados de referência (offline)",
 };
@@ -79,8 +125,10 @@ export function useMarketData() {
       if (error) throw error;
 
       if (result && result.indicators) {
+        const compat = deriveCompat(result.indicators);
         const merged: MarketData = {
           indicators: result.indicators,
+          ...compat,
           updatedAt: result.updatedAt || new Date().toISOString(),
           source: result.source || "market_cache",
         };
