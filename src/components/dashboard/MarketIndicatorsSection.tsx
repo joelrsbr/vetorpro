@@ -338,7 +338,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Unit detection from indicator metadata
   const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
   const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
-  const isMixedUnits = !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
+  const isMixedUnits = viewMode === "absolute" && !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
 
   // Assign colors based on position in validIndicators
   const colorMap = useMemo(() => {
