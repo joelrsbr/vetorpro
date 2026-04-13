@@ -146,6 +146,15 @@ function formatValue(key: string, val: number): string {
   return `${val.toFixed(2)}%`;
 }
 
+function formatAxisTick(v: number | string, unit: string, key: string): string {
+  const n = Number(v);
+  if (unit === "currency") {
+    if (key === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
+    return `R$${n.toFixed(1)}`;
+  }
+  return `${n.toFixed(1)}%`;
+}
+
 /* ─── Exported props for focus modal ─── */
 export interface MarketIndicatorsSectionProps {
   expanded?: boolean;
