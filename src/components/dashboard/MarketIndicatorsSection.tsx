@@ -31,6 +31,7 @@ interface HistoryPoint {
 }
 
 type Period = "6m" | "12m";
+type ViewMode = "absolute" | "percent";
 
 /* ─── Plan hierarchy ─── */
 
