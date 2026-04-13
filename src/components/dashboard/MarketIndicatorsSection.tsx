@@ -289,9 +289,6 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   /* ─── Juro Real Histórico (Business) ─── */
   const juroRealHistoricoLocked = !hasAccess(userPlan, "business");
 
-  // Debug log for comparison validation
-  console.log("[MarketIndicators]", { selectedKey, compareKey, chartDataLength: chartData.length, series: Object.keys(chartConfig) });
-
   const hasAnyData = chartData.length > 0;
   const chartHeight = expanded ? 340 : 225;
 
