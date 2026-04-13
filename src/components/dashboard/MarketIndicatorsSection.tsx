@@ -573,6 +573,9 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                           formatter={(value, name) => {
                             const key = String(name);
                             const ind = validIndicators.find(i => i.key === key);
+                            if (viewMode === "percent") {
+                              return [`${Number(value).toFixed(2)}%`, ind?.display_name ?? key];
+                            }
                             return [formatValue(key, Number(value)), ind?.display_name ?? key];
                           }}
                         />
