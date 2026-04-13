@@ -31,6 +31,7 @@ interface HistoryPoint {
 }
 
 type Period = "6m" | "12m";
+type ViewMode = "absolute" | "percent";
 
 /* ─── Plan hierarchy ─── */
 
@@ -168,6 +169,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [period, setPeriod] = useState<Period>("6m");
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [compareKey, setCompareKey] = useState<string>("");
+  const [viewMode, setViewMode] = useState<ViewMode>("absolute");
   const { plan, isActive } = useSubscription();
   const { data: marketData } = useMarketData();
   const navigate = useNavigate();
@@ -241,7 +243,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   }, [fetchHistory]);
 
   /* ─── Build chart data ─── */
-  const chartData = useMemo(() => {
+  const chartDataAbsolute = useMemo(() => {
     const keysToPlot = [selectedKey];
     if (compareKey) keysToPlot.push(compareKey);
 
@@ -269,6 +271,38 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       return row;
     });
   }, [history, selectedKey, compareKey]);
+
+  /* ─── Normalized (percent variation) chart data ─── */
+  const chartDataPercent = useMemo(() => {
+    if (chartDataAbsolute.length === 0) return [];
+    const keysToPlot = [selectedKey];
+    if (compareKey) keysToPlot.push(compareKey);
+
+    // Find initial values (first non-null for each key)
+    const initials: Record<string, number> = {};
+    for (const row of chartDataAbsolute) {
+      for (const k of keysToPlot) {
+        if (initials[k] === undefined && row[k] != null && Number(row[k]) !== 0) {
+          initials[k] = Number(row[k]);
+        }
+      }
+    }
+
+    return chartDataAbsolute.map(row => {
+      const newRow: Record<string, string | number | null> = { date: row.date };
+      for (const k of keysToPlot) {
+        const v = row[k];
+        if (v != null && initials[k] !== undefined) {
+          newRow[k] = parseFloat((((Number(v) - initials[k]) / initials[k]) * 100).toFixed(2));
+        } else {
+          newRow[k] = null;
+        }
+      }
+      return newRow;
+    });
+  }, [chartDataAbsolute, selectedKey, compareKey]);
+
+  const chartData = viewMode === "percent" ? chartDataPercent : chartDataAbsolute;
 
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
@@ -304,7 +338,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Unit detection from indicator metadata
   const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
   const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
-  const isMixedUnits = !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
+  const isMixedUnits = viewMode === "absolute" && !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
 
   // Assign colors based on position in validIndicators
   const colorMap = useMemo(() => {
@@ -458,10 +492,44 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   </Select>
                 </>
               )}
+
+              {/* View mode toggle */}
+              {compareKey && (
+                <>
+                  <div className="h-5 w-px bg-border mx-1" />
+                  <div className="flex items-center bg-muted/50 rounded-md p-0.5">
+                    <button
+                      onClick={() => setViewMode("absolute")}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        viewMode === "absolute"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Absoluto
+                    </button>
+                    <button
+                      onClick={() => setViewMode("percent")}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        viewMode === "percent"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Variação %
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* ─── Chart ─── */}
             <div className="relative">
+              {viewMode === "percent" && compareKey && (
+                <div className="text-xs text-muted-foreground mb-1 italic">
+                  Variação no período (%)
+                </div>
+              )}
               {hasAnyData ? (
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 50 : 10, bottom: 5, left: 10 }}>
@@ -472,13 +540,17 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       className="fill-muted-foreground"
                       interval="preserveStartEnd"
                     />
-                    {/* Left Y-axis — primary indicator */}
+                    {/* Left Y-axis */}
                     <YAxis
                       yAxisId="left"
                       tick={{ fontSize: 11 }}
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
-                      tickFormatter={(v) => formatAxisTick(v, selectedUnit, selectedKey)}
+                      tickFormatter={(v) =>
+                        viewMode === "percent"
+                          ? `${Number(v).toFixed(1)}%`
+                          : formatAxisTick(v, selectedUnit, selectedKey)
+                      }
                     />
                     {/* Right Y-axis — comparison (only when mixed units) */}
                     {isMixedUnits && (
@@ -501,6 +573,9 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                           formatter={(value, name) => {
                             const key = String(name);
                             const ind = validIndicators.find(i => i.key === key);
+                            if (viewMode === "percent") {
+                              return [`${Number(value).toFixed(2)}%`, ind?.display_name ?? key];
+                            }
                             return [formatValue(key, Number(value)), ind?.display_name ?? key];
                           }}
                         />
