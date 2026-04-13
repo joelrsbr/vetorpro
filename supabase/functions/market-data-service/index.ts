@@ -7,19 +7,19 @@ const corsHeaders = {
 };
 
 // TTL constants in seconds
-const TTL_BACEN = 24 * 60 * 60;       // 24h
-const TTL_FOREX = 15 * 60;            // 15min
-const TTL_CRYPTO = 5 * 60;            // 5min
+const TTL_BACEN = 24 * 60 * 60;
+const TTL_FOREX = 15 * 60;
+const TTL_CRYPTO = 5 * 60;
 
 // BCB SGS series
-const BCB_SERIES: Record<string, { id: number; name: string; period: string; ttl: number }> = {
-  selic:    { id: 432,   name: "Selic",    period: "a.a.", ttl: TTL_BACEN },
-  ipca:     { id: 13522, name: "IPCA",     period: "a.a.", ttl: TTL_BACEN },
-  igpm:     { id: 189,   name: "IGP-M",    period: "a.a.", ttl: TTL_BACEN },
-  incc:     { id: 192,   name: "INCC",     period: "a.a.", ttl: TTL_BACEN },
-  tr:       { id: 226,   name: "TR",       period: "a.m.", ttl: TTL_BACEN },
-  cdi:      { id: 4389,  name: "CDI",      period: "a.a.", ttl: TTL_BACEN },
-  poupanca: { id: 196,   name: "Poupança", period: "a.m.", ttl: TTL_BACEN },
+const BCB_SERIES: Record<string, { id: number; name: string; period: string; ttl: number; unit: string }> = {
+  selic:    { id: 432,   name: "Selic",    period: "a.a.", ttl: TTL_BACEN, unit: "percent" },
+  ipca:     { id: 13522, name: "IPCA",     period: "a.a.", ttl: TTL_BACEN, unit: "percent" },
+  igpm:     { id: 189,   name: "IGP-M",    period: "a.a.", ttl: TTL_BACEN, unit: "percent" },
+  incc:     { id: 192,   name: "INCC",     period: "a.a.", ttl: TTL_BACEN, unit: "percent" },
+  tr:       { id: 226,   name: "TR",       period: "a.m.", ttl: TTL_BACEN, unit: "percent" },
+  cdi:      { id: 4389,  name: "CDI",      period: "a.a.", ttl: TTL_BACEN, unit: "percent" },
+  poupanca: { id: 196,   name: "Poupança", period: "a.m.", ttl: TTL_BACEN, unit: "percent" },
 };
 
 function getSupabaseAdmin() {
@@ -34,6 +34,50 @@ function getSupabaseAnon() {
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
   );
+}
+
+function log(level: string, msg: string, extra?: Record<string, unknown>) {
+  const entry = { ts: new Date().toISOString(), level, msg, ...extra };
+  if (level === "error") console.error(JSON.stringify(entry));
+  else console.log(JSON.stringify(entry));
+}
+
+// ─── Cache helpers ───
+
+async function upsertCache(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  key: string,
+  value: unknown,
+  source: string,
+  ttlSeconds: number,
+  status: string,
+  unit: string,
+) {
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + ttlSeconds * 1000);
+  const { error } = await admin.from("market_cache").upsert(
+    {
+      key,
+      value,
+      source,
+      updated_at: now.toISOString(),
+      expires_at: expiresAt.toISOString(),
+      status,
+      unit,
+    },
+    { onConflict: "key" },
+  );
+  if (error) log("error", `Cache upsert failed for ${key}`, { error: error.message });
+}
+
+async function getCached(admin: ReturnType<typeof getSupabaseAdmin>, key: string) {
+  const { data } = await admin.from("market_cache").select("*").eq("key", key).single();
+  return data ?? null;
+}
+
+function isCacheValid(row: { expires_at: string } | null): boolean {
+  if (!row) return false;
+  return new Date(row.expires_at) > new Date();
 }
 
 // ─── Fetchers ───
@@ -56,11 +100,8 @@ async function fetchBCBRate(seriesId: number): Promise<number | null> {
   }
 }
 
-
 async function fetchCurrencies(): Promise<Record<string, { value: number; variation: number }>> {
   const result: Record<string, { value: number; variation: number }> = {};
-  
-  // Try BCB PTAX (series 1 = USD closing rate)
   try {
     const end = new Date();
     const start = new Date();
@@ -68,53 +109,48 @@ async function fetchCurrencies(): Promise<Record<string, { value: number; variat
     const fmt = (d: Date) =>
       `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 
-    // USD via BCB series 1 (PTAX venda)
     const usdUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?formato=json&dataInicial=${fmt(start)}&dataFinal=${fmt(end)}`;
-    const usdRes = await fetch(usdUrl, { headers: { Accept: "application/json" } });
+    const eurUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.21619/dados?formato=json&dataInicial=${fmt(start)}&dataFinal=${fmt(end)}`;
+
+    const [usdRes, eurRes] = await Promise.all([
+      fetch(usdUrl, { headers: { Accept: "application/json" } }),
+      fetch(eurUrl, { headers: { Accept: "application/json" } }),
+    ]);
+
     if (usdRes.ok) {
       const usdData = await usdRes.json();
       if (Array.isArray(usdData) && usdData.length >= 2) {
         const last = parseFloat(usdData[usdData.length - 1].valor);
         const prev = parseFloat(usdData[usdData.length - 2].valor);
-        const variation = prev > 0 ? ((last - prev) / prev) * 100 : 0;
-        result.usd = { value: last, variation: parseFloat(variation.toFixed(2)) };
+        result.usd = { value: last, variation: parseFloat(((last - prev) / prev * 100).toFixed(2)) };
       } else if (Array.isArray(usdData) && usdData.length === 1) {
         result.usd = { value: parseFloat(usdData[0].valor), variation: 0 };
       }
     }
 
-    // EUR via BCB series 21619 (EUR venda)
-    const eurUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.21619/dados?formato=json&dataInicial=${fmt(start)}&dataFinal=${fmt(end)}`;
-    const eurRes = await fetch(eurUrl, { headers: { Accept: "application/json" } });
     if (eurRes.ok) {
       const eurData = await eurRes.json();
       if (Array.isArray(eurData) && eurData.length >= 2) {
         const last = parseFloat(eurData[eurData.length - 1].valor);
         const prev = parseFloat(eurData[eurData.length - 2].valor);
-        const variation = prev > 0 ? ((last - prev) / prev) * 100 : 0;
-        result.eur = { value: last, variation: parseFloat(variation.toFixed(2)) };
+        result.eur = { value: last, variation: parseFloat(((last - prev) / prev * 100).toFixed(2)) };
       } else if (Array.isArray(eurData) && eurData.length === 1) {
         result.eur = { value: parseFloat(eurData[0].valor), variation: 0 };
       }
     }
   } catch (e) {
-    console.error("[FOREX] BCB Exception:", e);
+    log("error", "Forex fetch failed", { error: String(e) });
   }
-  
   return result;
 }
 
 async function fetchBTC(): Promise<{ value: number; variation: number } | null> {
   try {
-    // CoinGecko free API (no key needed)
     const res = await fetch(
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl&include_24hr_change=true",
-      { headers: { Accept: "application/json" } }
+      { headers: { Accept: "application/json" } },
     );
-    if (!res.ok) {
-      console.error("[CRYPTO] CoinGecko status:", res.status);
-      return null;
-    }
+    if (!res.ok) return null;
     const data = await res.json();
     if (data.bitcoin) {
       return {
@@ -123,56 +159,91 @@ async function fetchBTC(): Promise<{ value: number; variation: number } | null> 
       };
     }
     return null;
-  } catch (e) {
-    console.error("[CRYPTO] Exception:", e);
+  } catch {
     return null;
   }
 }
 
-// ─── Cache helpers ───
-
-async function upsertCache(admin: ReturnType<typeof getSupabaseAdmin>, key: string, value: unknown, source: string, ttlSeconds: number) {
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + ttlSeconds * 1000);
-  await admin.from("market_cache").upsert({
-    key,
-    value,
-    source,
-    updated_at: now.toISOString(),
-    expires_at: expiresAt.toISOString(),
-  }, { onConflict: "key" });
-}
-
-async function getCachedValue(admin: ReturnType<typeof getSupabaseAdmin>, key: string): Promise<unknown | null> {
-  const { data } = await admin.from("market_cache").select("value").eq("key", key).single();
-  return data?.value ?? null;
-}
-
-// ─── Refresh actions ───
+// ─── Refresh with TTL check + fallback ───
 
 async function refreshBacen(admin: ReturnType<typeof getSupabaseAdmin>) {
   const entries = Object.entries(BCB_SERIES);
-  const results = await Promise.all(entries.map(([, s]) => fetchBCBRate(s.id)));
-  for (let i = 0; i < entries.length; i++) {
-    const [key, series] = entries[i];
-    const val = results[i];
+
+  for (const [key, series] of entries) {
+    const cacheKey = `rate_${key}`;
+    const cached = await getCached(admin, cacheKey);
+
+    // Skip if cache is still valid
+    if (isCacheValid(cached)) {
+      log("info", `Cache valid for ${cacheKey}, skipping fetch`);
+      continue;
+    }
+
+    const val = await fetchBCBRate(series.id);
     if (val !== null) {
-      await upsertCache(admin, `rate_${key}`, { value: val, period: series.period, name: series.name }, "BCB SGS", series.ttl);
+      await upsertCache(admin, cacheKey, { value: val, period: series.period, name: series.name }, "BCB SGS", series.ttl, "ok", series.unit);
+      log("info", `Updated ${cacheKey}`, { value: val });
+    } else if (cached) {
+      // API failed but we have stale data — mark as fallback, extend TTL slightly
+      await upsertCache(admin, cacheKey, cached.value, cached.source, 3600, "fallback", series.unit);
+      log("warn", `API failed for ${cacheKey}, using fallback`, { staleFrom: cached.updated_at });
+    } else {
+      log("error", `API failed for ${cacheKey} and no cache exists`);
     }
   }
 }
 
 async function refreshForex(admin: ReturnType<typeof getSupabaseAdmin>) {
+  const currencyKeys = ["usd", "eur"];
+
+  // Check if all caches are valid
+  const cachedEntries: Record<string, ReturnType<typeof getCached> extends Promise<infer T> ? T : never> = {};
+  let allValid = true;
+  for (const k of currencyKeys) {
+    const cached = await getCached(admin, `currency_${k}`);
+    cachedEntries[k] = cached;
+    if (!isCacheValid(cached)) allValid = false;
+  }
+
+  if (allValid) {
+    log("info", "Forex cache valid, skipping fetch");
+    return;
+  }
+
   const currencies = await fetchCurrencies();
-  for (const [key, data] of Object.entries(currencies)) {
-    await upsertCache(admin, `currency_${key}`, data, "BCB PTAX", TTL_FOREX);
+
+  for (const k of currencyKeys) {
+    const cacheKey = `currency_${k}`;
+    if (currencies[k]) {
+      await upsertCache(admin, cacheKey, currencies[k], "BCB PTAX", TTL_FOREX, "ok", "currency");
+      log("info", `Updated ${cacheKey}`, { value: currencies[k].value });
+    } else if (cachedEntries[k]) {
+      await upsertCache(admin, cacheKey, cachedEntries[k]!.value, cachedEntries[k]!.source, 300, "fallback", "currency");
+      log("warn", `Forex API failed for ${k}, using fallback`);
+    } else {
+      log("error", `Forex API failed for ${k} and no cache exists`);
+    }
   }
 }
 
 async function refreshCrypto(admin: ReturnType<typeof getSupabaseAdmin>) {
+  const cacheKey = "crypto_btc";
+  const cached = await getCached(admin, cacheKey);
+
+  if (isCacheValid(cached)) {
+    log("info", "Crypto cache valid, skipping fetch");
+    return;
+  }
+
   const btc = await fetchBTC();
   if (btc) {
-    await upsertCache(admin, "crypto_btc", btc, "CoinGecko", TTL_CRYPTO);
+    await upsertCache(admin, cacheKey, btc, "CoinGecko", TTL_CRYPTO, "ok", "crypto");
+    log("info", `Updated ${cacheKey}`, { value: btc.value });
+  } else if (cached) {
+    await upsertCache(admin, cacheKey, cached.value, cached.source, 120, "fallback", "crypto");
+    log("warn", "Crypto API failed, using fallback");
+  } else {
+    log("error", "Crypto API failed and no cache exists");
   }
 }
 
@@ -187,7 +258,7 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get("action");
 
-    // Cron/internal refresh actions (no auth needed — called by pg_cron via service_role)
+    // Cron/internal refresh actions
     if (action === "refresh_bacen" || action === "refresh_forex" || action === "refresh_crypto") {
       const admin = getSupabaseAdmin();
       if (action === "refresh_bacen") await refreshBacen(admin);
@@ -217,7 +288,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get user plan
     const { data: subData } = await anonClient.rpc("get_user_subscription", { p_user_id: userData.user.id });
     const plan = subData?.[0]?.plan || "basic";
     const isActive = subData?.[0]?.is_active || false;
@@ -233,26 +303,28 @@ Deno.serve(async (req) => {
     const admin = getSupabaseAdmin();
     const { data: cacheRows } = await admin.from("market_cache").select("*");
 
-    const rates: Record<string, { value: number; period: string; name?: string }> = {};
-    const currencies: Record<string, { value: number; variation: number }> = {};
-    let crypto: Record<string, { value: number; variation: number }> = {};
+    const rates: Record<string, { value: number; period: string; name?: string; status?: string }> = {};
+    const currencies: Record<string, { value: number; variation: number; status?: string }> = {};
+    let crypto: Record<string, { value: number; variation: number; status?: string }> = {};
 
     for (const row of cacheRows || []) {
+      const val = row.value as Record<string, unknown>;
+      const rowStatus = row.status as string;
+
       if (row.key.startsWith("rate_")) {
         const k = row.key.replace("rate_", "");
-        rates[k] = row.value as { value: number; period: string; name?: string };
+        rates[k] = { ...(val as { value: number; period: string; name?: string }), status: rowStatus };
       } else if (row.key.startsWith("currency_")) {
         const k = row.key.replace("currency_", "");
-        currencies[k] = row.value as { value: number; variation: number };
+        currencies[k] = { ...(val as { value: number; variation: number }), status: rowStatus };
       } else if (row.key.startsWith("crypto_")) {
         const k = row.key.replace("crypto_", "");
-        crypto[k] = row.value as { value: number; variation: number };
+        crypto[k] = { ...(val as { value: number; variation: number }), status: rowStatus };
       }
     }
 
-    // Plan-based filtering
     const response: Record<string, unknown> = {
-      rates, // All plans get national rates
+      rates,
       updatedAt: new Date().toISOString(),
       source: "market_cache",
     };
@@ -266,7 +338,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("[MARKET-DATA-SERVICE] Error:", error);
+    log("error", "Unhandled error in market-data-service", { error: String(error) });
     return new Response(JSON.stringify({ error: "Erro interno." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
