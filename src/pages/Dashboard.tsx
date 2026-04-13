@@ -538,14 +538,14 @@ export default function Dashboard() {
           </Card>
 
           {/* Indicadores de Mercado */}
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => document.getElementById('market-indicators')?.scrollIntoView({ behavior: 'smooth' })}>
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowIndicatorsModal(true)}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
               <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
                 <BarChart3 className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="font-semibold text-sm">Indicadores</p>
-                <p className="text-xs text-muted-foreground">Mercado</p>
+                <p className="text-xs text-muted-foreground">Modo Foco</p>
               </div>
             </CardContent>
           </Card>
