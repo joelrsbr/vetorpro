@@ -56,42 +56,75 @@ async function fetchBCBRate(seriesId: number): Promise<number | null> {
   }
 }
 
+
 async function fetchCurrencies(): Promise<Record<string, { value: number; variation: number }>> {
+  const result: Record<string, { value: number; variation: number }> = {};
+  
+  // Try BCB PTAX (series 1 = USD closing rate)
   try {
-    const url = "https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL";
-    console.log("[FOREX] Fetching:", url);
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    console.log("[FOREX] Status:", res.status);
-    if (!res.ok) {
-      const body = await res.text();
-      console.error("[FOREX] Error body:", body);
-      return {};
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
+    const fmt = (d: Date) =>
+      `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+
+    // USD via BCB series 1 (PTAX venda)
+    const usdUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?formato=json&dataInicial=${fmt(start)}&dataFinal=${fmt(end)}`;
+    const usdRes = await fetch(usdUrl, { headers: { Accept: "application/json" } });
+    if (usdRes.ok) {
+      const usdData = await usdRes.json();
+      if (Array.isArray(usdData) && usdData.length >= 2) {
+        const last = parseFloat(usdData[usdData.length - 1].valor);
+        const prev = parseFloat(usdData[usdData.length - 2].valor);
+        const variation = prev > 0 ? ((last - prev) / prev) * 100 : 0;
+        result.usd = { value: last, variation: parseFloat(variation.toFixed(2)) };
+      } else if (Array.isArray(usdData) && usdData.length === 1) {
+        result.usd = { value: parseFloat(usdData[0].valor), variation: 0 };
+      }
     }
-    const data = await res.json();
-    console.log("[FOREX] Keys:", Object.keys(data));
-    const result: Record<string, { value: number; variation: number }> = {};
-    if (data.USDBRL) result.usd = { value: parseFloat(data.USDBRL.bid), variation: parseFloat(data.USDBRL.pctChange) };
-    if (data.EURBRL) result.eur = { value: parseFloat(data.EURBRL.bid), variation: parseFloat(data.EURBRL.pctChange) };
-    return result;
+
+    // EUR via BCB series 21619 (EUR venda)
+    const eurUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.21619/dados?formato=json&dataInicial=${fmt(start)}&dataFinal=${fmt(end)}`;
+    const eurRes = await fetch(eurUrl, { headers: { Accept: "application/json" } });
+    if (eurRes.ok) {
+      const eurData = await eurRes.json();
+      if (Array.isArray(eurData) && eurData.length >= 2) {
+        const last = parseFloat(eurData[eurData.length - 1].valor);
+        const prev = parseFloat(eurData[eurData.length - 2].valor);
+        const variation = prev > 0 ? ((last - prev) / prev) * 100 : 0;
+        result.eur = { value: last, variation: parseFloat(variation.toFixed(2)) };
+      } else if (Array.isArray(eurData) && eurData.length === 1) {
+        result.eur = { value: parseFloat(eurData[0].valor), variation: 0 };
+      }
+    }
   } catch (e) {
-    console.error("[FOREX] Exception:", e);
-    return {};
+    console.error("[FOREX] BCB Exception:", e);
   }
+  
+  return result;
 }
 
 async function fetchBTC(): Promise<{ value: number; variation: number } | null> {
   try {
+    // CoinGecko free API (no key needed)
     const res = await fetch(
-      "https://economia.awesomeapi.com.br/json/last/BTC-BRL",
-      { headers: { "User-Agent": "VetorPro/1.0", Accept: "application/json" } }
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl&include_24hr_change=true",
+      { headers: { Accept: "application/json" } }
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error("[CRYPTO] CoinGecko status:", res.status);
+      return null;
+    }
     const data = await res.json();
-    if (data.BTCBRL) {
-      return { value: parseFloat(data.BTCBRL.bid), variation: parseFloat(data.BTCBRL.pctChange) };
+    if (data.bitcoin) {
+      return {
+        value: data.bitcoin.brl,
+        variation: parseFloat((data.bitcoin.brl_24h_change || 0).toFixed(2)),
+      };
     }
     return null;
-  } catch {
+  } catch (e) {
+    console.error("[CRYPTO] Exception:", e);
     return null;
   }
 }
