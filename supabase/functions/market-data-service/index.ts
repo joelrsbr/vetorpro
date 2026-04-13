@@ -165,14 +165,14 @@ async function refreshBacen(admin: ReturnType<typeof getSupabaseAdmin>) {
 async function refreshForex(admin: ReturnType<typeof getSupabaseAdmin>) {
   const currencies = await fetchCurrencies();
   for (const [key, data] of Object.entries(currencies)) {
-    await upsertCache(admin, `currency_${key}`, data, "AwesomeAPI", TTL_FOREX);
+    await upsertCache(admin, `currency_${key}`, data, "BCB PTAX", TTL_FOREX);
   }
 }
 
 async function refreshCrypto(admin: ReturnType<typeof getSupabaseAdmin>) {
   const btc = await fetchBTC();
   if (btc) {
-    await upsertCache(admin, "crypto_btc", btc, "AwesomeAPI", TTL_CRYPTO);
+    await upsertCache(admin, "crypto_btc", btc, "CoinGecko", TTL_CRYPTO);
   }
 }
 
