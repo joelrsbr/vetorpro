@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
   TrendingUp,
   TrendingDown,
@@ -48,42 +48,15 @@ interface IndicatorDef {
   color: string;
   unit: string;
   minPlan: SubscriptionPlan;
+  description: string;
 }
 
 const INDICATORS: IndicatorDef[] = [
-  { key: "rate_selic", label: "Selic", color: "hsl(210, 80%, 55%)", unit: "% a.a.", minPlan: "basic" },
-  { key: "rate_ipca", label: "IPCA", color: "hsl(25, 90%, 55%)", unit: "% a.a.", minPlan: "basic" },
-  { key: "currency_usd", label: "USD/BRL", color: "hsl(150, 60%, 45%)", unit: "R$", minPlan: "pro" },
-  { key: "crypto_btc", label: "BTC", color: "hsl(45, 90%, 50%)", unit: "USD", minPlan: "business" },
+  { key: "rate_selic", label: "Selic", color: "hsl(210, 80%, 55%)", unit: "% a.a.", minPlan: "basic", description: "Taxa básica de juros" },
+  { key: "rate_ipca", label: "IPCA", color: "hsl(25, 90%, 55%)", unit: "% a.a.", minPlan: "basic", description: "Índice de inflação" },
+  { key: "currency_usd", label: "USD/BRL", color: "hsl(150, 60%, 45%)", unit: "R$", minPlan: "pro", description: "Câmbio dólar" },
+  { key: "crypto_btc", label: "BTC", color: "hsl(45, 90%, 50%)", unit: "USD", minPlan: "business", description: "Bitcoin" },
 ];
-
-const chartConfig = {
-  rate_selic: { label: "Selic", color: "hsl(210, 80%, 55%)" },
-  rate_ipca: { label: "IPCA", color: "hsl(25, 90%, 55%)" },
-  currency_usd: { label: "USD/BRL", color: "hsl(150, 60%, 45%)" },
-  crypto_btc: { label: "BTC", color: "hsl(45, 90%, 50%)" },
-};
-
-/* ─── Locked overlay ─── */
-
-function LockedOverlay({ label }: { label: string }) {
-  const navigate = useNavigate();
-  return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70 backdrop-blur-[2px] rounded-lg">
-      <Lock className="h-8 w-8 text-muted-foreground/60 mb-2" />
-      <p className="text-sm text-muted-foreground font-medium">Disponível no plano superior</p>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-2 text-xs gap-1.5"
-        onClick={() => navigate("/precos")}
-      >
-        <Crown className="h-3.5 w-3.5" />
-        Fazer upgrade
-      </Button>
-    </div>
-  );
-}
 
 /* ─── Insight engine ─── */
 
@@ -97,7 +70,6 @@ interface Insight {
 function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): Insight[] {
   const insights: Insight[] = [];
 
-  // Helper: last N values for a key, ordered chronologically
   const lastN = (key: string, n: number) => {
     const pts = history.filter(h => h.key === key).sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
     return pts.slice(-n);
@@ -173,24 +145,19 @@ function formatValue(key: string, val: number): string {
   return `${val.toFixed(2)}%`;
 }
 
-function formatAxisValue(key: string, val: number): string {
-  if (key.startsWith("currency_")) return `R$${val.toFixed(1)}`;
-  if (key.startsWith("crypto_")) return `$${(val / 1000).toFixed(0)}k`;
-  return `${val.toFixed(1)}%`;
+/* ─── Exported props for focus modal ─── */
+export interface MarketIndicatorsSectionProps {
+  expanded?: boolean;
 }
 
 /* ─── Main Component ─── */
 
-export function MarketIndicatorsSection() {
+export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSectionProps) {
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("6m");
-  const [enabledIndicators, setEnabledIndicators] = useState<Record<string, boolean>>({
-    rate_selic: true,
-    rate_ipca: true,
-    currency_usd: true,
-    crypto_btc: true,
-  });
+  const [selectedKey, setSelectedKey] = useState("rate_selic");
+  const [compareIpca, setCompareIpca] = useState(false);
   const { plan, isActive } = useSubscription();
   const navigate = useNavigate();
 
@@ -207,6 +174,19 @@ export function MarketIndicatorsSection() {
     [userPlan],
   );
 
+  // Ensure selectedKey is accessible
+  useEffect(() => {
+    if (!accessibleIndicators.find(i => i.key === selectedKey)) {
+      setSelectedKey(accessibleIndicators[0]?.key || "rate_selic");
+    }
+  }, [accessibleIndicators, selectedKey]);
+
+  const selectedIndicator = INDICATORS.find(i => i.key === selectedKey) || INDICATORS[0];
+
+  // Can compare with IPCA only when primary is NOT ipca
+  const canCompare = selectedKey !== "rate_ipca";
+  const showComparison = canCompare && compareIpca;
+
   const fetchHistory = useCallback(async () => {
     setLoading(true);
     const months = effectivePeriod === "6m" ? 6 : 12;
@@ -214,7 +194,6 @@ export function MarketIndicatorsSection() {
     since.setMonth(since.getMonth() - months);
 
     const accessibleKeys = accessibleIndicators.map(i => i.key);
-    // Always include selic + ipca for juro real
     if (!accessibleKeys.includes("rate_selic")) accessibleKeys.push("rate_selic");
     if (!accessibleKeys.includes("rate_ipca")) accessibleKeys.push("rate_ipca");
 
@@ -235,47 +214,45 @@ export function MarketIndicatorsSection() {
     fetchHistory();
   }, [fetchHistory]);
 
-  /* ─── Build unified multi-line chart data ─── */
+  /* ─── Build chart data for selected indicator ─── */
   const chartData = useMemo(() => {
-    // Group by month
-    const monthMap: Record<string, Record<string, number>> = {};
+    const keysToPlot = [selectedKey];
+    if (showComparison) keysToPlot.push("rate_ipca");
 
+    const monthMap: Record<string, Record<string, number>> = {};
     for (const h of history) {
-      const monthKey = h.recorded_at.substring(0, 7); // YYYY-MM
+      if (!keysToPlot.includes(h.key)) continue;
+      const monthKey = h.recorded_at.substring(0, 7);
       if (!monthMap[monthKey]) monthMap[monthKey] = {};
-      // Keep latest value per month per key
       monthMap[monthKey][h.key] = h.value;
     }
 
     const sortedMonths = Object.keys(monthMap).sort();
-
-    // Forward fill: carry previous value for missing keys
-    const allKeys = accessibleIndicators.map(i => i.key);
     const lastKnown: Record<string, number> = {};
 
     return sortedMonths.map(m => {
       const row: Record<string, string | number | null> = {
         date: new Date(m + "-15").toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
       };
-      for (const k of allKeys) {
-        if (monthMap[m][k] !== undefined) {
+      for (const k of keysToPlot) {
+        if (monthMap[m]?.[k] !== undefined) {
           lastKnown[k] = monthMap[m][k];
         }
         row[k] = lastKnown[k] ?? null;
       }
       return row;
     });
-  }, [history, accessibleIndicators]);
+  }, [history, selectedKey, showComparison]);
 
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
     const map: Record<string, number> = {};
-    for (const ind of accessibleIndicators) {
+    for (const ind of INDICATORS) {
       const points = history.filter(h => h.key === ind.key);
       if (points.length > 0) map[ind.key] = points[points.length - 1].value;
     }
     return map;
-  }, [history, accessibleIndicators]);
+  }, [history]);
 
   /* ─── Juro Real ─── */
   const juroReal = useMemo(() => {
@@ -295,32 +272,38 @@ export function MarketIndicatorsSection() {
   /* ─── Juro Real Histórico (Business) ─── */
   const juroRealHistoricoLocked = !hasAccess(userPlan, "business");
 
-  /* ─── Toggle handler ─── */
-  const toggleIndicator = (key: string) => {
-    setEnabledIndicators(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // Active lines to render
-  const activeLines = accessibleIndicators.filter(i => enabledIndicators[i.key]);
-
-  // Check which indicators have any data
   const hasAnyData = chartData.length > 0;
+  const chartHeight = expanded ? 340 : 225;
 
-  // Determine if we need dual Y-axis (mixing percent + currency scales)
-  const hasPercentLine = activeLines.some(l => l.key.startsWith("rate_"));
-  const hasCurrencyLine = activeLines.some(l => l.key.startsWith("currency_") || l.key.startsWith("crypto_"));
-  const useDualAxis = hasPercentLine && hasCurrencyLine;
+  // Determine axis type for selected indicator
+  const isPercent = selectedKey.startsWith("rate_");
+  const isCurrency = selectedKey.startsWith("currency_") || selectedKey.startsWith("crypto_");
+
+  const chartConfig: Record<string, { label: string; color: string }> = {
+    [selectedKey]: { label: selectedIndicator.label, color: selectedIndicator.color },
+  };
+  if (showComparison) {
+    const ipca = INDICATORS.find(i => i.key === "rate_ipca")!;
+    chartConfig["rate_ipca"] = { label: ipca.label, color: ipca.color };
+  }
 
   return (
-    <Card className="shadow-card mb-8">
-      <CardHeader className="pb-4">
+    <Card className="shadow-card">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <CardTitle className="text-xl flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-emerald-600" />
               Indicadores de Mercado
             </CardTitle>
-            <CardDescription>Evolução dos principais índices financeiros</CardDescription>
+            <CardDescription className="text-sm">
+              {selectedIndicator.description}
+              {latestValues[selectedKey] !== undefined && (
+                <span className="ml-2 font-semibold text-foreground">
+                  {formatValue(selectedKey, latestValues[selectedKey])}
+                </span>
+              )}
+            </CardDescription>
           </div>
           <div className="flex gap-1">
             <Button
@@ -365,55 +348,67 @@ export function MarketIndicatorsSection() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* ─── Indicator Toggles ─── */}
-            <div className="flex gap-3 flex-wrap items-center">
-              {/* Accessible indicators with toggle */}
-              {accessibleIndicators.map(ind => {
-                const val = latestValues[ind.key];
-                return (
-                  <button
-                    key={ind.key}
-                    onClick={() => toggleIndicator(ind.key)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
-                      enabledIndicators[ind.key]
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border opacity-60 hover:opacity-80"
-                    }`}
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: enabledIndicators[ind.key] ? ind.color : "hsl(var(--muted-foreground))" }}
-                    />
-                    <span className="font-medium">{ind.label}</span>
-                    {val !== undefined && (
-                      <span className="text-muted-foreground text-xs">{formatValue(ind.key, val)}</span>
-                    )}
-                  </button>
-                );
-              })}
+          <div className="space-y-4">
+            {/* ─── Indicator Selector (Tabs) ─── */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Accessible indicators as tab buttons */}
+              {accessibleIndicators.map(ind => (
+                <button
+                  key={ind.key}
+                  onClick={() => {
+                    setSelectedKey(ind.key);
+                    if (ind.key === "rate_ipca") setCompareIpca(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    selectedKey === ind.key
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: ind.color }}
+                  />
+                  {ind.label}
+                </button>
+              ))}
 
               {/* Locked indicators */}
               {lockedIndicators.map(ind => (
                 <Tooltip key={ind.key}>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm opacity-40 cursor-not-allowed">
-                      <Lock className="w-3 h-3 text-muted-foreground shrink-0" />
-                      <span className="font-medium">{ind.label}</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
+                      <Lock className="w-3 h-3 text-muted-foreground" />
+                      <span>{ind.label}</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Disponível no plano {ind.minPlan === "pro" ? "Pro" : "Business"} ou superior
+                    Disponível no plano {ind.minPlan === "pro" ? "Pro" : "Business"}
                   </TooltipContent>
                 </Tooltip>
               ))}
+
+              {/* Separator + Compare checkbox */}
+              {canCompare && (
+                <>
+                  <div className="h-5 w-px bg-border mx-1" />
+                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors">
+                    <Checkbox
+                      checked={compareIpca}
+                      onCheckedChange={(checked) => setCompareIpca(checked === true)}
+                      className="h-3.5 w-3.5"
+                    />
+                    Comparar com IPCA
+                  </label>
+                </>
+              )}
             </div>
 
             {/* ─── Chart ─── */}
             <div className="relative">
-              {hasAnyData && activeLines.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-[225px] w-full">
-                  <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
+              {hasAnyData ? (
+                <ChartContainer config={chartConfig} className={`w-full`} style={{ height: chartHeight }}>
+                  <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
                     <XAxis
                       dataKey="date"
@@ -422,28 +417,18 @@ export function MarketIndicatorsSection() {
                       interval="preserveStartEnd"
                     />
                     <YAxis
-                      yAxisId="left"
                       tick={{ fontSize: 11 }}
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
-                      tickFormatter={(v) => `${Number(v).toFixed(1)}%`}
-                      hide={!hasPercentLine}
-                    />
-                    {useDualAxis && (
-                      <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        tick={{ fontSize: 11 }}
-                        className="fill-muted-foreground"
-                        domain={["auto", "auto"]}
-                        tickFormatter={(v) => {
-                          const n = Number(v);
-                          if (n >= 1000) return `$${(n / 1000).toFixed(0)}k`;
+                      tickFormatter={(v) => {
+                        const n = Number(v);
+                        if (isCurrency && !showComparison) {
+                          if (selectedKey === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
                           return `R$${n.toFixed(1)}`;
-                        }}
-                        hide={!hasCurrencyLine}
-                      />
-                    )}
+                        }
+                        return `${n.toFixed(1)}%`;
+                      }}
+                    />
                     <ChartTooltip
                       content={
                         <ChartTooltipContent
@@ -459,29 +444,38 @@ export function MarketIndicatorsSection() {
                         />
                       }
                     />
-                    {activeLines.map(ind => (
+                    {/* Primary line */}
+                    <Line
+                      type="monotone"
+                      dataKey={selectedKey}
+                      stroke={selectedIndicator.color}
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 4, strokeWidth: 0 }}
+                      connectNulls
+                      name={selectedKey}
+                    />
+                    {/* Comparison line */}
+                    {showComparison && (
                       <Line
-                        key={ind.key}
-                        yAxisId={ind.key.startsWith("rate_") ? "left" : useDualAxis ? "right" : "left"}
                         type="monotone"
-                        dataKey={ind.key}
-                        stroke={ind.color}
-                        strokeWidth={2}
+                        dataKey="rate_ipca"
+                        stroke="hsl(25, 90%, 55%)"
+                        strokeWidth={1.5}
+                        strokeDasharray="5 3"
                         dot={false}
-                        activeDot={{ r: 4, strokeWidth: 0 }}
+                        activeDot={{ r: 3, strokeWidth: 0 }}
                         connectNulls
-                        name={ind.key}
+                        name="rate_ipca"
                       />
-                    ))}
+                    )}
                   </LineChart>
                 </ChartContainer>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <Info className="h-10 w-10 mx-auto mb-3 opacity-40" />
                   <p className="text-sm">
-                    {activeLines.length === 0
-                      ? "Selecione ao menos um indicador para exibir o gráfico."
-                      : "Dados históricos em construção — exibindo últimos dados disponíveis"}
+                    Dados históricos em construção — exibindo últimos dados disponíveis
                   </p>
                 </div>
               )}
@@ -546,7 +540,7 @@ export function MarketIndicatorsSection() {
 
             {/* ─── Juro Real Histórico — Business only ─── */}
             <div className="relative">
-              {juroRealHistoricoLocked && <LockedOverlay label="Juro Real Histórico" />}
+              {juroRealHistoricoLocked && <LockedOverlay />}
               <Card className={`border-dashed ${juroRealHistoricoLocked ? "opacity-40" : ""}`}>
                 <CardContent className="py-4">
                   <div className="flex items-center gap-2 mb-3">
@@ -568,6 +562,27 @@ export function MarketIndicatorsSection() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+/* ─── Locked Overlay ─── */
+
+function LockedOverlay() {
+  const navigate = useNavigate();
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70 backdrop-blur-[2px] rounded-lg">
+      <Lock className="h-8 w-8 text-muted-foreground/60 mb-2" />
+      <p className="text-sm text-muted-foreground font-medium">Disponível no plano superior</p>
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-2 text-xs gap-1.5"
+        onClick={() => navigate("/precos")}
+      >
+        <Crown className="h-3.5 w-3.5" />
+        Fazer upgrade
+      </Button>
+    </div>
   );
 }
 
