@@ -19,6 +19,8 @@ export type Database = {
           expires_at: string
           key: string
           source: string
+          status: string
+          unit: string
           updated_at: string
           value: Json
         }
@@ -26,6 +28,8 @@ export type Database = {
           expires_at?: string
           key: string
           source?: string
+          status?: string
+          unit?: string
           updated_at?: string
           value: Json
         }
@@ -33,6 +37,8 @@ export type Database = {
           expires_at?: string
           key?: string
           source?: string
+          status?: string
+          unit?: string
           updated_at?: string
           value?: Json
         }
