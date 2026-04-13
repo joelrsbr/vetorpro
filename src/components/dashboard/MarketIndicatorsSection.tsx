@@ -471,6 +471,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       domain={["auto", "auto"]}
                       tickFormatter={(v) => {
                         const n = Number(v);
+                        if (isMixedTypes) return String(n.toFixed(1));
                         if (isCurrency && !compareKey) {
                           if (selectedKey === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
                           return `R$${n.toFixed(1)}`;
