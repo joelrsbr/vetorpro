@@ -292,12 +292,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const hasAnyData = chartData.length > 0;
   const chartHeight = expanded ? 340 : 225;
 
-  const isPercent = selectedKey.startsWith("rate_");
-  const isCurrency = selectedKey.startsWith("currency_") || selectedKey.startsWith("crypto_");
-  const isMixedTypes = compareKey && (
-    (selectedKey.startsWith("rate_") && !compareKey.startsWith("rate_")) ||
-    (!selectedKey.startsWith("rate_") && compareKey.startsWith("rate_"))
-  );
+  // Unit detection from indicator metadata
+  const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
+  const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
+  const isMixedUnits = !!(compareKey && compareIndicator && selectedUnit !== compareUnit);
 
   // Assign colors based on position in validIndicators
   const colorMap = useMemo(() => {
