@@ -429,7 +429,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               {compareOptions.length > 0 && (
                 <>
                   <div className="h-5 w-px bg-border mx-1" />
-                  <Select value={compareKey} onValueChange={setCompareKey}>
+                  <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
                     <SelectTrigger className="h-8 w-[180px] text-xs">
                       <SelectValue placeholder="Comparar com..." />
                     </SelectTrigger>
