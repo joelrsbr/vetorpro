@@ -102,6 +102,7 @@ export default function Dashboard() {
   const [showVoiceToneDialog, setShowVoiceToneDialog] = useState(false);
   const [showHP12C, setShowHP12C] = useState(false);
   const [showHP12CGlossary, setShowHP12CGlossary] = useState(false);
+  const [showIndicatorsModal, setShowIndicatorsModal] = useState(false);
   const [viewProposal, setViewProposal] = useState<Proposal | null>(null);
 
   // Real-time counts from RPC (Single Source of Truth)
@@ -537,14 +538,14 @@ export default function Dashboard() {
           </Card>
 
           {/* Indicadores de Mercado */}
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => document.getElementById('market-indicators')?.scrollIntoView({ behavior: 'smooth' })}>
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowIndicatorsModal(true)}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
               <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
                 <BarChart3 className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="font-semibold text-sm">Indicadores</p>
-                <p className="text-xs text-muted-foreground">Mercado</p>
+                <p className="text-xs text-muted-foreground">Modo Foco</p>
               </div>
             </CardContent>
           </Card>
@@ -580,6 +581,19 @@ export default function Dashboard() {
                 </a>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Indicators Focus Modal */}
+        <Dialog open={showIndicatorsModal} onOpenChange={setShowIndicatorsModal}>
+          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-lg">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Indicadores de Mercado — Modo Foco
+              </DialogTitle>
+            </DialogHeader>
+            <MarketIndicatorsSection expanded />
           </DialogContent>
         </Dialog>
 
