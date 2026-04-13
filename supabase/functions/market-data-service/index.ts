@@ -317,40 +317,48 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Read all cache entries
+    // Read all cache entries with metadata
     const admin = getSupabaseAdmin();
     const { data: cacheRows } = await admin.from("market_cache").select("*");
 
-    const rates: Record<string, { value: number; period: string; name?: string; status?: string }> = {};
-    const currencies: Record<string, { value: number; variation: number; status?: string }> = {};
-    let crypto: Record<string, { value: number; variation: number; status?: string }> = {};
+    const PLAN_LEVEL: Record<string, number> = { basic: 0, pro: 1, business: 2 };
+    const userLevel = PLAN_LEVEL[plan] ?? 0;
+
+    // Build indicators array filtered by plan
+    const indicators: Array<Record<string, unknown>> = [];
 
     for (const row of cacheRows || []) {
-      const val = row.value as Record<string, unknown>;
-      const rowStatus = row.status as string;
+      const rowPlanLevel = (row as Record<string, unknown>).plan_level as string || "basic";
+      const rowLevel = PLAN_LEVEL[rowPlanLevel] ?? 0;
+      const displayName = (row as Record<string, unknown>).display_name as string;
+      const description = (row as Record<string, unknown>).description as string;
+      const category = (row as Record<string, unknown>).category as string;
 
-      if (row.key.startsWith("rate_")) {
-        const k = row.key.replace("rate_", "");
-        rates[k] = { ...(val as { value: number; period: string; name?: string }), status: rowStatus };
-      } else if (row.key.startsWith("currency_")) {
-        const k = row.key.replace("currency_", "");
-        currencies[k] = { ...(val as { value: number; variation: number }), status: rowStatus };
-      } else if (row.key.startsWith("crypto_")) {
-        const k = row.key.replace("crypto_", "");
-        crypto[k] = { ...(val as { value: number; variation: number }), status: rowStatus };
-      }
+      // Skip indicators without description
+      if (!description) continue;
+
+      const accessible = userLevel >= rowLevel;
+      const val = row.value as Record<string, unknown>;
+
+      indicators.push({
+        key: row.key,
+        display_name: displayName,
+        description,
+        category,
+        plan_level: rowPlanLevel,
+        unit: row.unit,
+        status: row.status,
+        updated_at: row.updated_at,
+        accessible,
+        value: accessible ? val : null,
+      });
     }
 
-    const response: Record<string, unknown> = {
-      rates,
+    const response = {
+      indicators,
       updatedAt: new Date().toISOString(),
       source: "market_cache",
     };
-
-    if (plan === "pro" || plan === "business") {
-      response.currencies = currencies;
-      response.crypto = crypto;
-    }
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
