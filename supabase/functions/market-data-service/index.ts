@@ -58,17 +58,23 @@ async function fetchBCBRate(seriesId: number): Promise<number | null> {
 
 async function fetchCurrencies(): Promise<Record<string, { value: number; variation: number }>> {
   try {
-    const res = await fetch(
-      "https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL",
-      { headers: { "User-Agent": "VetorPro/1.0", Accept: "application/json" } }
-    );
-    if (!res.ok) return {};
+    const url = "https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL";
+    console.log("[FOREX] Fetching:", url);
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    console.log("[FOREX] Status:", res.status);
+    if (!res.ok) {
+      const body = await res.text();
+      console.error("[FOREX] Error body:", body);
+      return {};
+    }
     const data = await res.json();
+    console.log("[FOREX] Keys:", Object.keys(data));
     const result: Record<string, { value: number; variation: number }> = {};
     if (data.USDBRL) result.usd = { value: parseFloat(data.USDBRL.bid), variation: parseFloat(data.USDBRL.pctChange) };
     if (data.EURBRL) result.eur = { value: parseFloat(data.EURBRL.bid), variation: parseFloat(data.EURBRL.pctChange) };
     return result;
-  } catch {
+  } catch (e) {
+    console.error("[FOREX] Exception:", e);
     return {};
   }
 }
