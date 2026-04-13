@@ -412,7 +412,7 @@ export function MarketIndicatorsSection() {
             {/* ─── Chart ─── */}
             <div className="relative">
               {hasAnyData && activeLines.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                <ChartContainer config={chartConfig} className="h-[225px] w-full">
                   <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
                     <XAxis

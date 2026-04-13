@@ -14,7 +14,7 @@ import {
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
   CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity,
-  Landmark, BrainCog, X
+  Landmark, BrainCog, X, BarChart3
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -536,14 +536,15 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Ver Planos */}
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/precos")}>
+          {/* Indicadores de Mercado */}
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => document.getElementById('market-indicators')?.scrollIntoView({ behavior: 'smooth' })}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600">
-                <Crown className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+                <BarChart3 className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-sm">Ver Planos</p>
+                <p className="font-semibold text-sm">Indicadores</p>
+                <p className="text-xs text-muted-foreground">Mercado</p>
               </div>
             </CardContent>
           </Card>
@@ -582,288 +583,225 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
-        {/* Market Indicators */}
-        <MarketIndicatorsSection />
+        {/* Two-column layout: Indicators (60%) + History (40%) */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Indicators — 60% */}
+          <div className="lg:col-span-3" id="market-indicators">
+            <MarketIndicatorsSection />
+          </div>
 
-        {/* History Tabs */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="text-2xl">Histórico</CardTitle>
-            <CardDescription>Suas simulações e propostas recentes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="simulations">
-              <TabsList className="mb-4">
-                <TabsTrigger value="simulations">
-                  <Calculator className="h-4 w-4 mr-2" />
-                  Simulações
-                </TabsTrigger>
-                <TabsTrigger value="proposals">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Propostas
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="proposals">
-                {loadingData ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : proposals.length === 0 ? (
-                  <div className="text-center py-8">
-                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">Nenhuma proposta gerada ainda</p>
-                    <Button variant="hero" className="mt-4" asChild>
-                      <Link to="/calculadora">Gerar Primeira Proposta</Link>
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {proposals.map((proposal) => {
-                      const statusInfo = getStatusInfo(proposal.status);
-                      return (
-                        <div key={proposal.id} className="flex items-center gap-4 px-4 py-3 rounded-lg bg-muted/30 border border-border/50">
-                          {/* Status */}
-                          <div className="shrink-0 w-[140px]">
-                            <Select
-                              value={proposal.status}
-                              onValueChange={(val) => handleUpdateStatus(proposal.id, val)}
-                            >
-                              <SelectTrigger className="w-full h-7 px-2 gap-1.5 text-xs border-none bg-transparent shadow-none focus:ring-0">
-                                <span className="flex items-center gap-1.5">
-                                  {statusInfo.isVetor ? (
-                                    <ChevronUp className="h-3.5 w-3.5 text-cyan-400" strokeWidth={3} />
-                                  ) : (
-                                    <span className="text-xs">{statusInfo.emoji}</span>
-                                  )}
-                                  <span>{statusInfo.label}</span>
-                                </span>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {STATUS_OPTIONS.map(opt => (
-                                  <SelectItem key={opt.value} value={opt.value} className="pl-2">
-                                    <span className="flex items-center gap-2">
-                                      {opt.isVetor ? (
-                                        <ChevronUp className="h-3.5 w-3.5 text-cyan-400" strokeWidth={3} />
-                                      ) : (
-                                        <span className="text-xs">{opt.emoji}</span>
-                                      )}
-                                      {opt.label}
-                                    </span>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Client & Property */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                              <span className="font-semibold text-sm truncate">{proposal.client_name}</span>
-                              <span className="text-muted-foreground hidden sm:inline">•</span>
-                              <span className="text-sm text-muted-foreground truncate hidden sm:inline">{proposal.property_description}</span>
-                            </div>
-                          </div>
-
-                          {/* Date/Time */}
-                          <div className="shrink-0 w-[150px] text-center">
-                            <span className="text-sm text-muted-foreground font-mono">{formatDate(proposal.created_at)}</span>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center shrink-0">
-                            <div className="flex items-center gap-0.5">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setViewProposal(null); handleAdjustProposal(proposal); }}>
-                                  <Pencil className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Retomar e editar este cálculo</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setViewProposal(proposal)}>
-                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Ver proposta gerada</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(proposal.proposal_text)}>
-                                  <Copy className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Copiar</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className={`h-8 w-8 ${(plan === "basic" || !isActive) ? "opacity-30 cursor-not-allowed text-muted-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                                  onClick={() => handleDownloadPdf(proposal)}
-                                >
-                                  <Download className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{(plan === "basic" || !isActive) ? "Upgrade para baixar PDF" : "Download PDF"}</TooltipContent>
-                            </Tooltip>
-                            </div>
-                            <div className="ml-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
-                                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Excluir</TooltipContent>
-                            </Tooltip>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="simulations">
-                {loadingData ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : simulations.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">Nenhuma simulação salva ainda.</p>
-                    <p className="text-sm text-muted-foreground mt-1">Use o botão "Salvar Simulação" na calculadora para registrar.</p>
-                    <Button variant="hero" className="mt-4" asChild>
-                      <Link to="/calculadora">Fazer Primeira Simulação</Link>
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {simulations.map((sim) => {
-                      const hasProposal = proposals.some(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
-                      const propCount = dashCounts?.proposals_count ?? proposals.length;
-                      const canGenerateAI = propCount < proposalLimit && isActive;
-                      return (
-                      <div key={sim.id} className="flex items-center gap-4 px-4 py-3 rounded-lg bg-muted/30 border border-border/50">
-                        {/* Type badge */}
-                        <div className="shrink-0 w-[80px]">
-                          <Badge variant="outline" className="text-xs">{sim.amortization_type.toUpperCase()}</Badge>
-                        </div>
-
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <span className="font-semibold text-sm">{sim.client_name || "Sem nome"}</span>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-sm text-muted-foreground">{sim.property_description || formatCurrency(sim.property_value)}</span>
-                            {hasProposal && (
-                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 gap-1">
-                                <Sparkles className="h-2.5 w-2.5" />
-                                IA
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-xs text-muted-foreground">{formatCurrency(sim.property_value)}</span>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-xs text-muted-foreground">Parcela: {formatCurrency(sim.monthly_payment)}</span>
-                            <span className="text-muted-foreground hidden sm:inline">•</span>
-                            <span className="text-xs text-muted-foreground hidden sm:inline">{sim.term_months} meses</span>
-                            <span className="text-muted-foreground hidden md:inline">•</span>
-                            <span className="text-xs text-muted-foreground hidden md:inline">{sim.interest_rate}% a.a.</span>
-                          </div>
-                        </div>
-
-                        {/* Date/Time */}
-                        <div className="shrink-0 w-[150px] text-center">
-                          <span className="text-sm text-muted-foreground font-mono">{formatDate(sim.created_at)}</span>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center shrink-0">
-                          <div className="flex items-center gap-0.5">
-                          {hasProposal ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-primary hover:text-primary/80"
-                                  onClick={() => {
-                                    const existingProposal = proposals.find(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
-                                    if (existingProposal) setViewProposal(existingProposal);
-                                  }}
-                                >
-                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Ver proposta existente</TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className={`h-8 w-8 ${canGenerateAI ? "text-primary hover:text-primary/80" : "text-muted-foreground opacity-50"}`}
-                                  onClick={() => {
-                                    if (!canGenerateAI) {
-                                      setShowPaywall(true);
-                                      return;
-                                    }
-                                    handleEditSimulation(sim);
-                                  }}
-                                >
-                                  <Brain className="h-4 w-4" strokeWidth={1.5} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{canGenerateAI ? "Gerar Proposta IA" : `Limite de ${proposalLimit} propostas IA atingido`}</TooltipContent>
-                            </Tooltip>
-                          )}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
-                                <Pencil className="h-4 w-4" strokeWidth={1.5} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Retomar e editar este cálculo</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(`Simulação: ${formatCurrency(sim.property_value)} | Parcela: ${formatCurrency(sim.monthly_payment)} | ${sim.amortization_type.toUpperCase()} | ${sim.term_months} meses | Taxa: ${sim.interest_rate}% a.a.`)}>
-                                <Copy className="h-4 w-4" strokeWidth={1.5} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Copiar</TooltipContent>
-                          </Tooltip>
-                          </div>
-                          <div className="ml-2">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteSimulation(sim.id)}>
-                                <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Excluir</TooltipContent>
-                          </Tooltip>
-                          </div>
-                        </div>
+          {/* History — 40% */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-card h-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xl">Histórico</CardTitle>
+                <CardDescription className="text-xs">Suas simulações e propostas recentes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="simulations">
+                  <TabsList className="mb-3">
+                    <TabsTrigger value="simulations" className="text-xs">
+                      <Calculator className="h-3.5 w-3.5 mr-1.5" />
+                      Simulações
+                    </TabsTrigger>
+                    <TabsTrigger value="proposals" className="text-xs">
+                      <FileText className="h-3.5 w-3.5 mr-1.5" />
+                      Propostas
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="proposals">
+                    {loadingData ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                       </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                    ) : proposals.length === 0 ? (
+                      <div className="text-center py-6">
+                        <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                        <p className="text-sm text-muted-foreground">Nenhuma proposta gerada ainda</p>
+                        <Button variant="hero" size="sm" className="mt-3" asChild>
+                          <Link to="/calculadora">Gerar Primeira Proposta</Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
+                        {proposals.map((proposal) => {
+                          const statusInfo = getStatusInfo(proposal.status);
+                          return (
+                            <div key={proposal.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+                              {/* Status */}
+                              <div className="shrink-0">
+                                <Select
+                                  value={proposal.status}
+                                  onValueChange={(val) => handleUpdateStatus(proposal.id, val)}
+                                >
+                                  <SelectTrigger className="w-[110px] h-6 px-1.5 gap-1 text-[11px] border-none bg-transparent shadow-none focus:ring-0">
+                                    <span className="flex items-center gap-1">
+                                      {statusInfo.isVetor ? (
+                                        <ChevronUp className="h-3 w-3 text-cyan-400" strokeWidth={3} />
+                                      ) : (
+                                        <span className="text-[10px]">{statusInfo.emoji}</span>
+                                      )}
+                                      <span>{statusInfo.label}</span>
+                                    </span>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {STATUS_OPTIONS.map(opt => (
+                                      <SelectItem key={opt.value} value={opt.value} className="pl-2 text-xs">
+                                        <span className="flex items-center gap-1.5">
+                                          {opt.isVetor ? (
+                                            <ChevronUp className="h-3 w-3 text-cyan-400" strokeWidth={3} />
+                                          ) : (
+                                            <span className="text-[10px]">{opt.emoji}</span>
+                                          )}
+                                          {opt.label}
+                                        </span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {/* Client */}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-xs truncate">{proposal.client_name}</p>
+                                <p className="text-[10px] text-muted-foreground truncate">{proposal.property_description}</p>
+                              </div>
+
+                              {/* Actions */}
+                              <div className="flex items-center shrink-0 gap-0">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => { setViewProposal(null); handleAdjustProposal(proposal); }}>
+                                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Editar</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setViewProposal(proposal)}>
+                                      <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Ver</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(proposal.proposal_text)}>
+                                      <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Copiar</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
+                                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Excluir</TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="simulations">
+                    {loadingData ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : simulations.length === 0 ? (
+                      <div className="text-center py-6">
+                        <Calculator className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                        <p className="text-sm text-muted-foreground">Nenhuma simulação salva ainda.</p>
+                        <Button variant="hero" size="sm" className="mt-3" asChild>
+                          <Link to="/calculadora">Fazer Primeira Simulação</Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
+                        {simulations.map((sim) => {
+                          const hasProposal = proposals.some(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
+                          const propCount = dashCounts?.proposals_count ?? proposals.length;
+                          const canGenerateAI = propCount < proposalLimit && isActive;
+                          return (
+                            <div key={sim.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
+                              {/* Type */}
+                              <Badge variant="outline" className="text-[10px] shrink-0">{sim.amortization_type.toUpperCase()}</Badge>
+
+                              {/* Details */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-semibold text-xs truncate">{sim.client_name || "Sem nome"}</span>
+                                  {hasProposal && (
+                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 gap-0.5">
+                                      <Sparkles className="h-2 w-2" />
+                                      IA
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-[10px] text-muted-foreground truncate">
+                                  {formatCurrency(sim.property_value)} • {formatCurrency(sim.monthly_payment)}/mês
+                                </p>
+                              </div>
+
+                              {/* Actions */}
+                              <div className="flex items-center shrink-0 gap-0">
+                                {hasProposal ? (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:text-primary/80" onClick={() => {
+                                        const existingProposal = proposals.find(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
+                                        if (existingProposal) setViewProposal(existingProposal);
+                                      }}>
+                                        <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Ver proposta</TooltipContent>
+                                  </Tooltip>
+                                ) : (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="ghost" size="icon" className={`h-7 w-7 ${canGenerateAI ? "text-primary" : "text-muted-foreground opacity-50"}`} onClick={() => { if (!canGenerateAI) { setShowPaywall(true); return; } handleEditSimulation(sim); }}>
+                                        <Brain className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{canGenerateAI ? "Gerar Proposta IA" : "Limite atingido"}</TooltipContent>
+                                  </Tooltip>
+                                )}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
+                                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Editar</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteSimulation(sim.id)}>
+                                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Excluir</TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
 
       {/* Proposal View Modal */}
