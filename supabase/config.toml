@@ -9,5 +9,8 @@ verify_jwt = false
 [functions.fetch-market-data]
 verify_jwt = false
 
+[functions.market-data-service]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
