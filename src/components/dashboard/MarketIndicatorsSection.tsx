@@ -550,6 +550,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   Variação no período (%)
                 </div>
               )}
+              {process.env.NODE_ENV === "development" && (
+                <div className="text-[10px] text-muted-foreground bg-muted/30 rounded px-2 py-1 mb-1 font-mono">
+                  isMixedUnits: {String(isMixedUnits)} | selectedUnit: {selectedUnit} | compareUnit: {compareUnit} | compareKey: {compareKey || "none"}
+                </div>
+              )}
               {hasAnyData ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
