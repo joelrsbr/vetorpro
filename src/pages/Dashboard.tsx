@@ -56,16 +56,6 @@ interface Simulation {
   property_description: string | null;
 }
 
-const STATUS_OPTIONS = [
-  { value: "completed", label: "Concluído", color: "text-cyan-400", emoji: "V", isVetor: true },
-  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢", isVetor: false },
-  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡", isVetor: false },
-  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴", isVetor: false },
-];
-
-function getStatusInfo(status: string) {
-  return STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[1];
-}
 
 function getPlanSimLimit(plan: string, isActive: boolean) {
   if (!isActive) return 0;
