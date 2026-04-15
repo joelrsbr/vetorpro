@@ -597,15 +597,9 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
-        {/* Two-column layout: Indicators (60%) + History (40%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Indicators — 60% */}
-          <div className="lg:col-span-3" id="market-indicators">
-            <MarketIndicatorsSection />
-          </div>
-
-          {/* History — 40% */}
-          <div className="lg:col-span-2">
+        {/* History section — full width (indicators moved to Focus Modal) */}
+        <div className="grid grid-cols-1 gap-6">
+          <div>
             <Card className="shadow-card h-full">
               <CardHeader className="pb-3">
                 <CardTitle className="text-xl">Histórico</CardTitle>
