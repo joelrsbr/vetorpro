@@ -136,7 +136,9 @@ export type Database = {
       }
       proposals: {
         Row: {
+          client_email: string | null
           client_name: string
+          client_phone: string | null
           created_at: string
           id: string
           interest_savings: number | null
@@ -145,10 +147,13 @@ export type Database = {
           simulation_id: string | null
           status: string
           term_savings_months: number | null
+          ultima_interacao: string | null
           user_id: string
         }
         Insert: {
+          client_email?: string | null
           client_name: string
+          client_phone?: string | null
           created_at?: string
           id?: string
           interest_savings?: number | null
@@ -157,10 +162,13 @@ export type Database = {
           simulation_id?: string | null
           status?: string
           term_savings_months?: number | null
+          ultima_interacao?: string | null
           user_id: string
         }
         Update: {
+          client_email?: string | null
           client_name?: string
+          client_phone?: string | null
           created_at?: string
           id?: string
           interest_savings?: number | null
@@ -169,6 +177,7 @@ export type Database = {
           simulation_id?: string | null
           status?: string
           term_savings_months?: number | null
+          ultima_interacao?: string | null
           user_id?: string
         }
         Relationships: [

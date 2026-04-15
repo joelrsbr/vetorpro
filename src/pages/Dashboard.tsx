@@ -37,16 +37,9 @@ import {
 import { HP12CCalculatorBody } from "@/components/calculator/HP12CCalculator";
 import { MarketIndicatorsSection } from "@/components/dashboard/MarketIndicatorsSection";
 
-interface Proposal {
-  id: string;
-  client_name: string;
-  property_description: string;
-  proposal_text: string;
-  interest_savings: number | null;
-  term_savings_months: number | null;
-  created_at: string;
-  status: string;
-}
+import { ProposalsCRM, CRMProposal } from "@/components/dashboard/ProposalsCRM";
+
+type Proposal = CRMProposal;
 
 interface Simulation {
   id: string;
@@ -63,16 +56,6 @@ interface Simulation {
   property_description: string | null;
 }
 
-const STATUS_OPTIONS = [
-  { value: "completed", label: "Concluído", color: "text-cyan-400", emoji: "V", isVetor: true },
-  { value: "closed", label: "Fechado/Doc", color: "bg-green-500", emoji: "🟢", isVetor: false },
-  { value: "potential", label: "Potencial", color: "bg-yellow-500", emoji: "🟡", isVetor: false },
-  { value: "archived", label: "Arquivado", color: "bg-red-500", emoji: "🔴", isVetor: false },
-];
-
-function getStatusInfo(status: string) {
-  return STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[1];
-}
 
 function getPlanSimLimit(plan: string, isActive: boolean) {
   if (!isActive) return 0;
@@ -619,103 +602,16 @@ export default function Dashboard() {
                   </TabsList>
                   
                   <TabsContent value="proposals">
-                    {loadingData ? (
-                      <div className="flex justify-center py-6">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : proposals.length === 0 ? (
-                      <div className="text-center py-6">
-                        <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                        <p className="text-sm text-muted-foreground">Nenhuma proposta gerada ainda</p>
-                        <Button variant="hero" size="sm" className="mt-3" asChild>
-                          <Link to="/calculadora">Gerar Primeira Proposta</Link>
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
-                        {proposals.map((proposal) => {
-                          const statusInfo = getStatusInfo(proposal.status);
-                          return (
-                            <div key={proposal.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
-                              {/* Status */}
-                              <div className="shrink-0">
-                                <Select
-                                  value={proposal.status}
-                                  onValueChange={(val) => handleUpdateStatus(proposal.id, val)}
-                                >
-                                  <SelectTrigger className="w-[110px] h-6 px-1.5 gap-1 text-[11px] border-none bg-transparent shadow-none focus:ring-0">
-                                    <span className="flex items-center gap-1">
-                                      {statusInfo.isVetor ? (
-                                        <ChevronUp className="h-3 w-3 text-cyan-400" strokeWidth={3} />
-                                      ) : (
-                                        <span className="text-[10px]">{statusInfo.emoji}</span>
-                                      )}
-                                      <span>{statusInfo.label}</span>
-                                    </span>
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {STATUS_OPTIONS.map(opt => (
-                                      <SelectItem key={opt.value} value={opt.value} className="pl-2 text-xs">
-                                        <span className="flex items-center gap-1.5">
-                                          {opt.isVetor ? (
-                                            <ChevronUp className="h-3 w-3 text-cyan-400" strokeWidth={3} />
-                                          ) : (
-                                            <span className="text-[10px]">{opt.emoji}</span>
-                                          )}
-                                          {opt.label}
-                                        </span>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              {/* Client */}
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-xs truncate">{proposal.client_name}</p>
-                                <p className="text-[10px] text-muted-foreground truncate">{proposal.property_description}</p>
-                              </div>
-
-                              {/* Actions */}
-                              <div className="flex items-center shrink-0 gap-0">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => { setViewProposal(null); handleAdjustProposal(proposal); }}>
-                                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Editar</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setViewProposal(proposal)}>
-                                      <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Ver</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleCopyProposal(proposal.proposal_text)}>
-                                      <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Copiar</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteProposal(proposal.id)}>
-                                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Excluir</TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <ProposalsCRM
+                      proposals={proposals}
+                      setProposals={setProposals}
+                      loadingData={loadingData}
+                      onView={(p) => setViewProposal(p)}
+                      onEdit={(p) => { setViewProposal(null); handleAdjustProposal(p); }}
+                      onDelete={handleDeleteProposal}
+                      onUpdateStatus={handleUpdateStatus}
+                      onCopy={handleCopyProposal}
+                    />
                   </TabsContent>
                   
                   <TabsContent value="simulations">
