@@ -15,12 +15,16 @@ import {
   AlertTriangle,
   ArrowDownRight,
   Info,
+  HelpCircle,
+  ExternalLink,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useMarketData, type IndicatorMeta } from "@/hooks/useMarketData";
 import { useSubscription, type SubscriptionPlan } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
+import { getCategoryColor, getCategoryForKey, CATEGORIES, OFFICIAL_SOURCES } from "@/lib/market-sources";
+import { ArgumentsMapModal } from "@/components/dashboard/ArgumentsMapModal";
 
 /* ─── Types ─── */
 
@@ -41,23 +45,10 @@ function hasAccess(userPlan: SubscriptionPlan, minPlan: string) {
   return (PLAN_LEVEL[userPlan] ?? 0) >= (PLAN_LEVEL[minPlan] ?? 0);
 }
 
-/* ─── Color palette for indicators ─── */
+/* ─── Color palette for indicators (category-based) ─── */
 
-const COLORS = [
-  "hsl(210, 80%, 55%)",
-  "hsl(25, 90%, 55%)",
-  "hsl(150, 60%, 45%)",
-  "hsl(45, 90%, 50%)",
-  "hsl(280, 60%, 55%)",
-  "hsl(340, 70%, 50%)",
-  "hsl(180, 60%, 40%)",
-  "hsl(60, 80%, 45%)",
-  "hsl(0, 70%, 55%)",
-  "hsl(120, 50%, 45%)",
-];
-
-function getColor(index: number): string {
-  return COLORS[index % COLORS.length];
+function getColor(key: string): string {
+  return getCategoryColor(key);
 }
 
 /* ─── Insight engine ─── */
@@ -175,6 +166,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [compareKey, setCompareKey] = useState<string>("");
   const [viewMode, setViewMode] = useState<ViewMode>("absolute");
+  const [argumentsMapOpen, setArgumentsMapOpen] = useState(false);
   const { plan, isActive } = useSubscription();
   const { data: marketData } = useMarketData();
   const navigate = useNavigate();
@@ -360,19 +352,20 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     })()
   );
 
-  // Assign colors based on position in validIndicators
+  // Assign colors based on category
   const colorMap = useMemo(() => {
     const map: Record<string, string> = {};
-    validIndicators.forEach((ind, i) => { map[ind.key] = getColor(i); });
+    validIndicators.forEach((ind) => { map[ind.key] = getColor(ind.key); });
     return map;
   }, [validIndicators]);
 
+  const defaultColor = "hsl(210, 80%, 55%)";
   const chartConfig: Record<string, { label: string; color: string }> = {};
   if (selectedIndicator) {
-    chartConfig[selectedKey] = { label: selectedIndicator.display_name, color: colorMap[selectedKey] || COLORS[0] };
+    chartConfig[selectedKey] = { label: selectedIndicator.display_name, color: colorMap[selectedKey] || defaultColor };
   }
   if (compareIndicator && compareKey) {
-    chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || COLORS[1] };
+    chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || defaultColor };
   }
 
   // Debug log for comparison validation
@@ -448,32 +441,59 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
             {/* ─── Dynamic Indicator Selector ─── */}
             <div className="flex items-center gap-3 flex-wrap">
               {/* Accessible indicators */}
-              {accessibleIndicators.map(ind => (
-                <Tooltip key={ind.key}>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        setSelectedKey(ind.key);
-                        if (ind.key === compareKey) setCompareKey("");
-                      }}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                        selectedKey === ind.key
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: colorMap[ind.key] }}
-                      />
-                      {ind.display_name}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[250px]">
-                    {ind.description}
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+              {accessibleIndicators.map(ind => {
+                const source = OFFICIAL_SOURCES[ind.key];
+                return (
+                  <Tooltip key={ind.key}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          setSelectedKey(ind.key);
+                          if (ind.key === compareKey) setCompareKey("");
+                        }}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          selectedKey === ind.key
+                            ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                        style={selectedKey === ind.key ? {
+                          backgroundColor: `${colorMap[ind.key]}20`,
+                          color: colorMap[ind.key],
+                        } : undefined}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: colorMap[ind.key] }}
+                        />
+                        {ind.display_name}
+                        {source && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
+                              <p className="font-semibold">{source.officialName}</p>
+                              <p className="text-muted-foreground">{source.organization}</p>
+                              <a
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-accent hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Fonte oficial <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[250px]">
+                      {ind.description}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
 
               {/* Locked indicators */}
               {lockedIndicators.map(ind => (
@@ -542,6 +562,31 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </>
               )}
             </div>
+
+            {/* ─── Color Legend ─── */}
+            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
+              {Object.values(CATEGORIES).map(cat => (
+                <span key={cat.category} className="flex items-center gap-1.5">
+                  <span className="text-sm">{cat.emoji}</span>
+                  {cat.label}
+                </span>
+              ))}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setArgumentsMapOpen(true)}
+                    className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors font-medium"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5" />
+                    Mapa de Argumentos
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
+              </Tooltip>
+            </div>
+            <p className="text-[11px] text-muted-foreground/70 italic -mt-2">
+              Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
+            </p>
 
             {/* ─── Chart ─── */}
             <div className="relative">
@@ -637,7 +682,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         type="monotone"
                         dataKey={selectedKey}
                         yAxisId="left"
-                        stroke={colorMap[selectedKey] || COLORS[0]}
+                        stroke={colorMap[selectedKey] || defaultColor}
                         strokeWidth={2.5}
                         dot={false}
                         activeDot={{ r: 4, strokeWidth: 0 }}
@@ -651,7 +696,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         type="monotone"
                         dataKey={compareKey}
                         yAxisId={isMixedUnits ? "right" : "left"}
-                        stroke={colorMap[compareKey] || COLORS[1]}
+                        stroke={colorMap[compareKey] || defaultColor}
                         strokeWidth={1.5}
                         strokeDasharray="5 3"
                         dot={false}
@@ -819,6 +864,13 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         )}
       </CardContent>
+
+      {/* Arguments Map Modal */}
+      <ArgumentsMapModal
+        open={argumentsMapOpen}
+        onOpenChange={setArgumentsMapOpen}
+        history={history}
+      />
     </Card>
   );
 }
