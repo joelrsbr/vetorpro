@@ -441,32 +441,59 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
             {/* ─── Dynamic Indicator Selector ─── */}
             <div className="flex items-center gap-3 flex-wrap">
               {/* Accessible indicators */}
-              {accessibleIndicators.map(ind => (
-                <Tooltip key={ind.key}>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        setSelectedKey(ind.key);
-                        if (ind.key === compareKey) setCompareKey("");
-                      }}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                        selectedKey === ind.key
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: colorMap[ind.key] }}
-                      />
-                      {ind.display_name}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[250px]">
-                    {ind.description}
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+              {accessibleIndicators.map(ind => {
+                const source = OFFICIAL_SOURCES[ind.key];
+                return (
+                  <Tooltip key={ind.key}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          setSelectedKey(ind.key);
+                          if (ind.key === compareKey) setCompareKey("");
+                        }}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          selectedKey === ind.key
+                            ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                        style={selectedKey === ind.key ? {
+                          backgroundColor: `${colorMap[ind.key]}20`,
+                          color: colorMap[ind.key],
+                        } : undefined}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: colorMap[ind.key] }}
+                        />
+                        {ind.display_name}
+                        {source && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
+                              <p className="font-semibold">{source.officialName}</p>
+                              <p className="text-muted-foreground">{source.organization}</p>
+                              <a
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-accent hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Fonte oficial <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[250px]">
+                      {ind.description}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
 
               {/* Locked indicators */}
               {lockedIndicators.map(ind => (
