@@ -15,12 +15,16 @@ import {
   AlertTriangle,
   ArrowDownRight,
   Info,
+  HelpCircle,
+  ExternalLink,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useMarketData, type IndicatorMeta } from "@/hooks/useMarketData";
 import { useSubscription, type SubscriptionPlan } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
+import { getCategoryColor, getCategoryForKey, CATEGORIES, OFFICIAL_SOURCES } from "@/lib/market-sources";
+import { ArgumentsMapModal } from "@/components/dashboard/ArgumentsMapModal";
 
 /* ─── Types ─── */
 
