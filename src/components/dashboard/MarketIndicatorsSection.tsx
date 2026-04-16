@@ -563,6 +563,31 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               )}
             </div>
 
+            {/* ─── Color Legend ─── */}
+            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
+              {Object.values(CATEGORIES).map(cat => (
+                <span key={cat.category} className="flex items-center gap-1.5">
+                  <span className="text-sm">{cat.emoji}</span>
+                  {cat.label}
+                </span>
+              ))}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setArgumentsMapOpen(true)}
+                    className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors font-medium"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5" />
+                    Mapa de Argumentos
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
+              </Tooltip>
+            </div>
+            <p className="text-[11px] text-muted-foreground/70 italic -mt-2">
+              Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
+            </p>
+
             {/* ─── Chart ─── */}
             <div className="relative">
               {viewMode === "percent" && compareKey && (
@@ -839,6 +864,13 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         )}
       </CardContent>
+
+      {/* Arguments Map Modal */}
+      <ArgumentsMapModal
+        open={argumentsMapOpen}
+        onOpenChange={setArgumentsMapOpen}
+        history={history}
+      />
     </Card>
   );
 }
