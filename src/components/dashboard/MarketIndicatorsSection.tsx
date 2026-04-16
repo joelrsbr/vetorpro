@@ -45,23 +45,10 @@ function hasAccess(userPlan: SubscriptionPlan, minPlan: string) {
   return (PLAN_LEVEL[userPlan] ?? 0) >= (PLAN_LEVEL[minPlan] ?? 0);
 }
 
-/* ─── Color palette for indicators ─── */
+/* ─── Color palette for indicators (category-based) ─── */
 
-const COLORS = [
-  "hsl(210, 80%, 55%)",
-  "hsl(25, 90%, 55%)",
-  "hsl(150, 60%, 45%)",
-  "hsl(45, 90%, 50%)",
-  "hsl(280, 60%, 55%)",
-  "hsl(340, 70%, 50%)",
-  "hsl(180, 60%, 40%)",
-  "hsl(60, 80%, 45%)",
-  "hsl(0, 70%, 55%)",
-  "hsl(120, 50%, 45%)",
-];
-
-function getColor(index: number): string {
-  return COLORS[index % COLORS.length];
+function getColor(key: string): string {
+  return getCategoryColor(key);
 }
 
 /* ─── Insight engine ─── */
