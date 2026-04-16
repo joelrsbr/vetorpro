@@ -351,19 +351,20 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     })()
   );
 
-  // Assign colors based on position in validIndicators
+  // Assign colors based on category
   const colorMap = useMemo(() => {
     const map: Record<string, string> = {};
-    validIndicators.forEach((ind, i) => { map[ind.key] = getColor(i); });
+    validIndicators.forEach((ind) => { map[ind.key] = getColor(ind.key); });
     return map;
   }, [validIndicators]);
 
+  const defaultColor = "hsl(210, 80%, 55%)";
   const chartConfig: Record<string, { label: string; color: string }> = {};
   if (selectedIndicator) {
-    chartConfig[selectedKey] = { label: selectedIndicator.display_name, color: colorMap[selectedKey] || COLORS[0] };
+    chartConfig[selectedKey] = { label: selectedIndicator.display_name, color: colorMap[selectedKey] || defaultColor };
   }
   if (compareIndicator && compareKey) {
-    chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || COLORS[1] };
+    chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || defaultColor };
   }
 
   // Debug log for comparison validation
