@@ -166,6 +166,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [compareKey, setCompareKey] = useState<string>("");
   const [viewMode, setViewMode] = useState<ViewMode>("absolute");
+  const [argumentsMapOpen, setArgumentsMapOpen] = useState(false);
   const { plan, isActive } = useSubscription();
   const { data: marketData } = useMarketData();
   const navigate = useNavigate();
