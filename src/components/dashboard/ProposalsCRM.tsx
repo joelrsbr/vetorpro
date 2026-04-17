@@ -291,7 +291,7 @@ export function ProposalsCRM({
                       <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Gerar Mensagem</TooltipContent>
+                  <TooltipContent>Ative seu Cliente: escolha uma abordagem e envie agora.</TooltipContent>
                 </Tooltip>
               </div>
 
@@ -339,7 +339,7 @@ export function ProposalsCRM({
       <Dialog open={!!msgModal} onOpenChange={(open) => !open && setMsgModal(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base">Mensagem para {msgModal?.client_name}</DialogTitle>
+            <DialogTitle className="text-base">Ativar Cliente — {msgModal?.client_name}</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Escolha um template, copie e envie. O follow-up será registrado automaticamente.
             </DialogDescription>
