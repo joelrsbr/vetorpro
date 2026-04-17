@@ -142,11 +142,13 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
 function formatValue(key: string, val: number): string {
   if (key.startsWith("currency_")) return `R$ ${val.toFixed(2)}`;
   if (key.startsWith("crypto_")) return `$ ${val.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  if (key.startsWith("cub_")) return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/m²`;
   return `${val.toFixed(2)}%`;
 }
 
 function formatAxisTick(v: number | string, unit: string, key: string): string {
   const n = Number(v);
+  if (key.startsWith("cub_")) return `R$${n.toFixed(0)}`;
   if (unit === "currency") {
     if (key === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
     return `R$${n.toFixed(1)}`;
