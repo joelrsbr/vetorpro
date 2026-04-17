@@ -8,6 +8,8 @@ const corsHeaders = {
 
 interface ProposalRequest {
   clientName: string;
+  clientPhone?: string;
+  clientEmail?: string;
   propertyDescription: string;
   propertyValue: number;
   downPayment: number;
@@ -334,6 +336,8 @@ Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
         proposal_text: proposalText,
         interest_savings: proposalData.interestSaved || null,
         term_savings_months: proposalData.monthsSaved || null,
+        client_phone: proposalData.clientPhone || null,
+        client_email: proposalData.clientEmail || null,
       })
       .select()
       .single();

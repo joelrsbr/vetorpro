@@ -34,6 +34,8 @@ interface ProposalGeneratorProps {
   amortizationType: string;
   clientName: string;
   propertyDescription: string;
+  clientPhone?: string;
+  clientEmail?: string;
 }
 
 export function ProposalGenerator({
@@ -45,6 +47,8 @@ export function ProposalGenerator({
   amortizationType,
   clientName,
   propertyDescription,
+  clientPhone,
+  clientEmail,
 }: ProposalGeneratorProps) {
   const { user, usageLimits, profile } = useAuth();
   const { plan, isActive } = useSubscription();
@@ -92,6 +96,8 @@ export function ProposalGenerator({
           interestSaved: calculations.interestSaved || undefined,
           businessMode: isBusiness,
           salesArguments: isBusiness && salesArguments.trim() ? salesArguments.trim() : undefined,
+          clientPhone: clientPhone?.trim() || undefined,
+          clientEmail: clientEmail?.trim() || undefined,
           idempotencyKey,
         },
       });

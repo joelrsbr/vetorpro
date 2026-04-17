@@ -87,6 +87,8 @@ export function FinancingCalculator() {
   const [simulationUnlocked, setSimulationUnlocked] = useState(false);
   const [clientName, setClientName] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
   const [buyerAge, setBuyerAge] = useState("");
   const [regionalM2Value, setRegionalM2Value] = useState("");
   const location = useLocation();
@@ -1136,6 +1138,28 @@ export function FinancingCalculator() {
                       className="text-sm"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="simClientPhone">Telefone do Cliente <span className="text-xs text-muted-foreground font-normal">(opcional)</span></Label>
+                    <Input
+                      id="simClientPhone"
+                      type="tel"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      placeholder="Ex: (51) 99999-9999"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="simClientEmail">E-mail do Cliente <span className="text-xs text-muted-foreground font-normal">(opcional)</span></Label>
+                    <Input
+                      id="simClientEmail"
+                      type="email"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      placeholder="Ex: joao@email.com"
+                      className="text-sm"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1202,7 +1226,9 @@ export function FinancingCalculator() {
               termMonths={parseInt(termMonths) || 360}
               amortizationType={amortizationType}
               clientName={clientName}
-              propertyDescription={propertyDescription} />
+              propertyDescription={propertyDescription}
+              clientPhone={clientPhone}
+              clientEmail={clientEmail} />
             )}
           
           </div>
