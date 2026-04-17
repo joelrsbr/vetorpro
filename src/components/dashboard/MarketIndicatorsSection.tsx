@@ -439,7 +439,20 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               </CardDescription>
             )}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
+            {/* UF selector for CUB Regional */}
+            {(selectedKey.startsWith("cub_") || compareKey.startsWith("cub_")) && (
+              <Select value={uf} onValueChange={(v) => setUf(v as UF)}>
+                <SelectTrigger className="h-7 w-[88px] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABLE_UFS.map(u => (
+                    <SelectItem key={u} value={u} className="text-xs">CUB-{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Button
               variant={effectivePeriod === "6m" ? "default" : "outline"}
               size="sm"
