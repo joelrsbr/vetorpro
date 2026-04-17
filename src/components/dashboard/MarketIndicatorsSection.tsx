@@ -25,6 +25,7 @@ import { useSubscription, type SubscriptionPlan } from "@/hooks/useSubscription"
 import { useNavigate } from "react-router-dom";
 import { getCategoryColor, getCategoryForKey, CATEGORIES, OFFICIAL_SOURCES } from "@/lib/market-sources";
 import { ArgumentsMapModal } from "@/components/dashboard/ArgumentsMapModal";
+import { useUserUF, AVAILABLE_UFS, type UF } from "@/hooks/useUserUF";
 
 /* ─── Types ─── */
 
@@ -32,6 +33,7 @@ interface HistoryPoint {
   key: string;
   value: number;
   recorded_at: string;
+  insight?: string | null;
 }
 
 type Period = "6m" | "12m";
