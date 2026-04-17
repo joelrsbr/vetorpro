@@ -25,6 +25,7 @@ import { useSubscription, type SubscriptionPlan } from "@/hooks/useSubscription"
 import { useNavigate } from "react-router-dom";
 import { getCategoryColor, getCategoryForKey, CATEGORIES, OFFICIAL_SOURCES } from "@/lib/market-sources";
 import { ArgumentsMapModal } from "@/components/dashboard/ArgumentsMapModal";
+import { useUserUF, AVAILABLE_UFS, type UF } from "@/hooks/useUserUF";
 
 /* ─── Types ─── */
 
@@ -32,6 +33,7 @@ interface HistoryPoint {
   key: string;
   value: number;
   recorded_at: string;
+  insight?: string | null;
 }
 
 type Period = "6m" | "12m";
@@ -140,11 +142,13 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
 function formatValue(key: string, val: number): string {
   if (key.startsWith("currency_")) return `R$ ${val.toFixed(2)}`;
   if (key.startsWith("crypto_")) return `$ ${val.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  if (key.startsWith("cub_")) return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/m²`;
   return `${val.toFixed(2)}%`;
 }
 
 function formatAxisTick(v: number | string, unit: string, key: string): string {
   const n = Number(v);
+  if (key.startsWith("cub_")) return `R$${n.toFixed(0)}`;
   if (unit === "currency") {
     if (key === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
     return `R$${n.toFixed(1)}`;
@@ -169,6 +173,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [argumentsMapOpen, setArgumentsMapOpen] = useState(false);
   const { plan, isActive } = useSubscription();
   const { data: marketData } = useMarketData();
+  const { uf, setUf } = useUserUF();
   const navigate = useNavigate();
 
   const userPlan: SubscriptionPlan = isActive ? plan : "basic";
@@ -178,10 +183,41 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Dynamic indicators from API
   const allIndicators = useMemo(() => marketData.indicators || [], [marketData.indicators]);
 
-  // Filter: only show indicators with description
+  // Virtual indicators driven by market_history (INCC from BCB + CUB regional)
+  const virtualIndicators = useMemo<IndicatorMeta[]>(() => [
+    {
+      key: "incc",
+      display_name: "INCC",
+      description: "Índice Nacional de Custo da Construção (BCB Série 192). Variação mensal — referência para correção de contratos na planta.",
+      category: "inflation",
+      plan_level: "basic",
+      unit: "percent",
+      status: "ok",
+      updated_at: new Date().toISOString(),
+      accessible: true,
+      value: null,
+    },
+    {
+      key: `cub_${uf.toLowerCase()}`,
+      display_name: `CUB-${uf}`,
+      description: `Custo Unitário Básico da Construção — ${uf} (SINDUSCON). Referência oficial em R$/m² para reajuste de contratos imobiliários.`,
+      category: "inflation",
+      plan_level: "pro",
+      unit: "currency",
+      status: "ok",
+      updated_at: new Date().toISOString(),
+      accessible: hasAccess(userPlan, "pro"),
+      value: null,
+    },
+  ], [uf, userPlan]);
+
+  // Filter: only show indicators with description (merge real + virtual)
   const validIndicators = useMemo(
-    () => allIndicators.filter(i => i.description && i.display_name),
-    [allIndicators],
+    () => [
+      ...allIndicators.filter(i => i.description && i.display_name),
+      ...virtualIndicators,
+    ],
+    [allIndicators, virtualIndicators],
   );
 
   const accessibleIndicators = useMemo(
@@ -221,19 +257,28 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     // Always include selic + ipca for insights
     if (!keysToFetch.includes("rate_selic")) keysToFetch.push("rate_selic");
     if (!keysToFetch.includes("rate_ipca")) keysToFetch.push("rate_ipca");
+    // Always include INCC + current CUB-uf
+    if (!keysToFetch.includes("incc")) keysToFetch.push("incc");
+    const cubKey = `cub_${uf.toLowerCase()}`;
+    if (!keysToFetch.includes(cubKey)) keysToFetch.push(cubKey);
 
     const { data, error } = await supabase
       .from("market_history")
-      .select("key, value, recorded_at")
+      .select("key, value, recorded_at, insight")
       .in("key", keysToFetch)
       .gte("recorded_at", since.toISOString())
       .order("recorded_at", { ascending: true });
 
     if (!error && data) {
-      setHistory(data.map(d => ({ ...d, value: Number(d.value) })));
+      setHistory(data.map(d => ({
+        key: d.key,
+        value: Number(d.value),
+        recorded_at: d.recorded_at,
+        insight: (d as { insight?: string | null }).insight ?? null,
+      })));
     }
     setLoading(false);
-  }, [effectivePeriod, accessibleIndicators]);
+  }, [effectivePeriod, accessibleIndicators, uf]);
 
   useEffect(() => {
     fetchHistory();
@@ -394,7 +439,20 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               </CardDescription>
             )}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
+            {/* UF selector for CUB Regional */}
+            {(selectedKey.startsWith("cub_") || compareKey.startsWith("cub_")) && (
+              <Select value={uf} onValueChange={(v) => setUf(v as UF)}>
+                <SelectTrigger className="h-7 w-[88px] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABLE_UFS.map(u => (
+                    <SelectItem key={u} value={u} className="text-xs">CUB-{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Button
               variant={effectivePeriod === "6m" ? "default" : "outline"}
               size="sm"
@@ -758,7 +816,49 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               )}
             </div>
 
-            {/* ─── Insights ─── */}
+            {/* ─── Insights do Especialista (INCC / CUB) ─── */}
+            {(() => {
+              const isExpertKey = selectedKey === "incc" || selectedKey.startsWith("cub_");
+              if (!isExpertKey) return null;
+              const points = history
+                .filter(h => h.key === selectedKey && h.insight && h.insight.trim().length > 0)
+                .sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+              const latest = points[points.length - 1];
+              if (!latest || !latest.insight) return null;
+              return (
+                <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10">
+                  <CardContent className="py-3.5 px-4">
+                    <div className="flex items-start gap-3">
+                      <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">
+                            Insights do Especialista
+                          </p>
+                          <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
+                            {selectedIndicator?.display_name}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {latest.insight}
+                        </p>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(latest.insight!)}
+                          className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors mt-1"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                          </svg>
+                          Copiar argumento
+                        </button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
             {insights.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">

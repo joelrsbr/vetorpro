@@ -58,21 +58,30 @@ export type Database = {
       }
       market_history: {
         Row: {
+          data_referencia: string | null
           id: string
+          insight: string | null
           key: string
           recorded_at: string
+          unidade: string
           value: number
         }
         Insert: {
+          data_referencia?: string | null
           id?: string
+          insight?: string | null
           key: string
           recorded_at?: string
+          unidade?: string
           value: number
         }
         Update: {
+          data_referencia?: string | null
           id?: string
+          insight?: string | null
           key?: string
           recorded_at?: string
+          unidade?: string
           value?: number
         }
         Relationships: []
@@ -93,6 +102,7 @@ export type Database = {
           simulations_reset_at: string
           simulations_used: number
           subscription_plan: Database["public"]["Enums"]["subscription_plan"]
+          uf: string
           updated_at: string
           user_id: string
         }
@@ -111,6 +121,7 @@ export type Database = {
           simulations_reset_at?: string
           simulations_used?: number
           subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          uf?: string
           updated_at?: string
           user_id: string
         }
@@ -129,6 +140,7 @@ export type Database = {
           simulations_reset_at?: string
           simulations_used?: number
           subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          uf?: string
           updated_at?: string
           user_id?: string
         }
