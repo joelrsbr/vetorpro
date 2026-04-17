@@ -816,7 +816,49 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               )}
             </div>
 
-            {/* ─── Insights ─── */}
+            {/* ─── Insights do Especialista (INCC / CUB) ─── */}
+            {(() => {
+              const isExpertKey = selectedKey === "incc" || selectedKey.startsWith("cub_");
+              if (!isExpertKey) return null;
+              const points = history
+                .filter(h => h.key === selectedKey && h.insight && h.insight.trim().length > 0)
+                .sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+              const latest = points[points.length - 1];
+              if (!latest || !latest.insight) return null;
+              return (
+                <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10">
+                  <CardContent className="py-3.5 px-4">
+                    <div className="flex items-start gap-3">
+                      <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">
+                            Insights do Especialista
+                          </p>
+                          <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
+                            {selectedIndicator?.display_name}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {latest.insight}
+                        </p>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(latest.insight!)}
+                          className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors mt-1"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                          </svg>
+                          Copiar argumento
+                        </button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
             {insights.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
