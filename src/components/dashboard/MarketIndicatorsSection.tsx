@@ -171,6 +171,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [argumentsMapOpen, setArgumentsMapOpen] = useState(false);
   const { plan, isActive } = useSubscription();
   const { data: marketData } = useMarketData();
+  const { uf, setUf } = useUserUF();
   const navigate = useNavigate();
 
   const userPlan: SubscriptionPlan = isActive ? plan : "basic";
@@ -180,10 +181,41 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Dynamic indicators from API
   const allIndicators = useMemo(() => marketData.indicators || [], [marketData.indicators]);
 
-  // Filter: only show indicators with description
+  // Virtual indicators driven by market_history (INCC from BCB + CUB regional)
+  const virtualIndicators = useMemo<IndicatorMeta[]>(() => [
+    {
+      key: "incc",
+      display_name: "INCC",
+      description: "Índice Nacional de Custo da Construção (BCB Série 192). Variação mensal — referência para correção de contratos na planta.",
+      category: "inflation",
+      plan_level: "basic",
+      unit: "percent",
+      status: "ok",
+      updated_at: new Date().toISOString(),
+      accessible: true,
+      value: null,
+    },
+    {
+      key: `cub_${uf.toLowerCase()}`,
+      display_name: `CUB-${uf}`,
+      description: `Custo Unitário Básico da Construção — ${uf} (SINDUSCON). Referência oficial em R$/m² para reajuste de contratos imobiliários.`,
+      category: "inflation",
+      plan_level: "pro",
+      unit: "currency",
+      status: "ok",
+      updated_at: new Date().toISOString(),
+      accessible: hasAccess(userPlan, "pro"),
+      value: null,
+    },
+  ], [uf, userPlan]);
+
+  // Filter: only show indicators with description (merge real + virtual)
   const validIndicators = useMemo(
-    () => allIndicators.filter(i => i.description && i.display_name),
-    [allIndicators],
+    () => [
+      ...allIndicators.filter(i => i.description && i.display_name),
+      ...virtualIndicators,
+    ],
+    [allIndicators, virtualIndicators],
   );
 
   const accessibleIndicators = useMemo(
@@ -223,19 +255,28 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     // Always include selic + ipca for insights
     if (!keysToFetch.includes("rate_selic")) keysToFetch.push("rate_selic");
     if (!keysToFetch.includes("rate_ipca")) keysToFetch.push("rate_ipca");
+    // Always include INCC + current CUB-uf
+    if (!keysToFetch.includes("incc")) keysToFetch.push("incc");
+    const cubKey = `cub_${uf.toLowerCase()}`;
+    if (!keysToFetch.includes(cubKey)) keysToFetch.push(cubKey);
 
     const { data, error } = await supabase
       .from("market_history")
-      .select("key, value, recorded_at")
+      .select("key, value, recorded_at, insight")
       .in("key", keysToFetch)
       .gte("recorded_at", since.toISOString())
       .order("recorded_at", { ascending: true });
 
     if (!error && data) {
-      setHistory(data.map(d => ({ ...d, value: Number(d.value) })));
+      setHistory(data.map(d => ({
+        key: d.key,
+        value: Number(d.value),
+        recorded_at: d.recorded_at,
+        insight: (d as { insight?: string | null }).insight ?? null,
+      })));
     }
     setLoading(false);
-  }, [effectivePeriod, accessibleIndicators]);
+  }, [effectivePeriod, accessibleIndicators, uf]);
 
   useEffect(() => {
     fetchHistory();
