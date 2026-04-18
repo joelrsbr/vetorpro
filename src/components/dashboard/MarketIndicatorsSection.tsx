@@ -29,12 +29,23 @@ import { useUserUF, AVAILABLE_UFS, type UF } from "@/hooks/useUserUF";
 
 /* ─── Types ─── */
 
+export type Periodicidade = "mensal" | "anual_12m" | "diario";
+
 interface HistoryPoint {
   key: string;
   value: number;
   recorded_at: string;
   data_referencia?: string | null;
   insight?: string | null;
+  periodicidade?: Periodicidade | null;
+}
+
+/** Discrete label shown under the value in the chart tooltip. */
+export function periodicidadeLabel(p?: Periodicidade | null): string {
+  if (p === "anual_12m") return "Acumulado 12 meses";
+  if (p === "mensal") return "Variação Mensal";
+  if (p === "diario") return "Cotação Diária";
+  return "";
 }
 
 /** For INCC/CUB, the chart should use data_referencia (reference month),
@@ -284,7 +295,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       queries.push(
         supabase
           .from("market_history")
-          .select("key, value, recorded_at, data_referencia, insight")
+          .select("key, value, recorded_at, data_referencia, insight, periodicidade")
           .in("key", standardKeys)
           .gte("recorded_at", sinceISO)
           .order("recorded_at", { ascending: true }) as unknown as Promise<{ data: unknown[] | null; error: unknown }>,
@@ -294,7 +305,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       queries.push(
         supabase
           .from("market_history")
-          .select("key, value, recorded_at, data_referencia, insight")
+          .select("key, value, recorded_at, data_referencia, insight, periodicidade")
           .in("key", expertKeys)
           .gte("data_referencia", sinceDate)
           .order("data_referencia", { ascending: true }) as unknown as Promise<{ data: unknown[] | null; error: unknown }>,
@@ -305,13 +316,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     const merged: HistoryPoint[] = [];
     for (const r of results) {
       if (!r.error && r.data) {
-        for (const d of r.data as Array<{ key: string; value: number; recorded_at: string; data_referencia: string | null; insight: string | null }>) {
+        for (const d of r.data as Array<{ key: string; value: number; recorded_at: string; data_referencia: string | null; insight: string | null; periodicidade: Periodicidade | null }>) {
           merged.push({
             key: d.key,
             value: Number(d.value),
             recorded_at: d.recorded_at,
             data_referencia: d.data_referencia ?? null,
             insight: d.insight ?? null,
+            periodicidade: d.periodicidade ?? null,
           });
         }
       }
