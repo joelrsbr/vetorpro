@@ -29,12 +29,23 @@ import { useUserUF, AVAILABLE_UFS, type UF } from "@/hooks/useUserUF";
 
 /* ─── Types ─── */
 
+export type Periodicidade = "mensal" | "anual_12m" | "diario";
+
 interface HistoryPoint {
   key: string;
   value: number;
   recorded_at: string;
   data_referencia?: string | null;
   insight?: string | null;
+  periodicidade?: Periodicidade | null;
+}
+
+/** Discrete label shown under the value in the chart tooltip. */
+export function periodicidadeLabel(p?: Periodicidade | null): string {
+  if (p === "anual_12m") return "Acumulado 12 meses";
+  if (p === "mensal") return "Variação Mensal";
+  if (p === "diario") return "Cotação Diária";
+  return "";
 }
 
 /** For INCC/CUB, the chart should use data_referencia (reference month),
@@ -284,7 +295,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       queries.push(
         supabase
           .from("market_history")
-          .select("key, value, recorded_at, data_referencia, insight")
+          .select("key, value, recorded_at, data_referencia, insight, periodicidade")
           .in("key", standardKeys)
           .gte("recorded_at", sinceISO)
           .order("recorded_at", { ascending: true }) as unknown as Promise<{ data: unknown[] | null; error: unknown }>,
@@ -294,7 +305,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       queries.push(
         supabase
           .from("market_history")
-          .select("key, value, recorded_at, data_referencia, insight")
+          .select("key, value, recorded_at, data_referencia, insight, periodicidade")
           .in("key", expertKeys)
           .gte("data_referencia", sinceDate)
           .order("data_referencia", { ascending: true }) as unknown as Promise<{ data: unknown[] | null; error: unknown }>,
@@ -305,13 +316,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     const merged: HistoryPoint[] = [];
     for (const r of results) {
       if (!r.error && r.data) {
-        for (const d of r.data as Array<{ key: string; value: number; recorded_at: string; data_referencia: string | null; insight: string | null }>) {
+        for (const d of r.data as Array<{ key: string; value: number; recorded_at: string; data_referencia: string | null; insight: string | null; periodicidade: Periodicidade | null }>) {
           merged.push({
             key: d.key,
             value: Number(d.value),
             recorded_at: d.recorded_at,
             data_referencia: d.data_referencia ?? null,
             insight: d.insight ?? null,
+            periodicidade: d.periodicidade ?? null,
           });
         }
       }
@@ -330,15 +342,19 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     if (compareKey) keysToPlot.push(compareKey);
 
     const monthMap: Record<string, Record<string, number>> = {};
+    const periodicidadeMap: Record<string, Record<string, Periodicidade | null>> = {};
     for (const h of history) {
       if (!keysToPlot.includes(h.key)) continue;
       const monthKey = effectiveDate(h).substring(0, 7);
       if (!monthMap[monthKey]) monthMap[monthKey] = {};
+      if (!periodicidadeMap[monthKey]) periodicidadeMap[monthKey] = {};
       monthMap[monthKey][h.key] = h.value;
+      periodicidadeMap[monthKey][h.key] = h.periodicidade ?? null;
     }
 
     const sortedMonths = Object.keys(monthMap).sort();
     const lastKnown: Record<string, number> = {};
+    const lastKnownPeriod: Record<string, Periodicidade | null> = {};
 
     return sortedMonths.map(m => {
       const row: Record<string, string | number | null> = {
@@ -347,8 +363,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       for (const k of keysToPlot) {
         if (monthMap[m]?.[k] !== undefined) {
           lastKnown[k] = monthMap[m][k];
+          lastKnownPeriod[k] = periodicidadeMap[m]?.[k] ?? null;
         }
         row[k] = lastKnown[k] ?? null;
+        row[`__period_${k}`] = lastKnownPeriod[k] ?? null;
       }
       return row;
     });
@@ -763,13 +781,21 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                             if (payload && payload[0]) return payload[0].payload.date;
                             return "";
                           }}
-                          formatter={(value, name) => {
+                          formatter={(value, name, item) => {
                             const key = String(name);
                             const ind = validIndicators.find(i => i.key === key);
-                            if (viewMode === "percent") {
-                              return [`${Number(value).toFixed(2)}%`, ind?.display_name ?? key];
-                            }
-                            return [formatValue(key, Number(value)), ind?.display_name ?? key];
+                            const period = (item?.payload?.[`__period_${key}`] ?? null) as Periodicidade | null;
+                            const periodLabel = periodicidadeLabel(period);
+                            const valueStr = viewMode === "percent"
+                              ? `${Number(value).toFixed(2)}%`
+                              : formatValue(key, Number(value));
+                            const display = periodLabel ? (
+                              <span className="flex flex-col">
+                                <span>{valueStr}</span>
+                                <span className="text-[10px] text-muted-foreground/80">· {periodLabel}</span>
+                              </span>
+                            ) : valueStr;
+                            return [display, ind?.display_name ?? key];
                           }}
                         />
                       }

@@ -62,6 +62,7 @@ export type Database = {
           id: string
           insight: string | null
           key: string
+          periodicidade: string
           recorded_at: string
           unidade: string
           value: number
@@ -71,6 +72,7 @@ export type Database = {
           id?: string
           insight?: string | null
           key: string
+          periodicidade?: string
           recorded_at?: string
           unidade?: string
           value: number
@@ -80,6 +82,7 @@ export type Database = {
           id?: string
           insight?: string | null
           key?: string
+          periodicidade?: string
           recorded_at?: string
           unidade?: string
           value?: number
