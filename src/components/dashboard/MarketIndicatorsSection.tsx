@@ -33,7 +33,17 @@ interface HistoryPoint {
   key: string;
   value: number;
   recorded_at: string;
+  data_referencia?: string | null;
   insight?: string | null;
+}
+
+/** For INCC/CUB, the chart should use data_referencia (reference month),
+ * not recorded_at (insertion timestamp). */
+function effectiveDate(h: HistoryPoint): string {
+  if ((h.key === "incc" || h.key.startsWith("cub_")) && h.data_referencia) {
+    return h.data_referencia;
+  }
+  return h.recorded_at;
 }
 
 type Period = "6m" | "12m";
@@ -262,21 +272,51 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     const cubKey = `cub_${uf.toLowerCase()}`;
     if (!keysToFetch.includes(cubKey)) keysToFetch.push(cubKey);
 
-    const { data, error } = await supabase
-      .from("market_history")
-      .select("key, value, recorded_at, insight")
-      .in("key", keysToFetch)
-      .gte("recorded_at", since.toISOString())
-      .order("recorded_at", { ascending: true });
+    const sinceISO = since.toISOString();
+    const sinceDate = sinceISO.substring(0, 10);
 
-    if (!error && data) {
-      setHistory(data.map(d => ({
-        key: d.key,
-        value: Number(d.value),
-        recorded_at: d.recorded_at,
-        insight: (d as { insight?: string | null }).insight ?? null,
-      })));
+    // Two queries: standard keys filter by recorded_at; INCC/CUB filter by data_referencia
+    const expertKeys = keysToFetch.filter(k => k === "incc" || k.startsWith("cub_"));
+    const standardKeys = keysToFetch.filter(k => k !== "incc" && !k.startsWith("cub_"));
+
+    const queries: Promise<{ data: unknown[] | null; error: unknown }>[] = [];
+    if (standardKeys.length > 0) {
+      queries.push(
+        supabase
+          .from("market_history")
+          .select("key, value, recorded_at, data_referencia, insight")
+          .in("key", standardKeys)
+          .gte("recorded_at", sinceISO)
+          .order("recorded_at", { ascending: true }) as unknown as Promise<{ data: unknown[] | null; error: unknown }>,
+      );
     }
+    if (expertKeys.length > 0) {
+      queries.push(
+        supabase
+          .from("market_history")
+          .select("key, value, recorded_at, data_referencia, insight")
+          .in("key", expertKeys)
+          .gte("data_referencia", sinceDate)
+          .order("data_referencia", { ascending: true }) as unknown as Promise<{ data: unknown[] | null; error: unknown }>,
+      );
+    }
+
+    const results = await Promise.all(queries);
+    const merged: HistoryPoint[] = [];
+    for (const r of results) {
+      if (!r.error && r.data) {
+        for (const d of r.data as Array<{ key: string; value: number; recorded_at: string; data_referencia: string | null; insight: string | null }>) {
+          merged.push({
+            key: d.key,
+            value: Number(d.value),
+            recorded_at: d.recorded_at,
+            data_referencia: d.data_referencia ?? null,
+            insight: d.insight ?? null,
+          });
+        }
+      }
+    }
+    setHistory(merged);
     setLoading(false);
   }, [effectivePeriod, accessibleIndicators, uf]);
 
@@ -292,7 +332,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     const monthMap: Record<string, Record<string, number>> = {};
     for (const h of history) {
       if (!keysToPlot.includes(h.key)) continue;
-      const monthKey = h.recorded_at.substring(0, 7);
+      const monthKey = effectiveDate(h).substring(0, 7);
       if (!monthMap[monthKey]) monthMap[monthKey] = {};
       monthMap[monthKey][h.key] = h.value;
     }
@@ -822,7 +862,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               if (!isExpertKey) return null;
               const points = history
                 .filter(h => h.key === selectedKey && h.insight && h.insight.trim().length > 0)
-                .sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+                .sort((a, b) => effectiveDate(a).localeCompare(effectiveDate(b)));
               const latest = points[points.length - 1];
               if (!latest || !latest.insight) return null;
               return (
