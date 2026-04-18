@@ -29,6 +29,7 @@ interface HistoryPoint {
   key: string;
   value: number;
   recorded_at: string;
+  periodicidade?: "mensal" | "anual_12m" | "diario" | null;
 }
 
 interface ArgumentsMapModalProps {
@@ -44,8 +45,10 @@ type Scenario = "opportunity" | "protection";
 function detectScenario(history: HistoryPoint[]): { scenario: Scenario; triggers: string[] } {
   const triggers: string[] = [];
 
-  // IPCA > 4.5%
-  const ipcaPts = history.filter(h => h.key === "rate_ipca").sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+  // IPCA > 4.5% — only compare against accumulated 12 months readings
+  const ipcaPts = history
+    .filter(h => h.key === "rate_ipca" && (h.periodicidade ?? "anual_12m") === "anual_12m")
+    .sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
   const lastIpca = ipcaPts.length > 0 ? ipcaPts[ipcaPts.length - 1].value : null;
   if (lastIpca !== null && lastIpca > SCENARIO_THRESHOLDS.ipca_ceiling) {
     triggers.push(`IPCA em ${lastIpca.toFixed(2)}% (acima de ${SCENARIO_THRESHOLDS.ipca_ceiling}%)`);
