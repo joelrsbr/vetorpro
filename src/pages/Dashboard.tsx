@@ -38,6 +38,8 @@ import { HP12CCalculatorBody } from "@/components/calculator/HP12CCalculator";
 import { MarketIndicatorsSection } from "@/components/dashboard/MarketIndicatorsSection";
 
 import { ProposalsCRM, CRMProposal } from "@/components/dashboard/ProposalsCRM";
+import { NegotiationsPanel } from "@/components/dashboard/NegotiationsPanel";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 type Proposal = CRMProposal;
 
