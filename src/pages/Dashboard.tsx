@@ -14,7 +14,7 @@ import {
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
   CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity,
-  Landmark, BrainCog, X, BarChart3
+  Landmark, BrainCog, X, BarChart3, Users
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -38,6 +38,8 @@ import { HP12CCalculatorBody } from "@/components/calculator/HP12CCalculator";
 import { MarketIndicatorsSection } from "@/components/dashboard/MarketIndicatorsSection";
 
 import { ProposalsCRM, CRMProposal } from "@/components/dashboard/ProposalsCRM";
+import { NegotiationsPanel } from "@/components/dashboard/NegotiationsPanel";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 type Proposal = CRMProposal;
 
@@ -74,6 +76,7 @@ function getPlanProposalLimit(plan: string, isActive: boolean) {
 export default function Dashboard() {
   const { user, profile, usageLimits, loading, refreshProfile } = useAuth();
   const { plan, isActive, loading: subLoading, refresh: refreshSub } = useSubscription();
+  const { value: whatsappCommunity } = useAppSetting("whatsapp_community", "+555127970301");
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -408,19 +411,21 @@ export default function Dashboard() {
 
         {/* Quick Actions — Linha de Comando */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
-          {/* Seu Plano */}
-          <Card className={`shadow-card hover:shadow-lg transition-shadow cursor-pointer ${
-            plan === "business" ? "ring-1 ring-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]" : ""
-          }`} onClick={() => navigate("/precos")}>
+          {/* Comunidade e Suporte */}
+          <Card
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              const phone = whatsappCommunity.replace(/\D/g, "");
+              window.open(`https://wa.me/${phone}`, "_blank", "noopener,noreferrer");
+            }}
+          >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: plan === "business" ? "linear-gradient(135deg, #059669, #166534)" : plan === "pro" ? "linear-gradient(135deg, #d97706, #92400e)" : "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7))" }}>
-                <Crown className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
+                <Users className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Seu Plano</p>
-                <p className={`font-bold text-sm capitalize ${plan === "business" ? "text-emerald-600" : plan === "pro" ? "text-amber-600" : ""}`}>
-                  {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Inativo"}
-                </p>
+                <p className="font-semibold text-sm">Comunidade</p>
+                <p className="text-xs text-muted-foreground">Suporte WhatsApp</p>
               </div>
             </CardContent>
           </Card>
@@ -580,128 +585,33 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
-        {/* History section — full width (indicators moved to Focus Modal) */}
+        {/* Minhas Negociações — unified view */}
         <div className="grid grid-cols-1 gap-6">
           <div>
             <Card className="shadow-card h-full">
               <CardHeader className="pb-3">
-                <CardTitle className="text-xl">Histórico</CardTitle>
-                <CardDescription className="text-xs">Suas simulações e propostas recentes</CardDescription>
+                <CardTitle className="text-xl">Minhas Negociações</CardTitle>
+                <CardDescription className="text-xs">Simulações e propostas em um só lugar</CardDescription>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="simulations">
-                  <TabsList className="mb-3">
-                    <TabsTrigger value="simulations" className="text-xs">
-                      <Calculator className="h-3.5 w-3.5 mr-1.5" />
-                      Simulações
-                    </TabsTrigger>
-                    <TabsTrigger value="proposals" className="text-xs">
-                      <FileText className="h-3.5 w-3.5 mr-1.5" />
-                      Propostas
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="proposals">
-                    <ProposalsCRM
-                      proposals={proposals}
-                      setProposals={setProposals}
-                      loadingData={loadingData}
-                      onView={(p) => setViewProposal(p)}
-                      onEdit={(p) => { setViewProposal(null); handleAdjustProposal(p); }}
-                      onDelete={handleDeleteProposal}
-                      onUpdateStatus={handleUpdateStatus}
-                      onCopy={handleCopyProposal}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="simulations">
-                    {loadingData ? (
-                      <div className="flex justify-center py-6">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : simulations.length === 0 ? (
-                      <div className="text-center py-6">
-                        <Calculator className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                        <p className="text-sm text-muted-foreground">Nenhuma simulação salva ainda.</p>
-                        <Button variant="hero" size="sm" className="mt-3" asChild>
-                          <Link to="/calculadora">Fazer Primeira Simulação</Link>
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
-                        {simulations.map((sim) => {
-                          const hasProposal = proposals.some(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
-                          const propCount = dashCounts?.proposals_count ?? proposals.length;
-                          const canGenerateAI = propCount < proposalLimit && isActive;
-                          return (
-                            <div key={sim.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
-                              {/* Type */}
-                              <Badge variant="outline" className="text-[10px] shrink-0">{sim.amortization_type.toUpperCase()}</Badge>
-
-                              {/* Details */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="font-semibold text-xs truncate">{sim.client_name || "Sem nome"}</span>
-                                  {hasProposal && (
-                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 gap-0.5">
-                                      <Sparkles className="h-2 w-2" />
-                                      IA
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-[10px] text-muted-foreground truncate">
-                                  {formatCurrency(sim.property_value)} • {formatCurrency(sim.monthly_payment)}/mês
-                                </p>
-                              </div>
-
-                              {/* Actions */}
-                              <div className="flex items-center shrink-0 gap-0">
-                                {hasProposal ? (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:text-primary/80" onClick={() => {
-                                        const existingProposal = proposals.find(p => p.client_name === sim.client_name && p.property_description === (sim.property_description || ""));
-                                        if (existingProposal) setViewProposal(existingProposal);
-                                      }}>
-                                        <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Ver proposta</TooltipContent>
-                                  </Tooltip>
-                                ) : (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="icon" className={`h-7 w-7 ${canGenerateAI ? "text-primary" : "text-muted-foreground opacity-50"}`} onClick={() => { if (!canGenerateAI) { setShowPaywall(true); return; } handleEditSimulation(sim); }}>
-                                        <Brain className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>{canGenerateAI ? "Gerar Proposta IA" : "Limite atingido"}</TooltipContent>
-                                  </Tooltip>
-                                )}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleEditSimulation(sim)}>
-                                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Editar</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteSimulation(sim.id)}>
-                                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Excluir</TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
+                <NegotiationsPanel
+                  proposals={proposals}
+                  setProposals={setProposals}
+                  simulations={simulations}
+                  loadingData={loadingData}
+                  proposalLimit={proposalLimit}
+                  isActive={isActive}
+                  dashCounts={dashCounts}
+                  formatCurrency={formatCurrency}
+                  onViewProposal={(p) => setViewProposal(p)}
+                  onEditProposal={(p) => { setViewProposal(null); handleAdjustProposal(p); }}
+                  onDeleteProposal={handleDeleteProposal}
+                  onUpdateStatus={handleUpdateStatus}
+                  onCopyProposal={handleCopyProposal}
+                  onEditSimulation={handleEditSimulation}
+                  onDeleteSimulation={handleDeleteSimulation}
+                  onPaywall={() => setShowPaywall(true)}
+                />
               </CardContent>
             </Card>
           </div>
