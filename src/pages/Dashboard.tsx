@@ -14,7 +14,7 @@ import {
   Calculator, FileText, Crown, TrendingUp, Clock, User,
   Loader2, Sparkles, Copy, Brain, Building2, Info, Eye, Download, ShieldAlert,
   CircleDot, Trash2, ChevronUp, Pencil, Settings, Lock, Mail, Activity,
-  Landmark, BrainCog, X, BarChart3
+  Landmark, BrainCog, X, BarChart3, Users
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -76,6 +76,7 @@ function getPlanProposalLimit(plan: string, isActive: boolean) {
 export default function Dashboard() {
   const { user, profile, usageLimits, loading, refreshProfile } = useAuth();
   const { plan, isActive, loading: subLoading, refresh: refreshSub } = useSubscription();
+  const { value: whatsappCommunity } = useAppSetting("whatsapp_community", "+555127970301");
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
