@@ -94,7 +94,7 @@ export const OFFICIAL_SOURCES: Record<string, IndicatorSource> = {
   rate_cdi: {
     officialName: "Certificado de Depósito Interbancário",
     organization: "B3",
-    url: "https://www.b3.com.br/",
+    url: "https://www.b3.com.br/pt_br/market-data-e-indices/indices/indices-de-segmentos-e-setoriais/di.htm",
   },
   currency_usd: {
     officialName: "Taxa de Câmbio — Dólar Americano (PTAX)",
