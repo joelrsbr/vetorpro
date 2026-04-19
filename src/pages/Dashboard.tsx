@@ -411,19 +411,21 @@ export default function Dashboard() {
 
         {/* Quick Actions — Linha de Comando */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
-          {/* Seu Plano */}
-          <Card className={`shadow-card hover:shadow-lg transition-shadow cursor-pointer ${
-            plan === "business" ? "ring-1 ring-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]" : ""
-          }`} onClick={() => navigate("/precos")}>
+          {/* Comunidade e Suporte */}
+          <Card
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              const phone = whatsappCommunity.replace(/\D/g, "");
+              window.open(`https://wa.me/${phone}`, "_blank", "noopener,noreferrer");
+            }}
+          >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: plan === "business" ? "linear-gradient(135deg, #059669, #166534)" : plan === "pro" ? "linear-gradient(135deg, #d97706, #92400e)" : "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7))" }}>
-                <Crown className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
+                <Users className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Seu Plano</p>
-                <p className={`font-bold text-sm capitalize ${plan === "business" ? "text-emerald-600" : plan === "pro" ? "text-amber-600" : ""}`}>
-                  {isActive ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Inativo"}
-                </p>
+                <p className="font-semibold text-sm">Comunidade</p>
+                <p className="text-xs text-muted-foreground">Suporte WhatsApp</p>
               </div>
             </CardContent>
           </Card>
