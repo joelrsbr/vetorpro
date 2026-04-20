@@ -386,8 +386,11 @@ export function NegotiationsPanel(props: Props) {
 
   /* Group proposals by client; sort each client's proposals newest-first */
   const clientGroups = useMemo(() => {
+    const filtered = statusFilter
+      ? proposals.filter(p => p.status === statusFilter)
+      : proposals;
     const map = new Map<string, CRMProposal[]>();
-    for (const p of proposals) {
+    for (const p of filtered) {
       const key = (p.client_name || "Sem nome").trim() || "Sem nome";
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(p);
@@ -406,7 +409,7 @@ export function NegotiationsPanel(props: Props) {
     });
     // Oldest interaction at the TOP — needs more attention first
     return groups.sort((a, b) => a.oldestInteractionTs - b.oldestInteractionTs);
-  }, [proposals]);
+  }, [proposals, statusFilter]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
