@@ -423,10 +423,7 @@ export default function Dashboard() {
               <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
                 <Users className="h-6 w-6 text-white" />
               </div>
-              <div>
-                <p className="font-semibold text-sm">Comunidade</p>
-                <p className="text-xs text-muted-foreground">Suporte WhatsApp</p>
-              </div>
+              <p className="font-semibold text-sm">Comunidade</p>
             </CardContent>
           </Card>
 
