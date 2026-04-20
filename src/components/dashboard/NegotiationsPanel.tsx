@@ -214,7 +214,12 @@ function ProposalRow({
             {p.property_description} · {extractPropertyValue(p.proposal_text)} · {formatDateShort(new Date(p.created_at))}
           </p>
         </div>
-        <CombinedFollowUpBadge status={p.status} days={days} />
+        <CombinedFollowUpBadge
+          status={p.status}
+          days={days}
+          onClick={onStatusBadgeClick}
+          isActive={activeStatusFilter === p.status}
+        />
         <div className="flex items-center shrink-0">
           {p.client_phone && (
             <Tooltip>
