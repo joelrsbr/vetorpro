@@ -378,21 +378,9 @@ export function NegotiationsPanel(props: Props) {
         </TabsTrigger>
       </TabsList>
 
-      {/* TODAS — merged chronological */}
+      {/* TODAS — agrupado por cliente */}
       <TabsContent value="all">
-        {unified.length === 0 ? (
-          <div className="text-center py-6">
-            <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground">Nenhuma negociação registrada ainda.</p>
-            <Button variant="hero" size="sm" className="mt-3" asChild>
-              <Link to="/calculadora">Iniciar primeira negociação</Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-            {unified.map(renderUnifiedItem)}
-          </div>
-        )}
+        <GroupedByClient unified={unified} renderItem={renderUnifiedItem} proposals={proposals} />
       </TabsContent>
 
       {/* SIMULAÇÕES — preserve original list */}
