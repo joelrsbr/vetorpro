@@ -451,6 +451,25 @@ export function NegotiationsPanel(props: Props) {
 
   return (
     <>
+      {statusFilter && (
+        <div className="mb-2 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-xs">
+          <span className="text-muted-foreground">Filtrando por:</span>
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            {STATUS_LABELS[statusFilter] ?? statusFilter}
+          </Badge>
+          <span className="text-muted-foreground">
+            · {clientGroups.length} cliente{clientGroups.length !== 1 ? "s" : ""}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+            onClick={() => setStatusFilter(null)}
+          >
+            Limpar
+          </Button>
+        </div>
+      )}
       <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
         {clientGroups.map((g) => {
           const hasOthers = g.others.length > 0;
@@ -467,6 +486,8 @@ export function NegotiationsPanel(props: Props) {
                 onMessage={(p) => setMsgModal(p)}
                 onContactToday={(p) => setConfirmContact(p)}
                 onCopy={onCopyProposal}
+                onStatusBadgeClick={handleStatusBadgeClick}
+                activeStatusFilter={statusFilter}
               />
               {hasOthers && (
                 <Collapsible open={isExpanded} onOpenChange={() => toggleClient(g.client)}>
@@ -492,6 +513,8 @@ export function NegotiationsPanel(props: Props) {
                           onMessage={(pp) => setMsgModal(pp)}
                           onContactToday={(pp) => setConfirmContact(pp)}
                           onCopy={onCopyProposal}
+                          onStatusBadgeClick={handleStatusBadgeClick}
+                          activeStatusFilter={statusFilter}
                         />
                       ))}
                     </div>
