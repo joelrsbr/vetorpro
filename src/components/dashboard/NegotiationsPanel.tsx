@@ -61,17 +61,55 @@ function getDaysSince(dateStr: string | null | undefined, fallback: string): num
   return Math.floor((Date.now() - new Date(ref).getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function CombinedFollowUpBadge({ status, days }: { status: string; days: number }) {
+function CombinedFollowUpBadge({
+  status,
+  days,
+  onClick,
+  isActive,
+}: {
+  status: string;
+  days: number;
+  onClick?: (status: string) => void;
+  isActive?: boolean;
+}) {
+  const clickable = !!onClick;
+  const baseInteractive = clickable
+    ? `cursor-pointer transition-all hover:scale-105 ${isActive ? "ring-2 ring-offset-1 ring-primary" : ""}`
+    : "";
+
+  const handle = (e: React.MouseEvent) => {
+    if (!onClick) return;
+    e.stopPropagation();
+    onClick(status);
+  };
+
   if (status === "closed") {
     return (
-      <Badge className="text-[10px] px-1.5 py-0 bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
+      <Badge
+        onClick={handle}
+        className={`text-[10px] px-1.5 py-0 bg-green-100 text-green-800 border-green-200 hover:bg-green-100 ${baseInteractive}`}
+      >
         🟢 Fechado
       </Badge>
     );
   }
-  if (status === "archived" || status === "lost") {
+  if (status === "lost") {
     return (
-      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 opacity-70">
+      <Badge
+        onClick={handle}
+        className={`text-[10px] px-1.5 py-0 bg-red-100 text-red-800 border-red-200 hover:bg-red-100 ${baseInteractive}`}
+      >
+        🔴 Perdido
+      </Badge>
+    );
+  }
+  if (status === "archived") {
+    return (
+      <Badge
+        onClick={handle}
+        variant="secondary"
+        className={`text-[10px] px-1.5 py-0 opacity-70 ${baseInteractive}`}
+      >
         ⚪ Arquivado
       </Badge>
     );
@@ -80,8 +118,9 @@ function CombinedFollowUpBadge({ status, days }: { status: string; days: number 
     const urgent = days > 7;
     return (
       <Badge
-        className={`text-[10px] px-1.5 py-0 bg-yellow-500 text-white border-yellow-500 hover:bg-yellow-500 ${
-          urgent ? "animate-pulse ring-2 ring-yellow-400" : ""
+        onClick={handle}
+        className={`text-[10px] px-1.5 py-0 bg-yellow-500 text-white border-yellow-500 hover:bg-yellow-500 ${baseInteractive} ${
+          urgent && !isActive ? "animate-pulse ring-2 ring-yellow-400" : ""
         }`}
       >
         🟡 Potencial · {days}d
@@ -91,14 +130,23 @@ function CombinedFollowUpBadge({ status, days }: { status: string; days: number 
   const urgent = days > 3;
   return (
     <Badge
-      className={`text-[10px] px-1.5 py-0 bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600 ${
-        urgent ? "animate-pulse ring-2 ring-cyan-400" : ""
+      onClick={handle}
+      className={`text-[10px] px-1.5 py-0 bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600 ${baseInteractive} ${
+        urgent && !isActive ? "animate-pulse ring-2 ring-cyan-400" : ""
       }`}
     >
       🔵 Negociando · {days}d
     </Badge>
   );
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  potential: "🟡 Potencial",
+  negotiating: "🔵 Negociando",
+  closed: "🟢 Fechado",
+  lost: "🔴 Perdido",
+  archived: "⚪ Arquivado",
+};
 
 function extractPropertyValue(text: string): string {
   const match = text.match(/R\$\s?[\d.,]+/);
