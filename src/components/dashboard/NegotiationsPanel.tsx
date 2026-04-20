@@ -1,11 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Calculator, FileText, Sparkles, Eye, Brain, Pencil, Trash2,
-  Loader2, Phone, Mail, MessageSquare,
+  Loader2, Phone, Mail, MessageSquare, ChevronDown, User,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProposalsCRM, CRMProposal } from "./ProposalsCRM";
