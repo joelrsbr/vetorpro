@@ -295,7 +295,12 @@ function ProposalRow({
             <Badge variant="outline" className="text-[9px] px-1 py-0 bg-primary/5 border-primary/30">
               <FileText className="h-2.5 w-2.5 mr-0.5" /> Proposta
             </Badge>
-            <CombinedFollowUpBadge status={p.status} days={days} />
+            <CombinedFollowUpBadge
+              status={p.status}
+              days={days}
+              onClick={onStatusBadgeClick}
+              isActive={activeStatusFilter === p.status}
+            />
           </div>
           <p className="font-semibold text-sm mt-1 truncate">{p.client_name}</p>
           <p className="text-[11px] text-muted-foreground truncate">
