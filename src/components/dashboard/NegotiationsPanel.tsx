@@ -354,6 +354,11 @@ export function NegotiationsPanel(props: Props) {
   const [msgModal, setMsgModal] = useState<CRMProposal | null>(null);
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
+  const handleStatusBadgeClick = (status: string) => {
+    setStatusFilter(prev => (prev === status ? null : status));
+  };
 
   const formatDateShort = (d: Date) =>
     d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
