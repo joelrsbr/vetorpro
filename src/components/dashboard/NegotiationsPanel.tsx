@@ -107,6 +107,117 @@ type UnifiedItem =
   | { kind: "proposal"; date: Date; data: CRMProposal }
   | { kind: "simulation"; date: Date; data: NegotiationsSimulation; hasProposal: boolean };
 
+/* ─── Grouped by client view ─── */
+function GroupedByClient({
+  unified,
+  renderItem,
+  proposals,
+}: {
+  unified: UnifiedItem[];
+  renderItem: (item: UnifiedItem) => JSX.Element;
+  proposals: CRMProposal[];
+}) {
+  const [openClients, setOpenClients] = useState<Set<string>>(new Set());
+
+  const groups = useMemo(() => {
+    const map = new Map<string, UnifiedItem[]>();
+    for (const item of unified) {
+      const name =
+        (item.kind === "proposal" ? item.data.client_name : item.data.client_name) ||
+        "Sem nome";
+      const key = name.trim() || "Sem nome";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(item);
+    }
+    // sort items inside each group chronologically (newest first)
+    const arr = Array.from(map.entries()).map(([client, items]) => {
+      const sorted = [...items].sort((a, b) => b.date.getTime() - a.date.getTime());
+      // Most recent interaction across this client's proposals
+      const clientProposals = proposals.filter((p) => (p.client_name || "").trim() === client);
+      const mostRecentProposal = clientProposals.sort((a, b) => {
+        const da = new Date(a.ultima_interacao || a.created_at).getTime();
+        const db = new Date(b.ultima_interacao || b.created_at).getTime();
+        return db - da;
+      })[0];
+      const proposalCount = clientProposals.length;
+      const simulationCount = items.filter((i) => i.kind === "simulation").length;
+      return {
+        client,
+        items: sorted,
+        latestDate: sorted[0].date,
+        mostRecentProposal,
+        proposalCount,
+        simulationCount,
+      };
+    });
+    return arr.sort((a, b) => b.latestDate.getTime() - a.latestDate.getTime());
+  }, [unified, proposals]);
+
+  const toggle = (client: string) => {
+    setOpenClients((prev) => {
+      const next = new Set(prev);
+      next.has(client) ? next.delete(client) : next.add(client);
+      return next;
+    });
+  };
+
+  if (groups.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+        <p className="text-sm text-muted-foreground">Nenhuma negociação registrada ainda.</p>
+        <Button variant="hero" size="sm" className="mt-3" asChild>
+          <Link to="/calculadora">Iniciar primeira negociação</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+      {groups.map((g) => {
+        const isOpen = openClients.has(g.client);
+        const days = g.mostRecentProposal
+          ? getDaysSince(g.mostRecentProposal.ultima_interacao, g.mostRecentProposal.created_at)
+          : 0;
+        return (
+          <Collapsible key={g.client} open={isOpen} onOpenChange={() => toggle(g.client)}>
+            <div className="rounded-lg bg-muted/30 border border-border/50 overflow-hidden">
+              <CollapsibleTrigger className="w-full p-3 sm:p-2 sm:px-3 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                      isOpen ? "rotate-0" : "-rotate-90"
+                    }`}
+                  />
+                  <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="font-semibold text-sm truncate">{g.client}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {g.proposalCount} proposta{g.proposalCount !== 1 ? "s" : ""} ·{" "}
+                      {g.simulationCount} simulaç{g.simulationCount !== 1 ? "ões" : "ão"}
+                    </p>
+                  </div>
+                  {g.mostRecentProposal ? (
+                    <CombinedFollowUpBadge status={g.mostRecentProposal.status} days={days} />
+                  ) : (
+                    <SimNoProposalBadge />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="p-2 pt-0 space-y-2 border-t border-border/40 bg-background/40">
+                  <div className="pt-2 space-y-2">{g.items.map(renderItem)}</div>
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        );
+      })}
+    </div>
+  );
+}
+
 export function NegotiationsPanel(props: Props) {
   const {
     proposals, setProposals, simulations, loadingData, proposalLimit, isActive,
