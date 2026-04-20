@@ -431,10 +431,20 @@ export function NegotiationsPanel(props: Props) {
     return (
       <div className="text-center py-6">
         <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">Nenhuma negociação registrada ainda.</p>
-        <Button variant="hero" size="sm" className="mt-3" asChild>
-          <Link to="/calculadora">Iniciar primeira negociação</Link>
-        </Button>
+        <p className="text-sm text-muted-foreground">
+          {statusFilter
+            ? `Nenhuma negociação com status "${STATUS_LABELS[statusFilter]}".`
+            : "Nenhuma negociação registrada ainda."}
+        </p>
+        {statusFilter ? (
+          <Button variant="outline" size="sm" className="mt-3" onClick={() => setStatusFilter(null)}>
+            Limpar filtro
+          </Button>
+        ) : (
+          <Button variant="hero" size="sm" className="mt-3" asChild>
+            <Link to="/calculadora">Iniciar primeira negociação</Link>
+          </Button>
+        )}
       </div>
     );
   }
