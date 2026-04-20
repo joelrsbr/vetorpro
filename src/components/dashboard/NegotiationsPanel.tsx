@@ -61,17 +61,55 @@ function getDaysSince(dateStr: string | null | undefined, fallback: string): num
   return Math.floor((Date.now() - new Date(ref).getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function CombinedFollowUpBadge({ status, days }: { status: string; days: number }) {
+function CombinedFollowUpBadge({
+  status,
+  days,
+  onClick,
+  isActive,
+}: {
+  status: string;
+  days: number;
+  onClick?: (status: string) => void;
+  isActive?: boolean;
+}) {
+  const clickable = !!onClick;
+  const baseInteractive = clickable
+    ? `cursor-pointer transition-all hover:scale-105 ${isActive ? "ring-2 ring-offset-1 ring-primary" : ""}`
+    : "";
+
+  const handle = (e: React.MouseEvent) => {
+    if (!onClick) return;
+    e.stopPropagation();
+    onClick(status);
+  };
+
   if (status === "closed") {
     return (
-      <Badge className="text-[10px] px-1.5 py-0 bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
+      <Badge
+        onClick={handle}
+        className={`text-[10px] px-1.5 py-0 bg-green-100 text-green-800 border-green-200 hover:bg-green-100 ${baseInteractive}`}
+      >
         🟢 Fechado
       </Badge>
     );
   }
-  if (status === "archived" || status === "lost") {
+  if (status === "lost") {
     return (
-      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 opacity-70">
+      <Badge
+        onClick={handle}
+        className={`text-[10px] px-1.5 py-0 bg-red-100 text-red-800 border-red-200 hover:bg-red-100 ${baseInteractive}`}
+      >
+        🔴 Perdido
+      </Badge>
+    );
+  }
+  if (status === "archived") {
+    return (
+      <Badge
+        onClick={handle}
+        variant="secondary"
+        className={`text-[10px] px-1.5 py-0 opacity-70 ${baseInteractive}`}
+      >
         ⚪ Arquivado
       </Badge>
     );
@@ -80,8 +118,9 @@ function CombinedFollowUpBadge({ status, days }: { status: string; days: number 
     const urgent = days > 7;
     return (
       <Badge
-        className={`text-[10px] px-1.5 py-0 bg-yellow-500 text-white border-yellow-500 hover:bg-yellow-500 ${
-          urgent ? "animate-pulse ring-2 ring-yellow-400" : ""
+        onClick={handle}
+        className={`text-[10px] px-1.5 py-0 bg-yellow-500 text-white border-yellow-500 hover:bg-yellow-500 ${baseInteractive} ${
+          urgent && !isActive ? "animate-pulse ring-2 ring-yellow-400" : ""
         }`}
       >
         🟡 Potencial · {days}d
@@ -91,14 +130,23 @@ function CombinedFollowUpBadge({ status, days }: { status: string; days: number 
   const urgent = days > 3;
   return (
     <Badge
-      className={`text-[10px] px-1.5 py-0 bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600 ${
-        urgent ? "animate-pulse ring-2 ring-cyan-400" : ""
+      onClick={handle}
+      className={`text-[10px] px-1.5 py-0 bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600 ${baseInteractive} ${
+        urgent && !isActive ? "animate-pulse ring-2 ring-cyan-400" : ""
       }`}
     >
       🔵 Negociando · {days}d
     </Badge>
   );
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  potential: "🟡 Potencial",
+  negotiating: "🔵 Negociando",
+  closed: "🟢 Fechado",
+  lost: "🔴 Perdido",
+  archived: "⚪ Arquivado",
+};
 
 function extractPropertyValue(text: string): string {
   const match = text.match(/R\$\s?[\d.,]+/);
@@ -133,6 +181,8 @@ function ProposalRow({
   onMessage,
   onContactToday,
   onCopy,
+  onStatusBadgeClick,
+  activeStatusFilter,
 }: {
   p: CRMProposal;
   formatDateShort: (d: Date) => string;
@@ -143,6 +193,8 @@ function ProposalRow({
   onMessage: (p: CRMProposal) => void;
   onContactToday: (p: CRMProposal) => void;
   onCopy: (text: string) => void;
+  onStatusBadgeClick?: (status: string) => void;
+  activeStatusFilter?: string | null;
 }) {
   const days = getDaysSince(p.ultima_interacao, p.created_at);
   return (
@@ -162,7 +214,12 @@ function ProposalRow({
             {p.property_description} · {extractPropertyValue(p.proposal_text)} · {formatDateShort(new Date(p.created_at))}
           </p>
         </div>
-        <CombinedFollowUpBadge status={p.status} days={days} />
+        <CombinedFollowUpBadge
+          status={p.status}
+          days={days}
+          onClick={onStatusBadgeClick}
+          isActive={activeStatusFilter === p.status}
+        />
         <div className="flex items-center shrink-0">
           {p.client_phone && (
             <Tooltip>
@@ -238,7 +295,12 @@ function ProposalRow({
             <Badge variant="outline" className="text-[9px] px-1 py-0 bg-primary/5 border-primary/30">
               <FileText className="h-2.5 w-2.5 mr-0.5" /> Proposta
             </Badge>
-            <CombinedFollowUpBadge status={p.status} days={days} />
+            <CombinedFollowUpBadge
+              status={p.status}
+              days={days}
+              onClick={onStatusBadgeClick}
+              isActive={activeStatusFilter === p.status}
+            />
           </div>
           <p className="font-semibold text-sm mt-1 truncate">{p.client_name}</p>
           <p className="text-[11px] text-muted-foreground truncate">
@@ -292,6 +354,11 @@ export function NegotiationsPanel(props: Props) {
   const [msgModal, setMsgModal] = useState<CRMProposal | null>(null);
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
+  const handleStatusBadgeClick = (status: string) => {
+    setStatusFilter(prev => (prev === status ? null : status));
+  };
 
   const formatDateShort = (d: Date) =>
     d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
@@ -319,8 +386,11 @@ export function NegotiationsPanel(props: Props) {
 
   /* Group proposals by client; sort each client's proposals newest-first */
   const clientGroups = useMemo(() => {
+    const filtered = statusFilter
+      ? proposals.filter(p => p.status === statusFilter)
+      : proposals;
     const map = new Map<string, CRMProposal[]>();
-    for (const p of proposals) {
+    for (const p of filtered) {
       const key = (p.client_name || "Sem nome").trim() || "Sem nome";
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(p);
@@ -339,7 +409,7 @@ export function NegotiationsPanel(props: Props) {
     });
     // Oldest interaction at the TOP — needs more attention first
     return groups.sort((a, b) => a.oldestInteractionTs - b.oldestInteractionTs);
-  }, [proposals]);
+  }, [proposals, statusFilter]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
@@ -361,16 +431,45 @@ export function NegotiationsPanel(props: Props) {
     return (
       <div className="text-center py-6">
         <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">Nenhuma negociação registrada ainda.</p>
-        <Button variant="hero" size="sm" className="mt-3" asChild>
-          <Link to="/calculadora">Iniciar primeira negociação</Link>
-        </Button>
+        <p className="text-sm text-muted-foreground">
+          {statusFilter
+            ? `Nenhuma negociação com status "${STATUS_LABELS[statusFilter]}".`
+            : "Nenhuma negociação registrada ainda."}
+        </p>
+        {statusFilter ? (
+          <Button variant="outline" size="sm" className="mt-3" onClick={() => setStatusFilter(null)}>
+            Limpar filtro
+          </Button>
+        ) : (
+          <Button variant="hero" size="sm" className="mt-3" asChild>
+            <Link to="/calculadora">Iniciar primeira negociação</Link>
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
     <>
+      {statusFilter && (
+        <div className="mb-2 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-xs">
+          <span className="text-muted-foreground">Filtrando por:</span>
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            {STATUS_LABELS[statusFilter] ?? statusFilter}
+          </Badge>
+          <span className="text-muted-foreground">
+            · {clientGroups.length} cliente{clientGroups.length !== 1 ? "s" : ""}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+            onClick={() => setStatusFilter(null)}
+          >
+            Limpar
+          </Button>
+        </div>
+      )}
       <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
         {clientGroups.map((g) => {
           const hasOthers = g.others.length > 0;
@@ -387,6 +486,8 @@ export function NegotiationsPanel(props: Props) {
                 onMessage={(p) => setMsgModal(p)}
                 onContactToday={(p) => setConfirmContact(p)}
                 onCopy={onCopyProposal}
+                onStatusBadgeClick={handleStatusBadgeClick}
+                activeStatusFilter={statusFilter}
               />
               {hasOthers && (
                 <Collapsible open={isExpanded} onOpenChange={() => toggleClient(g.client)}>
@@ -412,6 +513,8 @@ export function NegotiationsPanel(props: Props) {
                           onMessage={(pp) => setMsgModal(pp)}
                           onContactToday={(pp) => setConfirmContact(pp)}
                           onCopy={onCopyProposal}
+                          onStatusBadgeClick={handleStatusBadgeClick}
+                          activeStatusFilter={statusFilter}
                         />
                       ))}
                     </div>
