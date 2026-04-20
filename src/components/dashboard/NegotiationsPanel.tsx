@@ -181,6 +181,8 @@ function ProposalRow({
   onMessage,
   onContactToday,
   onCopy,
+  onStatusBadgeClick,
+  activeStatusFilter,
 }: {
   p: CRMProposal;
   formatDateShort: (d: Date) => string;
@@ -191,6 +193,8 @@ function ProposalRow({
   onMessage: (p: CRMProposal) => void;
   onContactToday: (p: CRMProposal) => void;
   onCopy: (text: string) => void;
+  onStatusBadgeClick?: (status: string) => void;
+  activeStatusFilter?: string | null;
 }) {
   const days = getDaysSince(p.ultima_interacao, p.created_at);
   return (
