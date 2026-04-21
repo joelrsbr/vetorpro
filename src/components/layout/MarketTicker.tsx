@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserUF } from "@/hooks/useUserUF";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TickerItem {
   label: string;
@@ -15,6 +18,24 @@ export function MarketTicker() {
   const { user } = useAuth();
   const { data, isLive } = useMarketData();
   const { plan, isActive } = useSubscription();
+  const { uf } = useUserUF();
+  const [cubValue, setCubValue] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user || !uf) return;
+    let cancelled = false;
+    (async () => {
+      const { data: row } = await supabase
+        .from("market_history")
+        .select("value")
+        .eq("key", `cub_${uf.toLowerCase()}`)
+        .order("data_referencia", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled && row?.value != null) setCubValue(Number(row.value));
+    })();
+    return () => { cancelled = true; };
+  }, [user, uf]);
 
   if (!user || !isActive) return null;
 
@@ -44,6 +65,15 @@ export function MarketTicker() {
   if (data.rates.tr) items.push({ label: "TR", value: formatRate(data.rates.tr.value, data.rates.tr.period), color: "text-teal-400" });
   if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
   if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
+
+  // CUB-{UF} dynamic from profiles.uf — always at the end
+  if (cubValue !== null) {
+    items.push({
+      label: `CUB-${uf}`,
+      value: `${formatCurrency(cubValue)}/m²`,
+      color: "text-fuchsia-400",
+    });
+  }
 
   // Plan badge
   const planLabel = plan === "business" ? "Business" : plan === "pro" ? "Professional" : "Basic";
