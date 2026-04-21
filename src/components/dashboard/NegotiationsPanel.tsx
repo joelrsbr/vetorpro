@@ -13,8 +13,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  FileText, Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
-  ChevronDown, CheckCircle2, Copy,
+  Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
+  ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CRMProposal } from "./ProposalsCRM";
@@ -205,13 +205,16 @@ function ProposalRow({
     >
       {/* Desktop */}
       <div className="hidden sm:flex items-center gap-2">
-        <Badge variant="outline" className="text-[10px] shrink-0 bg-primary/5 border-primary/30">
-          <FileText className="h-2.5 w-2.5 mr-0.5" /> Proposta
-        </Badge>
+        <div className="hidden md:flex flex-col items-start shrink-0 w-[72px]">
+          <span className="text-[9px] uppercase tracking-wide text-muted-foreground/70 leading-none">1º contato</span>
+          <span className="text-[11px] font-medium tabular-nums text-foreground/80 mt-0.5">
+            {formatDateShort(new Date(p.created_at))}
+          </span>
+        </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-xs truncate">{p.client_name}</p>
           <p className="text-[10px] text-muted-foreground truncate">
-            {p.property_description} · {extractPropertyValue(p.proposal_text)} · {formatDateShort(new Date(p.created_at))}
+            {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
         </div>
         <CombinedFollowUpBadge
@@ -292,9 +295,6 @@ function ProposalRow({
       <div className="sm:hidden space-y-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <Badge variant="outline" className="text-[9px] px-1 py-0 bg-primary/5 border-primary/30">
-              <FileText className="h-2.5 w-2.5 mr-0.5" /> Proposta
-            </Badge>
             <CombinedFollowUpBadge
               status={p.status}
               days={days}
@@ -306,7 +306,10 @@ function ProposalRow({
           <p className="text-[11px] text-muted-foreground truncate">
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
-          <p className="text-[10px] text-muted-foreground/70 mt-0.5">{formatDateShort(new Date(p.created_at))}</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-muted-foreground/80">
+            <span>1º contato: <span className="tabular-nums text-foreground/70">{formatDateShort(new Date(p.created_at))}</span></span>
+            <span>Último: <span className="tabular-nums text-foreground/70">{formatDateShort(new Date(p.ultima_interacao || p.created_at))}</span></span>
+          </div>
         </div>
         <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/40">
           {p.client_phone && (
@@ -355,9 +358,20 @@ export function NegotiationsPanel(props: Props) {
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<"client" | "first" | "last">("last");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const handleStatusBadgeClick = (status: string) => {
     setStatusFilter(prev => (prev === status ? null : status));
+  };
+
+  const handleSort = (key: "client" | "first" | "last") => {
+    if (sortKey === key) {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
   };
 
   const formatDateShort = (d: Date) =>
@@ -373,7 +387,10 @@ export function NegotiationsPanel(props: Props) {
       setProposals(prev =>
         prev.map(p => p.id === proposal.id ? { ...p, ultima_interacao: now } : p)
       );
-      toast({ title: "Contato registrado ✅" });
+      toast({
+        title: `Follow-up atualizado para ${proposal.client_name}!`,
+        duration: 3000,
+      });
     }
   };
 
@@ -383,6 +400,8 @@ export function NegotiationsPanel(props: Props) {
     await registerContact(proposal);
     setMsgModal(null);
   };
+
+  const INACTIVE_STATUSES = new Set(["closed", "lost", "archived"]);
 
   /* Group proposals by client; sort each client's proposals newest-first */
   const clientGroups = useMemo(() => {
@@ -402,14 +421,27 @@ export function NegotiationsPanel(props: Props) {
         return db - da; // newest first inside the client
       });
       const primary = sorted[0];
-      const oldestInteractionTs = Math.min(
+      const oldestLast = Math.min(
         ...sorted.map(p => new Date(p.ultima_interacao || p.created_at).getTime())
       );
-      return { client, primary, others: sorted.slice(1), oldestInteractionTs };
+      const oldestFirst = Math.min(
+        ...sorted.map(p => new Date(p.created_at).getTime())
+      );
+      // Inactive if ALL proposals of the client are inactive
+      const allInactive = sorted.every(p => INACTIVE_STATUSES.has(p.status));
+      return { client, primary, others: sorted.slice(1), oldestLast, oldestFirst, allInactive };
     });
-    // Oldest interaction at the TOP — needs more attention first
-    return groups.sort((a, b) => a.oldestInteractionTs - b.oldestInteractionTs);
-  }, [proposals, statusFilter]);
+
+    const dir = sortDir === "asc" ? 1 : -1;
+    const compare = (a: typeof groups[number], b: typeof groups[number]) => {
+      // Priority: active first, inactive (closed/lost/archived) last — regardless of sort
+      if (a.allInactive !== b.allInactive) return a.allInactive ? 1 : -1;
+      if (sortKey === "client") return a.client.localeCompare(b.client, "pt-BR") * dir;
+      if (sortKey === "first") return (a.oldestFirst - b.oldestFirst) * dir;
+      return (a.oldestLast - b.oldestLast) * dir; // "last"
+    };
+    return groups.sort(compare);
+  }, [proposals, statusFilter, sortKey, sortDir]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
@@ -417,6 +449,11 @@ export function NegotiationsPanel(props: Props) {
       next.has(client) ? next.delete(client) : next.add(client);
       return next;
     });
+  };
+
+  const SortIcon = ({ col }: { col: "client" | "first" | "last" }) => {
+    if (sortKey !== col) return <ArrowUpDown className="h-3 w-3 opacity-40" />;
+    return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
   };
 
   if (loadingData) {
@@ -470,6 +507,27 @@ export function NegotiationsPanel(props: Props) {
           </Button>
         </div>
       )}
+      {/* Sortable header */}
+      <div className="mb-1.5 flex items-center gap-2 px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+        <button
+          onClick={() => handleSort("first")}
+          className="hidden md:inline-flex items-center gap-1 w-[72px] shrink-0 hover:text-foreground transition-colors"
+        >
+          1º Contato <SortIcon col="first" />
+        </button>
+        <button
+          onClick={() => handleSort("client")}
+          className="flex-1 inline-flex items-center gap-1 hover:text-foreground transition-colors text-left"
+        >
+          Cliente <SortIcon col="client" />
+        </button>
+        <button
+          onClick={() => handleSort("last")}
+          className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          Último Contato <SortIcon col="last" />
+        </button>
+      </div>
       <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
         {clientGroups.map((g) => {
           const hasOthers = g.others.length > 0;
