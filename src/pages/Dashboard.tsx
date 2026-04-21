@@ -279,13 +279,32 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* LGPD Notice */}
-        <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 shadow-sm flex items-center justify-center gap-3 text-center">
-          <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">Compromisso LGPD:</span> Os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
-          </p>
-        </div>
+        {/* LGPD Notice — collapsible */}
+        {lgpdExpanded ? (
+          <div className="mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 shadow-sm flex items-center justify-center gap-3 text-center relative">
+            <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">Compromisso LGPD:</span> Os dados sensíveis de simulações são excluídos automaticamente após 30 dias. Salve seus PDFs.
+            </p>
+            <button
+              type="button"
+              onClick={toggleLgpd}
+              aria-label="Recolher aviso LGPD"
+              className="absolute right-2 top-2 p-1 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={toggleLgpd}
+            className="mb-6 w-full flex items-center justify-center gap-2 py-1.5 px-3 rounded-md border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-colors text-xs text-muted-foreground"
+          >
+            <Shield className="h-3.5 w-3.5 text-amber-600" />
+            <span>Compromisso LGPD</span>
+          </button>
+        )}
 
         {/* Stats Cards */}
         {(() => {
