@@ -358,9 +358,20 @@ export function NegotiationsPanel(props: Props) {
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<"client" | "first" | "last">("last");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const handleStatusBadgeClick = (status: string) => {
     setStatusFilter(prev => (prev === status ? null : status));
+  };
+
+  const handleSort = (key: "client" | "first" | "last") => {
+    if (sortKey === key) {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
   };
 
   const formatDateShort = (d: Date) =>
@@ -376,7 +387,10 @@ export function NegotiationsPanel(props: Props) {
       setProposals(prev =>
         prev.map(p => p.id === proposal.id ? { ...p, ultima_interacao: now } : p)
       );
-      toast({ title: "Contato registrado ✅" });
+      toast({
+        title: `Follow-up atualizado para ${proposal.client_name}!`,
+        duration: 3000,
+      });
     }
   };
 
@@ -386,6 +400,8 @@ export function NegotiationsPanel(props: Props) {
     await registerContact(proposal);
     setMsgModal(null);
   };
+
+  const INACTIVE_STATUSES = new Set(["closed", "lost", "archived"]);
 
   /* Group proposals by client; sort each client's proposals newest-first */
   const clientGroups = useMemo(() => {
@@ -405,14 +421,27 @@ export function NegotiationsPanel(props: Props) {
         return db - da; // newest first inside the client
       });
       const primary = sorted[0];
-      const oldestInteractionTs = Math.min(
+      const oldestLast = Math.min(
         ...sorted.map(p => new Date(p.ultima_interacao || p.created_at).getTime())
       );
-      return { client, primary, others: sorted.slice(1), oldestInteractionTs };
+      const oldestFirst = Math.min(
+        ...sorted.map(p => new Date(p.created_at).getTime())
+      );
+      // Inactive if ALL proposals of the client are inactive
+      const allInactive = sorted.every(p => INACTIVE_STATUSES.has(p.status));
+      return { client, primary, others: sorted.slice(1), oldestLast, oldestFirst, allInactive };
     });
-    // Oldest interaction at the TOP — needs more attention first
-    return groups.sort((a, b) => a.oldestInteractionTs - b.oldestInteractionTs);
-  }, [proposals, statusFilter]);
+
+    const dir = sortDir === "asc" ? 1 : -1;
+    const compare = (a: typeof groups[number], b: typeof groups[number]) => {
+      // Priority: active first, inactive (closed/lost/archived) last — regardless of sort
+      if (a.allInactive !== b.allInactive) return a.allInactive ? 1 : -1;
+      if (sortKey === "client") return a.client.localeCompare(b.client, "pt-BR") * dir;
+      if (sortKey === "first") return (a.oldestFirst - b.oldestFirst) * dir;
+      return (a.oldestLast - b.oldestLast) * dir; // "last"
+    };
+    return groups.sort(compare);
+  }, [proposals, statusFilter, sortKey, sortDir]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
@@ -420,6 +449,11 @@ export function NegotiationsPanel(props: Props) {
       next.has(client) ? next.delete(client) : next.add(client);
       return next;
     });
+  };
+
+  const SortIcon = ({ col }: { col: "client" | "first" | "last" }) => {
+    if (sortKey !== col) return <ArrowUpDown className="h-3 w-3 opacity-40" />;
+    return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
   };
 
   if (loadingData) {
