@@ -442,30 +442,40 @@ export default function Dashboard() {
 
         {/* Quick Actions — Linha de Comando */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
-          {/* Comunidade e Suporte */}
-          <Card
+          {/* BANCOS — Sondagem Estratégica (laranja) */}
+          <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
-              const phone = whatsappCommunity.replace(/\D/g, "");
-              window.open(`https://wa.me/${phone}`, "_blank", "noopener,noreferrer");
+              if (plan === "business") {
+                navigate("/calculadora?tab=comparison");
+              } else {
+                setShowPaywall(true);
+              }
             }}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
-                <Users className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center relative" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
+                <Landmark className="h-6 w-6 text-white" />
+                {plan !== "business" && (
+                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
+                )}
               </div>
-              <p className="font-semibold text-sm">Comunidade</p>
+              <div>
+                <p className="font-semibold text-sm uppercase tracking-wide">Bancos</p>
+                <p className="text-xs text-muted-foreground">Comparativos</p>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Nova Simulação */}
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
+          {/* Indicadores de Mercado */}
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowIndicatorsModal(true)}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600">
-                <Calculator className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+                <BarChart3 className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-sm">Nova Simulação</p>
+                <p className="font-semibold text-sm">Indicadores</p>
+                <p className="text-xs text-muted-foreground">Modo Foco</p>
               </div>
             </CardContent>
           </Card>
@@ -479,33 +489,6 @@ export default function Dashboard() {
               <div>
                 <p className="font-semibold text-sm">HP 12c</p>
                 <p className="text-xs text-muted-foreground">Financeira</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* BANCOS — Sondagem Estratégica */}
-          <Card 
-            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => {
-              if (plan === "business") {
-                navigate("/calculadora?tab=comparison");
-              } else {
-                setShowPaywall(true);
-              }
-            }}
-          >
-            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600 relative">
-                <Landmark className="h-6 w-6 text-white" />
-                {plan !== "business" && (
-                  <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
-                )}
-              </div>
-              <div>
-                <p className="font-semibold text-sm uppercase tracking-wide">Bancos</p>
-                {plan !== "business" && (
-                  <p className="text-[10px] text-muted-foreground">Business</p>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -553,15 +536,40 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Indicadores de Mercado */}
-          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowIndicatorsModal(true)}>
+          {/* News — antiga Comunidade */}
+          <Card
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              const phone = whatsappCommunity.replace(/\D/g, "");
+              window.open(`https://wa.me/${phone}`, "_blank", "noopener,noreferrer");
+            }}
+          >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
-                <BarChart3 className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
+                <Radio className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-sm">Indicadores</p>
-                <p className="text-xs text-muted-foreground">Modo Foco</p>
+                <p className="font-semibold text-sm">News</p>
+                <p className="text-xs text-muted-foreground">Mercado & Dicas</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* YouTube — Tutoriais */}
+          <Card
+            className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              const url = youtubeChannel || "https://www.youtube.com/@vetorpro";
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
+          >
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #ef4444, #b91c1c)" }}>
+                <Play className="h-6 w-6 text-white fill-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">YouTube</p>
+                <p className="text-xs text-muted-foreground">Tutoriais Rápidos</p>
               </div>
             </CardContent>
           </Card>
