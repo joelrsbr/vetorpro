@@ -18,6 +18,24 @@ export function MarketTicker() {
   const { user } = useAuth();
   const { data, isLive } = useMarketData();
   const { plan, isActive } = useSubscription();
+  const { uf } = useUserUF();
+  const [cubValue, setCubValue] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user || !uf) return;
+    let cancelled = false;
+    (async () => {
+      const { data: row } = await supabase
+        .from("market_history")
+        .select("value")
+        .eq("key", `cub_${uf.toLowerCase()}`)
+        .order("data_referencia", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled && row?.value != null) setCubValue(Number(row.value));
+    })();
+    return () => { cancelled = true; };
+  }, [user, uf]);
 
   if (!user || !isActive) return null;
 
