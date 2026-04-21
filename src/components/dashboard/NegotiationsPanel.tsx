@@ -507,6 +507,27 @@ export function NegotiationsPanel(props: Props) {
           </Button>
         </div>
       )}
+      {/* Sortable header */}
+      <div className="mb-1.5 flex items-center gap-2 px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+        <button
+          onClick={() => handleSort("first")}
+          className="hidden md:inline-flex items-center gap-1 w-[72px] shrink-0 hover:text-foreground transition-colors"
+        >
+          1º Contato <SortIcon col="first" />
+        </button>
+        <button
+          onClick={() => handleSort("client")}
+          className="flex-1 inline-flex items-center gap-1 hover:text-foreground transition-colors text-left"
+        >
+          Cliente <SortIcon col="client" />
+        </button>
+        <button
+          onClick={() => handleSort("last")}
+          className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          Último Contato <SortIcon col="last" />
+        </button>
+      </div>
       <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
         {clientGroups.map((g) => {
           const hasOthers = g.others.length > 0;
