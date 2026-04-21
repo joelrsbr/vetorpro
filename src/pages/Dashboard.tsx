@@ -77,6 +77,18 @@ export default function Dashboard() {
   const { user, profile, usageLimits, loading, refreshProfile } = useAuth();
   const { plan, isActive, loading: subLoading, refresh: refreshSub } = useSubscription();
   const { value: whatsappCommunity } = useAppSetting("whatsapp_community", "+555127970301");
+  const { value: youtubeChannel } = useAppSetting("youtube_channel", "https://www.youtube.com/@vetorpro");
+  const [lgpdExpanded, setLgpdExpanded] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return sessionStorage.getItem("lgpd_collapsed") !== "1";
+  });
+  const toggleLgpd = () => {
+    setLgpdExpanded(prev => {
+      const next = !prev;
+      try { sessionStorage.setItem("lgpd_collapsed", next ? "0" : "1"); } catch {}
+      return next;
+    });
+  };
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
