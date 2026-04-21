@@ -233,9 +233,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   ], [uf, userPlan]);
 
   // Filter: only show indicators with description (merge real + virtual)
+  // Exclude rate_incc from market_cache — INCC is provided by the virtual indicator (BCB Série 192) to avoid duplication.
   const validIndicators = useMemo(
     () => [
-      ...allIndicators.filter(i => i.description && i.display_name),
+      ...allIndicators.filter(i => i.description && i.display_name && i.key !== "rate_incc"),
       ...virtualIndicators,
     ],
     [allIndicators, virtualIndicators],

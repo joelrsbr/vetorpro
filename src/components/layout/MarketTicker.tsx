@@ -20,6 +20,7 @@ export function MarketTicker() {
   const { plan, isActive } = useSubscription();
   const { uf } = useUserUF();
   const [cubValue, setCubValue] = useState<number | null>(null);
+  const [btcValue, setBtcValue] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user || !uf) return;
@@ -36,6 +37,22 @@ export function MarketTicker() {
     })();
     return () => { cancelled = true; };
   }, [user, uf]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data: row } = await supabase
+        .from("market_history")
+        .select("value")
+        .eq("key", "crypto_btc")
+        .order("recorded_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled && row?.value != null) setBtcValue(Number(row.value));
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   if (!user || !isActive) return null;
 
@@ -72,6 +89,15 @@ export function MarketTicker() {
       label: `CUB-${uf}`,
       value: `${formatCurrency(cubValue)}/m²`,
       color: "text-fuchsia-400",
+    });
+  }
+
+  // Bitcoin from market_history
+  if (btcValue !== null) {
+    items.push({
+      label: "BTC",
+      value: `R$ ${btcValue.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`,
+      color: "text-yellow-400",
     });
   }
 
