@@ -13,8 +13,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  FileText, Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
-  ChevronDown, CheckCircle2, Copy,
+  Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
+  ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CRMProposal } from "./ProposalsCRM";
