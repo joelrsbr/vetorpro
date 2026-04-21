@@ -66,6 +66,15 @@ export function MarketTicker() {
   if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
   if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
 
+  // CUB-{UF} dynamic from profiles.uf — always at the end
+  if (cubValue !== null) {
+    items.push({
+      label: `CUB-${uf}`,
+      value: `${formatCurrency(cubValue)}/m²`,
+      color: "text-fuchsia-400",
+    });
+  }
+
   // Plan badge
   const planLabel = plan === "business" ? "Business" : plan === "pro" ? "Professional" : "Basic";
 
