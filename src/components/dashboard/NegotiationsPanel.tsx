@@ -205,13 +205,16 @@ function ProposalRow({
     >
       {/* Desktop */}
       <div className="hidden sm:flex items-center gap-2">
-        <Badge variant="outline" className="text-[10px] shrink-0 bg-primary/5 border-primary/30">
-          <FileText className="h-2.5 w-2.5 mr-0.5" /> Proposta
-        </Badge>
+        <div className="hidden md:flex flex-col items-start shrink-0 w-[72px]">
+          <span className="text-[9px] uppercase tracking-wide text-muted-foreground/70 leading-none">1º contato</span>
+          <span className="text-[11px] font-medium tabular-nums text-foreground/80 mt-0.5">
+            {formatDateShort(new Date(p.created_at))}
+          </span>
+        </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-xs truncate">{p.client_name}</p>
           <p className="text-[10px] text-muted-foreground truncate">
-            {p.property_description} · {extractPropertyValue(p.proposal_text)} · {formatDateShort(new Date(p.created_at))}
+            {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
         </div>
         <CombinedFollowUpBadge
@@ -292,9 +295,6 @@ function ProposalRow({
       <div className="sm:hidden space-y-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <Badge variant="outline" className="text-[9px] px-1 py-0 bg-primary/5 border-primary/30">
-              <FileText className="h-2.5 w-2.5 mr-0.5" /> Proposta
-            </Badge>
             <CombinedFollowUpBadge
               status={p.status}
               days={days}
@@ -306,7 +306,10 @@ function ProposalRow({
           <p className="text-[11px] text-muted-foreground truncate">
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
-          <p className="text-[10px] text-muted-foreground/70 mt-0.5">{formatDateShort(new Date(p.created_at))}</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-muted-foreground/80">
+            <span>1º contato: <span className="tabular-nums text-foreground/70">{formatDateShort(new Date(p.created_at))}</span></span>
+            <span>Último: <span className="tabular-nums text-foreground/70">{formatDateShort(new Date(p.ultima_interacao || p.created_at))}</span></span>
+          </div>
         </div>
         <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/40">
           {p.client_phone && (
