@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserUF } from "@/hooks/useUserUF";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TickerItem {
   label: string;
