@@ -32,6 +32,8 @@ import {
 
 function formatRate(val: number, period: string): string {
   return `${val.toFixed(2).replace(".", ",")}% ${period}`;
+}
+
 function formatCurrency(val: number): string {
   return val.toLocaleString("pt-BR", {
     style: "currency",
@@ -156,23 +158,23 @@ export function ArsenalPanel() {
           const value = formatIndicatorValue(idx, latestValues[idx.historyKey] ?? null);
 
           return (
-          <div
-            key={idx.id}
-            className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2 hover:bg-muted/50 transition-colors"
-          >
-            <div className="p-1 rounded-md bg-emerald-900/20 text-emerald-500">
-               <Icon className="h-4 w-4" />
+            <div
+              key={idx.id}
+              className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2 hover:bg-muted/50 transition-colors"
+            >
+              <div className="p-1 rounded-md bg-emerald-900/20 text-emerald-500">
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-muted-foreground leading-tight truncate">{idx.name}</p>
+                {isLoading && value === "—" ? (
+                  <div className="h-4 w-16 rounded bg-muted animate-pulse mt-0.5" />
+                ) : (
+                  <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
+                )}
+                <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5 line-clamp-2">{idx.description}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground leading-tight truncate">{idx.name}</p>
-               {isLoading && value === "—" ? (
-                <div className="h-4 w-16 rounded bg-muted animate-pulse mt-0.5" />
-              ) : (
-                 <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
-              )}
-               <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5 line-clamp-2">{idx.description}</p>
-            </div>
-          </div>
           );
         })}
       </div>
