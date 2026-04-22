@@ -55,6 +55,14 @@ function formatIndicatorValue(definition: MarketGalleryIndicatorDefinition, valu
   return formatRate(value, definition.periodLabel || "");
 }
 
+function formatCompactNumber(value: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 export function ArsenalPanel() {
   const { plan } = useSubscription();
   const { uf } = useUserUF();
@@ -66,6 +74,7 @@ export function ArsenalPanel() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [latestValues, setLatestValues] = useState<Record<string, number | null>>({});
+  const [ibovespaMeta, setIbovespaMeta] = useState<{ variation: number | null; volume: number | null } | null>(null);
 
   const indexes = useMemo(() => getMarketGalleryIndicators(uf), [uf]);
 
@@ -74,14 +83,22 @@ export function ArsenalPanel() {
 
     try {
       const keys = indexes.map((item) => item.historyKey);
-      const { data, error } = await supabase
-        .from("market_history")
-        .select("key, value, data_referencia, recorded_at")
-        .in("key", keys)
-        .order("data_referencia", { ascending: false, nullsFirst: false })
-        .order("recorded_at", { ascending: false });
+      const [{ data, error }, { data: ibovespaCache, error: ibovespaError }] = await Promise.all([
+        supabase
+          .from("market_history")
+          .select("key, value, data_referencia, recorded_at")
+          .in("key", keys)
+          .order("data_referencia", { ascending: false, nullsFirst: false })
+          .order("recorded_at", { ascending: false }),
+        supabase
+          .from("market_cache")
+          .select("value")
+          .eq("key", "index_ibovespa")
+          .maybeSingle(),
+      ]);
 
       if (error) throw error;
+      if (ibovespaError) throw ibovespaError;
 
       const nextValues: Record<string, number | null> = {};
       for (const item of indexes) {
@@ -95,6 +112,11 @@ export function ArsenalPanel() {
       }
 
       setLatestValues(nextValues);
+      const ibovespaValue = ibovespaCache?.value as Record<string, unknown> | null | undefined;
+      setIbovespaMeta({
+        variation: ibovespaValue?.variation == null ? null : Number(ibovespaValue.variation),
+        volume: ibovespaValue?.volume == null ? null : Number(ibovespaValue.volume),
+      });
       setIsLive(true);
       setLastFetch(new Date());
     } catch (error) {
@@ -171,6 +193,12 @@ export function ArsenalPanel() {
                   <div className="h-4 w-16 rounded bg-muted animate-pulse mt-0.5" />
                 ) : (
                   <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
+                )}
+                {idx.historyKey === "index_ibovespa" && ibovespaMeta && (
+                  <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5">
+                    {ibovespaMeta.variation != null ? `${ibovespaMeta.variation >= 0 ? "+" : ""}${ibovespaMeta.variation.toFixed(2)}%` : "—"}
+                    {ibovespaMeta.volume != null ? ` · Vol ${formatCompactNumber(ibovespaMeta.volume)}` : ""}
+                  </p>
                 )}
                 <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5 line-clamp-2">{idx.description}</p>
               </div>

@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type MarketGalleryValueType = "percent" | "currency" | "crypto" | "cub";
+export type MarketGalleryValueType = "percent" | "currency" | "crypto" | "cub" | "ibovespa";
 
 export interface MarketGalleryIndicatorDefinition {
   id: string;
@@ -112,6 +112,14 @@ export function getMarketGalleryIndicators(uf: string): MarketGalleryIndicatorDe
       description: "Preço mais recente do BTC em reais.",
       icon: Bitcoin,
       valueType: "crypto",
+    },
+    {
+      id: "ibovespa",
+      historyKey: "index_ibovespa",
+      name: "Ibovespa",
+      description: "Pontuação atual do principal índice da bolsa brasileira.",
+      icon: TrendingUp,
+      valueType: "ibovespa",
     },
     {
       id: "cub",

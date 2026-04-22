@@ -59,6 +59,7 @@ export const KEY_CATEGORY: Record<string, IndicatorCategory> = {
   currency_usd: "variable",
   currency_eur: "variable",
   crypto_btc: "variable",
+  index_ibovespa: "variable",
 };
 
 export function getCategoryForKey(key: string): IndicatorCategory {
@@ -126,6 +127,11 @@ export const OFFICIAL_SOURCES: Record<string, IndicatorSource> = {
     organization: "Mercado de Criptomoedas",
     url: "https://www.coingecko.com/pt/moedas/bitcoin",
   },
+  index_ibovespa: {
+    officialName: "Ibovespa",
+    organization: "B3 / Yahoo Finance",
+    url: "https://finance.yahoo.com/quote/%5EBVSP/",
+  },
 };
 
 /* ─── Arguments Map content ─── */
@@ -171,7 +177,7 @@ export const ARGUMENT_SECTIONS: ArgumentSection[] = [
       "Enquanto moedas e cripto oscilam, o imóvel permanece como ativo tangível de valorização consistente no longo prazo.",
     protectionPhrase:
       "Com o câmbio instável e volatilidade alta nos mercados, o imóvel oferece a estabilidade que ativos financeiros não conseguem garantir.",
-    indicators: ["currency_usd", "currency_eur", "crypto_btc"],
+    indicators: ["currency_usd", "currency_eur", "crypto_btc", "index_ibovespa"],
   },
 ];
 
