@@ -74,6 +74,7 @@ export function ArsenalPanel() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [latestValues, setLatestValues] = useState<Record<string, number | null>>({});
+  const [ibovespaMeta, setIbovespaMeta] = useState<{ variation: number | null; volume: number | null } | null>(null);
 
   const indexes = useMemo(() => getMarketGalleryIndicators(uf), [uf]);
 
@@ -82,14 +83,22 @@ export function ArsenalPanel() {
 
     try {
       const keys = indexes.map((item) => item.historyKey);
-      const { data, error } = await supabase
-        .from("market_history")
-        .select("key, value, data_referencia, recorded_at")
-        .in("key", keys)
-        .order("data_referencia", { ascending: false, nullsFirst: false })
-        .order("recorded_at", { ascending: false });
+      const [{ data, error }, { data: ibovespaCache, error: ibovespaError }] = await Promise.all([
+        supabase
+          .from("market_history")
+          .select("key, value, data_referencia, recorded_at")
+          .in("key", keys)
+          .order("data_referencia", { ascending: false, nullsFirst: false })
+          .order("recorded_at", { ascending: false }),
+        supabase
+          .from("market_cache")
+          .select("value")
+          .eq("key", "index_ibovespa")
+          .maybeSingle(),
+      ]);
 
       if (error) throw error;
+      if (ibovespaError) throw ibovespaError;
 
       const nextValues: Record<string, number | null> = {};
       for (const item of indexes) {
@@ -103,6 +112,11 @@ export function ArsenalPanel() {
       }
 
       setLatestValues(nextValues);
+      const ibovespaValue = ibovespaCache?.value as Record<string, unknown> | null | undefined;
+      setIbovespaMeta({
+        variation: ibovespaValue?.variation == null ? null : Number(ibovespaValue.variation),
+        volume: ibovespaValue?.volume == null ? null : Number(ibovespaValue.volume),
+      });
       setIsLive(true);
       setLastFetch(new Date());
     } catch (error) {
@@ -164,9 +178,6 @@ export function ArsenalPanel() {
         {indexes.map((idx) => {
           const Icon = idx.icon;
           const value = formatIndicatorValue(idx, latestValues[idx.historyKey] ?? null);
-          const ibovespaMeta = idx.historyKey === "index_ibovespa"
-            ? latestValues["index_ibovespa_meta"] as unknown as { variation?: number; volume?: number | null } | undefined
-            : undefined;
 
           return (
             <div
