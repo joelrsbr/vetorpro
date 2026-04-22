@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,23 +10,18 @@ import {
 } from "@/components/ui/collapsible";
 import {
   TrendingUp,
-  BarChart3,
-  Landmark,
-  PiggyBank,
-  DollarSign,
-  Euro,
-  TrendingDown,
   RefreshCw,
   Loader2,
   ChevronDown,
   ChevronUp,
-  Lock,
 } from "lucide-react";
-import { useMarketData } from "@/hooks/useMarketData";
-import { useSubscription, type SubscriptionPlan } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/useSubscription";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUserUF } from "@/hooks/useUserUF";
+import { getMarketGalleryIndicators, type MarketGalleryIndicatorDefinition } from "./marketGalleryConfig";
 import {
   Drawer,
   DrawerContent,
@@ -37,104 +32,86 @@ import {
 
 function formatRate(val: number, period: string): string {
   return `${val.toFixed(2).replace(".", ",")}% ${period}`;
-}
-
 function formatCurrency(val: number): string {
-  return `R$ ${val.toFixed(2).replace(".", ",")}`;
+  return val.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
-interface IndexItem {
-  id: string;
-  name: string;
-  value: string;
-  icon: React.ReactNode;
-  description: string;
-  minPlan: SubscriptionPlan;
-}
+function formatIndicatorValue(definition: MarketGalleryIndicatorDefinition, value: number | null): string {
+  if (value === null) return "—";
 
-const PLAN_LEVEL: Record<SubscriptionPlan, number> = {
-  basic: 1,
-  pro: 2,
-  business: 3,
-};
+  if (definition.valueType === "currency") return formatCurrency(value);
+  if (definition.valueType === "crypto") {
+    return `BTC ${formatCurrency(value).replace(/,00$/, "")}`;
+  }
+  if (definition.valueType === "cub") return `${formatCurrency(value)}/m²`;
 
-function hasAccess(userPlan: SubscriptionPlan, minPlan: SubscriptionPlan): boolean {
-  return PLAN_LEVEL[userPlan] >= PLAN_LEVEL[minPlan];
+  return formatRate(value, definition.periodLabel || "");
 }
 
 export function ArsenalPanel() {
-  const { data, isLoading, isLive, lastFetch, refresh } = useMarketData();
   const { plan } = useSubscription();
+  const { uf } = useUserUF();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
+  const [lastFetch, setLastFetch] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [latestValues, setLatestValues] = useState<Record<string, number | null>>({});
+
+  const indexes = useMemo(() => getMarketGalleryIndicators(uf), [uf]);
+
+  const fetchLatestIndicators = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const keys = indexes.map((item) => item.historyKey);
+      const { data, error } = await supabase
+        .from("market_history")
+        .select("key, value, data_referencia, recorded_at")
+        .in("key", keys)
+        .order("data_referencia", { ascending: false, nullsFirst: false })
+        .order("recorded_at", { ascending: false });
+
+      if (error) throw error;
+
+      const nextValues: Record<string, number | null> = {};
+      for (const item of indexes) {
+        nextValues[item.historyKey] = null;
+      }
+
+      for (const row of data || []) {
+        if (nextValues[row.key] === null) {
+          nextValues[row.key] = Number(row.value);
+        }
+      }
+
+      setLatestValues(nextValues);
+      setIsLive(true);
+      setLastFetch(new Date());
+    } catch (error) {
+      console.error("Erro ao carregar indicadores da market_history:", error);
+      setIsLive(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [indexes]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await refresh();
+    await fetchLatestIndicators();
     setIsRefreshing(false);
   };
 
-  const indexes: IndexItem[] = [
-    {
-      id: "ipca", name: "IPCA",
-      value: data.rates.ipca ? formatRate(data.rates.ipca.value, data.rates.ipca.period) : "—",
-      icon: <BarChart3 className="h-4 w-4" />, description: "Índice de Preços ao Consumidor",
-      minPlan: "basic",
-    },
-    {
-      id: "igpm", name: "IGP-M",
-      value: data.rates.igpm ? formatRate(data.rates.igpm.value, data.rates.igpm.period) : "—",
-      icon: <BarChart3 className="h-4 w-4" />, description: "Índice Geral de Preços — Mercado",
-      minPlan: "basic",
-    },
-    {
-      id: "incc", name: "INCC",
-      value: data.rates.incc ? formatRate(data.rates.incc.value, data.rates.incc.period) : "—",
-      icon: <Landmark className="h-4 w-4" />, description: "Índice Nacional de Custo da Construção",
-      minPlan: "basic",
-    },
-    {
-      id: "tr", name: "TR",
-      value: data.rates.tr ? formatRate(data.rates.tr.value, data.rates.tr.period) : "—",
-      icon: <Landmark className="h-4 w-4" />, description: "Taxa Referencial",
-      minPlan: "basic",
-    },
-    {
-      id: "poupanca", name: "Poupança",
-      value: data.rates.poupanca ? formatRate(data.rates.poupanca.value, data.rates.poupanca.period) : "—",
-      icon: <PiggyBank className="h-4 w-4" />, description: "Rendimento da caderneta",
-      minPlan: "basic",
-    },
-    {
-      id: "usd", name: "Dólar",
-      value: data.currencies.usd ? formatCurrency(data.currencies.usd.value) : "—",
-      icon: <DollarSign className="h-4 w-4" />, description: "USD/BRL",
-      minPlan: "pro",
-    },
-    {
-      id: "eur", name: "Euro",
-      value: data.currencies.eur ? formatCurrency(data.currencies.eur.value) : "—",
-      icon: <Euro className="h-4 w-4" />, description: "EUR/BRL",
-      minPlan: "pro",
-    },
-    {
-      id: "selic", name: "SELIC",
-      value: data.rates.selic ? formatRate(data.rates.selic.value, data.rates.selic.period) : "—",
-      icon: <TrendingUp className="h-4 w-4" />, description: "Taxa básica de juros",
-      minPlan: "business",
-    },
-    {
-      id: "cdi", name: "CDI",
-      value: data.rates.cdi ? formatRate(data.rates.cdi.value, data.rates.cdi.period) : "—",
-      icon: <TrendingDown className="h-4 w-4" />, description: "Certificado de Depósito Interbancário",
-      minPlan: "business",
-    },
-  ];
-
-  const accessibleIndexes = indexes.filter((idx) => hasAccess(plan, idx.minPlan));
-  const lockedIndexes = indexes.filter((idx) => !hasAccess(plan, idx.minPlan));
+  useEffect(() => {
+    void fetchLatestIndicators();
+  }, [fetchLatestIndicators]);
 
   const panelBody = (
     <>
@@ -174,54 +151,34 @@ export function ArsenalPanel() {
 
       {/* Index grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-      {accessibleIndexes.map((idx) => (
+        {indexes.map((idx) => {
+          const Icon = idx.icon;
+          const value = formatIndicatorValue(idx, latestValues[idx.historyKey] ?? null);
+
+          return (
           <div
             key={idx.id}
             className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2 hover:bg-muted/50 transition-colors"
           >
             <div className="p-1 rounded-md bg-emerald-900/20 text-emerald-500">
-              {idx.icon}
+               <Icon className="h-4 w-4" />
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground leading-tight truncate">{idx.name}</p>
-              {isLoading && idx.value === "—" ? (
+               {isLoading && value === "—" ? (
                 <div className="h-4 w-16 rounded bg-muted animate-pulse mt-0.5" />
               ) : (
-                <p className="text-sm font-bold text-foreground leading-tight">{idx.value}</p>
+                 <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
               )}
+               <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5 line-clamp-2">{idx.description}</p>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Locked items teaser */}
-      {lockedIndexes.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-border/30">
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mb-2">
-            <Lock className="h-3 w-3" />
-            Disponível em planos superiores
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {lockedIndexes.map((idx) => (
-              <div
-                key={idx.id}
-                className="flex items-center gap-2 rounded-lg border border-border/30 bg-muted/10 px-2.5 py-2 opacity-40 select-none"
-              >
-                <div className="p-1 rounded-md bg-muted/30 text-muted-foreground">
-                  {idx.icon}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground leading-tight truncate">{idx.name}</p>
-                  <p className="text-sm font-bold text-muted-foreground leading-tight">—</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <p className="text-[9px] text-muted-foreground/50 text-center mt-3">
-        Dados: BCB / AwesomeAPI. Fins informativos.
+        Fonte exclusiva: market_history. Fins informativos.
       </p>
     </>
   );
