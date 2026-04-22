@@ -53,6 +53,7 @@ async function upsertCache(
   ttlSeconds: number,
   status: string,
   unit: string,
+  meta?: Partial<{ display_name: string; description: string; category: string; plan_level: string }>,
 ) {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + ttlSeconds * 1000);
@@ -65,6 +66,7 @@ async function upsertCache(
       expires_at: expiresAt.toISOString(),
       status,
       unit,
+      ...(meta ?? {}),
     },
     { onConflict: "key" },
   );
@@ -305,10 +307,20 @@ async function refreshIbovespa(admin: ReturnType<typeof getSupabaseAdmin>) {
 
   const ibovespa = await fetchIbovespa();
   if (ibovespa) {
-    await upsertCache(admin, cacheKey, ibovespa, "Yahoo Finance", TTL_IBOVESPA, "ok", "index_points");
+    await upsertCache(admin, cacheKey, ibovespa, "Yahoo Finance", TTL_IBOVESPA, "ok", "index_points", {
+      display_name: "Ibovespa",
+      description: "Pontuação atual, variação do dia e volume negociado do principal índice da bolsa brasileira.",
+      category: "variable",
+      plan_level: "basic",
+    });
     log("info", `Updated ${cacheKey}`, { value: ibovespa.value, variation: ibovespa.variation, volume: ibovespa.volume });
   } else if (cached) {
-    await upsertCache(admin, cacheKey, cached.value, cached.source, 120, "fallback", "index_points");
+    await upsertCache(admin, cacheKey, cached.value, cached.source, 120, "fallback", "index_points", {
+      display_name: "Ibovespa",
+      description: "Pontuação atual, variação do dia e volume negociado do principal índice da bolsa brasileira.",
+      category: "variable",
+      plan_level: "basic",
+    });
     log("warn", "Ibovespa API failed, using fallback");
   } else {
     log("error", "Ibovespa API failed and no cache exists");
