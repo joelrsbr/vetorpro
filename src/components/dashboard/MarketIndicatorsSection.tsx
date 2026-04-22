@@ -410,16 +410,6 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
 
   const chartData = viewMode === "percent" ? chartDataPercent : chartDataAbsolute;
 
-  const ibovespaMetrics = useMemo(() => {
-    if (selectedKey !== "index_ibovespa" || !selectedIndicator?.value) return null;
-    const raw = selectedIndicator.value as Record<string, unknown>;
-    return {
-      points: typeof raw.value === "number" ? raw.value : Number(raw.value ?? latestValues[selectedKey]),
-      variation: typeof raw.variation === "number" ? raw.variation : Number(raw.variation ?? 0),
-      volume: raw.volume == null ? null : Number(raw.volume),
-    };
-  }, [selectedIndicator, selectedKey, latestValues]);
-
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
     const map: Record<string, number> = {};
@@ -429,6 +419,16 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     }
     return map;
   }, [history, validIndicators]);
+
+  const ibovespaMetrics = useMemo(() => {
+    if (selectedKey !== "index_ibovespa" || !selectedIndicator?.value) return null;
+    const raw = selectedIndicator.value as Record<string, unknown>;
+    return {
+      points: typeof raw.value === "number" ? raw.value : Number(raw.value ?? latestValues[selectedKey]),
+      variation: typeof raw.variation === "number" ? raw.variation : Number(raw.variation ?? 0),
+      volume: raw.volume == null ? null : Number(raw.volume),
+    };
+  }, [selectedIndicator, selectedKey, latestValues]);
 
   /* ─── Juro Real ─── */
   const juroReal = useMemo(() => {

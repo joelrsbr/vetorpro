@@ -55,6 +55,14 @@ function formatIndicatorValue(definition: MarketGalleryIndicatorDefinition, valu
   return formatRate(value, definition.periodLabel || "");
 }
 
+function formatCompactNumber(value: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 export function ArsenalPanel() {
   const { plan } = useSubscription();
   const { uf } = useUserUF();
@@ -156,6 +164,9 @@ export function ArsenalPanel() {
         {indexes.map((idx) => {
           const Icon = idx.icon;
           const value = formatIndicatorValue(idx, latestValues[idx.historyKey] ?? null);
+          const ibovespaMeta = idx.historyKey === "index_ibovespa"
+            ? latestValues["index_ibovespa_meta"] as unknown as { variation?: number; volume?: number | null } | undefined
+            : undefined;
 
           return (
             <div
@@ -171,6 +182,12 @@ export function ArsenalPanel() {
                   <div className="h-4 w-16 rounded bg-muted animate-pulse mt-0.5" />
                 ) : (
                   <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
+                )}
+                {idx.historyKey === "index_ibovespa" && ibovespaMeta && (
+                  <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5">
+                    {ibovespaMeta.variation != null ? `${ibovespaMeta.variation >= 0 ? "+" : ""}${ibovespaMeta.variation.toFixed(2)}%` : "—"}
+                    {ibovespaMeta.volume != null ? ` · Vol ${formatCompactNumber(ibovespaMeta.volume)}` : ""}
+                  </p>
                 )}
                 <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5 line-clamp-2">{idx.description}</p>
               </div>
