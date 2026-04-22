@@ -441,7 +441,20 @@ export default function Dashboard() {
         })()}
 
         {/* Quick Actions — Linha de Comando */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 mb-8">
+          {/* Simulador */}
+          <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
+            <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary">
+                <Calculator className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Simulador</p>
+                <p className="text-xs text-muted-foreground">Financiamento</p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* BANCOS — Sondagem Estratégica (laranja) */}
           <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
@@ -513,9 +526,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="font-semibold text-sm">Personalize IA</p>
-                {plan !== "business" && (
-                  <p className="text-[10px] text-muted-foreground">Business</p>
-                )}
+                <p className="text-xs text-muted-foreground">Defina Seu Tom</p>
               </div>
             </CardContent>
           </Card>
