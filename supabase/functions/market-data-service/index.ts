@@ -10,6 +10,7 @@ const corsHeaders = {
 const TTL_BACEN = 24 * 60 * 60;
 const TTL_FOREX = 15 * 60;
 const TTL_CRYPTO = 5 * 60;
+const TTL_IBOVESPA = 5 * 60;
 
 // BCB SGS series
 const BCB_SERIES: Record<string, { id: number; name: string; period: string; ttl: number; unit: string }> = {
@@ -182,6 +183,34 @@ async function fetchBTC(): Promise<{ value: number; variation: number } | null> 
   }
 }
 
+async function fetchIbovespa(): Promise<{ value: number; variation: number; volume: number | null } | null> {
+  try {
+    const res = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1d&range=5d", {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+
+    const payload = await res.json();
+    const result = payload?.chart?.result?.[0];
+    const quote = result?.indicators?.quote?.[0];
+    const closes = Array.isArray(quote?.close) ? quote.close.filter((v: unknown) => typeof v === "number") : [];
+    const volumes = Array.isArray(quote?.volume) ? quote.volume.filter((v: unknown) => typeof v === "number") : [];
+    if (closes.length === 0) return null;
+
+    const last = Number(closes[closes.length - 1]);
+    const prev = closes.length > 1 ? Number(closes[closes.length - 2]) : last;
+    const volume = volumes.length > 0 ? Number(volumes[volumes.length - 1]) : null;
+
+    return {
+      value: last,
+      variation: prev ? parseFloat((((last - prev) / prev) * 100).toFixed(2)) : 0,
+      volume,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ─── Refresh with TTL check + fallback ───
 
 async function refreshBacen(admin: ReturnType<typeof getSupabaseAdmin>) {
@@ -265,6 +294,27 @@ async function refreshCrypto(admin: ReturnType<typeof getSupabaseAdmin>) {
   }
 }
 
+async function refreshIbovespa(admin: ReturnType<typeof getSupabaseAdmin>) {
+  const cacheKey = "index_ibovespa";
+  const cached = await getCached(admin, cacheKey);
+
+  if (isCacheValid(cached)) {
+    log("info", "Ibovespa cache valid, skipping fetch");
+    return;
+  }
+
+  const ibovespa = await fetchIbovespa();
+  if (ibovespa) {
+    await upsertCache(admin, cacheKey, ibovespa, "Yahoo Finance", TTL_IBOVESPA, "ok", "index_points");
+    log("info", `Updated ${cacheKey}`, { value: ibovespa.value, variation: ibovespa.variation, volume: ibovespa.volume });
+  } else if (cached) {
+    await upsertCache(admin, cacheKey, cached.value, cached.source, 120, "fallback", "index_points");
+    log("warn", "Ibovespa API failed, using fallback");
+  } else {
+    log("error", "Ibovespa API failed and no cache exists");
+  }
+}
+
 // ─── Main handler ───
 
 Deno.serve(async (req) => {
@@ -277,11 +327,12 @@ Deno.serve(async (req) => {
     const action = url.searchParams.get("action");
 
     // Cron/internal refresh actions
-    if (action === "refresh_bacen" || action === "refresh_forex" || action === "refresh_crypto") {
+    if (action === "refresh_bacen" || action === "refresh_forex" || action === "refresh_crypto" || action === "refresh_ibovespa") {
       const admin = getSupabaseAdmin();
       if (action === "refresh_bacen") await refreshBacen(admin);
       else if (action === "refresh_forex") await refreshForex(admin);
       else if (action === "refresh_crypto") await refreshCrypto(admin);
+      else if (action === "refresh_ibovespa") await refreshIbovespa(admin);
       return new Response(JSON.stringify({ ok: true, action }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -319,6 +370,7 @@ Deno.serve(async (req) => {
 
     // Read all cache entries with metadata
     const admin = getSupabaseAdmin();
+    await refreshIbovespa(admin);
     const { data: cacheRows } = await admin.from("market_cache").select("*");
 
     const PLAN_LEVEL: Record<string, number> = { basic: 0, pro: 1, business: 2 };
