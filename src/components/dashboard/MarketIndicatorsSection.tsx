@@ -48,6 +48,8 @@ export function periodicidadeLabel(p?: Periodicidade | null): string {
   return "";
 }
 
+const IBOVESPA_INSIGHT = "A Bolsa como termômetro imobiliário: quando o Ibovespa sobe, investidores buscam diversificação em ativos reais — imóveis tendem a se valorizar. Quando cai, o imóvel se destaca como proteção de patrimônio.";
+
 /** For INCC/CUB, the chart should use data_referencia (reference month),
  * not recorded_at (insertion timestamp). */
 function effectiveDate(h: HistoryPoint): string {
@@ -161,6 +163,7 @@ function computeInsights(history: HistoryPoint[], userPlan: SubscriptionPlan): I
 /* ─── Helpers ─── */
 
 function formatValue(key: string, val: number): string {
+  if (key === "index_ibovespa") return `${val.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`;
   if (key.startsWith("currency_")) return `R$ ${val.toFixed(2)}`;
   if (key.startsWith("crypto_")) return `$ ${val.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
   if (key.startsWith("cub_")) return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/m²`;
@@ -169,6 +172,7 @@ function formatValue(key: string, val: number): string {
 
 function formatAxisTick(v: number | string, unit: string, key: string): string {
   const n = Number(v);
+  if (key === "index_ibovespa") return `${(n / 1000).toFixed(0)}k`;
   if (key.startsWith("cub_")) return `R$${n.toFixed(0)}`;
   if (unit === "currency") {
     if (key === "crypto_btc") return `$${(n / 1000).toFixed(0)}k`;
@@ -268,6 +272,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
 
   const selectedIndicator = validIndicators.find(i => i.key === selectedKey);
   const compareIndicator = compareKey ? validIndicators.find(i => i.key === compareKey) : null;
+  const isIbovespaSelected = selectedKey === "index_ibovespa";
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
@@ -404,6 +409,16 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   }, [chartDataAbsolute, selectedKey, compareKey]);
 
   const chartData = viewMode === "percent" ? chartDataPercent : chartDataAbsolute;
+
+  const ibovespaMetrics = useMemo(() => {
+    if (selectedKey !== "index_ibovespa" || !selectedIndicator?.value) return null;
+    const raw = selectedIndicator.value as Record<string, unknown>;
+    return {
+      points: typeof raw.value === "number" ? raw.value : Number(raw.value ?? latestValues[selectedKey]),
+      variation: typeof raw.variation === "number" ? raw.variation : Number(raw.variation ?? 0),
+      volume: raw.volume == null ? null : Number(raw.volume),
+    };
+  }, [selectedIndicator, selectedKey, latestValues]);
 
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
@@ -631,7 +646,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               ))}
 
               {/* Separator + Compare selector */}
-              {compareOptions.length > 0 && (
+               {!isIbovespaSelected && compareOptions.length > 0 && (
                 <>
                   <div className="h-5 w-px bg-border mx-1" />
                   <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
@@ -651,7 +666,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               )}
 
               {/* View mode toggle */}
-              {compareKey && (
+               {!isIbovespaSelected && compareKey && (
                 <>
                   <div className="h-5 w-px bg-border mx-1" />
                   <div className="flex items-center bg-muted/50 rounded-md p-0.5">
@@ -717,7 +732,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   isMixedUnits: {String(isMixedUnits)} | selectedUnit: {selectedUnit} | compareUnit: {compareUnit} | compareKey: {compareKey || "none"}
                 </div>
               )}
-              {hasAnyData ? (
+              {!isIbovespaSelected && hasAnyData ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
@@ -873,6 +888,40 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   </div>
                 )}
                 </>
+              ) : isIbovespaSelected ? (
+                <Card className="border-dashed">
+                  <CardContent className="py-5 space-y-4">
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Pontuação atual</p>
+                        <p className="mt-1 text-xl font-semibold text-foreground">
+                          {ibovespaMetrics?.points != null
+                            ? `${ibovespaMetrics.points.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`
+                            : "—"}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Variação do dia</p>
+                        <p className={`mt-1 text-xl font-semibold ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
+                          {ibovespaMetrics?.variation != null
+                            ? `${ibovespaMetrics.variation >= 0 ? "+" : ""}${ibovespaMetrics.variation.toFixed(2)}%`
+                            : "—"}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Volume negociado</p>
+                        <p className="mt-1 text-xl font-semibold text-foreground">
+                          {ibovespaMetrics?.volume != null
+                            ? ibovespaMetrics.volume.toLocaleString("pt-BR")
+                            : "—"}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Dado informativo em tempo quase real — gráfico histórico do Ibovespa será habilitado em uma próxima etapa.
+                    </p>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <Info className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -885,6 +934,27 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
 
             {/* ─── Insights do Especialista (INCC / CUB) ─── */}
             {(() => {
+              if (selectedKey === "index_ibovespa") {
+                return (
+                  <Card className="border-l-4 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10">
+                    <CardContent className="py-3.5 px-4">
+                      <div className="flex items-start gap-3">
+                        <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-semibold text-foreground">Insight de Mercado</p>
+                            <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
+                              Ibovespa
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{IBOVESPA_INSIGHT}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
               const isExpertKey = selectedKey === "incc" || selectedKey.startsWith("cub_");
               if (!isExpertKey) return null;
               const points = history
