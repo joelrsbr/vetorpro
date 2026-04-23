@@ -949,31 +949,31 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <CardContent className="py-5 space-y-4">
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Pontuação atual</p>
-                        <p className="mt-1 text-xl font-semibold text-foreground">
+                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Pontuação atual</p>
+                        <p className={`mt-1 ${modalTypeClasses.value}`}>
                           {ibovespaMetrics?.points != null
                             ? `${ibovespaMetrics.points.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Variação do dia</p>
-                        <p className={`mt-1 text-xl font-semibold ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
+                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Variação do dia</p>
+                        <p className={`mt-1 ${modalTypeClasses.value} ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
                           {ibovespaMetrics?.variation != null
                             ? `${ibovespaMetrics.variation >= 0 ? "+" : ""}${ibovespaMetrics.variation.toFixed(2)}%`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Volume negociado</p>
-                        <p className="mt-1 text-xl font-semibold text-foreground">
+                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Volume negociado</p>
+                        <p className={`mt-1 ${modalTypeClasses.value}`}>
                           {ibovespaMetrics?.volume != null
                             ? ibovespaMetrics.volume.toLocaleString("pt-BR")
                             : "—"}
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className={modalTypeClasses.body}>
                       Dado informativo em tempo quase real — gráfico histórico do Ibovespa será habilitado em uma próxima etapa.
                     </p>
                   </CardContent>
@@ -998,12 +998,12 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
-                            <p className="text-sm font-semibold text-foreground">Insight de Mercado</p>
+                            <p className={modalTypeClasses.value}>Insight de Mercado</p>
                             <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
                               Ibovespa
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{IBOVESPA_INSIGHT}</p>
+                          <p className={`${modalTypeClasses.body} leading-relaxed`}>{IBOVESPA_INSIGHT}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -1025,14 +1025,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-foreground">
+                          <p className={modalTypeClasses.value}>
                             Insights do Especialista
                           </p>
                           <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
                             {selectedIndicator?.display_name}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                        <p className={`${modalTypeClasses.body} leading-relaxed`}>
                           {latest.insight}
                         </p>
                         <button
