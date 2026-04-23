@@ -525,8 +525,8 @@ export default function Dashboard() {
                 )}
               </div>
               <div>
-                <p className="font-semibold text-sm">Personalize IA</p>
-                <p className="text-xs text-muted-foreground">Defina Seu Tom</p>
+                <p className="font-semibold text-sm whitespace-nowrap">Persona IA</p>
+                <p className="text-xs text-muted-foreground whitespace-nowrap">Defina Seu Tom</p>
               </div>
             </CardContent>
           </Card>
@@ -556,7 +556,7 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-warning">
                 <Radio className="h-6 w-6 text-white" />
               </div>
               <div>
