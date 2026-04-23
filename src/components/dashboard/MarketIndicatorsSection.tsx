@@ -617,138 +617,139 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         ) : (
             <div className="space-y-4">
-              {/* ─── Dynamic Indicator Selector ─── */}
               <div className="space-y-4">
                 {groupedAccessibleIndicators.map((group) => (
                   <div key={group.id} className="space-y-2">
                     <p className={`${modalTypeClasses.body} px-1`}>{group.label}</p>
                     <div className="flex items-center gap-3 flex-wrap">
-                      {group.items.map(ind => {
-                const source = OFFICIAL_SOURCES[ind.key];
-                return (
-                  <Tooltip key={ind.key}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => {
-                          setSelectedKey(ind.key);
-                          if (ind.key === compareKey) setCompareKey("");
-                        }}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                          selectedKey === ind.key
-                            ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        }`}
-                        style={selectedKey === ind.key ? {
-                          backgroundColor: `${colorMap[ind.key]}20`,
-                          color: colorMap[ind.key],
-                        } : undefined}
-                      >
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: colorMap[ind.key] }}
-                        />
-                        {ind.display_name}
-                        {source && (
-                          <Tooltip>
+                      {group.items.map((ind) => {
+                        const source = OFFICIAL_SOURCES[ind.key];
+
+                        return (
+                          <Tooltip key={ind.key}>
                             <TooltipTrigger asChild>
-                              <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
-                              <p className="font-semibold">{source.officialName}</p>
-                              <p className="text-muted-foreground">{source.organization}</p>
-                              <a
-                                href={source.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-accent hover:underline"
-                                onClick={(e) => e.stopPropagation()}
+                              <button
+                                onClick={() => {
+                                  setSelectedKey(ind.key);
+                                  if (ind.key === compareKey) setCompareKey("");
+                                }}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                                  selectedKey === ind.key
+                                    ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
+                                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                }`}
+                                style={selectedKey === ind.key ? {
+                                  backgroundColor: `${colorMap[ind.key]}20`,
+                                  color: colorMap[ind.key],
+                                } : undefined}
                               >
-                                Fonte oficial <ExternalLink className="h-3 w-3" />
-                              </a>
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                                  style={{ backgroundColor: colorMap[ind.key] }}
+                                />
+                                {ind.display_name}
+                                {source && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
+                                      <p className="font-semibold">{source.officialName}</p>
+                                      <p className="text-muted-foreground">{source.organization}</p>
+                                      <a
+                                        href={source.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-accent hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        Fonte oficial <ExternalLink className="h-3 w-3" />
+                                      </a>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[250px]">
+                              {ind.description}
                             </TooltipContent>
                           </Tooltip>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[250px]">
-                      {ind.description}
-                    </TooltipContent>
-                    </Tooltip>
-                  );
-                })}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
 
-                <div className="flex items-center gap-3 flex-wrap pt-1">
-                {/* Locked indicators */}
-                {lockedIndicators.map(ind => (
-                <Tooltip key={ind.key}>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
-                      <Lock className="w-3 h-3 text-muted-foreground" />
-                      <span>{ind.display_name}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[250px]">
-                    <p>{ind.description}</p>
-                    <p className="text-xs mt-1 text-muted-foreground">
-                      Disponível no plano {ind.plan_level === "pro" ? "Pro" : "Business"}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-                </div>
-
-              {/* Separator + Compare selector */}
-               {!isIbovespaSelected && compareOptions.length > 0 && (
-                <>
-                  <div className="h-5 w-px bg-border mx-1" />
-                  <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
-                    <SelectTrigger className="h-8 w-[180px] text-xs">
-                      <SelectValue placeholder="Comparar com..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sem comparação</SelectItem>
-                      {compareOptions.map(ind => (
-                        <SelectItem key={ind.key} value={ind.key}>
-                          {ind.display_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
-
-              {/* View mode toggle */}
-               {!isIbovespaSelected && compareKey && (
-                <>
-                  <div className="h-5 w-px bg-border mx-1" />
-                  <div className="flex items-center bg-muted/50 rounded-md p-0.5">
-                    <button
-                      onClick={() => setViewMode("absolute")}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                        viewMode === "absolute"
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Absoluto
-                    </button>
-                    <button
-                      onClick={() => setViewMode("percent")}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                        viewMode === "percent"
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Variação %
-                    </button>
+                {lockedIndicators.length > 0 && (
+                  <div className="flex items-center gap-3 flex-wrap pt-1">
+                    {lockedIndicators.map((ind) => (
+                      <Tooltip key={ind.key}>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
+                            <Lock className="w-3 h-3 text-muted-foreground" />
+                            <span>{ind.display_name}</span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-[250px]">
+                          <p>{ind.description}</p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            Disponível no plano {ind.plan_level === "pro" ? "Pro" : "Business"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
                   </div>
-                </>
-              )}
-            </div>
+                )}
+
+                <div className="flex items-center gap-3 flex-wrap">
+                  {!isIbovespaSelected && compareOptions.length > 0 && (
+                    <>
+                      <div className="h-5 w-px bg-border mx-1" />
+                      <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
+                        <SelectTrigger className="h-8 w-[180px] text-xs">
+                          <SelectValue placeholder="Comparar com..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Sem comparação</SelectItem>
+                          {compareOptions.map((ind) => (
+                            <SelectItem key={ind.key} value={ind.key}>
+                              {ind.display_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+
+                  {!isIbovespaSelected && compareKey && (
+                    <>
+                      <div className="h-5 w-px bg-border mx-1" />
+                      <div className="flex items-center bg-muted/50 rounded-md p-0.5">
+                        <button
+                          onClick={() => setViewMode("absolute")}
+                          className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                            viewMode === "absolute"
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Absoluto
+                        </button>
+                        <button
+                          onClick={() => setViewMode("percent")}
+                          className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                            viewMode === "percent"
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Variação %
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
 
             {/* ─── Color Legend ─── */}
             <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
