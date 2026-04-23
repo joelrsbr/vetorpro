@@ -752,11 +752,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
               </div>
 
             {/* ─── Color Legend ─── */}
-            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
-              {Object.values(CATEGORIES).map(cat => (
-                <span key={cat.category} className="flex items-center gap-1.5">
-                  <span className="text-sm">{cat.emoji}</span>
-                  {cat.label}
+            <div className={`flex items-center gap-3 flex-wrap ${modalTypeClasses.body}`}>
+              {LEGEND_ITEMS.map((item) => (
+                <span key={item.id} className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  {item.label}
                 </span>
               ))}
               <Tooltip>
@@ -772,7 +772,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
               </Tooltip>
             </div>
-            <p className="text-[11px] text-muted-foreground/70 italic -mt-2">
+            <p className="text-sm text-muted-foreground/70 italic -mt-2">
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
             </p>
 
