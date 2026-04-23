@@ -50,6 +50,20 @@ export function periodicidadeLabel(p?: Periodicidade | null): string {
 
 const IBOVESPA_INSIGHT = "A Bolsa como termômetro imobiliário: quando o Ibovespa sobe, investidores buscam diversificação em ativos reais — imóveis tendem a se valorizar. Quando cai, o imóvel se destaca como proteção de patrimônio.";
 
+const INDICATOR_GROUPS = [
+  { id: "market", label: "Mercado", keys: ["index_ibovespa"] },
+  { id: "currencies", label: "Moedas", keys: ["currency_usd", "currency_eur", "crypto_btc"] },
+  { id: "inflation", label: "Inflação e Construção", keys: ["rate_ipca", "rate_igpm", "incc", "cub_dynamic"] },
+  { id: "fixed_income", label: "Renda Fixa", keys: ["rate_selic", "rate_cdi", "rate_tr", "rate_poupanca"] },
+] as const;
+
+const LEGEND_ITEMS = [
+  { id: "inflation", label: "Inflação e Construção", color: "hsl(25, 90%, 55%)" },
+  { id: "fixed_income", label: "Renda Fixa", color: "hsl(150, 60%, 42%)" },
+  { id: "variable", label: "Moedas e Variáveis", color: "hsl(210, 80%, 55%)" },
+  { id: "market", label: "Mercado", color: "hsl(210, 80%, 55%)" },
+] as const;
+
 /** For INCC/CUB, the chart should use data_referencia (reference month),
  * not recorded_at (insertion timestamp). */
 function effectiveDate(h: HistoryPoint): string {
@@ -509,20 +523,37 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Comparison options: accessible indicators excluding selected
   const compareOptions = accessibleIndicators.filter(i => i.key !== selectedKey);
 
+  const groupedAccessibleIndicators = useMemo(() => {
+    const cubKey = `cub_${uf.toLowerCase()}`;
+
+    return INDICATOR_GROUPS.map((group) => ({
+      ...group,
+      items: accessibleIndicators.filter((indicator) =>
+        group.keys.some((key) => (key === "cub_dynamic" ? indicator.key === cubKey : indicator.key === key)),
+      ),
+    })).filter((group) => group.items.length > 0);
+  }, [accessibleIndicators, uf]);
+
+  const modalTypeClasses = {
+    title: "text-xl font-semibold text-foreground",
+    value: "text-lg font-semibold text-foreground",
+    body: "text-sm font-normal text-muted-foreground",
+  };
+
   return (
     <Card className="shadow-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <CardTitle className="text-xl flex items-center gap-2">
+            <CardTitle className={`${modalTypeClasses.title} flex items-center gap-2`}>
               <TrendingUp className="h-5 w-5 text-emerald-600" />
               Indicadores de Mercado
             </CardTitle>
             {selectedIndicator && (
-              <CardDescription className="text-sm">
+              <CardDescription className={modalTypeClasses.body}>
                 {selectedIndicator.description}
                 {latestValues[selectedKey] !== undefined && (
-                  <span className="ml-2 font-semibold text-foreground">
+                  <span className={`ml-2 ${modalTypeClasses.value}`}>
                     {formatValue(selectedKey, latestValues[selectedKey])}
                   </span>
                 )}
@@ -585,138 +616,147 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* ─── Dynamic Indicator Selector ─── */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Accessible indicators */}
-              {accessibleIndicators.map(ind => {
-                const source = OFFICIAL_SOURCES[ind.key];
-                return (
-                  <Tooltip key={ind.key}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => {
-                          setSelectedKey(ind.key);
-                          if (ind.key === compareKey) setCompareKey("");
-                        }}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                          selectedKey === ind.key
-                            ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        }`}
-                        style={selectedKey === ind.key ? {
-                          backgroundColor: `${colorMap[ind.key]}20`,
-                          color: colorMap[ind.key],
-                        } : undefined}
-                      >
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: colorMap[ind.key] }}
-                        />
-                        {ind.display_name}
-                        {source && (
-                          <Tooltip>
+            <div className="space-y-4">
+              <div className="space-y-4">
+                {groupedAccessibleIndicators.map((group) => (
+                  <div key={group.id} className="space-y-2">
+                    <p className={`${modalTypeClasses.body} px-1`}>{group.label}</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {group.items.map((ind) => {
+                        const source = OFFICIAL_SOURCES[ind.key];
+
+                        return (
+                          <Tooltip key={ind.key}>
                             <TooltipTrigger asChild>
-                              <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
-                              <p className="font-semibold">{source.officialName}</p>
-                              <p className="text-muted-foreground">{source.organization}</p>
-                              <a
-                                href={source.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-accent hover:underline"
-                                onClick={(e) => e.stopPropagation()}
+                              <button
+                                onClick={() => {
+                                  setSelectedKey(ind.key);
+                                  if (ind.key === compareKey) setCompareKey("");
+                                }}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                                  selectedKey === ind.key
+                                    ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
+                                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                }`}
+                                style={selectedKey === ind.key ? {
+                                  backgroundColor: `${colorMap[ind.key]}20`,
+                                  color: colorMap[ind.key],
+                                } : undefined}
                               >
-                                Fonte oficial <ExternalLink className="h-3 w-3" />
-                              </a>
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                                  style={{ backgroundColor: colorMap[ind.key] }}
+                                />
+                                {ind.display_name}
+                                {source && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
+                                      <p className="font-semibold">{source.officialName}</p>
+                                      <p className="text-muted-foreground">{source.organization}</p>
+                                      <a
+                                        href={source.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-accent hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        Fonte oficial <ExternalLink className="h-3 w-3" />
+                                      </a>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[250px]">
+                              {ind.description}
                             </TooltipContent>
                           </Tooltip>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[250px]">
-                      {ind.description}
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-
-              {/* Locked indicators */}
-              {lockedIndicators.map(ind => (
-                <Tooltip key={ind.key}>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
-                      <Lock className="w-3 h-3 text-muted-foreground" />
-                      <span>{ind.display_name}</span>
+                        );
+                      })}
                     </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[250px]">
-                    <p>{ind.description}</p>
-                    <p className="text-xs mt-1 text-muted-foreground">
-                      Disponível no plano {ind.plan_level === "pro" ? "Pro" : "Business"}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-
-              {/* Separator + Compare selector */}
-               {!isIbovespaSelected && compareOptions.length > 0 && (
-                <>
-                  <div className="h-5 w-px bg-border mx-1" />
-                  <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
-                    <SelectTrigger className="h-8 w-[180px] text-xs">
-                      <SelectValue placeholder="Comparar com..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sem comparação</SelectItem>
-                      {compareOptions.map(ind => (
-                        <SelectItem key={ind.key} value={ind.key}>
-                          {ind.display_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
-
-              {/* View mode toggle */}
-               {!isIbovespaSelected && compareKey && (
-                <>
-                  <div className="h-5 w-px bg-border mx-1" />
-                  <div className="flex items-center bg-muted/50 rounded-md p-0.5">
-                    <button
-                      onClick={() => setViewMode("absolute")}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                        viewMode === "absolute"
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Absoluto
-                    </button>
-                    <button
-                      onClick={() => setViewMode("percent")}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                        viewMode === "percent"
-                          ? "bg-background text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Variação %
-                    </button>
                   </div>
-                </>
-              )}
-            </div>
+                ))}
+
+                {lockedIndicators.length > 0 && (
+                  <div className="flex items-center gap-3 flex-wrap pt-1">
+                    {lockedIndicators.map((ind) => (
+                      <Tooltip key={ind.key}>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
+                            <Lock className="w-3 h-3 text-muted-foreground" />
+                            <span>{ind.display_name}</span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-[250px]">
+                          <p>{ind.description}</p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            Disponível no plano {ind.plan_level === "pro" ? "Pro" : "Business"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 flex-wrap">
+                  {!isIbovespaSelected && compareOptions.length > 0 && (
+                    <>
+                      <div className="h-5 w-px bg-border mx-1" />
+                      <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
+                        <SelectTrigger className="h-8 w-[180px] text-xs">
+                          <SelectValue placeholder="Comparar com..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Sem comparação</SelectItem>
+                          {compareOptions.map((ind) => (
+                            <SelectItem key={ind.key} value={ind.key}>
+                              {ind.display_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+
+                  {!isIbovespaSelected && compareKey && (
+                    <>
+                      <div className="h-5 w-px bg-border mx-1" />
+                      <div className="flex items-center bg-muted/50 rounded-md p-0.5">
+                        <button
+                          onClick={() => setViewMode("absolute")}
+                          className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                            viewMode === "absolute"
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Absoluto
+                        </button>
+                        <button
+                          onClick={() => setViewMode("percent")}
+                          className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                            viewMode === "percent"
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Variação %
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
 
             {/* ─── Color Legend ─── */}
-            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
-              {Object.values(CATEGORIES).map(cat => (
-                <span key={cat.category} className="flex items-center gap-1.5">
-                  <span className="text-sm">{cat.emoji}</span>
-                  {cat.label}
+            <div className={`flex items-center gap-3 flex-wrap ${modalTypeClasses.body}`}>
+              {LEGEND_ITEMS.map((item) => (
+                <span key={item.id} className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  {item.label}
                 </span>
               ))}
               <Tooltip>
@@ -732,7 +772,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
               </Tooltip>
             </div>
-            <p className="text-[11px] text-muted-foreground/70 italic -mt-2">
+            <p className="text-sm text-muted-foreground/70 italic -mt-2">
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
             </p>
 
@@ -909,31 +949,31 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <CardContent className="py-5 space-y-4">
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Pontuação atual</p>
-                        <p className="mt-1 text-xl font-semibold text-foreground">
+                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Pontuação atual</p>
+                        <p className={`mt-1 ${modalTypeClasses.value}`}>
                           {ibovespaMetrics?.points != null
                             ? `${ibovespaMetrics.points.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Variação do dia</p>
-                        <p className={`mt-1 text-xl font-semibold ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
+                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Variação do dia</p>
+                        <p className={`mt-1 ${modalTypeClasses.value} ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
                           {ibovespaMetrics?.variation != null
                             ? `${ibovespaMetrics.variation >= 0 ? "+" : ""}${ibovespaMetrics.variation.toFixed(2)}%`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Volume negociado</p>
-                        <p className="mt-1 text-xl font-semibold text-foreground">
+                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Volume negociado</p>
+                        <p className={`mt-1 ${modalTypeClasses.value}`}>
                           {ibovespaMetrics?.volume != null
                             ? ibovespaMetrics.volume.toLocaleString("pt-BR")
                             : "—"}
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className={modalTypeClasses.body}>
                       Dado informativo em tempo quase real — gráfico histórico do Ibovespa será habilitado em uma próxima etapa.
                     </p>
                   </CardContent>
@@ -958,12 +998,12 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
-                            <p className="text-sm font-semibold text-foreground">Insight de Mercado</p>
+                            <p className={modalTypeClasses.value}>Insight de Mercado</p>
                             <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
                               Ibovespa
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{IBOVESPA_INSIGHT}</p>
+                          <p className={`${modalTypeClasses.body} leading-relaxed`}>{IBOVESPA_INSIGHT}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -985,14 +1025,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       <Lightbulb className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-foreground">
+                          <p className={modalTypeClasses.value}>
                             Insights do Especialista
                           </p>
                           <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-400">
                             {selectedIndicator?.display_name}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                        <p className={`${modalTypeClasses.body} leading-relaxed`}>
                           {latest.insight}
                         </p>
                         <button
