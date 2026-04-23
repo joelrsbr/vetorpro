@@ -523,20 +523,37 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   // Comparison options: accessible indicators excluding selected
   const compareOptions = accessibleIndicators.filter(i => i.key !== selectedKey);
 
+  const groupedAccessibleIndicators = useMemo(() => {
+    const cubKey = `cub_${uf.toLowerCase()}`;
+
+    return INDICATOR_GROUPS.map((group) => ({
+      ...group,
+      items: accessibleIndicators.filter((indicator) =>
+        group.keys.some((key) => (key === "cub_dynamic" ? indicator.key === cubKey : indicator.key === key)),
+      ),
+    })).filter((group) => group.items.length > 0);
+  }, [accessibleIndicators, uf]);
+
+  const modalTypeClasses = {
+    title: "text-xl font-semibold text-foreground",
+    value: "text-lg font-semibold text-foreground",
+    body: "text-sm font-normal text-muted-foreground",
+  };
+
   return (
     <Card className="shadow-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <CardTitle className="text-xl flex items-center gap-2">
+            <CardTitle className={`${modalTypeClasses.title} flex items-center gap-2`}>
               <TrendingUp className="h-5 w-5 text-emerald-600" />
               Indicadores de Mercado
             </CardTitle>
             {selectedIndicator && (
-              <CardDescription className="text-sm">
+              <CardDescription className={modalTypeClasses.body}>
                 {selectedIndicator.description}
                 {latestValues[selectedKey] !== undefined && (
-                  <span className="ml-2 font-semibold text-foreground">
+                  <span className={`ml-2 ${modalTypeClasses.value}`}>
                     {formatValue(selectedKey, latestValues[selectedKey])}
                   </span>
                 )}
@@ -599,11 +616,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* ─── Dynamic Indicator Selector ─── */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Accessible indicators */}
-              {accessibleIndicators.map(ind => {
+            <div className="space-y-4">
+              {/* ─── Dynamic Indicator Selector ─── */}
+              <div className="space-y-4">
+                {groupedAccessibleIndicators.map((group) => (
+                  <div key={group.id} className="space-y-2">
+                    <p className={`${modalTypeClasses.body} px-1`}>{group.label}</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {group.items.map(ind => {
                 const source = OFFICIAL_SOURCES[ind.key];
                 return (
                   <Tooltip key={ind.key}>
@@ -653,12 +673,16 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     <TooltipContent side="bottom" className="max-w-[250px]">
                       {ind.description}
                     </TooltipContent>
-                  </Tooltip>
-                );
-              })}
+                    </Tooltip>
+                  );
+                })}
+                    </div>
+                  </div>
+                ))}
 
-              {/* Locked indicators */}
-              {lockedIndicators.map(ind => (
+                <div className="flex items-center gap-3 flex-wrap pt-1">
+                {/* Locked indicators */}
+                {lockedIndicators.map(ind => (
                 <Tooltip key={ind.key}>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
@@ -674,6 +698,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   </TooltipContent>
                 </Tooltip>
               ))}
+                </div>
 
               {/* Separator + Compare selector */}
                {!isIbovespaSelected && compareOptions.length > 0 && (
