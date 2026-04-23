@@ -50,6 +50,20 @@ export function periodicidadeLabel(p?: Periodicidade | null): string {
 
 const IBOVESPA_INSIGHT = "A Bolsa como termômetro imobiliário: quando o Ibovespa sobe, investidores buscam diversificação em ativos reais — imóveis tendem a se valorizar. Quando cai, o imóvel se destaca como proteção de patrimônio.";
 
+const INDICATOR_GROUPS = [
+  { id: "market", label: "Mercado", keys: ["index_ibovespa"] },
+  { id: "currencies", label: "Moedas", keys: ["currency_usd", "currency_eur", "crypto_btc"] },
+  { id: "inflation", label: "Inflação e Construção", keys: ["rate_ipca", "rate_igpm", "incc", "cub_dynamic"] },
+  { id: "fixed_income", label: "Renda Fixa", keys: ["rate_selic", "rate_cdi", "rate_tr", "rate_poupanca"] },
+] as const;
+
+const LEGEND_ITEMS = [
+  { id: "inflation", label: "Inflação e Construção", color: "hsl(25, 90%, 55%)" },
+  { id: "fixed_income", label: "Renda Fixa", color: "hsl(150, 60%, 42%)" },
+  { id: "variable", label: "Moedas e Variáveis", color: "hsl(210, 80%, 55%)" },
+  { id: "market", label: "Mercado", color: "hsl(210, 80%, 55%)" },
+] as const;
+
 /** For INCC/CUB, the chart should use data_referencia (reference month),
  * not recorded_at (insertion timestamp). */
 function effectiveDate(h: HistoryPoint): string {
