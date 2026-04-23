@@ -84,10 +84,10 @@ export function MarketTicker() {
     items.push({ label: "EUR", value: formatCurrency(eur.value), variation: eur.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
   }
 
-  if (cubValue !== null) {
+  if (btcValue !== null) {
     items.push({
       label: "BTC",
-      value: `R$ ${btcValue?.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) ?? "—"}`,
+      value: `R$ ${btcValue.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`,
       color: "text-yellow-400",
     });
   }
