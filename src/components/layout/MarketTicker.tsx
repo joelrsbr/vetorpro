@@ -65,25 +65,36 @@ export function MarketTicker() {
     val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const items: TickerItem[] = [];
+  const ibovespaIndicator = data.indicators.find((indicator) => indicator.key === "index_ibovespa");
+  const ibovespaRaw = ibovespaIndicator?.value as Record<string, unknown> | null | undefined;
+  const ibovespaPoints = typeof ibovespaRaw?.value === "number"
+    ? ibovespaRaw.value
+    : typeof ibovespaRaw?.value === "string"
+      ? Number(ibovespaRaw.value)
+      : null;
+  const usd = data.currencies.USD || data.currencies.usd || { value: 5.01, variation: 0 };
+  const eur = data.currencies.EUR || data.currencies.eur || { value: 5.43, variation: 0 };
 
-  // Currencies FIRST for Pro/Business — always visible at the start
+  if (ibovespaPoints !== null && Number.isFinite(ibovespaPoints)) {
+    items.push({ label: "Ibovespa", value: `${ibovespaPoints.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`, color: "text-emerald-400" });
+  }
+
   if (!isBasic) {
-    const usd = data.currencies.USD || data.currencies.usd || { value: 5.01, variation: 0 };
-    const eur = data.currencies.EUR || data.currencies.eur || { value: 5.43, variation: 0 };
     items.push({ label: "USD", value: formatCurrency(usd.value), variation: usd.variation, isCurrency: true, flag: "🇺🇸", color: "text-green-400" });
     items.push({ label: "EUR", value: formatCurrency(eur.value), variation: eur.variation, isCurrency: true, flag: "🇪🇺", color: "text-blue-400" });
   }
 
-  // Rates
-  if (data.rates.selic) items.push({ label: "SELIC", value: formatRate(data.rates.selic.value, data.rates.selic.period), color: "text-cyan-400" });
+  if (btcValue !== null) {
+    items.push({
+      label: "BTC",
+      value: `R$ ${btcValue.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`,
+      color: "text-yellow-400",
+    });
+  }
+
   if (data.rates.ipca) items.push({ label: "IPCA", value: formatRate(data.rates.ipca.value, data.rates.ipca.period), variation: data.rates.ipca.value >= 0 ? data.rates.ipca.value : -data.rates.ipca.value, color: "text-amber-400" });
   if (data.rates.igpm) items.push({ label: "IGP-M", value: formatRate(data.rates.igpm.value, data.rates.igpm.period), color: "text-orange-400" });
   if (data.rates.incc) items.push({ label: "INCC", value: formatRate(data.rates.incc.value, data.rates.incc.period), color: "text-violet-400" });
-  if (data.rates.tr) items.push({ label: "TR", value: formatRate(data.rates.tr.value, data.rates.tr.period), color: "text-teal-400" });
-  if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
-  if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
-
-  // CUB-{UF} dynamic from profiles.uf — always at the end
   if (cubValue !== null) {
     items.push({
       label: `CUB-${uf}`,
@@ -92,14 +103,10 @@ export function MarketTicker() {
     });
   }
 
-  // Bitcoin from market_history
-  if (btcValue !== null) {
-    items.push({
-      label: "BTC",
-      value: `R$ ${btcValue.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`,
-      color: "text-yellow-400",
-    });
-  }
+  if (data.rates.selic) items.push({ label: "SELIC", value: formatRate(data.rates.selic.value, data.rates.selic.period), color: "text-cyan-400" });
+  if (data.rates.cdi) items.push({ label: "CDI", value: formatRate(data.rates.cdi.value, data.rates.cdi.period), color: "text-sky-400" });
+  if (data.rates.tr) items.push({ label: "TR", value: formatRate(data.rates.tr.value, data.rates.tr.period), color: "text-teal-400" });
+  if (data.rates.poupanca) items.push({ label: "Poupança", value: formatRate(data.rates.poupanca.value, data.rates.poupanca.period), color: "text-lime-400" });
 
   // Plan badge
   const planLabel = plan === "business" ? "Business" : plan === "pro" ? "Professional" : "Basic";

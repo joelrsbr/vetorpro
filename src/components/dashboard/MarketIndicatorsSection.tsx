@@ -238,13 +238,29 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
 
   // Filter: only show indicators with description (merge real + virtual)
   // Exclude rate_incc from market_cache — INCC is provided by the virtual indicator (BCB Série 192) to avoid duplication.
-  const validIndicators = useMemo(
-    () => [
+  const validIndicators = useMemo(() => {
+    const indicatorOrder = [
+      "index_ibovespa",
+      "currency_usd",
+      "currency_eur",
+      "crypto_btc",
+      "rate_ipca",
+      "rate_igpm",
+      "incc",
+      `cub_${uf.toLowerCase()}`,
+      "rate_selic",
+      "rate_cdi",
+      "rate_tr",
+      "rate_poupanca",
+    ];
+
+    const rank = new Map(indicatorOrder.map((key, index) => [key, index]));
+
+    return [
       ...allIndicators.filter(i => i.description && i.display_name && i.key !== "rate_incc"),
       ...virtualIndicators,
-    ],
-    [allIndicators, virtualIndicators],
-  );
+    ].sort((a, b) => (rank.get(a.key) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.key) ?? Number.MAX_SAFE_INTEGER));
+  }, [allIndicators, virtualIndicators, uf]);
 
   const accessibleIndicators = useMemo(
     () => validIndicators.filter(i => hasAccess(userPlan, i.plan_level)),
