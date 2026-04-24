@@ -190,7 +190,8 @@ export function MarketTicker() {
           <div className="flex min-w-max animate-ticker whitespace-nowrap py-3">
             {loopEntries.map((item, index) => {
               if ("spacer" in item) {
-                return <span key={`${item.key}-${index}`} className="block w-16 shrink-0" aria-hidden="true" />;
+                const isLeadSpacer = item.key === "spacer-start";
+                return <span key={`${item.key}-${index}`} className={`block shrink-0 ${isLeadSpacer ? "w-[320px]" : "w-16"}`} aria-hidden="true" />;
               }
 
               const directionUi = getDirectionPresentation(item.direction);
