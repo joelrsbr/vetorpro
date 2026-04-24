@@ -953,31 +953,31 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <CardContent className="py-5 space-y-4">
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Pontuação atual</p>
-                        <p className={`mt-1 ${modalTypeClasses.value}`}>
+                        <p className={modalTypeClasses.groupTitle}>Pontuação atual</p>
+                        <p className={`mt-1 ${modalTypeClasses.metricValue}`}>
                           {ibovespaMetrics?.points != null
                             ? `${ibovespaMetrics.points.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Variação do dia</p>
-                        <p className={`mt-1 ${modalTypeClasses.value} ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
+                        <p className={modalTypeClasses.groupTitle}>Variação do dia</p>
+                        <p className={`mt-1 ${modalTypeClasses.metricValue} ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
                           {ibovespaMetrics?.variation != null
                             ? `${ibovespaMetrics.variation >= 0 ? "+" : ""}${ibovespaMetrics.variation.toFixed(2)}%`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Volume negociado</p>
-                        <p className={`mt-1 ${modalTypeClasses.value}`}>
+                        <p className={modalTypeClasses.groupTitle}>Volume negociado</p>
+                        <p className={`mt-1 ${modalTypeClasses.metricValue}`}>
                           {ibovespaMetrics?.volume != null
                             ? ibovespaMetrics.volume.toLocaleString("pt-BR")
                             : "—"}
                         </p>
                       </div>
                     </div>
-                    <p className={`${modalTypeClasses.body} italic`}>
+                    <p className={modalTypeClasses.bodyItalic}>
                       Histórico em construção — dado informativo disponível.
                     </p>
                   </CardContent>
