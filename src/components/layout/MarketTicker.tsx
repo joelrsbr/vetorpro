@@ -197,7 +197,7 @@ export function MarketTicker() {
               const directionUi = getDirectionPresentation(item.direction);
 
               return (
-                <span key={`${item.key}-${index}`} className="inline-flex items-center gap-1.5 mx-5 text-sm font-mono shrink-0">
+                <span key={`${item.key}-${index}`} className="inline-flex items-center gap-1.5 mx-3 text-sm font-mono shrink-0">
                   {item.flag && <span className="text-base">{item.flag}</span>}
                   <span className={`font-semibold ${item.color || "text-emerald-400"}`}>{item.label}</span>
                   <span className="text-white/90">{item.value}</span>
