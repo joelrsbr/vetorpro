@@ -626,11 +626,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         ) : (
             <div className="space-y-4">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {groupedAccessibleIndicators.map((group) => (
                   <div key={group.id} className="space-y-2">
-                    <p className={`${modalTypeClasses.body} px-1`}>{group.label}</p>
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <p className={`${modalTypeClasses.groupTitle} px-1`}>{group.label}</p>
+                    <div className="flex items-stretch gap-2 w-full">
                       {group.items.map((ind) => {
                         const source = OFFICIAL_SOURCES[ind.key];
 
@@ -642,7 +642,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                   setSelectedKey(ind.key);
                                   if (ind.key === compareKey) setCompareKey("");
                                 }}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
+                                className={`flex-1 min-w-0 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                                   selectedKey === ind.key
                                     ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
                                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -656,11 +656,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                   className="w-2.5 h-2.5 rounded-full shrink-0"
                                   style={{ backgroundColor: colorMap[ind.key] }}
                                 />
-                                {ind.display_name}
+                                <span className="truncate">{ind.display_name}</span>
                                 {source && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
+                                      <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity shrink-0" />
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
                                       <p className="font-semibold">{source.officialName}</p>
