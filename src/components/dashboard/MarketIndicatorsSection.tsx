@@ -778,7 +778,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
               </Tooltip>
             </div>
-            <p className="text-sm text-muted-foreground/70 italic -mt-2">
+            <p className={`${modalTypeClasses.body} italic -mt-2`}>
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
             </p>
 
