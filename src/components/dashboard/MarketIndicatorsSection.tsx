@@ -534,11 +534,19 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     })).filter((group) => group.items.length > 0);
   }, [accessibleIndicators, uf]);
 
+  // Standardized typography — 3 sizes only across the entire modal
   const modalTypeClasses = {
-    title: "text-xl font-semibold text-foreground",
-    value: "text-lg font-semibold text-foreground",
-    body: "text-sm font-normal text-muted-foreground",
+    title: "text-[14px] font-bold text-foreground",   // section titles ("Mercado", "Moedas"...)
+    value: "text-[13px] font-medium text-foreground", // indicator names + values
+    body: "text-[11px] font-normal text-muted-foreground", // descriptions + legends
   };
+
+  // Ibovespa: render chart only when there are at least 2 historical points
+  const ibovespaHistoryCount = useMemo(
+    () => history.filter(h => h.key === "index_ibovespa").length,
+    [history],
+  );
+  const ibovespaHasChart = isIbovespaSelected && ibovespaHistoryCount >= 2 && hasAnyData;
 
   return (
     <Card className="shadow-card">
