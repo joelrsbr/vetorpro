@@ -171,8 +171,7 @@ export function MarketTicker() {
   }, [definitions, latestByKey]);
 
   const loopEntries = useMemo<LoopEntry[]>(() => {
-    const base: LoopEntry[] = [{ key: "spacer-start", spacer: true }, ...items, { key: "spacer-end", spacer: true }];
-    return [...base, ...base];
+    return [...items, ...items];
   }, [items]);
 
   const planLabel = plan === "business" ? "Business" : plan === "pro" ? "Professional" : "Basic";
