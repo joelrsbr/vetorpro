@@ -517,8 +517,6 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || defaultColor };
   }
 
-  // Debug log for comparison validation
-  console.log("[MarketIndicators]", { selectedKey, compareKey, chartDataLength: chartData.length, series: Object.keys(chartConfig) });
 
   // Comparison options: accessible indicators excluding selected
   const compareOptions = accessibleIndicators.filter(i => i.key !== selectedKey);
