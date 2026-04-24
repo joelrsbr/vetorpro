@@ -691,7 +691,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     {lockedIndicators.map((ind) => (
                       <Tooltip key={ind.key}>
                         <TooltipTrigger asChild>
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] opacity-40 cursor-not-allowed bg-muted/30">
                             <Lock className="w-3 h-3 text-muted-foreground" />
                             <span>{ind.display_name}</span>
                           </div>
