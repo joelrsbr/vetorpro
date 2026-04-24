@@ -1111,7 +1111,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     <div>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <p className="font-semibold text-lg cursor-help">
+                          <p className={`${modalTypeClasses.value} cursor-help`}>
                             Juro Real:{" "}
                             <span className={juroReal.value >= 0 ? "text-emerald-600" : "text-red-500"}>
                               {juroReal.value > 0 ? "+" : ""}
@@ -1123,7 +1123,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                           Diferença entre a taxa Selic e o IPCA. Indica o retorno real acima da inflação.
                         </TooltipContent>
                       </Tooltip>
-                      <p className="text-xs text-muted-foreground">
+                      <p className={modalTypeClasses.body}>
                         Retorno real acima da inflação · Selic ({juroReal.selic}%) − IPCA ({juroReal.ipca}%)
                       </p>
                     </div>
