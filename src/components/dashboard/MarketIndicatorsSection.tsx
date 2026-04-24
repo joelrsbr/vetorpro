@@ -517,8 +517,6 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     chartConfig[compareKey] = { label: compareIndicator.display_name, color: colorMap[compareKey] || defaultColor };
   }
 
-  // Debug log for comparison validation
-  console.log("[MarketIndicators]", { selectedKey, compareKey, chartDataLength: chartData.length, series: Object.keys(chartConfig) });
 
   // Comparison options: accessible indicators excluding selected
   const compareOptions = accessibleIndicators.filter(i => i.key !== selectedKey);
@@ -534,11 +532,19 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     })).filter((group) => group.items.length > 0);
   }, [accessibleIndicators, uf]);
 
+  // Standardized typography — 3 sizes only across the entire modal
   const modalTypeClasses = {
-    title: "text-xl font-semibold text-foreground",
-    value: "text-lg font-semibold text-foreground",
-    body: "text-sm font-normal text-muted-foreground",
+    title: "text-[14px] font-bold text-foreground",   // section titles ("Mercado", "Moedas"...)
+    value: "text-[13px] font-medium text-foreground", // indicator names + values
+    body: "text-[11px] font-normal text-muted-foreground", // descriptions + legends
   };
+
+  // Ibovespa: render chart only when there are at least 2 historical points
+  const ibovespaHistoryCount = useMemo(
+    () => history.filter(h => h.key === "index_ibovespa").length,
+    [history],
+  );
+  const ibovespaHasChart = isIbovespaSelected && ibovespaHistoryCount >= 2 && hasAnyData;
 
   return (
     <Card className="shadow-card">
@@ -633,7 +639,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                   setSelectedKey(ind.key);
                                   if (ind.key === compareKey) setCompareKey("");
                                 }}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                                   selectedKey === ind.key
                                     ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
                                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -685,7 +691,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     {lockedIndicators.map((ind) => (
                       <Tooltip key={ind.key}>
                         <TooltipTrigger asChild>
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm opacity-40 cursor-not-allowed bg-muted/30">
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] opacity-40 cursor-not-allowed bg-muted/30">
                             <Lock className="w-3 h-3 text-muted-foreground" />
                             <span>{ind.display_name}</span>
                           </div>
@@ -772,7 +778,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
               </Tooltip>
             </div>
-            <p className="text-sm text-muted-foreground/70 italic -mt-2">
+            <p className={`${modalTypeClasses.body} italic -mt-2`}>
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
             </p>
 
@@ -783,12 +789,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   Variação no período (%)
                 </div>
               )}
-              {process.env.NODE_ENV === "development" && (
-                <div className="text-[10px] text-muted-foreground bg-muted/30 rounded px-2 py-1 mb-1 font-mono">
-                  isMixedUnits: {String(isMixedUnits)} | selectedUnit: {selectedUnit} | compareUnit: {compareUnit} | compareKey: {compareKey || "none"}
-                </div>
-              )}
-              {!isIbovespaSelected && hasAnyData ? (
+              {(!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
@@ -973,8 +974,8 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         </p>
                       </div>
                     </div>
-                    <p className={modalTypeClasses.body}>
-                      Dado informativo em tempo quase real — gráfico histórico do Ibovespa será habilitado em uma próxima etapa.
+                    <p className={`${modalTypeClasses.body} italic`}>
+                      Histórico em construção — dado informativo disponível.
                     </p>
                   </CardContent>
                 </Card>
@@ -1110,7 +1111,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     <div>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <p className="font-semibold text-lg cursor-help">
+                          <p className={`${modalTypeClasses.value} cursor-help`}>
                             Juro Real:{" "}
                             <span className={juroReal.value >= 0 ? "text-emerald-600" : "text-red-500"}>
                               {juroReal.value > 0 ? "+" : ""}
@@ -1122,7 +1123,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                           Diferença entre a taxa Selic e o IPCA. Indica o retorno real acima da inflação.
                         </TooltipContent>
                       </Tooltip>
-                      <p className="text-xs text-muted-foreground">
+                      <p className={modalTypeClasses.body}>
                         Retorno real acima da inflação · Selic ({juroReal.selic}%) − IPCA ({juroReal.ipca}%)
                       </p>
                     </div>
