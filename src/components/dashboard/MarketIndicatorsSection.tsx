@@ -976,8 +976,8 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         </p>
                       </div>
                     </div>
-                    <p className={modalTypeClasses.body}>
-                      Dado informativo em tempo quase real — gráfico histórico do Ibovespa será habilitado em uma próxima etapa.
+                    <p className={`${modalTypeClasses.body} italic`}>
+                      Histórico em construção — dado informativo disponível.
                     </p>
                   </CardContent>
                 </Card>
