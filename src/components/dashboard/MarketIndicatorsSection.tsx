@@ -532,11 +532,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     })).filter((group) => group.items.length > 0);
   }, [accessibleIndicators, uf]);
 
-  // Standardized typography — 3 sizes only across the entire modal
+  // Standardized typography
   const modalTypeClasses = {
-    title: "text-[14px] font-bold text-foreground",   // section titles ("Mercado", "Moedas"...)
-    value: "text-[13px] font-medium text-foreground", // indicator names + values
-    body: "text-[11px] font-normal text-muted-foreground", // descriptions + legends
+    title: "text-[14px] font-bold text-foreground",
+    value: "text-[13px] font-medium text-foreground",
+    body: "text-[11px] font-normal text-muted-foreground",
+    groupTitle: "text-[11px] font-semibold uppercase text-muted-foreground tracking-[0.05em]",
+    metricValue: "text-[20px] font-bold text-foreground",
+    bodyItalic: "text-[11px] font-normal italic text-muted-foreground",
   };
 
   // Ibovespa: render chart only when there are at least 2 historical points
@@ -623,11 +626,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         ) : (
             <div className="space-y-4">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {groupedAccessibleIndicators.map((group) => (
                   <div key={group.id} className="space-y-2">
-                    <p className={`${modalTypeClasses.body} px-1`}>{group.label}</p>
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <p className={`${modalTypeClasses.groupTitle} px-1`}>{group.label}</p>
+                    <div className="flex items-stretch gap-2 w-full">
                       {group.items.map((ind) => {
                         const source = OFFICIAL_SOURCES[ind.key];
 
@@ -639,7 +642,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                   setSelectedKey(ind.key);
                                   if (ind.key === compareKey) setCompareKey("");
                                 }}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
+                                className={`flex-1 min-w-0 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                                   selectedKey === ind.key
                                     ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
                                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -653,11 +656,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                   className="w-2.5 h-2.5 rounded-full shrink-0"
                                   style={{ backgroundColor: colorMap[ind.key] }}
                                 />
-                                {ind.display_name}
+                                <span className="truncate">{ind.display_name}</span>
                                 {source && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity" />
+                                      <Info className="h-3 w-3 opacity-40 hover:opacity-100 transition-opacity shrink-0" />
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="max-w-[280px] text-xs space-y-1">
                                       <p className="font-semibold">{source.officialName}</p>
@@ -950,31 +953,31 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <CardContent className="py-5 space-y-4">
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Pontuação atual</p>
-                        <p className={`mt-1 ${modalTypeClasses.value}`}>
+                        <p className={modalTypeClasses.groupTitle}>Pontuação atual</p>
+                        <p className={`mt-1 ${modalTypeClasses.metricValue}`}>
                           {ibovespaMetrics?.points != null
                             ? `${ibovespaMetrics.points.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} pts`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Variação do dia</p>
-                        <p className={`mt-1 ${modalTypeClasses.value} ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
+                        <p className={modalTypeClasses.groupTitle}>Variação do dia</p>
+                        <p className={`mt-1 ${modalTypeClasses.metricValue} ${((ibovespaMetrics?.variation ?? 0) >= 0) ? "text-emerald-600" : "text-red-500"}`}>
                           {ibovespaMetrics?.variation != null
                             ? `${ibovespaMetrics.variation >= 0 ? "+" : ""}${ibovespaMetrics.variation.toFixed(2)}%`
                             : "—"}
                         </p>
                       </div>
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                        <p className={`${modalTypeClasses.body} uppercase tracking-wide`}>Volume negociado</p>
-                        <p className={`mt-1 ${modalTypeClasses.value}`}>
+                        <p className={modalTypeClasses.groupTitle}>Volume negociado</p>
+                        <p className={`mt-1 ${modalTypeClasses.metricValue}`}>
                           {ibovespaMetrics?.volume != null
                             ? ibovespaMetrics.volume.toLocaleString("pt-BR")
                             : "—"}
                         </p>
                       </div>
                     </div>
-                    <p className={`${modalTypeClasses.body} italic`}>
+                    <p className={modalTypeClasses.bodyItalic}>
                       Histórico em construção — dado informativo disponível.
                     </p>
                   </CardContent>
