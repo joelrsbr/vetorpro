@@ -639,7 +639,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                   setSelectedKey(ind.key);
                                   if (ind.key === compareKey) setCompareKey("");
                                 }}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                                   selectedKey === ind.key
                                     ? "shadow-sm ring-1 ring-offset-1 ring-current/20 text-foreground"
                                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
