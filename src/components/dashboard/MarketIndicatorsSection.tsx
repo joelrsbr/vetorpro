@@ -286,12 +286,13 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     [validIndicators, userPlan],
   );
 
-  // Auto-select first accessible indicator
+  // Auto-select first accessible indicator (only in inline mode — modal opens with no selection)
   useEffect(() => {
+    if (expanded) return;
     if (accessibleIndicators.length > 0 && !accessibleIndicators.find(i => i.key === selectedKey)) {
       setSelectedKey(accessibleIndicators[0].key);
     }
-  }, [accessibleIndicators, selectedKey]);
+  }, [accessibleIndicators, selectedKey, expanded]);
 
   // Reset compare if invalid
   useEffect(() => {
