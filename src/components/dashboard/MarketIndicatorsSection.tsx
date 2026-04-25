@@ -17,6 +17,7 @@ import {
   Info,
   HelpCircle,
   ExternalLink,
+  Compass,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
