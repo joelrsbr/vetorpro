@@ -562,13 +562,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   /* ─── Juro Real Histórico (Business) ─── */
   const juroRealHistoricoLocked = !hasAccess(userPlan, "business");
 
-  const hasAnyData = chartData.length > 0;
-  const chartHeight = expanded ? 340 : 225;
-
   // Unit detection from indicator metadata
   const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
   const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
-  const isMixedUnits = viewMode === "absolute" && !!(
+  const hasMixedUnits = !!(
     compareKey &&
     compareIndicator &&
     (() => {
@@ -584,6 +581,18 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       return uA !== uB;
     })()
   );
+  // Auto-normalize to base-100 when comparing mixed units in absolute mode
+  const useBase100 = viewMode === "absolute" && hasMixedUnits;
+  const isMixedUnits = false; // dual-axis disabled — replaced by base-100 normalization
+
+  const chartData = useBase100
+    ? chartDataBase100
+    : viewMode === "percent"
+      ? chartDataPercent
+      : chartDataAbsolute;
+  const hasAnyData = chartData.length > 0;
+  const chartHeight = expanded ? 340 : 225;
+
 
   // Assign colors based on category
   const colorMap = useMemo(() => {
