@@ -493,7 +493,36 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     });
   }, [chartDataAbsolute, selectedKey, compareKey]);
 
-  const chartData = viewMode === "percent" ? chartDataPercent : chartDataAbsolute;
+  /* ─── Base-100 normalized data (for mixed-unit comparisons) ─── */
+  const chartDataBase100 = useMemo(() => {
+    if (chartDataAbsolute.length === 0) return [];
+    const keysToPlot = [selectedKey];
+    if (compareKey) keysToPlot.push(compareKey);
+
+    const initials: Record<string, number> = {};
+    for (const row of chartDataAbsolute) {
+      for (const k of keysToPlot) {
+        if (initials[k] === undefined && row[k] != null && Number(row[k]) !== 0) {
+          initials[k] = Number(row[k]);
+        }
+      }
+    }
+
+    return chartDataAbsolute.map(row => {
+      const newRow: Record<string, string | number | null> = { date: row.date };
+      for (const k of keysToPlot) {
+        const v = row[k];
+        if (v != null && initials[k] !== undefined) {
+          newRow[k] = parseFloat(((Number(v) / initials[k]) * 100).toFixed(2));
+        } else {
+          newRow[k] = null;
+        }
+        newRow[`__period_${k}`] = row[`__period_${k}`] ?? null;
+      }
+      return newRow;
+    });
+  }, [chartDataAbsolute, selectedKey, compareKey]);
+
 
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
