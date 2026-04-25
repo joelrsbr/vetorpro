@@ -695,6 +695,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                 onClick={() => {
                                   setSelectedKey(ind.key);
                                   if (ind.key === compareKey) setCompareKey("");
+                                  setActiveGuidedId("");
                                 }}
                                 className={`flex-1 min-w-0 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                                   selectedKey === ind.key
