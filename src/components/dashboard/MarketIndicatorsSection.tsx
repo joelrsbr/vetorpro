@@ -1064,12 +1064,21 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
 
             {insights.length > 0 && (
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <Lightbulb className="h-4 w-4" />
-                  Insights automáticos
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Lightbulb className="h-4 w-4" />
+                    Insights automáticos
+                  </div>
+                  <p className="text-[11px] italic text-muted-foreground pl-6">
+                    Use com seu cliente
+                  </p>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  {insights.map(insight => (
+                  {insights.map(insight => {
+                    // Extract message between single quotes — that's the copyable client-facing text
+                    const match = insight.actionText?.match(/'([^']+)'/);
+                    const clientMessage = match ? match[1] : insight.actionText ?? "";
+                    return (
                     <div
                       key={insight.id}
                       className={`flex flex-col gap-2 p-3 rounded-lg border text-sm ${
@@ -1087,10 +1096,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       {insight.actionText && (
                         <div className="mt-2 pt-2 border-t border-current/10 w-full">
                           <p className="text-xs text-muted-foreground italic leading-relaxed">
-                            {insight.actionText}
+                            “{clientMessage}”
                           </p>
                           <button
-                            onClick={() => navigator.clipboard.writeText(insight.actionText!)}
+                            onClick={() => navigator.clipboard.writeText(clientMessage)}
                             className="mt-1.5 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1102,7 +1111,8 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         </div>
                       )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
