@@ -889,21 +889,40 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
                 </Tooltip>
               </div>
-              {!isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
-                <Select value={compareKey || "none"} onValueChange={(v) => { setCompareKey(v === "none" ? "" : v); setActiveGuidedId(""); }}>
-                  <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
-                    <SelectValue placeholder="Comparar com..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sem comparação</SelectItem>
-                    {compareOptions.map((ind) => (
-                      <SelectItem key={ind.key} value={ind.key}>
-                        {ind.display_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {activeGuided ? (
+                <div className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+                  <Compass className="h-3 w-3" />
+                  Comparação Guiada Ativa
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveGuidedId("");
+                      setCompareKey("");
+                    }}
+                    className="ml-1 rounded-full hover:bg-emerald-100 p-0.5 transition-colors"
+                    aria-label="Limpar comparação guiada"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                !isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
+                  <Select value={compareKey || "none"} onValueChange={(v) => { setCompareKey(v === "none" ? "" : v); setActiveGuidedId(""); }}>
+                    <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
+                      <SelectValue placeholder="Comparar com..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Sem comparação</SelectItem>
+                      {compareOptions.map((ind) => (
+                        <SelectItem key={ind.key} value={ind.key}>
+                          {ind.display_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )
               )}
+
             </div>
             <p className={`${modalTypeClasses.body} italic -mt-2`}>
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
