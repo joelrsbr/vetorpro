@@ -18,7 +18,50 @@ import {
   HelpCircle,
   ExternalLink,
   Compass,
+  BarChart2,
+  Hammer,
+  Coins,
 } from "lucide-react";
+
+interface GuidedComparison {
+  id: string;
+  title: string;
+  emoji: string;
+  icon: typeof BarChart2;
+  primary: string;
+  compare: string;
+  narrative: string;
+}
+
+const GUIDED_COMPARISONS: GuidedComparison[] = [
+  {
+    id: "inflacao_poupanca",
+    title: "Inflação vs Poupança",
+    emoji: "📊",
+    icon: BarChart2,
+    primary: "rate_ipca",
+    compare: "rate_poupanca",
+    narrative: "Compare se a poupança está protegendo o poder de compra do seu cliente contra a inflação.",
+  },
+  {
+    id: "incc_ipca",
+    title: "Custo da Construção vs Inflação",
+    emoji: "🏗️",
+    icon: Hammer,
+    primary: "incc",
+    compare: "rate_ipca",
+    narrative: "Mostre se o custo de construir está subindo mais que a inflação geral — argumento para imóvel na planta.",
+  },
+  {
+    id: "juro_real",
+    title: "Juro Real",
+    emoji: "💰",
+    icon: Coins,
+    primary: "rate_selic",
+    compare: "rate_ipca",
+    narrative: "O juro real mostra o rendimento verdadeiro do dinheiro parado — compare com a valorização histórica do imóvel.",
+  },
+];
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useMarketData, type IndicatorMeta } from "@/hooks/useMarketData";
