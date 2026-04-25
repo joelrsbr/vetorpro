@@ -21,6 +21,7 @@ import {
   BarChart2,
   Hammer,
   Coins,
+  X,
 } from "lucide-react";
 
 interface GuidedComparison {
@@ -492,7 +493,36 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
     });
   }, [chartDataAbsolute, selectedKey, compareKey]);
 
-  const chartData = viewMode === "percent" ? chartDataPercent : chartDataAbsolute;
+  /* ─── Base-100 normalized data (for mixed-unit comparisons) ─── */
+  const chartDataBase100 = useMemo(() => {
+    if (chartDataAbsolute.length === 0) return [];
+    const keysToPlot = [selectedKey];
+    if (compareKey) keysToPlot.push(compareKey);
+
+    const initials: Record<string, number> = {};
+    for (const row of chartDataAbsolute) {
+      for (const k of keysToPlot) {
+        if (initials[k] === undefined && row[k] != null && Number(row[k]) !== 0) {
+          initials[k] = Number(row[k]);
+        }
+      }
+    }
+
+    return chartDataAbsolute.map(row => {
+      const newRow: Record<string, string | number | null> = { date: row.date };
+      for (const k of keysToPlot) {
+        const v = row[k];
+        if (v != null && initials[k] !== undefined) {
+          newRow[k] = parseFloat(((Number(v) / initials[k]) * 100).toFixed(2));
+        } else {
+          newRow[k] = null;
+        }
+        newRow[`__period_${k}`] = row[`__period_${k}`] ?? null;
+      }
+      return newRow;
+    });
+  }, [chartDataAbsolute, selectedKey, compareKey]);
+
 
   /* ─── Latest values ─── */
   const latestValues = useMemo(() => {
@@ -532,13 +562,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   /* ─── Juro Real Histórico (Business) ─── */
   const juroRealHistoricoLocked = !hasAccess(userPlan, "business");
 
-  const hasAnyData = chartData.length > 0;
-  const chartHeight = expanded ? 340 : 225;
-
   // Unit detection from indicator metadata
   const selectedUnit = selectedIndicator?.unit || (selectedKey.startsWith("rate_") ? "percent" : "currency");
   const compareUnit = compareIndicator?.unit || (compareKey?.startsWith("rate_") ? "percent" : "currency");
-  const isMixedUnits = viewMode === "absolute" && !!(
+  const hasMixedUnits = !!(
     compareKey &&
     compareIndicator &&
     (() => {
@@ -554,6 +581,18 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
       return uA !== uB;
     })()
   );
+  // Auto-normalize to base-100 when comparing mixed units in absolute mode
+  const useBase100 = viewMode === "absolute" && hasMixedUnits;
+  const isMixedUnits = false; // dual-axis disabled — replaced by base-100 normalization
+
+  const chartData = useBase100
+    ? chartDataBase100
+    : viewMode === "percent"
+      ? chartDataPercent
+      : chartDataAbsolute;
+  const hasAnyData = chartData.length > 0;
+  const chartHeight = expanded ? 340 : 225;
+
 
   // Assign colors based on category
   const colorMap = useMemo(() => {
@@ -850,21 +889,40 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
                 </Tooltip>
               </div>
-              {!isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
-                <Select value={compareKey || "none"} onValueChange={(v) => { setCompareKey(v === "none" ? "" : v); setActiveGuidedId(""); }}>
-                  <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
-                    <SelectValue placeholder="Comparar com..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sem comparação</SelectItem>
-                    {compareOptions.map((ind) => (
-                      <SelectItem key={ind.key} value={ind.key}>
-                        {ind.display_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {activeGuided ? (
+                <div className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+                  <Compass className="h-3 w-3" />
+                  Comparação Guiada Ativa
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveGuidedId("");
+                      setCompareKey("");
+                    }}
+                    className="ml-1 rounded-full hover:bg-emerald-100 p-0.5 transition-colors"
+                    aria-label="Limpar comparação guiada"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                !isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
+                  <Select value={compareKey || "none"} onValueChange={(v) => { setCompareKey(v === "none" ? "" : v); setActiveGuidedId(""); }}>
+                    <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
+                      <SelectValue placeholder="Comparar com..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Sem comparação</SelectItem>
+                      {compareOptions.map((ind) => (
+                        <SelectItem key={ind.key} value={ind.key}>
+                          {ind.display_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )
               )}
+
             </div>
             <p className={`${modalTypeClasses.body} italic -mt-2`}>
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
@@ -877,6 +935,12 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   Variação no período (%)
                 </div>
               )}
+              {useBase100 && (
+                <div className="text-xs text-muted-foreground mb-1 italic">
+                  Índice base 100 — variação relativa ao primeiro ponto da série
+                </div>
+              )}
+
               {!selectedKey ? (
                 <div
                   className="flex items-center justify-center text-center text-muted-foreground"
@@ -902,14 +966,18 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
                       tickFormatter={(v) =>
-                        viewMode === "percent"
-                          ? `${Number(v).toFixed(1)}%`
-                          : formatAxisTick(v, selectedUnit, selectedKey)
+                        useBase100
+                          ? Number(v).toFixed(0)
+                          : viewMode === "percent"
+                            ? `${Number(v).toFixed(1)}%`
+                            : formatAxisTick(v, selectedUnit, selectedKey)
                       }
                       label={{
-                        value: viewMode === "percent"
-                          ? selectedIndicator?.display_name + " (%)"
-                          : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
+                        value: useBase100
+                          ? "Índice (base 100)"
+                          : viewMode === "percent"
+                            ? selectedIndicator?.display_name + " (%)"
+                            : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
                         angle: -90,
                         position: "insideLeft",
                         offset: 12,
@@ -954,9 +1022,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                             const ind = validIndicators.find(i => i.key === key);
                             const period = (item?.payload?.[`__period_${key}`] ?? null) as Periodicidade | null;
                             const periodLabel = periodicidadeLabel(period);
-                            const valueStr = viewMode === "percent"
-                              ? `${Number(value).toFixed(2)}%`
-                              : formatValue(key, Number(value));
+                            const valueStr = useBase100
+                              ? Number(value).toFixed(2)
+                              : viewMode === "percent"
+                                ? `${Number(value).toFixed(2)}%`
+                                : formatValue(key, Number(value));
                             const display = periodLabel ? (
                               <span className="flex flex-col">
                                 <span>{valueStr}</span>
