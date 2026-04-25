@@ -754,9 +754,9 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => setArgumentsMapOpen(true)}
-                      className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors font-medium"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors"
                     >
-                      <HelpCircle className="h-3.5 w-3.5" />
+                      <Compass className="h-3.5 w-3.5" />
                       Mapa de Argumentos
                     </button>
                   </TooltipTrigger>
