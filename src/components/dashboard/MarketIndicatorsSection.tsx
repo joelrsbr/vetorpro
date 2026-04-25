@@ -935,6 +935,12 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   Variação no período (%)
                 </div>
               )}
+              {useBase100 && (
+                <div className="text-xs text-muted-foreground mb-1 italic">
+                  Índice base 100 — variação relativa ao primeiro ponto da série
+                </div>
+              )}
+
               {!selectedKey ? (
                 <div
                   className="flex items-center justify-center text-center text-muted-foreground"
