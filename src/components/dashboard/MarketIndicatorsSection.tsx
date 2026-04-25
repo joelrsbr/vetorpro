@@ -712,28 +712,8 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 )}
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  {!isIbovespaSelected && compareOptions.length > 0 && (
-                    <>
-                      <div className="h-5 w-px bg-border mx-1" />
-                      <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
-                        <SelectTrigger className="h-8 w-[180px] text-xs">
-                          <SelectValue placeholder="Comparar com..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Sem comparação</SelectItem>
-                          {compareOptions.map((ind) => (
-                            <SelectItem key={ind.key} value={ind.key}>
-                              {ind.display_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </>
-                  )}
-
                   {!isIbovespaSelected && compareKey && (
                     <>
-                      <div className="h-5 w-px bg-border mx-1" />
                       <div className="flex items-center bg-muted/50 rounded-md p-0.5">
                         <button
                           onClick={() => setViewMode("absolute")}
@@ -761,26 +741,43 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </div>
               </div>
 
-            {/* ─── Color Legend ─── */}
-            <div className={`flex items-center gap-3 flex-wrap ${modalTypeClasses.body}`}>
-              {LEGEND_ITEMS.map((item) => (
-                <span key={item.id} className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  {item.label}
-                </span>
-              ))}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setArgumentsMapOpen(true)}
-                    className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors font-medium"
-                  >
-                    <HelpCircle className="h-3.5 w-3.5" />
-                    Mapa de Argumentos
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
-              </Tooltip>
+            {/* ─── Color Legend + Compare Selector ─── */}
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className={`flex items-center gap-3 flex-wrap ${modalTypeClasses.body}`}>
+                {LEGEND_ITEMS.map((item) => (
+                  <span key={item.id} className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    {item.label}
+                  </span>
+                ))}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setArgumentsMapOpen(true)}
+                      className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors font-medium"
+                    >
+                      <HelpCircle className="h-3.5 w-3.5" />
+                      Mapa de Argumentos
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Argumentos de venda por categoria de indicador</TooltipContent>
+                </Tooltip>
+              </div>
+              {!isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
+                <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
+                  <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
+                    <SelectValue placeholder="Comparar com..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem comparação</SelectItem>
+                    {compareOptions.map((ind) => (
+                      <SelectItem key={ind.key} value={ind.key}>
+                        {ind.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <p className={`${modalTypeClasses.body} italic -mt-2`}>
               Dica: Indicadores da mesma cor oferecem comparações mais diretas de mercado.
@@ -793,7 +790,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   Variação no período (%)
                 </div>
               )}
-              {(!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
+              {!selectedKey ? (
+                <div
+                  className="flex items-center justify-center text-center text-muted-foreground"
+                  style={{ height: chartHeight, fontSize: 13 }}
+                >
+                  Selecione um indicador acima para visualizar o histórico.
+                </div>
+              ) : (!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
