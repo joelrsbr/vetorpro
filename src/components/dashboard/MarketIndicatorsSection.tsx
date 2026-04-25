@@ -1022,9 +1022,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                             const ind = validIndicators.find(i => i.key === key);
                             const period = (item?.payload?.[`__period_${key}`] ?? null) as Periodicidade | null;
                             const periodLabel = periodicidadeLabel(period);
-                            const valueStr = viewMode === "percent"
-                              ? `${Number(value).toFixed(2)}%`
-                              : formatValue(key, Number(value));
+                            const valueStr = useBase100
+                              ? Number(value).toFixed(2)
+                              : viewMode === "percent"
+                                ? `${Number(value).toFixed(2)}%`
+                                : formatValue(key, Number(value));
                             const display = periodLabel ? (
                               <span className="flex flex-col">
                                 <span>{valueStr}</span>
