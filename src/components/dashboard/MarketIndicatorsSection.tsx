@@ -680,6 +680,39 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         ) : (
             <div className="space-y-4">
+              {expanded && (
+                <div className="space-y-2">
+                  <p className={`${modalTypeClasses.groupTitle} px-1`}>Comparações Guiadas</p>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    {GUIDED_COMPARISONS.map((g) => {
+                      const Icon = g.icon;
+                      const isActive = activeGuidedId === g.id;
+                      return (
+                        <button
+                          key={g.id}
+                          type="button"
+                          onClick={() => applyGuidedComparison(g)}
+                          className={`text-left rounded-lg border p-3 transition-all hover:shadow-sm ${
+                            isActive
+                              ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/20 shadow-sm"
+                              : "border-border/70 bg-muted/20 hover:border-emerald-500/50 hover:bg-muted/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon className={`h-4 w-4 ${isActive ? "text-emerald-600" : "text-muted-foreground"}`} />
+                            <span className="text-[13px] font-bold text-foreground">
+                              {g.title} <span className="font-normal">{g.emoji}</span>
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                            {g.narrative}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="space-y-5">
                 {groupedAccessibleIndicators.map((group) => (
                   <div key={group.id} className="space-y-2">
