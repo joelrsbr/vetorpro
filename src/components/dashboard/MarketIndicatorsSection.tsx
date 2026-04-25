@@ -1039,6 +1039,16 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     )}
                   </div>
                 )}
+                {activeGuided && (
+                  <div className="mt-3 rounded-md border-l-4 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                      {activeGuided.title} {activeGuided.emoji}
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-foreground">
+                      {activeGuided.narrative}
+                    </p>
+                  </div>
+                )}
                 </>
               ) : isIbovespaSelected ? (
                 <Card className="border-dashed">
