@@ -818,7 +818,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </Tooltip>
               </div>
               {!isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
-                <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
+                <Select value={compareKey || "none"} onValueChange={(v) => { setCompareKey(v === "none" ? "" : v); setActiveGuidedId(""); }}>
                   <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
                     <SelectValue placeholder="Comparar com..." />
                   </SelectTrigger>
