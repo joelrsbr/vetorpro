@@ -21,6 +21,7 @@ import {
   BarChart2,
   Hammer,
   Coins,
+  X,
 } from "lucide-react";
 
 interface GuidedComparison {
