@@ -252,6 +252,15 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [period, setPeriod] = useState<Period>("6m");
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [compareKey, setCompareKey] = useState<string>("");
+  const [activeGuidedId, setActiveGuidedId] = useState<string>("");
+
+  const applyGuidedComparison = useCallback((g: GuidedComparison) => {
+    setSelectedKey(g.primary);
+    setCompareKey(g.compare === g.primary ? "" : g.compare);
+    setActiveGuidedId(g.id);
+  }, []);
+
+  const activeGuided = GUIDED_COMPARISONS.find((g) => g.id === activeGuidedId) || null;
   const [viewMode, setViewMode] = useState<ViewMode>("absolute");
   const [argumentsMapOpen, setArgumentsMapOpen] = useState(false);
   const { plan, isActive } = useSubscription();
