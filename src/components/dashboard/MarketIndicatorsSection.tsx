@@ -18,7 +18,50 @@ import {
   HelpCircle,
   ExternalLink,
   Compass,
+  BarChart2,
+  Hammer,
+  Coins,
 } from "lucide-react";
+
+interface GuidedComparison {
+  id: string;
+  title: string;
+  emoji: string;
+  icon: typeof BarChart2;
+  primary: string;
+  compare: string;
+  narrative: string;
+}
+
+const GUIDED_COMPARISONS: GuidedComparison[] = [
+  {
+    id: "inflacao_poupanca",
+    title: "Inflação vs Poupança",
+    emoji: "📊",
+    icon: BarChart2,
+    primary: "rate_ipca",
+    compare: "rate_poupanca",
+    narrative: "Compare se a poupança está protegendo o poder de compra do seu cliente contra a inflação.",
+  },
+  {
+    id: "incc_ipca",
+    title: "Custo da Construção vs Inflação",
+    emoji: "🏗️",
+    icon: Hammer,
+    primary: "incc",
+    compare: "rate_ipca",
+    narrative: "Mostre se o custo de construir está subindo mais que a inflação geral — argumento para imóvel na planta.",
+  },
+  {
+    id: "juro_real",
+    title: "Juro Real",
+    emoji: "💰",
+    icon: Coins,
+    primary: "rate_selic",
+    compare: "rate_ipca",
+    narrative: "O juro real mostra o rendimento verdadeiro do dinheiro parado — compare com a valorização histórica do imóvel.",
+  },
+];
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useMarketData, type IndicatorMeta } from "@/hooks/useMarketData";
@@ -209,6 +252,15 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
   const [period, setPeriod] = useState<Period>("6m");
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [compareKey, setCompareKey] = useState<string>("");
+  const [activeGuidedId, setActiveGuidedId] = useState<string>("");
+
+  const applyGuidedComparison = useCallback((g: GuidedComparison) => {
+    setSelectedKey(g.primary);
+    setCompareKey(g.compare === g.primary ? "" : g.compare);
+    setActiveGuidedId(g.id);
+  }, []);
+
+  const activeGuided = GUIDED_COMPARISONS.find((g) => g.id === activeGuidedId) || null;
   const [viewMode, setViewMode] = useState<ViewMode>("absolute");
   const [argumentsMapOpen, setArgumentsMapOpen] = useState(false);
   const { plan, isActive } = useSubscription();
@@ -628,6 +680,39 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
           </div>
         ) : (
             <div className="space-y-4">
+              {expanded && (
+                <div className="space-y-2">
+                  <p className={`${modalTypeClasses.groupTitle} px-1`}>Comparações Guiadas</p>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    {GUIDED_COMPARISONS.map((g) => {
+                      const Icon = g.icon;
+                      const isActive = activeGuidedId === g.id;
+                      return (
+                        <button
+                          key={g.id}
+                          type="button"
+                          onClick={() => applyGuidedComparison(g)}
+                          className={`text-left rounded-lg border p-3 transition-all hover:shadow-sm ${
+                            isActive
+                              ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/20 shadow-sm"
+                              : "border-border/70 bg-muted/20 hover:border-emerald-500/50 hover:bg-muted/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon className={`h-4 w-4 ${isActive ? "text-emerald-600" : "text-muted-foreground"}`} />
+                            <span className="text-[13px] font-bold text-foreground">
+                              {g.title} <span className="font-normal">{g.emoji}</span>
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                            {g.narrative}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="space-y-5">
                 {groupedAccessibleIndicators.map((group) => (
                   <div key={group.id} className="space-y-2">
@@ -643,6 +728,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                                 onClick={() => {
                                   setSelectedKey(ind.key);
                                   if (ind.key === compareKey) setCompareKey("");
+                                  setActiveGuidedId("");
                                 }}
                                 className={`flex-1 min-w-0 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
                                   selectedKey === ind.key
@@ -765,7 +851,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </Tooltip>
               </div>
               {!isIbovespaSelected && selectedKey && compareOptions.length > 0 && (
-                <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
+                <Select value={compareKey || "none"} onValueChange={(v) => { setCompareKey(v === "none" ? "" : v); setActiveGuidedId(""); }}>
                   <SelectTrigger className="h-8 w-[180px] text-xs ml-auto">
                     <SelectValue placeholder="Comparar com..." />
                   </SelectTrigger>
@@ -951,6 +1037,16 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                         )}
                       </div>
                     )}
+                  </div>
+                )}
+                {activeGuided && (
+                  <div className="mt-3 rounded-md border-l-4 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                      {activeGuided.title} {activeGuided.emoji}
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-foreground">
+                      {activeGuided.narrative}
+                    </p>
                   </div>
                 )}
                 </>
