@@ -712,28 +712,8 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 )}
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  {!isIbovespaSelected && compareOptions.length > 0 && (
-                    <>
-                      <div className="h-5 w-px bg-border mx-1" />
-                      <Select value={compareKey || "none"} onValueChange={(v) => setCompareKey(v === "none" ? "" : v)}>
-                        <SelectTrigger className="h-8 w-[180px] text-xs">
-                          <SelectValue placeholder="Comparar com..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Sem comparação</SelectItem>
-                          {compareOptions.map((ind) => (
-                            <SelectItem key={ind.key} value={ind.key}>
-                              {ind.display_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </>
-                  )}
-
                   {!isIbovespaSelected && compareKey && (
                     <>
-                      <div className="h-5 w-px bg-border mx-1" />
                       <div className="flex items-center bg-muted/50 rounded-md p-0.5">
                         <button
                           onClick={() => setViewMode("absolute")}
