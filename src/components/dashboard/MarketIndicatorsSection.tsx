@@ -966,14 +966,18 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
                       tickFormatter={(v) =>
-                        viewMode === "percent"
-                          ? `${Number(v).toFixed(1)}%`
-                          : formatAxisTick(v, selectedUnit, selectedKey)
+                        useBase100
+                          ? Number(v).toFixed(0)
+                          : viewMode === "percent"
+                            ? `${Number(v).toFixed(1)}%`
+                            : formatAxisTick(v, selectedUnit, selectedKey)
                       }
                       label={{
-                        value: viewMode === "percent"
-                          ? selectedIndicator?.display_name + " (%)"
-                          : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
+                        value: useBase100
+                          ? "Índice (base 100)"
+                          : viewMode === "percent"
+                            ? selectedIndicator?.display_name + " (%)"
+                            : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
                         angle: -90,
                         position: "insideLeft",
                         offset: 12,
