@@ -790,7 +790,14 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                   Variação no período (%)
                 </div>
               )}
-              {(!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
+              {!selectedKey ? (
+                <div
+                  className="flex items-center justify-center text-center text-muted-foreground"
+                  style={{ height: chartHeight, fontSize: 13 }}
+                >
+                  Selecione um indicador acima para visualizar o histórico.
+                </div>
+              ) : (!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
