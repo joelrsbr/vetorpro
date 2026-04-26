@@ -936,8 +936,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 </div>
               )}
               {useBase100 && (
-                <div className="text-xs text-muted-foreground mb-1 italic">
-                  Índice base 100 — variação relativa ao primeiro ponto da série
+                <div className="text-[11px] text-muted-foreground mb-1 text-center">
+                  {activeGuided
+                    ? "Variação relativa ao período inicial — base 100"
+                    : "Índice base 100 — variação relativa ao primeiro ponto da série"}
                 </div>
               )}
 
