@@ -950,7 +950,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 >
                   Selecione um indicador acima para visualizar o histórico.
                 </div>
-              ) : (!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
+              ) : (!isIbovespaSelected || ibovespaHasChart) && hasAnyData && chartData.length >= 3 ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
