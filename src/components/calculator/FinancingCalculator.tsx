@@ -1212,7 +1212,28 @@ export function FinancingCalculator() {
                 <Link to="/login" className="text-primary underline">Faça login</Link> para desbloquear a tabela completa e salvar simulações.
               </p>
             )}
-          
+
+            {simulationUnlocked && (
+              <ExportActions
+                propertyValue={parseCurrency(propertyValue)}
+                downPayment={parseCurrency(downPayment)}
+                financedAmount={calculations.principal}
+                firstPayment={calculations.firstPayment}
+                totalInterest={calculations.totalInterest}
+                totalPaid={calculations.totalPaid}
+                interestRate={interestRateType === "annual"
+                  ? parseCurrency(interestRate)
+                  : (Math.pow(1 + parseCurrency(interestRate) / 100, 12) - 1) * 100}
+                termMonths={parseInt(termMonths) || 360}
+                amortizationType={amortizationType}
+                correctionIndex={correctionIndex}
+                clientName={clientName}
+                propertyDescription={propertyDescription}
+                clientPhone={clientPhone}
+                clientEmail={clientEmail}
+              />
+            )}
+
             <AmortizationSchedule
             schedule={calculations.schedule}
             amortizationType={amortizationType}
