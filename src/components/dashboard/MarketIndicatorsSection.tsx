@@ -950,7 +950,7 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                 >
                   Selecione um indicador acima para visualizar o histórico.
                 </div>
-              ) : (!isIbovespaSelected || ibovespaHasChart) && hasAnyData ? (
+              ) : (!isIbovespaSelected || ibovespaHasChart) && hasAnyData && chartData.length >= 3 ? (
                 <>
                 <ChartContainer config={chartConfig} className="w-full" style={{ height: chartHeight }}>
                   <LineChart data={chartData} margin={{ top: 5, right: isMixedUnits ? 70 : compareKey ? 20 : 10, bottom: 5, left: 20 }}>
@@ -1118,6 +1118,11 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     )}
                   </div>
                 )}
+                {(selectedKey === "crypto_btc" || compareKey === "crypto_btc") && (
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Bitcoin apresenta alta volatilidade — comparação ilustrativa, não recomendação de investimento.
+                  </p>
+                )}
                 {activeGuided && (
                   <div className="mt-3 rounded-md border-l-4 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10 px-3 py-2">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -1163,6 +1168,13 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     </p>
                   </CardContent>
                 </Card>
+              ) : hasAnyData && chartData.length < 3 ? (
+                <div
+                  className="flex items-center justify-center text-center text-muted-foreground px-6"
+                  style={{ height: chartHeight, fontSize: 13 }}
+                >
+                  Histórico em construção — poucos dados disponíveis para este período.
+                </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <Info className="h-10 w-10 mx-auto mb-3 opacity-40" />
