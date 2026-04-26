@@ -474,7 +474,7 @@ export default function Dashboard() {
                 )}
               </div>
               <div>
-                <p className="font-semibold text-sm uppercase tracking-wide">Bancos</p>
+                <p className="font-semibold text-sm">Bancos</p>
                 <p className="text-xs text-muted-foreground">Comparativos</p>
               </div>
             </CardContent>
