@@ -1163,6 +1163,13 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     </p>
                   </CardContent>
                 </Card>
+              ) : hasAnyData && chartData.length < 3 ? (
+                <div
+                  className="flex items-center justify-center text-center text-muted-foreground px-6"
+                  style={{ height: chartHeight, fontSize: 13 }}
+                >
+                  Histórico em construção — poucos dados disponíveis para este período.
+                </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <Info className="h-10 w-10 mx-auto mb-3 opacity-40" />
