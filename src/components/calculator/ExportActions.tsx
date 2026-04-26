@@ -82,7 +82,8 @@ const loadImageAsDataURL = (url: string): Promise<string | null> =>
   });
 
 export function ExportActions(props: ExportActionsProps) {
-  const { profile } = useAuth();
+  const { profile: profileBase } = useAuth();
+  const profile = profileBase as (typeof profileBase & { creci?: string | null; logo_url?: string | null }) | null;
   const { plan, isActive } = useSubscription();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
