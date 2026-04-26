@@ -964,7 +964,10 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                     {/* Left Y-axis */}
                     <YAxis
                       yAxisId="left"
-                      tick={{ fontSize: 11 }}
+                      tick={useBase100 && activeGuided ? false : { fontSize: 11 }}
+                      axisLine={!(useBase100 && activeGuided)}
+                      tickLine={!(useBase100 && activeGuided)}
+                      width={useBase100 && activeGuided ? 0 : undefined}
                       className="fill-muted-foreground"
                       domain={["auto", "auto"]}
                       tickFormatter={(v) =>
@@ -974,21 +977,25 @@ export function MarketIndicatorsSection({ expanded = false }: MarketIndicatorsSe
                             ? `${Number(v).toFixed(1)}%`
                             : formatAxisTick(v, selectedUnit, selectedKey)
                       }
-                      label={{
-                        value: useBase100
-                          ? "Índice (base 100)"
-                          : viewMode === "percent"
-                            ? selectedIndicator?.display_name + " (%)"
-                            : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
-                        angle: -90,
-                        position: "insideLeft",
-                        offset: 12,
-                        style: {
-                          fontSize: 10,
-                          fill: colorMap[selectedKey] ?? "hsl(210, 80%, 55%)",
-                          fontWeight: 500,
-                        },
-                      }}
+                      label={
+                        useBase100 && activeGuided
+                          ? undefined
+                          : {
+                              value: useBase100
+                                ? "Índice (base 100)"
+                                : viewMode === "percent"
+                                  ? selectedIndicator?.display_name + " (%)"
+                                  : selectedIndicator?.display_name + (selectedUnit === "currency" ? " (R$)" : " (%)"),
+                              angle: -90,
+                              position: "insideLeft",
+                              offset: 12,
+                              style: {
+                                fontSize: 10,
+                                fill: colorMap[selectedKey] ?? "hsl(210, 80%, 55%)",
+                                fontWeight: 500,
+                              },
+                            }
+                      }
                     />
                     {/* Right Y-axis — comparison (only when mixed units) */}
                     {isMixedUnits && (
