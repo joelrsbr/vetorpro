@@ -928,9 +928,20 @@ export function FinancingCalculator() {
                         {marketIsLive && <p className="text-[10px] text-emerald-500 mt-1">● Dados via API oficial BCB</p>}
                       </TooltipContent>
                     </Tooltip>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-primary/60 cursor-help ml-auto" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Indexador fixado em TR no Modo Padrão — ative o Modo Manual para personalizar.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <Select
                     value={correctionIndex}
+                    disabled={rateMode === "standard"}
                     onValueChange={(v) => {
                       const newIndex = v as CorrectionIndexType;
                       if (newIndex !== "custom") {
@@ -939,7 +950,7 @@ export function FinancingCalculator() {
                       setCorrectionIndex(newIndex);
                     }}>
                     
-                    <SelectTrigger className="h-10 text-sm border-primary/30">
+                    <SelectTrigger className={cn("h-10 text-sm border-primary/30", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
