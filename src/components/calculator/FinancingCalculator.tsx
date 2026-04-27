@@ -741,7 +741,8 @@ export function FinancingCalculator() {
                       value={interestRate}
                       onChange={(e) => setInterestRate(e.target.value)}
                       placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
-                      className="text-sm flex-1" />
+                      readOnly={rateMode === "standard"}
+                      className={cn("text-sm flex-1", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")} />
                     
                     <Select
                       value={interestRateType}
