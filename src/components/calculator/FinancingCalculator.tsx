@@ -163,6 +163,34 @@ export function FinancingCalculator() {
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
 
+  // Rate Mode: "standard" auto-fills from BANK_RATES; "manual" allows free editing
+  const [rateMode, setRateMode] = useState<"standard" | "manual">("standard");
+  const [selectedBankId, setSelectedBankId] = useState<string>("caixa");
+
+  // Apply selected bank values when in Standard mode
+  useEffect(() => {
+    if (rateMode !== "standard") return;
+    const bank = BANK_RATES.find((b) => b.id === selectedBankId);
+    if (!bank) return;
+    const effectiveRate = bank.defaultRate + bank.spread;
+    // Convert effective rate to selected display unit (annual default)
+    const displayRate =
+      interestRateType === "annual"
+        ? effectiveRate.toFixed(2)
+        : (Math.pow(1 + effectiveRate / 100, 1 / 12) - 1).toFixed(4);
+    setInterestRate(displayRate);
+    // Estimate monthly fees: monthlyAdmin + insuranceRate% over property value
+    const property = parseCurrency(propertyValue);
+    const monthlyInsurance = property * (bank.hiddenCosts.insuranceRate / 100);
+    const totalFees = bank.hiddenCosts.monthlyAdmin + monthlyInsurance;
+    // Store in cents-string format expected by formatCurrency/handleCurrencyInput
+    setFeesInsurance(String(Math.max(0, Math.round(totalFees * 100))));
+    // Lock correction index to TR in Standard mode
+    setCorrectionIndex("tr");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rateMode, selectedBankId, propertyValue, interestRateType]);
+
+
   // Max affordable payment
   const [enableMaxPayment, setEnableMaxPayment] = useState(false);
   const [maxPaymentValue, setMaxPaymentValue] = useState<string>("300000");
