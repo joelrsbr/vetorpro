@@ -808,6 +808,16 @@ export function FinancingCalculator() {
                         <p className="max-w-xs">Valor mensal de taxas administrativas e seguros obrigatórios (MIP, DFI, etc.)</p>
                       </TooltipContent>
                     </Tooltip>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Baseado nas condições de referência do banco selecionado — ative o Modo Manual para personalizar.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <Input
                     ref={feesRef}
@@ -815,7 +825,8 @@ export function FinancingCalculator() {
                     value={formatCurrency(feesInsurance)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setFeesInsurance)}
                     placeholder="50,00"
-                    className="text-sm" />
+                    readOnly={rateMode === "standard"}
+                    className={cn("text-sm", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")} />
                   
                 </div>
               </div>
