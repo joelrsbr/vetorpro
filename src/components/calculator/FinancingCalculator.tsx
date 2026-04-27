@@ -170,15 +170,14 @@ export function FinancingCalculator() {
   // Apply selected bank values when in Standard mode
   useEffect(() => {
     if (rateMode !== "standard") return;
+    // Force "Anual" unit and clear regional m² in Standard mode
+    if (interestRateType !== "annual") setInterestRateType("annual");
+    if (regionalM2Value !== "") setRegionalM2Value("");
     const bank = BANK_RATES.find((b) => b.id === selectedBankId);
     if (!bank) return;
     const effectiveRate = bank.defaultRate + bank.spread;
-    // Convert effective rate to selected display unit (annual default)
-    const displayRate =
-      interestRateType === "annual"
-        ? effectiveRate.toFixed(2)
-        : (Math.pow(1 + effectiveRate / 100, 1 / 12) - 1).toFixed(4);
-    setInterestRate(displayRate);
+    // Standard mode: rate always in % a.a.
+    setInterestRate(effectiveRate.toFixed(2));
     // Estimate monthly fees: monthlyAdmin + insuranceRate% over property value
     const property = parseCurrency(propertyValue);
     const monthlyInsurance = property * (bank.hiddenCosts.insuranceRate / 100);
