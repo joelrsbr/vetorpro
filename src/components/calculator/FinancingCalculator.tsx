@@ -877,13 +877,24 @@ export function FinancingCalculator() {
                         <p className="max-w-xs">Insira o valor médio da região para comparar se este imóvel é uma Oportunidade ou um Desafio de venda.</p>
                       </TooltipContent>
                     </Tooltip>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Campo técnico opcional — ative o Modo Manual para informar o valor médio regional.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <Input
                     id="regionalM2"
-                    value={formatCurrency(regionalM2Value)}
+                    value={rateMode === "standard" ? "" : formatCurrency(regionalM2Value)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setRegionalM2Value)}
-                    placeholder="8.500,00"
-                    className="text-sm"
+                    placeholder={rateMode === "standard" ? "—" : "8.500,00"}
+                    readOnly={rateMode === "standard"}
+                    className={cn("text-sm", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")}
                   />
                 </div>
               </div>
