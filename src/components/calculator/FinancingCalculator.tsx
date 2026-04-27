@@ -170,15 +170,14 @@ export function FinancingCalculator() {
   // Apply selected bank values when in Standard mode
   useEffect(() => {
     if (rateMode !== "standard") return;
+    // Force "Anual" unit and clear regional m² in Standard mode
+    if (interestRateType !== "annual") setInterestRateType("annual");
+    if (regionalM2Value !== "") setRegionalM2Value("");
     const bank = BANK_RATES.find((b) => b.id === selectedBankId);
     if (!bank) return;
     const effectiveRate = bank.defaultRate + bank.spread;
-    // Convert effective rate to selected display unit (annual default)
-    const displayRate =
-      interestRateType === "annual"
-        ? effectiveRate.toFixed(2)
-        : (Math.pow(1 + effectiveRate / 100, 1 / 12) - 1).toFixed(4);
-    setInterestRate(displayRate);
+    // Standard mode: rate always in % a.a.
+    setInterestRate(effectiveRate.toFixed(2));
     // Estimate monthly fees: monthlyAdmin + insuranceRate% over property value
     const property = parseCurrency(propertyValue);
     const monthlyInsurance = property * (bank.hiddenCosts.insuranceRate / 100);
@@ -746,10 +745,21 @@ export function FinancingCalculator() {
                     
                     <Select
                       value={interestRateType}
-                      onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}>
+                      onValueChange={(v) => setInterestRateType(v as "annual" | "monthly")}
+                      disabled={rateMode === "standard"}>
                       
-                      <SelectTrigger className="w-28">
+                      <SelectTrigger className={cn("w-28", rateMode === "standard" && "bg-muted/40 cursor-not-allowed opacity-90")}>
                         <SelectValue />
+                        {rateMode === "standard" && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <LockIcon className="h-3 w-3 text-muted-foreground ml-1" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs">As taxas dos bancos são padronizadas em % ao ano — ative o Modo Manual para alternar para mensal.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="annual">Anual</SelectItem>
@@ -867,13 +877,24 @@ export function FinancingCalculator() {
                         <p className="max-w-xs">Insira o valor médio da região para comparar se este imóvel é uma Oportunidade ou um Desafio de venda.</p>
                       </TooltipContent>
                     </Tooltip>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Campo técnico opcional — ative o Modo Manual para informar o valor médio regional.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <Input
                     id="regionalM2"
-                    value={formatCurrency(regionalM2Value)}
+                    value={rateMode === "standard" ? "" : formatCurrency(regionalM2Value)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setRegionalM2Value)}
-                    placeholder="8.500,00"
-                    className="text-sm"
+                    placeholder={rateMode === "standard" ? "—" : "8.500,00"}
+                    readOnly={rateMode === "standard"}
+                    className={cn("text-sm", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")}
                   />
                 </div>
               </div>
