@@ -642,9 +642,58 @@ export function FinancingCalculator() {
           <CardContent className="p-6 space-y-6">
             {/* Dados do Financiamento */}
             <div className="border rounded-lg p-4 space-y-4 bg-card">
-              <h3 className="font-semibold text-foreground">
-                Dados do Financiamento
-              </h3>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="font-semibold text-foreground">
+                  Dados do Financiamento
+                </h3>
+                <ToggleGroup
+                  type="single"
+                  value={rateMode}
+                  onValueChange={(v) => v && setRateMode(v as "standard" | "manual")}
+                  className="bg-muted/50 p-1 rounded-md"
+                >
+                  <ToggleGroupItem
+                    value="standard"
+                    aria-label="Modo Padrão"
+                    className="min-h-[44px] px-4 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                  >
+                    <Landmark className="h-4 w-4 mr-2" />
+                    Modo Padrão
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="manual"
+                    aria-label="Modo Manual"
+                    className="min-h-[44px] px-4 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                  >
+                    <Settings2 className="h-4 w-4 mr-2" />
+                    Modo Manual
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              {rateMode === "standard" && (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Landmark className="h-4 w-4 text-primary" />
+                    <Label className="text-primary font-semibold text-sm">Banco de Referência</Label>
+                  </div>
+                  <Select value={selectedBankId} onValueChange={setSelectedBankId}>
+                    <SelectTrigger className="h-11 text-sm bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BANK_RATES.map((b) => (
+                        <SelectItem key={b.id} value={b.id} className="text-sm">
+                          {b.name} — {(b.defaultRate + b.spread).toFixed(2).replace(".", ",")}% a.a.
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Taxa, seguros e indexador (TR) preenchidos automaticamente. Para personalizar, ative o Modo Manual.
+                  </p>
+                </div>
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
@@ -670,7 +719,19 @@ export function FinancingCalculator() {
                   
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Baseado nas condições de referência do banco selecionado — ative o Modo Manual para personalizar.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Input
                       ref={interestRateRef}
