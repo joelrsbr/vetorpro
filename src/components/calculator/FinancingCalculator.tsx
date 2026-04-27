@@ -649,12 +649,12 @@ export function FinancingCalculator() {
                   type="single"
                   value={rateMode}
                   onValueChange={(v) => v && setRateMode(v as "standard" | "manual")}
-                  className="bg-muted/50 p-1 rounded-md"
+                  className="gap-2"
                 >
                   <ToggleGroupItem
                     value="standard"
                     aria-label="Modo Padrão"
-                    className="min-h-[44px] px-4 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                    className="min-h-[44px] px-4 text-sm border border-border bg-transparent text-muted-foreground hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary data-[state=on]:hover:bg-primary data-[state=on]:shadow-sm"
                   >
                     <Landmark className="h-4 w-4 mr-2" />
                     Modo Padrão
@@ -662,7 +662,7 @@ export function FinancingCalculator() {
                   <ToggleGroupItem
                     value="manual"
                     aria-label="Modo Manual"
-                    className="min-h-[44px] px-4 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                    className="min-h-[44px] px-4 text-sm border border-border bg-transparent text-muted-foreground hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary data-[state=on]:hover:bg-primary data-[state=on]:shadow-sm"
                   >
                     <Settings2 className="h-4 w-4 mr-2" />
                     Modo Manual
