@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu, Landmark, Settings2, LockIcon } from "lucide-react";
+import { BANK_RATES } from "@/lib/bank-rates";
 import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
 import { AmortizationSchedule } from "./AmortizationSchedule";
@@ -160,6 +162,34 @@ export function FinancingCalculator() {
   const [customCorrectionRate, setCustomCorrectionRate] = useState<string>("6");
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
+
+  // Rate Mode: "standard" auto-fills from BANK_RATES; "manual" allows free editing
+  const [rateMode, setRateMode] = useState<"standard" | "manual">("standard");
+  const [selectedBankId, setSelectedBankId] = useState<string>("caixa");
+
+  // Apply selected bank values when in Standard mode
+  useEffect(() => {
+    if (rateMode !== "standard") return;
+    const bank = BANK_RATES.find((b) => b.id === selectedBankId);
+    if (!bank) return;
+    const effectiveRate = bank.defaultRate + bank.spread;
+    // Convert effective rate to selected display unit (annual default)
+    const displayRate =
+      interestRateType === "annual"
+        ? effectiveRate.toFixed(2)
+        : (Math.pow(1 + effectiveRate / 100, 1 / 12) - 1).toFixed(4);
+    setInterestRate(displayRate);
+    // Estimate monthly fees: monthlyAdmin + insuranceRate% over property value
+    const property = parseCurrency(propertyValue);
+    const monthlyInsurance = property * (bank.hiddenCosts.insuranceRate / 100);
+    const totalFees = bank.hiddenCosts.monthlyAdmin + monthlyInsurance;
+    // Store in cents-string format expected by formatCurrency/handleCurrencyInput
+    setFeesInsurance(String(Math.max(0, Math.round(totalFees * 100))));
+    // Lock correction index to TR in Standard mode
+    setCorrectionIndex("tr");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rateMode, selectedBankId, propertyValue, interestRateType]);
+
 
   // Max affordable payment
   const [enableMaxPayment, setEnableMaxPayment] = useState(false);
@@ -612,9 +642,58 @@ export function FinancingCalculator() {
           <CardContent className="p-6 space-y-6">
             {/* Dados do Financiamento */}
             <div className="border rounded-lg p-4 space-y-4 bg-card">
-              <h3 className="font-semibold text-foreground">
-                Dados do Financiamento
-              </h3>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="font-semibold text-foreground">
+                  Dados do Financiamento
+                </h3>
+                <ToggleGroup
+                  type="single"
+                  value={rateMode}
+                  onValueChange={(v) => v && setRateMode(v as "standard" | "manual")}
+                  className="bg-muted/50 p-1 rounded-md"
+                >
+                  <ToggleGroupItem
+                    value="standard"
+                    aria-label="Modo Padrão"
+                    className="min-h-[44px] px-4 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                  >
+                    <Landmark className="h-4 w-4 mr-2" />
+                    Modo Padrão
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="manual"
+                    aria-label="Modo Manual"
+                    className="min-h-[44px] px-4 text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                  >
+                    <Settings2 className="h-4 w-4 mr-2" />
+                    Modo Manual
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              {rateMode === "standard" && (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Landmark className="h-4 w-4 text-primary" />
+                    <Label className="text-primary font-semibold text-sm">Banco de Referência</Label>
+                  </div>
+                  <Select value={selectedBankId} onValueChange={setSelectedBankId}>
+                    <SelectTrigger className="h-11 text-sm bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BANK_RATES.map((b) => (
+                        <SelectItem key={b.id} value={b.id} className="text-sm">
+                          {b.name} — {(b.defaultRate + b.spread).toFixed(2).replace(".", ",")}% a.a.
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Taxa, seguros e indexador (TR) preenchidos automaticamente. Para personalizar, ative o Modo Manual.
+                  </p>
+                </div>
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
@@ -640,7 +719,19 @@ export function FinancingCalculator() {
                   
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Baseado nas condições de referência do banco selecionado — ative o Modo Manual para personalizar.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Input
                       ref={interestRateRef}
@@ -650,7 +741,8 @@ export function FinancingCalculator() {
                       value={interestRate}
                       onChange={(e) => setInterestRate(e.target.value)}
                       placeholder={interestRateType === "annual" ? "10.5" : "0.87"}
-                      className="text-sm flex-1" />
+                      readOnly={rateMode === "standard"}
+                      className={cn("text-sm flex-1", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")} />
                     
                     <Select
                       value={interestRateType}
@@ -716,6 +808,16 @@ export function FinancingCalculator() {
                         <p className="max-w-xs">Valor mensal de taxas administrativas e seguros obrigatórios (MIP, DFI, etc.)</p>
                       </TooltipContent>
                     </Tooltip>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Baseado nas condições de referência do banco selecionado — ative o Modo Manual para personalizar.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <Input
                     ref={feesRef}
@@ -723,7 +825,8 @@ export function FinancingCalculator() {
                     value={formatCurrency(feesInsurance)}
                     onChange={(e) => handleCurrencyInput(e.target.value, setFeesInsurance)}
                     placeholder="50,00"
-                    className="text-sm" />
+                    readOnly={rateMode === "standard"}
+                    className={cn("text-sm", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")} />
                   
                 </div>
               </div>
@@ -825,9 +928,20 @@ export function FinancingCalculator() {
                         {marketIsLive && <p className="text-[10px] text-emerald-500 mt-1">● Dados via API oficial BCB</p>}
                       </TooltipContent>
                     </Tooltip>
+                    {rateMode === "standard" && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <LockIcon className="h-3 w-3 text-primary/60 cursor-help ml-auto" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Indexador fixado em TR no Modo Padrão — ative o Modo Manual para personalizar.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <Select
                     value={correctionIndex}
+                    disabled={rateMode === "standard"}
                     onValueChange={(v) => {
                       const newIndex = v as CorrectionIndexType;
                       if (newIndex !== "custom") {
@@ -836,7 +950,7 @@ export function FinancingCalculator() {
                       setCorrectionIndex(newIndex);
                     }}>
                     
-                    <SelectTrigger className="h-10 text-sm border-primary/30">
+                    <SelectTrigger className={cn("h-10 text-sm border-primary/30", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
