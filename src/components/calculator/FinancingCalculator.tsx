@@ -1280,7 +1280,16 @@ export function FinancingCalculator() {
                       id="simClientPhone"
                       type="tel"
                       value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                        let formatted = digits;
+                        if (digits.length > 0) formatted = `(${digits.slice(0, 2)}`;
+                        if (digits.length >= 3) formatted += `) ${digits.slice(2, 7)}`;
+                        if (digits.length >= 8) formatted += `-${digits.slice(7, 11)}`;
+                        setClientPhone(formatted);
+                      }}
+                      inputMode="numeric"
+                      maxLength={15}
                       placeholder="Ex: (51) 99999-9999"
                       className="text-sm"
                     />
