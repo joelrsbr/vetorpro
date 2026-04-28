@@ -89,6 +89,7 @@ export function ProposalGenerator({
           propertyValue,
           downPayment,
           interestRate,
+          interestRateType,
           termMonths,
           amortizationType,
           monthlyPayment: calculations.firstPayment,
@@ -100,6 +101,7 @@ export function ProposalGenerator({
           salesArguments: isBusiness && salesArguments.trim() ? salesArguments.trim() : undefined,
           clientPhone: clientPhone?.trim() || undefined,
           clientEmail: clientEmail?.trim() || undefined,
+          consultantName: profile?.full_name || undefined,
           idempotencyKey,
         },
       });
