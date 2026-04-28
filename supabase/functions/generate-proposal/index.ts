@@ -14,6 +14,7 @@ interface ProposalRequest {
   propertyValue: number;
   downPayment: number;
   interestRate: number;
+  interestRateType?: "annual" | "monthly";
   termMonths: number;
   amortizationType: string;
   monthlyPayment: number;
@@ -23,6 +24,7 @@ interface ProposalRequest {
   interestSaved?: number;
   businessMode?: boolean;
   salesArguments?: string;
+  consultantName?: string;
   idempotencyKey?: string;
 }
 
@@ -184,57 +186,55 @@ Deno.serve(async (req) => {
 
     const isBusinessMode = proposalData.businessMode === true;
 
-    const businessSystemPrompt = `Você é um ghostwriter de propostas executivas para corretores imobiliários de alto nível. Escreva como se o próprio corretor estivesse assinando o documento. O protagonista é sempre o corretor, nunca uma plataforma ou sistema.
+    const consultantName = (proposalData.consultantName || "").trim();
+    const rateUnitLabel = proposalData.interestRateType === "monthly" ? "a.m." : "a.a.";
 
-REGRAS OBRIGATÓRIAS:
+    const finalCTA = `Estou à disposição para conversarmos com calma sobre os próximos passos. Este relatório foi preparado exclusivamente para você.`;
+
+    const consultantSignature = consultantName
+      ? `Assinatura: o documento será assinado por ${consultantName}. NUNCA invente outro nome (jamais use "Joel TESTE" ou nomes fictícios). Se precisar referir-se ao corretor pelo nome, use exatamente "${consultantName}".`
+      : `Não invente nome de consultor. NUNCA use "Joel TESTE" ou nomes fictícios. Refira-se ao autor apenas como "o consultor responsável" quando necessário.`;
+
+    const sharedRules = `
 - NÃO use markdown, negrito, itálico ou asteriscos (*)
 - NÃO use formatação de lista com hífens ou bullets
-- Escreva em parágrafos corridos, como um documento executivo
-- NUNCA escreva valores monetários por extenso. Use SEMPRE o formato R$ 0.000,00 (ex: R$ 450.000,00)
-- NUNCA escreva "por cento" por extenso. Use SEMPRE o símbolo % (ex: 32%, 9,5%)
-- Sempre que citar juros, especifique se a taxa é mensal (a.m.) ou anual (a.a.)
-- Evite repetir o nome da cidade ou do cliente mais de 2 vezes no mesmo parágrafo para manter a fluidez
+- Escreva em parágrafos corridos
+- NUNCA escreva valores monetários por extenso. Use SEMPRE o formato R$ 0.000,00
+- NUNCA escreva "por cento" por extenso. Use SEMPRE o símbolo %
+- Ao citar a taxa de juros, use SEMPRE a unidade fornecida nos dados ("${rateUnitLabel}"). Não converta nem altere a unidade
 - Use os termos: "Análise Estratégica", "Antecipação de Cenários de Amortização" e "Segurança Patrimonial"
-- NUNCA mencione "VetorPro", "algoritmos", "cálculos automatizados", "inteligência artificial" ou "plataforma" no texto
-- NUNCA use frases como "Nosso compromisso no VetorPro é..." ou "Os algoritmos calculam...". O corretor é o autor
+- NUNCA mencione "VetorPro", "algoritmos", "cálculos automatizados", "inteligência artificial" ou "plataforma"
 - Use linguagem em primeira pessoa do corretor: "Minha análise estratégica identificou...", "Esta recomendação pauta-se em..."
 - Substitua "dados precisos" por "dados acurados"
-- Use tom de exclusividade e urgência para fechamento do negócio
-- Se o corretor fornecer Argumentos de Venda, incorpore-os NATURALMENTE nos parágrafos como diferenciais do imóvel, sem criar uma seção separada para eles
+- ${consultantSignature}
+- PROIBIDO criar urgência artificial. NÃO use frases como "agilidade na validação da documentação é crucial", "não perca tempo", "oportunidade limitada", "prazo curto", "aja rápido" ou similares
+- O fechamento OBRIGATÓRIO da proposta deve ser EXATAMENTE este parágrafo, sem alterações: "${finalCTA}"
+- Não adicione assinatura de plataforma nem despedidas adicionais após o fechamento`;
+
+    const businessSystemPrompt = `Você é um ghostwriter de propostas executivas para corretores imobiliários de alto nível. Escreva como se o próprio corretor estivesse assinando o documento. O protagonista é sempre o corretor.
+
+REGRAS OBRIGATÓRIAS:${sharedRules}
+- Se o corretor fornecer Argumentos de Venda, incorpore-os naturalmente como diferenciais do imóvel
 
 ESTRUTURA:
 1. Abertura executiva mencionando "Análise Estratégica" com dados-chave do investimento, em tom pessoal do corretor. Se houver Argumentos de Venda, destaque os diferenciais do imóvel logo nesta abertura
 2. Destaque em parágrafo curto: Entrada, Parcela Inicial e Sistema escolhido
 3. "Antecipação de Cenários de Amortização": análise estratégica de economia com amortizações e projeção de ganho patrimonial
 4. "Segurança Patrimonial": use a frase "A Segurança Patrimonial é o pilar central desta recomendação, por isso buscamos apresentar aqui a rota de menor custo financeiro para o seu perfil"
-5. Fechamento focado no corretor com convite à ação (agendar contato, validar documentação). NÃO inclua assinatura de plataforma. NÃO mencione qualquer plataforma ou sistema
+5. Fechamento OBRIGATÓRIO com o parágrafo exato definido nas regras
 
-Ter entre 300-500 palavras. Formato elegante para PDF corporativo. O documento deve ser 100% White Label — nenhuma marca de software.`;
+Ter entre 300-500 palavras. Documento 100% White Label.`;
 
-    const standardSystemPrompt = `Você é um ghostwriter de propostas de financiamento imobiliário para corretores profissionais. Escreva como se o próprio corretor estivesse assinando o documento. O protagonista é sempre o corretor, nunca uma plataforma ou sistema.
+    const standardSystemPrompt = `Você é um ghostwriter de propostas de financiamento imobiliário para corretores profissionais. Escreva como se o próprio corretor estivesse assinando o documento.
 
-REGRAS OBRIGATÓRIAS:
-- NÃO use markdown, negrito, itálico ou asteriscos (*)
-- NÃO use formatação de lista com hífens ou bullets
-- NÃO repita frases como "gere uma proposta profissional" ou "conquiste seu imóvel"
-- NUNCA escreva valores monetários por extenso. Use SEMPRE o formato R$ 0.000,00 (ex: R$ 450.000,00)
-- NUNCA escreva "por cento" por extenso. Use SEMPRE o símbolo % (ex: 32%, 9,5%)
-- Sempre que citar juros, especifique se a taxa é mensal (a.m.) ou anual (a.a.)
-- Evite repetir o nome da cidade ou do cliente mais de 2 vezes no mesmo parágrafo para manter a fluidez
-- Use os termos: "Análise Estratégica", "Antecipação de Cenários de Amortização" e "Segurança Patrimonial"
-- NUNCA mencione "VetorPro", "algoritmos", "cálculos automatizados", "inteligência artificial" ou "plataforma" no texto
-- NUNCA use frases como "Nosso compromisso no VetorPro é..." ou "Os algoritmos calculam...". O corretor é o autor
-- Use linguagem em primeira pessoa do corretor: "Minha análise estratégica identificou...", "Esta recomendação pauta-se em..."
-- Substitua "dados precisos" por "dados acurados"
-- Use tom humano, profissional e estratégico
-- Retorne APENAS o texto limpo da proposta
+REGRAS OBRIGATÓRIAS:${sharedRules}
 
 ESTRUTURA DA PROPOSTA:
 1. Introdução personalizada com o nome do cliente, mencionando "Análise Estratégica", em tom pessoal do corretor
 2. Parágrafo curto destacando: Entrada, Parcela Inicial e Sistema (SAC ou PRICE)
 3. "Antecipação de Cenários de Amortização": explicação dos benefícios do modelo escolhido e economia projetada
 4. "Segurança Patrimonial": use a frase "A Segurança Patrimonial é o pilar central desta recomendação, por isso buscamos apresentar aqui a rota de menor custo financeiro para o seu perfil"
-5. Fechamento focado no corretor com convite à ação (agendar contato, validar documentação). NÃO inclua assinatura de plataforma
+5. Fechamento OBRIGATÓRIO com o parágrafo exato definido nas regras
 
 Ter entre 300-450 palavras.`;
 
@@ -246,8 +246,10 @@ Ter entre 300-450 palavras.`;
       ? `\nArgumentos de Venda do Corretor (incorpore naturalmente no texto):\n${proposalData.salesArguments.trim()}\n`
       : "";
 
+    const consultantBlock = consultantName ? `\nNome do consultor responsável (use para assinar): ${consultantName}\n` : "";
+
     const userPrompt = isBusinessMode
-      ? `Com base nestes dados, gere uma proposta executiva curta. Foque no impacto financeiro: quanto o cliente economiza em juros ao fazer as amortizações sugeridas. Use um tom de exclusividade e urgência para o fechamento do negócio.
+      ? `Com base nestes dados, gere uma proposta executiva consultiva. Foque no impacto financeiro: quanto o cliente economiza em juros ao fazer as amortizações sugeridas. Tom estratégico, sereno e exclusivo — SEM urgência artificial.
 
 Dados do Investimento:
 - Cliente: ${proposalData.clientName}
@@ -255,7 +257,7 @@ Dados do Investimento:
 - Valor do Imóvel: ${formatCurrency(proposalData.propertyValue)}
 - Entrada: ${formatCurrency(proposalData.downPayment)} (${entradaPercentual}%)
 - Financiamento: ${formatCurrency(proposalData.propertyValue - proposalData.downPayment)}
-- Taxa de Juros: ${proposalData.interestRate}% a.a.
+- Taxa de Juros: ${proposalData.interestRate}% ${rateUnitLabel}
 - Prazo: ${proposalData.termMonths} meses (${prazoAnos} anos)
 - Sistema: ${sistemaTipo}
 - Parcela Inicial: ${formatCurrency(proposalData.monthlyPayment)}
@@ -263,9 +265,9 @@ Dados do Investimento:
 - Juros Totais: ${formatCurrency(proposalData.totalInterest)}
 ${proposalData.monthsSaved ? `- Redução de Prazo com Amortização Extra: ${proposalData.monthsSaved} meses` : ""}
 ${proposalData.interestSaved ? `- Economia em Juros com Amortização Extra: ${formatCurrency(proposalData.interestSaved)}` : ""}
-${salesArgsBlock}
+${salesArgsBlock}${consultantBlock}
 Retorne apenas o texto executivo pronto para PDF corporativo.`
-      : `Gere uma proposta profissional de financiamento imobiliário com base nos dados abaixo, usando linguagem comercial natural, sem formatação Markdown, sem usar asteriscos ou negrito.
+      : `Gere uma proposta profissional de financiamento imobiliário com base nos dados abaixo, usando linguagem comercial natural e tom consultivo (sem urgência artificial), sem formatação Markdown.
 
 Dados:
 - Nome do cliente: ${proposalData.clientName}
@@ -273,7 +275,7 @@ Dados:
 - Valor do imóvel: ${formatCurrency(proposalData.propertyValue)}
 - Entrada: ${formatCurrency(proposalData.downPayment)} (${entradaPercentual}%)
 - Valor financiado: ${formatCurrency(proposalData.propertyValue - proposalData.downPayment)}
-- Taxa de juros anual: ${proposalData.interestRate}%
+- Taxa de juros: ${proposalData.interestRate}% ${rateUnitLabel}
 - Prazo: ${proposalData.termMonths} meses (${prazoAnos} anos)
 - Sistema: ${sistemaTipo}
 - Parcela inicial: ${formatCurrency(proposalData.monthlyPayment)}
@@ -281,7 +283,7 @@ Dados:
 - Total de juros: ${formatCurrency(proposalData.totalInterest)}
 ${proposalData.monthsSaved ? `- Economia de prazo com amortização extra: ${proposalData.monthsSaved} meses` : ""}
 ${proposalData.interestSaved ? `- Economia de juros com amortização extra: ${formatCurrency(proposalData.interestSaved)}` : ""}
-
+${consultantBlock}
 Retorne apenas o texto limpo da proposta, pronto para enviar ao cliente.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
