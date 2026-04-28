@@ -546,9 +546,20 @@ export function ProposalGenerator({
 
   const canGenerateProposal = usageLimits?.canGenerateProposal ?? false;
 
+  const isBasicPlan = !isBusiness && !(isActive && plan === "pro");
+
   return (
     <div className="space-y-6">
       <ReportConfiguration onConfigChange={setReportConfig} />
+
+      {isBasicPlan && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-3 text-center text-sm text-amber-900 dark:text-amber-100">
+          <Crown className="inline h-4 w-4 mr-1 text-amber-600" />
+          Evolua para o Business e impacte seus clientes com a sua marca.
+          {" "}
+          <Link to="/precos" className="underline font-medium">Ver planos →</Link>
+        </div>
+      )}
 
       <Card className="shadow-card border-primary/20">
         <CardHeader>
