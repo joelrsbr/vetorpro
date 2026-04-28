@@ -61,8 +61,12 @@ export function ProposalGenerator({
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
     logoUrl: null,
     companyName: "",
+    consultantName: "",
     creci: "",
+    socials: {},
     isBusiness: false,
+    isPro: false,
+    isBasic: true,
   });
 
   const isBusiness = isActive && plan === "business";
