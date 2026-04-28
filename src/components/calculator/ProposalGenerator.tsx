@@ -242,19 +242,19 @@ export function ProposalGenerator({
 
     const drawBrandHeader = () => {
       let localY = 20;
-      if (reportConfig.isBusiness) {
-        if (reportConfig.companyName) {
-          doc.setFontSize(14);
-          doc.setFont("helvetica", "bold");
-          doc.text(reportConfig.companyName, pageWidth / 2, localY, { align: "center" });
-          localY += 7;
-        }
-        if (reportConfig.creci) {
-          doc.setFontSize(10);
-          doc.setFont("helvetica", "normal");
-          doc.text(reportConfig.creci, pageWidth / 2, localY, { align: "center" });
-          localY += 5;
-        }
+      if (!isBasicPlan && reportConfig.companyName) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(reportConfig.companyName, pageWidth / 2, localY, { align: "center" });
+        localY += 7;
+      }
+      if (!isBasicPlan && reportConfig.creci) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(reportConfig.creci, pageWidth / 2, localY, { align: "center" });
+        localY += 5;
+      }
+      if (!isBasicPlan && (reportConfig.companyName || reportConfig.creci)) {
         doc.setDrawColor(200);
         doc.line(margin, localY, pageWidth - margin, localY);
         localY += 10;
@@ -262,10 +262,30 @@ export function ProposalGenerator({
       return localY;
     };
 
+    // Helper: render social contacts line (Business only)
+    const drawSocials = (y: number, align: "center" | "left" = "center"): number => {
+      if (!isBusiness) return y;
+      const s = reportConfig.socials || {};
+      const items: string[] = [];
+      if (s.whatsapp) items.push(`WhatsApp: ${s.whatsapp}`);
+      if (s.instagram) items.push(`Instagram: ${s.instagram}`);
+      if (s.linkedin) items.push(`LinkedIn: ${s.linkedin}`);
+      if (s.twitter) items.push(`X: ${s.twitter}`);
+      if (items.length === 0) return y;
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(90);
+      const line = items.join("  •  ");
+      const wrapped = doc.splitTextToSize(line, pageWidth - margin * 2);
+      doc.text(wrapped, align === "center" ? pageWidth / 2 : margin, y, { align });
+      doc.setTextColor(0);
+      return y + wrapped.length * 5;
+    };
+
     // === BUSINESS: COVER PAGE ===
     if (isBusiness) {
       // Optional logo on cover
-      if (reportConfig.isBusiness && reportConfig.logoUrl) {
+      if (reportConfig.logoUrl) {
         try {
           const img = new Image();
           img.crossOrigin = "anonymous";
@@ -307,16 +327,19 @@ export function ProposalGenerator({
       doc.text(
         consultantName ? `Consultor Responsável: ${consultantName}` : "Consultor Responsável",
         pageWidth / 2,
-        pageHeight - 50,
+        pageHeight - 60,
         { align: "center" }
       );
       doc.setTextColor(0);
 
+      // Socials at bottom of cover
+      drawSocials(pageHeight - 45);
+
       doc.addPage();
       yPos = drawBrandHeader();
-    } else {
-      // PRO/Standard: brand header inline
-      if (reportConfig.isBusiness && reportConfig.logoUrl) {
+    } else if (isPro) {
+      // PRO: logo + name inline
+      if (reportConfig.logoUrl) {
         try {
           const img = new Image();
           img.crossOrigin = "anonymous";
@@ -330,6 +353,9 @@ export function ProposalGenerator({
         } catch {}
       }
       yPos = Math.max(yPos, drawBrandHeader());
+    } else {
+      // BASIC: no logo, just leave room for the header
+      yPos = drawBrandHeader();
     }
 
     // === PAGE: DADOS DA SIMULAÇÃO ===
