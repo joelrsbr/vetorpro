@@ -30,6 +30,7 @@ interface ProposalGeneratorProps {
   propertyValue: number;
   downPayment: number;
   interestRate: number;
+  interestRateType?: "annual" | "monthly";
   termMonths: number;
   amortizationType: string;
   clientName: string;
@@ -43,6 +44,7 @@ export function ProposalGenerator({
   propertyValue,
   downPayment,
   interestRate,
+  interestRateType = "annual",
   termMonths,
   amortizationType,
   clientName,
