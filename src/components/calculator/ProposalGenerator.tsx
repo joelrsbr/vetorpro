@@ -167,7 +167,9 @@ export function ProposalGenerator({
     const maxWidth = pageWidth - margin * 2;
 
     const isPro = isActive && plan === "pro";
-    const consultantName = (profile?.full_name || "").trim();
+    const isBasicPlan = !isBusiness && !isPro;
+    const consultantName = (reportConfig.consultantName || profile?.full_name || "").trim();
+    const grayscale = isBasicPlan;
 
     const rateUnitLabel = interestRateType === "monthly" ? "a.m." : "a.a.";
 
