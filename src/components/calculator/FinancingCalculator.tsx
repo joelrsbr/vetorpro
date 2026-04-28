@@ -1275,7 +1275,7 @@ export function FinancingCalculator() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="simClientPhone">Telefone do Cliente <span className="text-xs text-muted-foreground font-normal">(opcional)</span></Label>
+                    <Label htmlFor="simClientPhone">Telefone do Cliente <span className="text-xs text-destructive font-normal">(obrigatório)</span></Label>
                     <Input
                       id="simClientPhone"
                       type="tel"
