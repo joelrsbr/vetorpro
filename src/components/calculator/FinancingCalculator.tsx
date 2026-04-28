@@ -1275,7 +1275,7 @@ export function FinancingCalculator() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="simClientPhone">Telefone do Cliente <span className="text-xs text-muted-foreground font-normal">(opcional)</span></Label>
+                    <Label htmlFor="simClientPhone">Telefone do Cliente <span className="text-xs text-destructive font-normal">(obrigatório)</span></Label>
                     <Input
                       id="simClientPhone"
                       type="tel"
@@ -1324,7 +1324,13 @@ export function FinancingCalculator() {
                         const success = await handleSaveSimulation();
                         if (success) setSimulationUnlocked(true);
                       }}
-                      disabled={savingSimulation || (!isUnlimited && !canSimulate) || !clientName.trim() || !propertyDescription.trim()}
+                      disabled={
+                        savingSimulation ||
+                        (!isUnlimited && !canSimulate) ||
+                        !clientName.trim() ||
+                        !propertyDescription.trim() ||
+                        clientPhone.replace(/\D/g, "").length < 10
+                      }
                       variant="hero"
                       className="gap-2 h-12"
                     >
@@ -1348,6 +1354,11 @@ export function FinancingCalculator() {
                 {!simulationUnlocked && (!clientName.trim() || !propertyDescription.trim()) && (
                   <p className="text-sm text-muted-foreground italic">
                     Preencha o Nome do Cliente e a Identificação do Imóvel para liberar.
+                  </p>
+                )}
+                {!simulationUnlocked && clientName.trim() && propertyDescription.trim() && clientPhone.replace(/\D/g, "").length < 10 && (
+                  <p className="text-sm text-amber-700 dark:text-amber-300 italic">
+                    Preencha o telefone do cliente para liberar — isso garante que seu CRM fique sempre completo.
                   </p>
                 )}
               </div>

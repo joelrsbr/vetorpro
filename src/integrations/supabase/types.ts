@@ -125,6 +125,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          instagram: string | null
+          linkedin: string | null
           logo_url: string | null
           phone: string | null
           proposals_reset_at: string
@@ -132,9 +134,11 @@ export type Database = {
           simulations_reset_at: string
           simulations_used: number
           subscription_plan: Database["public"]["Enums"]["subscription_plan"]
+          twitter: string | null
           uf: string
           updated_at: string
           user_id: string
+          whatsapp: string | null
         }
         Insert: {
           company?: string | null
@@ -144,6 +148,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          instagram?: string | null
+          linkedin?: string | null
           logo_url?: string | null
           phone?: string | null
           proposals_reset_at?: string
@@ -151,9 +157,11 @@ export type Database = {
           simulations_reset_at?: string
           simulations_used?: number
           subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          twitter?: string | null
           uf?: string
           updated_at?: string
           user_id: string
+          whatsapp?: string | null
         }
         Update: {
           company?: string | null
@@ -163,6 +171,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          instagram?: string | null
+          linkedin?: string | null
           logo_url?: string | null
           phone?: string | null
           proposals_reset_at?: string
@@ -170,9 +180,11 @@ export type Database = {
           simulations_reset_at?: string
           simulations_used?: number
           subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          twitter?: string | null
           uf?: string
           updated_at?: string
           user_id?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }

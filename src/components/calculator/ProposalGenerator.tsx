@@ -61,8 +61,12 @@ export function ProposalGenerator({
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
     logoUrl: null,
     companyName: "",
+    consultantName: "",
     creci: "",
+    socials: {},
     isBusiness: false,
+    isPro: false,
+    isBasic: true,
   });
 
   const isBusiness = isActive && plan === "business";
@@ -163,7 +167,9 @@ export function ProposalGenerator({
     const maxWidth = pageWidth - margin * 2;
 
     const isPro = isActive && plan === "pro";
-    const consultantName = (profile?.full_name || "").trim();
+    const isBasicPlan = !isBusiness && !isPro;
+    const consultantName = (reportConfig.consultantName || profile?.full_name || "").trim();
+    const grayscale = isBasicPlan;
 
     const rateUnitLabel = interestRateType === "monthly" ? "a.m." : "a.a.";
 
@@ -236,19 +242,19 @@ export function ProposalGenerator({
 
     const drawBrandHeader = () => {
       let localY = 20;
-      if (reportConfig.isBusiness) {
-        if (reportConfig.companyName) {
-          doc.setFontSize(14);
-          doc.setFont("helvetica", "bold");
-          doc.text(reportConfig.companyName, pageWidth / 2, localY, { align: "center" });
-          localY += 7;
-        }
-        if (reportConfig.creci) {
-          doc.setFontSize(10);
-          doc.setFont("helvetica", "normal");
-          doc.text(reportConfig.creci, pageWidth / 2, localY, { align: "center" });
-          localY += 5;
-        }
+      if (!isBasicPlan && reportConfig.companyName) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(reportConfig.companyName, pageWidth / 2, localY, { align: "center" });
+        localY += 7;
+      }
+      if (!isBasicPlan && reportConfig.creci) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(reportConfig.creci, pageWidth / 2, localY, { align: "center" });
+        localY += 5;
+      }
+      if (!isBasicPlan && (reportConfig.companyName || reportConfig.creci)) {
         doc.setDrawColor(200);
         doc.line(margin, localY, pageWidth - margin, localY);
         localY += 10;
@@ -256,10 +262,30 @@ export function ProposalGenerator({
       return localY;
     };
 
+    // Helper: render social contacts line (Business only)
+    const drawSocials = (y: number, align: "center" | "left" = "center"): number => {
+      if (!isBusiness) return y;
+      const s = reportConfig.socials || {};
+      const items: string[] = [];
+      if (s.whatsapp) items.push(`WhatsApp: ${s.whatsapp}`);
+      if (s.instagram) items.push(`Instagram: ${s.instagram}`);
+      if (s.linkedin) items.push(`LinkedIn: ${s.linkedin}`);
+      if (s.twitter) items.push(`X: ${s.twitter}`);
+      if (items.length === 0) return y;
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(90);
+      const line = items.join("  •  ");
+      const wrapped = doc.splitTextToSize(line, pageWidth - margin * 2);
+      doc.text(wrapped, align === "center" ? pageWidth / 2 : margin, y, { align });
+      doc.setTextColor(0);
+      return y + wrapped.length * 5;
+    };
+
     // === BUSINESS: COVER PAGE ===
     if (isBusiness) {
       // Optional logo on cover
-      if (reportConfig.isBusiness && reportConfig.logoUrl) {
+      if (reportConfig.logoUrl) {
         try {
           const img = new Image();
           img.crossOrigin = "anonymous";
@@ -301,16 +327,19 @@ export function ProposalGenerator({
       doc.text(
         consultantName ? `Consultor Responsável: ${consultantName}` : "Consultor Responsável",
         pageWidth / 2,
-        pageHeight - 50,
+        pageHeight - 60,
         { align: "center" }
       );
       doc.setTextColor(0);
 
+      // Socials at bottom of cover
+      drawSocials(pageHeight - 45);
+
       doc.addPage();
       yPos = drawBrandHeader();
-    } else {
-      // PRO/Standard: brand header inline
-      if (reportConfig.isBusiness && reportConfig.logoUrl) {
+    } else if (isPro) {
+      // PRO: logo + name inline
+      if (reportConfig.logoUrl) {
         try {
           const img = new Image();
           img.crossOrigin = "anonymous";
@@ -324,6 +353,9 @@ export function ProposalGenerator({
         } catch {}
       }
       yPos = Math.max(yPos, drawBrandHeader());
+    } else {
+      // BASIC: no logo, just leave room for the header
+      yPos = drawBrandHeader();
     }
 
     // === PAGE: DADOS DA SIMULAÇÃO ===
@@ -408,24 +440,43 @@ export function ProposalGenerator({
       yPos += 6;
     }
 
-    // === PAGE: CENÁRIO/CONCLUSÃO (Business → forced new page) ===
-    if (isBusiness) {
+    // === PAGE: CENÁRIO/CONCLUSÃO (Business only — IA scenario is exclusive) ===
+    if (isBusiness && cleanedProposal.trim()) {
       doc.addPage();
       yPos = drawBrandHeader();
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.text("Cenário Estratégico e Conclusão", margin, yPos);
       yPos += 8;
-    } else {
-      yPos += 2;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      yPos = writeJustified(cleanedProposal, margin, yPos, maxWidth, 5, pageHeight - 40, () => {
+        doc.addPage();
+        return 20;
+      });
+
+      // Socials at end of last content page
+      yPos = drawSocials(Math.min(yPos + 8, pageHeight - 30));
     }
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    yPos = writeJustified(cleanedProposal, margin, yPos, maxWidth, 5, pageHeight - 30, () => {
-      doc.addPage();
-      return 20;
-    });
+    // BASIC plan: render plan upgrade banner on the last page
+    if (isBasicPlan) {
+      yPos += 6;
+      doc.setDrawColor(180);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, yPos, pageWidth - margin * 2, 18, 2, 2);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(80);
+      doc.text(
+        "Evolua para o Business e impacte seus clientes com a sua marca.",
+        pageWidth / 2,
+        yPos + 11,
+        { align: "center" }
+      );
+      doc.setTextColor(0);
+    }
 
     // === FOOTER on every page ===
     const totalPages = doc.getNumberOfPages();
@@ -447,7 +498,7 @@ export function ProposalGenerator({
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
 
-      if (reportConfig.isBusiness) {
+      if (isBusiness) {
         const parts = [reportConfig.companyName, reportConfig.creci].filter(Boolean);
         const businessLine = parts.join(" • ");
         if (businessLine) doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
@@ -495,9 +546,20 @@ export function ProposalGenerator({
 
   const canGenerateProposal = usageLimits?.canGenerateProposal ?? false;
 
+  const isBasicPlan = !isBusiness && !(isActive && plan === "pro");
+
   return (
     <div className="space-y-6">
       <ReportConfiguration onConfigChange={setReportConfig} />
+
+      {isBasicPlan && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-3 text-center text-sm text-amber-900 dark:text-amber-100">
+          <Crown className="inline h-4 w-4 mr-1 text-amber-600" />
+          Evolua para o Business e impacte seus clientes com a sua marca.
+          {" "}
+          <Link to="/precos" className="underline font-medium">Ver planos →</Link>
+        </div>
+      )}
 
       <Card className="shadow-card border-primary/20">
         <CardHeader>
