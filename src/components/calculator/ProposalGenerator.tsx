@@ -440,24 +440,43 @@ export function ProposalGenerator({
       yPos += 6;
     }
 
-    // === PAGE: CENÁRIO/CONCLUSÃO (Business → forced new page) ===
-    if (isBusiness) {
+    // === PAGE: CENÁRIO/CONCLUSÃO (Business only — IA scenario is exclusive) ===
+    if (isBusiness && cleanedProposal.trim()) {
       doc.addPage();
       yPos = drawBrandHeader();
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.text("Cenário Estratégico e Conclusão", margin, yPos);
       yPos += 8;
-    } else {
-      yPos += 2;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      yPos = writeJustified(cleanedProposal, margin, yPos, maxWidth, 5, pageHeight - 40, () => {
+        doc.addPage();
+        return 20;
+      });
+
+      // Socials at end of last content page
+      yPos = drawSocials(Math.min(yPos + 8, pageHeight - 30));
     }
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    yPos = writeJustified(cleanedProposal, margin, yPos, maxWidth, 5, pageHeight - 30, () => {
-      doc.addPage();
-      return 20;
-    });
+    // BASIC plan: render plan upgrade banner on the last page
+    if (isBasicPlan) {
+      yPos += 6;
+      doc.setDrawColor(180);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, yPos, pageWidth - margin * 2, 18, 2, 2);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(80);
+      doc.text(
+        "Evolua para o Business e impacte seus clientes com a sua marca.",
+        pageWidth / 2,
+        yPos + 11,
+        { align: "center" }
+      );
+      doc.setTextColor(0);
+    }
 
     // === FOOTER on every page ===
     const totalPages = doc.getNumberOfPages();
@@ -479,7 +498,7 @@ export function ProposalGenerator({
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
 
-      if (reportConfig.isBusiness) {
+      if (isBusiness) {
         const parts = [reportConfig.companyName, reportConfig.creci].filter(Boolean);
         const businessLine = parts.join(" • ");
         if (businessLine) doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
