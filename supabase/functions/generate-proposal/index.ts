@@ -14,6 +14,7 @@ interface ProposalRequest {
   propertyValue: number;
   downPayment: number;
   interestRate: number;
+  interestRateType?: "annual" | "monthly";
   termMonths: number;
   amortizationType: string;
   monthlyPayment: number;
@@ -23,6 +24,7 @@ interface ProposalRequest {
   interestSaved?: number;
   businessMode?: boolean;
   salesArguments?: string;
+  consultantName?: string;
   idempotencyKey?: string;
 }
 
