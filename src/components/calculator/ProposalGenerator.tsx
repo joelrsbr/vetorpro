@@ -161,66 +161,193 @@ export function ProposalGenerator({
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     const maxWidth = pageWidth - margin * 2;
-    let yPos = 20;
 
     const isPro = isActive && plan === "pro";
-    const consultantName = user ? (profile?.full_name || "") : "";
+    const consultantName = (profile?.full_name || "").trim();
 
-    if (reportConfig.isBusiness && reportConfig.logoUrl) {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve();
-          img.onerror = reject;
-          img.src = reportConfig.logoUrl!;
-        });
-        doc.addImage(img, "PNG", margin, yPos, 40, 20);
-        yPos += 25;
-      } catch {
-        // Skip logo if loading fails
-      }
+    const rateUnitLabel = interestRateType === "monthly" ? "a.m." : "a.a.";
 
-      if (reportConfig.companyName) {
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text(reportConfig.companyName, pageWidth / 2, yPos, { align: "center" });
-        yPos += 7;
-      }
-      if (reportConfig.creci) {
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text(reportConfig.creci, pageWidth / 2, yPos, { align: "center" });
-        yPos += 5;
-      }
+    // Justified text writer (manual word-spacing) — fallback to left for last line
+    const writeJustified = (
+      text: string,
+      x: number,
+      startY: number,
+      width: number,
+      lineHeight: number,
+      bottomLimit: number,
+      onPageBreak: () => number
+    ): number => {
+      let y = startY;
+      const paragraphs = text.split(/\n+/);
+      for (const para of paragraphs) {
+        const words = para.trim().split(/\s+/).filter(Boolean);
+        if (words.length === 0) {
+          y += lineHeight;
+          continue;
+        }
+        // Greedy line break
+        const lines: string[][] = [];
+        let cur: string[] = [];
+        for (const w of words) {
+          const trial = [...cur, w].join(" ");
+          if (doc.getTextWidth(trial) > width && cur.length > 0) {
+            lines.push(cur);
+            cur = [w];
+          } else {
+            cur.push(w);
+          }
+        }
+        if (cur.length) lines.push(cur);
 
-      doc.setDrawColor(200);
-      doc.line(margin, yPos, pageWidth - margin, yPos);
-      yPos += 10;
+        for (let li = 0; li < lines.length; li++) {
+          if (y > bottomLimit) {
+            y = onPageBreak();
+          }
+          const lineWords = lines[li];
+          const isLast = li === lines.length - 1;
+          if (isLast || lineWords.length === 1) {
+            doc.text(lineWords.join(" "), x, y);
+          } else {
+            const lineText = lineWords.join(" ");
+            const textW = doc.getTextWidth(lineText);
+            const gaps = lineWords.length - 1;
+            const extra = (width - textW) / gaps;
+            let cx = x;
+            for (let wi = 0; wi < lineWords.length; wi++) {
+              doc.text(lineWords[wi], cx, y);
+              cx += doc.getTextWidth(lineWords[wi]) + doc.getTextWidth(" ") + extra;
+            }
+          }
+          y += lineHeight;
+        }
+        y += lineHeight * 0.4; // paragraph spacing
+      }
+      return y;
+    };
+
+    // Replace any AI-leaked placeholder names by the real consultant
+    let cleanedProposal = proposalText;
+    if (consultantName) {
+      cleanedProposal = cleanedProposal.replace(/Joel\s+TESTE/gi, consultantName);
     }
 
-    // Date/time of prospection
+    // Header (cover or first page)
+    let yPos = 20;
+
+    const drawBrandHeader = () => {
+      let localY = 20;
+      if (reportConfig.isBusiness) {
+        if (reportConfig.companyName) {
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          doc.text(reportConfig.companyName, pageWidth / 2, localY, { align: "center" });
+          localY += 7;
+        }
+        if (reportConfig.creci) {
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text(reportConfig.creci, pageWidth / 2, localY, { align: "center" });
+          localY += 5;
+        }
+        doc.setDrawColor(200);
+        doc.line(margin, localY, pageWidth - margin, localY);
+        localY += 10;
+      }
+      return localY;
+    };
+
+    // === BUSINESS: COVER PAGE ===
+    if (isBusiness) {
+      // Optional logo on cover
+      if (reportConfig.isBusiness && reportConfig.logoUrl) {
+        try {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = reject;
+            img.src = reportConfig.logoUrl!;
+          });
+          doc.addImage(img, "PNG", pageWidth / 2 - 20, 50, 40, 20);
+        } catch {}
+      }
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("pt-BR");
+      const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(120);
+      doc.text(`Prospecção emitida em ${dateStr} às ${timeStr}`, pageWidth / 2, 90, { align: "center" });
+      doc.setTextColor(0);
+
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.text("Relatório Estratégico", pageWidth / 2, 130, { align: "center" });
+      doc.text("de Cenários", pageWidth / 2, 142, { align: "center" });
+
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80);
+      doc.text(`Preparado para ${clientName}`, pageWidth / 2, 165, { align: "center" });
+      if (propertyDescription) {
+        const pdLines = doc.splitTextToSize(propertyDescription, maxWidth - 20);
+        doc.text(pdLines, pageWidth / 2, 175, { align: "center" });
+      }
+
+      doc.setFontSize(11);
+      doc.setTextColor(40);
+      doc.text(
+        consultantName ? `Consultor Responsável: ${consultantName}` : "Consultor Responsável",
+        pageWidth / 2,
+        pageHeight - 50,
+        { align: "center" }
+      );
+      doc.setTextColor(0);
+
+      doc.addPage();
+      yPos = drawBrandHeader();
+    } else {
+      // PRO/Standard: brand header inline
+      if (reportConfig.isBusiness && reportConfig.logoUrl) {
+        try {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = reject;
+            img.src = reportConfig.logoUrl!;
+          });
+          doc.addImage(img, "PNG", margin, yPos, 40, 20);
+          yPos += 25;
+        } catch {}
+      }
+      yPos = Math.max(yPos, drawBrandHeader());
+    }
+
+    // === PAGE: DADOS DA SIMULAÇÃO ===
     const now = new Date();
-    const dateStr = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const dateStr = now.toLocaleDateString("pt-BR");
     const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(120);
-    doc.text(`Data e Hora da Prospeccao: ${dateStr} as ${timeStr}`, pageWidth - margin, yPos, { align: "right" });
+    doc.text(`Data e Hora da Prospecção: ${dateStr} às ${timeStr}`, pageWidth - margin, yPos, { align: "right" });
     doc.setTextColor(0);
     yPos += 8;
 
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("Relatorio Estrategico de Cenarios", pageWidth / 2, yPos, { align: "center" });
+    doc.text("Relatório Estratégico de Cenários", pageWidth / 2, yPos, { align: "center" });
     yPos += 10;
 
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(80);
     doc.text(
-      `Consultor Responsavel: ${consultantName || "____________________________"}`,
+      `Consultor Responsável: ${consultantName || "____________________________"}`,
       pageWidth / 2,
       yPos,
       { align: "center" }
@@ -233,76 +360,106 @@ export function ProposalGenerator({
     yPos += 8;
 
     doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Dados do Cliente e Simulação", margin, yPos);
+    yPos += 7;
     doc.setFont("helvetica", "normal");
-    doc.text(`Cliente: ${clientName}`, margin, yPos);
-    yPos += 6;
-    doc.text(`Imovel: ${propertyDescription}`, margin, yPos);
-    yPos += 10;
 
-    // Sales arguments block (Business only)
+    const fmtBRL = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    const dataRows: [string, string][] = [
+      ["Cliente", clientName || "—"],
+      ["Imóvel", propertyDescription || "—"],
+      ["Valor do imóvel", fmtBRL(propertyValue)],
+      ["Entrada", fmtBRL(downPayment)],
+      ["Valor financiado", fmtBRL(propertyValue - downPayment)],
+      ["Sistema", amortizationType.toUpperCase()],
+      ["Prazo", `${termMonths} meses`],
+      ["Taxa de juros", `${interestRate.toFixed(2)}% ${rateUnitLabel}`],
+      ["Parcela inicial", fmtBRL(calculations.firstPayment)],
+      ["Total a pagar", fmtBRL(calculations.totalPaid)],
+      ["Total de juros", fmtBRL(calculations.totalInterest)],
+    ];
+    doc.setFontSize(10);
+    for (const [k, v] of dataRows) {
+      doc.setFont("helvetica", "bold");
+      doc.text(`${k}:`, margin, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(v), margin + 45, yPos);
+      yPos += 6;
+    }
+
+    yPos += 4;
+
+    // Sales arguments block (Business only) — kept on data page
     if (isBusiness && salesArguments.trim()) {
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
-      doc.text("Diferenciais do Imovel:", margin, yPos);
+      doc.text("Diferenciais do Imóvel:", margin, yPos);
       yPos += 6;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      const argLines = doc.splitTextToSize(salesArguments.trim(), maxWidth);
-      for (const line of argLines) {
-        if (yPos > pageHeight - 30) {
-          doc.addPage();
-          yPos = 20;
-        }
-        doc.text(line, margin, yPos);
-        yPos += 5;
-      }
-      yPos += 5;
+      yPos = writeJustified(salesArguments.trim(), margin, yPos, maxWidth, 5, pageHeight - 30, () => {
+        doc.addPage();
+        return 20;
+      });
+      yPos += 4;
       doc.setDrawColor(220);
       doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 6;
+    }
+
+    // === PAGE: CENÁRIO/CONCLUSÃO (Business → forced new page) ===
+    if (isBusiness) {
+      doc.addPage();
+      yPos = drawBrandHeader();
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Cenário Estratégico e Conclusão", margin, yPos);
       yPos += 8;
+    } else {
+      yPos += 2;
     }
 
     doc.setFontSize(10);
-    const lines = doc.splitTextToSize(proposalText, maxWidth);
-    for (const line of lines) {
-      if (yPos > pageHeight - 30) {
-        doc.addPage();
-        yPos = 20;
-      }
-      doc.text(line, margin, yPos);
-      yPos += 5;
-    }
+    doc.setFont("helvetica", "normal");
+    yPos = writeJustified(cleanedProposal, margin, yPos, maxWidth, 5, pageHeight - 30, () => {
+      doc.addPage();
+      return 20;
+    });
 
+    // === FOOTER on every page ===
     const totalPages = doc.getNumberOfPages();
-    const validityText = "Esta prospeccao tem validade de 24 horas, devido a volatilidade dos indexadores financeiros e taxas bancarias.";
+    const volatilityNotice =
+      "Esta prospecção pode sofrer alterações sem prévio aviso devido à volatilidade dos indexadores financeiros e taxas bancárias. Consulte seu corretor para confirmar as condições vigentes.";
 
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
+      // Volatility notice — italic, secondary
       doc.setFontSize(7);
       doc.setFont("helvetica", "italic");
-      doc.setTextColor(160);
-      doc.text(validityText, pageWidth / 2, pageHeight - 14, { align: "center" });
+      doc.setTextColor(140);
+      const noticeLines = doc.splitTextToSize(volatilityNotice, pageWidth - margin * 2);
+      doc.text(noticeLines, pageWidth / 2, pageHeight - 18, { align: "center" });
 
-      const footerY = pageHeight - 8;
+      // Brand footer line
+      const footerY = pageHeight - 6;
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
 
       if (reportConfig.isBusiness) {
-        // White Label: only broker/company data, NO VetorPro
         const parts = [reportConfig.companyName, reportConfig.creci].filter(Boolean);
-        const businessLine = parts.length > 0
-          ? parts.join(" • ")
-          : "";
-        if (businessLine) {
-          doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
-        }
+        const businessLine = parts.join(" • ");
+        if (businessLine) doc.text(businessLine, pageWidth / 2, footerY, { align: "center" });
       } else if (isPro && (reportConfig.companyName || reportConfig.creci)) {
         const proFooter = [reportConfig.companyName, reportConfig.creci].filter(Boolean).join(" • ");
         doc.text(`${proFooter} | Gerado por VetorPro`, pageWidth / 2, footerY, { align: "center" });
       } else {
         doc.text("Gerado por VetorPro", pageWidth / 2, footerY, { align: "center" });
       }
+
+      // Page number (right)
+      doc.text(`${i}/${totalPages}`, pageWidth - margin, footerY, { align: "right" });
       doc.setTextColor(0);
     }
 
