@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useBusiness } from "@/contexts/BusinessContext";
-import { Building2, Palette, User, Upload, RotateCcw } from "lucide-react";
+import { Building2, Palette, User, Upload, RotateCcw, Info, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 const colorPresets = [
   { name: "Azul Corporativo", primary: "224 76% 30%", accent: "217 91% 60%" },
@@ -84,10 +85,22 @@ export function BusinessCustomization() {
           <h4 className="font-medium flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Logo da Empresa
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Mais informações">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  Sua identidade visual é sua primeira impressão. Um PDF com logo profissional diferencia você de qualquer concorrente e agrega autoridade à sua proposta — vale cada minuto investido aqui.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </h4>
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             {logoPreview ? (
-              <div className="h-16 w-32 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
+              <div className="h-16 w-32 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
                 <img 
                   src={logoPreview} 
                   alt="Logo" 
@@ -95,7 +108,7 @@ export function BusinessCustomization() {
                 />
               </div>
             ) : (
-              <div className="h-16 w-32 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center text-muted-foreground text-sm">
+              <div className="h-16 w-32 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center text-muted-foreground text-sm shrink-0">
                 Sem logo
               </div>
             )}
@@ -115,6 +128,9 @@ export function BusinessCustomization() {
                 onChange={handleLogoUpload}
                 className="hidden"
               />
+              <p className="text-xs text-muted-foreground">
+                PNG ou JPG · Mínimo 300x300px · Máximo 2MB · Fundo transparente recomendado
+              </p>
               {logoPreview && (
                 <Button 
                   variant="ghost" 
@@ -129,6 +145,14 @@ export function BusinessCustomization() {
               )}
             </div>
           </div>
+          {!logoPreview && (
+            <div className="flex items-start gap-2 p-3 rounded-lg border border-yellow-300 bg-yellow-50 text-yellow-800 text-xs">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>
+                Sem logo carregada — seu PDF será gerado sem identidade visual. Carregue sua logo para maximizar o impacto das suas propostas.
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Color Presets */}
