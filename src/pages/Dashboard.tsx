@@ -445,8 +445,8 @@ export default function Dashboard() {
           {/* Simulador */}
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/calculadora")}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary">
-                <Calculator className="h-6 w-6 text-primary-foreground" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10">
+                <Calculator className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">Simulador</p>
@@ -455,7 +455,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* BANCOS — Sondagem Estratégica (laranja) */}
+          {/* BANCOS — Sondagem Estratégica */}
           <Card 
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
@@ -467,8 +467,8 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center relative" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
-                <Landmark className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10 relative">
+                <Landmark className="h-6 w-6 text-primary" />
                 {plan !== "business" && (
                   <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
                 )}
@@ -483,8 +483,8 @@ export default function Dashboard() {
           {/* Indicadores de Mercado */}
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowIndicatorsModal(true)}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
-                <BarChart3 className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10">
+                <BarChart3 className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">Indicadores</p>
@@ -496,8 +496,8 @@ export default function Dashboard() {
           {/* HP 12c Financeira */}
           <Card className="shadow-card hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setShowHP12C(true)}>
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #b8860b, #8b6914)" }}>
-                <Calculator className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10">
+                <Calculator className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">HP 12c</p>
@@ -518,8 +518,8 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600 relative">
-                <BrainCog className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10 relative">
+                <BrainCog className="h-6 w-6 text-primary" />
                 {plan !== "business" && (
                   <Lock className="h-3 w-3 text-white absolute -bottom-0.5 -right-0.5 bg-muted-foreground rounded-full p-0.5" />
                 )}
@@ -537,8 +537,8 @@ export default function Dashboard() {
             onClick={() => navigate("/personalizacao")}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-emerald-600">
-                <Pencil className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10">
+                <Pencil className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">Sua Marca</p>
@@ -547,7 +547,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* News — antiga Comunidade */}
+          {/* News */}
           <Card
             className="shadow-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => {
@@ -556,8 +556,8 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-warning">
-                <Radio className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10">
+                <Radio className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">News</p>
@@ -575,8 +575,8 @@ export default function Dashboard() {
             }}
           >
             <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #ef4444, #b91c1c)" }}>
-                <Play className="h-6 w-6 text-white fill-white" />
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/10">
+                <Play className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">YouTube</p>

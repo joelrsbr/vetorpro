@@ -14,14 +14,14 @@ export function Footer() {
   const [showInstitutional, setShowInstitutional] = useState(false);
 
   return (
-    <footer className="border-t border-border bg-muted/30">
+    <footer className="border-t border-primary/20 bg-primary text-primary-foreground">
       <div className="container py-8">
         <div className="flex flex-col items-center justify-center gap-4 text-center">
-          <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground md:text-base">
+          <div className="flex items-center justify-center gap-3 text-sm md:text-base">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="inline-flex items-center gap-1.5 cursor-help">
+                  <span className="inline-flex items-center gap-1.5 cursor-help text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                     <HelpCircle className="h-5 w-5" />
                     <span className="font-medium">Suporte</span>
                   </span>
@@ -32,30 +32,30 @@ export function Footer() {
               </Tooltip>
             </TooltipProvider>
             <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
-              <MessageCircle className="h-5 w-5 text-green-500 hover:text-green-600 transition-colors" />
+              <MessageCircle className="h-5 w-5 text-accent hover:opacity-80 transition-opacity" />
             </a>
-            <span className="mx-2">·</span>
-            <img src={vetorproLogo} alt="VetorPro" className="h-6 w-auto" />
-            <span className="font-semibold text-foreground">{brandLabel}</span>
+            <span className="mx-2 text-primary-foreground/40">·</span>
+            <img src={vetorproLogo} alt="VetorPro" className="h-6 w-auto brightness-0 invert" />
+            <span className="font-semibold text-primary-foreground">{brandLabel}</span>
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 text-xs text-primary-foreground/80">
             <Mail className="h-3.5 w-3.5 shrink-0" />
-            <a href="mailto:suporte@vetorpro.com.br" className="hover:text-primary transition-colors">
+            <a href="mailto:suporte@vetorpro.com.br" className="hover:text-primary-foreground transition-colors">
               suporte@vetorpro.com.br
             </a>
           </div>
 
-          <div className="flex items-center justify-center gap-5 text-sm text-muted-foreground">
-            <Link to="/termos-de-uso" className="hover:text-primary transition-colors font-medium">Termos de Uso</Link>
-            <Link to="/politica-de-privacidade" className="hover:text-primary transition-colors font-medium">Privacidade</Link>
+          <div className="flex items-center justify-center gap-5 text-sm text-primary-foreground/80">
+            <Link to="/termos-de-uso" className="hover:text-primary-foreground transition-colors font-medium">Termos de Uso</Link>
+            <Link to="/politica-de-privacidade" className="hover:text-primary-foreground transition-colors font-medium">Privacidade</Link>
           </div>
 
-          <p className="text-xs text-muted-foreground/70">
+          <p className="text-xs text-primary-foreground/60">
             © 2026 {brandLabel}. Operado por{" "}
             <button
               onClick={() => setShowInstitutional(true)}
-              className="underline underline-offset-2 hover:text-primary transition-colors"
+              className="underline underline-offset-2 hover:text-primary-foreground transition-colors"
             >
               J-RSBR (I.S.)
             </button>

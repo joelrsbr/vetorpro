@@ -31,6 +31,10 @@
     --accent: 144 100% 35%;
     --accent-foreground: 0 0% 100%;
 
+    /* Brand aliases for direct usage */
+    --brand-primary: 212 84% 27%;   /* #0b3d7f Navy */
+    --brand-accent: 144 100% 35%;   /* #00b050 Green */
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
@@ -125,10 +129,20 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1 {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.15;
   }
 }
 

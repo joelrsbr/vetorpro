@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { User, LogOut, CreditCard, Settings, LayoutDashboard } from "lucide-react";
-import vetorproIcon from "@/assets/vetorpro-icon.png";
+import vetorproLogoHorizontal from "@/assets/vetorpro-logo-horizontal.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -29,14 +29,10 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-white shadow-sm">
       <nav className="container flex h-16 items-center justify-between">
         <Link to={user ? dashboardPath : "/"} className="flex items-center gap-2">
-          <img src={vetorproIcon} alt="VetorPro" className="h-8 w-8 object-contain" />
-          <span className="text-lg font-bold tracking-tight">
-            <span className="text-primary">Vetor</span>
-            <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
-          </span>
+          <img src={vetorproLogoHorizontal} alt="VetorPro" className="h-8 w-auto object-contain" />
         </Link>
 
         <div className="flex items-center">
