@@ -16,19 +16,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary - Navy Tech Blue */
-    --primary: 220 70% 18%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - VetorPro Navy #0b3d7f */
+    --primary: 212 84% 27%;
+    --primary-foreground: 0 0% 100%;
 
     /* Secondary - Slate Gray */
     --secondary: 215 20% 95%;
     --secondary-foreground: 222 47% 11%;
 
     --muted: 215 20% 94%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 0 0% 53%; /* #888888 brand support gray */
 
-    /* Accent - Vibrant Blue */
-    --accent: 217 91% 60%;
+    /* Accent - VetorPro Green #00b050 */
+    --accent: 144 100% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -36,33 +36,36 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 220 70% 18%;
+    --ring: 212 84% 27%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens */
-    --success: 142 76% 36%;
+    /* Custom tokens - success uses brand green */
+    --success: 144 100% 35%;
     --success-foreground: 0 0% 100%;
-    
+
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Brand accent - Growth Green */
-    --brand-green: 152 68% 38%;
+    /* Brand tokens */
+    --brand-navy: 212 84% 27%;   /* #0b3d7f */
+    --brand-green: 144 100% 35%; /* #00b050 */
+    --brand-black: 240 100% 25%; /* #100080 */
+    --brand-gray: 0 0% 53%;      /* #888888 */
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 70% 18%) 0%, hsl(217 80% 40%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(212 84% 27%) 0%, hsl(212 84% 38%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(215 20% 95%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(215 20% 98%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(217 80% 50%) 0%, hsl(220 70% 30%) 100%);
-    
+    --gradient-accent: linear-gradient(135deg, hsl(144 100% 35%) 0%, hsl(144 100% 28%) 100%);
+
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(220 70% 18% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(220 70% 18% / 0.1), 0 2px 4px -2px hsl(220 70% 18% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(220 70% 18% / 0.1), 0 4px 6px -4px hsl(220 70% 18% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(220 70% 18% / 0.1), 0 8px 10px -6px hsl(220 70% 18% / 0.1);
-    --shadow-card: 0 0 0 1px hsl(214 32% 91%), 0 4px 12px hsl(220 70% 18% / 0.08);
-    --shadow-button: 0 4px 14px 0 hsl(220 70% 18% / 0.25);
+    --shadow-sm: 0 1px 2px 0 hsl(212 84% 27% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(212 84% 27% / 0.1), 0 2px 4px -2px hsl(212 84% 27% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(212 84% 27% / 0.1), 0 4px 6px -4px hsl(212 84% 27% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(212 84% 27% / 0.1), 0 8px 10px -6px hsl(212 84% 27% / 0.1);
+    --shadow-card: 0 0 0 1px hsl(214 32% 91%), 0 4px 12px hsl(212 84% 27% / 0.08);
+    --shadow-button: 0 4px 14px 0 hsl(212 84% 27% / 0.25);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
