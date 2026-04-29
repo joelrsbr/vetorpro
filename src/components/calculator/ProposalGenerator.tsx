@@ -509,6 +509,9 @@ export function ProposalGenerator({
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
 
+      const titular = clientName?.trim() || "";
+      const idTag = titular ? `${titular} · ${reportId}` : reportId;
+
       if (isBusiness) {
         const parts = [reportConfig.companyName, reportConfig.creci].filter(Boolean);
         const businessLine = parts.join(" • ");
@@ -519,6 +522,13 @@ export function ProposalGenerator({
       } else {
         doc.text("Gerado por VetorPro", pageWidth / 2, footerY, { align: "center" });
       }
+
+      // Traceability ID + titular (left, discreet)
+      doc.setFontSize(7);
+      doc.setTextColor(160);
+      doc.text(idTag, margin, footerY, { align: "left" });
+      doc.setFontSize(8);
+      doc.setTextColor(150);
 
       // Page number (right)
       doc.text(`${i}/${totalPages}`, pageWidth - margin, footerY, { align: "right" });
