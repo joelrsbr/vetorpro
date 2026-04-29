@@ -31,6 +31,10 @@
     --accent: 144 100% 35%;
     --accent-foreground: 0 0% 100%;
 
+    /* Brand aliases for direct usage */
+    --brand-primary: 212 84% 27%;   /* #0b3d7f Navy */
+    --brand-accent: 144 100% 35%;   /* #00b050 Green */
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
