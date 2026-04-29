@@ -168,10 +168,21 @@ export function ProposalGenerator({
 
     const isPro = isActive && plan === "pro";
     const isBasicPlan = !isBusiness && !isPro;
-    const consultantName = (reportConfig.consultantName || profile?.full_name || "").trim();
+    // ALWAYS prefer the live profile value to avoid stale config snapshots
+    const rawConsultant = (profile?.full_name || reportConfig.consultantName || "").trim();
+    // Defensive: never let known placeholder leak into the PDF
+    const consultantName = /joel\s*teste/i.test(rawConsultant) ? "" : rawConsultant;
     const grayscale = isBasicPlan;
 
     const rateUnitLabel = interestRateType === "monthly" ? "a.m." : "a.a.";
+
+    // Unique traceability ID — VP-DDMMAAAA-XXXX
+    const _now = new Date();
+    const dd = String(_now.getDate()).padStart(2, "0");
+    const mm = String(_now.getMonth() + 1).padStart(2, "0");
+    const yyyy = _now.getFullYear();
+    const rand4 = Math.floor(1000 + Math.random() * 9000);
+    const reportId = `VP-${dd}${mm}${yyyy}-${rand4}`;
 
     // Justified text writer (manual word-spacing) — fallback to left for last line
     const writeJustified = (
