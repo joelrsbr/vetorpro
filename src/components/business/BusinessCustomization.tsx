@@ -321,12 +321,36 @@ export function BusinessCustomization() {
           </div>
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="space-y-2">
-              <Label htmlFor="primaryColor" className="text-sm">Cor Primária (HSL)</Label>
-              <Input id="primaryColor" value={settings.primaryColor} onChange={(e) => updateSettings({ primaryColor: e.target.value })} placeholder="224 76% 30%" />
+              <Label htmlFor="primaryColor" className="text-sm">Cor Primária</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="primaryColor"
+                  type="color"
+                  value={hslStringToHex(settings.primaryColor)}
+                  onChange={(e) => updateSettings({ primaryColor: hexToHslString(e.target.value) })}
+                  className="h-10 w-14 rounded-md border border-input cursor-pointer bg-background p-1"
+                  aria-label="Selecionar cor primária"
+                />
+                <span className="text-xs text-muted-foreground font-mono uppercase">
+                  {hslStringToHex(settings.primaryColor)}
+                </span>
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="accentColor" className="text-sm">Cor de Destaque (HSL)</Label>
-              <Input id="accentColor" value={settings.accentColor} onChange={(e) => updateSettings({ accentColor: e.target.value })} placeholder="217 91% 60%" />
+              <Label htmlFor="accentColor" className="text-sm">Cor de Destaque</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="accentColor"
+                  type="color"
+                  value={hslStringToHex(settings.accentColor)}
+                  onChange={(e) => updateSettings({ accentColor: hexToHslString(e.target.value) })}
+                  className="h-10 w-14 rounded-md border border-input cursor-pointer bg-background p-1"
+                  aria-label="Selecionar cor de destaque"
+                />
+                <span className="text-xs text-muted-foreground font-mono uppercase">
+                  {hslStringToHex(settings.accentColor)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
