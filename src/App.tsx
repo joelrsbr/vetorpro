@@ -9,6 +9,7 @@ import { SessionProvider } from "@/contexts/SessionContext";
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { SimulationProvider } from "@/contexts/SimulationContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { ErrorBoundary } from "./components/system/ErrorBoundary";
 import LoginAndPlansPage from "./pages/LoginAndPlansPage";
 import Index from "./pages/Index";
 import Precos from "./pages/Precos";
@@ -42,44 +43,46 @@ function RedirectRouteRestorer() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <SessionProvider>
-        <BusinessProvider>
-          <SimulationProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <RedirectRouteRestorer />
-                <Routes>
-                  <Route path="/" element={<LoginAndPlansPage />} />
-                  <Route path="/loginandplans" element={<LoginAndPlansPage />} />
-                  <Route path="/precos" element={<Precos />} />
-                  <Route path="/login" element={<Login />} />
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <SessionProvider>
+          <BusinessProvider>
+            <SimulationProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <RedirectRouteRestorer />
+                  <Routes>
+                    <Route path="/" element={<LoginAndPlansPage />} />
+                    <Route path="/loginandplans" element={<LoginAndPlansPage />} />
+                    <Route path="/precos" element={<Precos />} />
+                    <Route path="/login" element={<Login />} />
 
-                  <Route path="/termos-de-uso" element={<TermosDeUso />} />
-                  <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidade />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/termos-de-uso" element={<TermosDeUso />} />
+                    <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidade />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
 
-                  {/* Rotas protegidas - requerem autenticação e assinatura ativa */}
-                  <Route element={<ProtectedRoute />}>
-                    <Route path="/calculadora" element={<Index />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    
-                    <Route path="/personalizacao" element={<Personalizacao />} />
-                  </Route>
+                    {/* Rotas protegidas - requerem autenticação e assinatura ativa */}
+                    <Route element={<ProtectedRoute />}>
+                      <Route path="/calculadora" element={<Index />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      
+                      <Route path="/personalizacao" element={<Personalizacao />} />
+                    </Route>
 
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </SimulationProvider>
-        </BusinessProvider>
-      </SessionProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </TooltipProvider>
+            </SimulationProvider>
+          </BusinessProvider>
+        </SessionProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

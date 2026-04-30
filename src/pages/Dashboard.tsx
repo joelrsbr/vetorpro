@@ -149,20 +149,29 @@ export default function Dashboard() {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) fetchData();
-  }, [user]);
+    if (user?.id) fetchData();
+    // Depender apenas do id evita refetch a cada TOKEN_REFRESHED (novo objeto user, mesmo id).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const fetchData = async () => {
     setLoadingData(true);
-    const [proposalsRes, simulationsRes, countsRes] = await Promise.all([
-      supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.rpc("get_dashboard_counts", { p_user_id: user!.id }),
-    ]);
-    if (proposalsRes.data) setProposals(proposalsRes.data as Proposal[]);
-    if (simulationsRes.data) setSimulations(simulationsRes.data);
-    if (countsRes.data && countsRes.data[0]) setDashCounts(countsRes.data[0]);
-    setLoadingData(false);
+    try {
+      const [proposalsRes, simulationsRes, countsRes] = await Promise.all([
+        supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.rpc("get_dashboard_counts", { p_user_id: user!.id }),
+      ]);
+      // Só sobrescreve se a query retornou dados; em caso de erro mantém o estado anterior
+      // (evita CRM "vazio" por falha momentânea de token/rede).
+      if (proposalsRes.data) setProposals(proposalsRes.data as Proposal[]);
+      if (simulationsRes.data) setSimulations(simulationsRes.data);
+      if (countsRes.data && countsRes.data[0]) setDashCounts(countsRes.data[0]);
+    } catch (err) {
+      console.error("[Dashboard] fetchData falhou:", err);
+    } finally {
+      setLoadingData(false);
+    }
   };
 
   const formatCurrency = (value: number) =>

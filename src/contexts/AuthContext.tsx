@@ -116,25 +116,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let currentUserId: string | null = null;
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        // Always sync session/user references for downstream consumers
         setSession(session);
         setUser(session?.user ?? null);
 
-        if (session?.user) {
-          // Use setTimeout to avoid blocking the auth state change
-          setTimeout(async () => {
-            const profileData = await fetchProfile(session.user.id);
-            setProfile(profileData);
-            const limits = await fetchUsageLimits(session.user.id);
-            setUsageLimits(limits);
-          }, 0);
-        } else {
-          setProfile(null);
-          setUsageLimits(null);
+        const newUserId = session?.user?.id ?? null;
+
+        // TOKEN_REFRESHED dispara periodicamente em segundo plano e quando a aba volta
+        // de inativa. Não devemos re-buscar profile/limites nesses casos — isso causa
+        // flicker, perda momentânea de estado derivado e, se o token estiver em fase
+        // de renovação, pode lançar e derrubar a árvore (tela branca).
+        if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+          setLoading(false);
+          currentUserId = newUserId;
+          return;
         }
-        
+
+        // Apenas (re)buscar quando a identidade do usuário realmente muda.
+        if (newUserId !== currentUserId) {
+          currentUserId = newUserId;
+
+          if (session?.user) {
+            // setTimeout para não bloquear o callback de auth (evita deadlock).
+            setTimeout(async () => {
+              try {
+                const profileData = await fetchProfile(session.user.id);
+                setProfile(profileData);
+                const limits = await fetchUsageLimits(session.user.id);
+                setUsageLimits(limits);
+              } catch (err) {
+                console.error("Erro ao carregar profile/limites:", err);
+              }
+            }, 0);
+          } else {
+            setProfile(null);
+            setUsageLimits(null);
+          }
+        }
+
         setLoading(false);
       }
     );
@@ -143,16 +167,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+      currentUserId = session?.user?.id ?? null;
+
       if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
-        fetchUsageLimits(session.user.id).then(setUsageLimits);
+        fetchProfile(session.user.id).then(setProfile).catch((e) => console.error(e));
+        fetchUsageLimits(session.user.id).then(setUsageLimits).catch((e) => console.error(e));
       }
-      
+
+      setLoading(false);
+    }).catch((err) => {
+      console.error("Erro ao recuperar sessão inicial:", err);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Quando a aba volta de inativa, força refresh do token Supabase.
+  // Sem isso, o primeiro request após longa inatividade pode falhar com token expirado
+  // e derrubar componentes que não tratam o erro (sintoma: tela branca + CRM vazio).
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session) {
+            // Não-bloqueante; se falhar o usuário continua logado até a próxima ação.
+            supabase.auth.refreshSession().catch((err) => {
+              console.warn("[Auth] refreshSession após retorno da aba falhou:", err);
+            });
+          }
+        }).catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
