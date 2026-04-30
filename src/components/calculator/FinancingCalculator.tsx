@@ -451,6 +451,7 @@ export function FinancingCalculator() {
           correctedDebt,
           fees,
           hasReinforcement: reinforcementThisMonth > 0,
+          reinforcementAmount: reinforcementThisMonth,
           date: currentDate
         });
 
