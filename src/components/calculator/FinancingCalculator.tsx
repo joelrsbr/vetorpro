@@ -512,9 +512,36 @@ export function FinancingCalculator() {
     const lastPayment = schedule[schedule.length - 1]?.payment || 0;
     const actualTermMonths = schedule.length;
     const monthsSaved = months - actualTermMonths;
-    const interestSaved = enableExtraAmortization || enableReinforcements ?
-    principal * monthlyRate * months - totalInterest :
-    0;
+    // Compute baseline total interest (no extra amortization, no reinforcements) for accurate savings
+    let baselineInterest = 0;
+    if (enableExtraAmortization || enableReinforcements) {
+      let bBal = principal;
+      if (amortizationType === "SAC") {
+        const monthlyPrincipal = principal / months;
+        for (let m = 1; m <= months && bBal > 0; m++) {
+          const corr = bBal * correctionRate;
+          bBal += corr;
+          const intr = bBal * monthlyRate;
+          baselineInterest += intr;
+          bBal = Math.max(0, bBal - monthlyPrincipal);
+        }
+      } else {
+        const fixedPay = monthlyRate === 0
+          ? principal / months
+          : principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        for (let m = 1; m <= months && bBal > 0; m++) {
+          const corr = bBal * correctionRate;
+          bBal += corr;
+          const intr = bBal * monthlyRate;
+          baselineInterest += intr;
+          const principalPart = Math.max(0, fixedPay - intr);
+          bBal = Math.max(0, bBal - principalPart);
+        }
+      }
+    }
+    const interestSaved = (enableExtraAmortization || enableReinforcements)
+      ? Math.max(0, baselineInterest - totalInterest)
+      : 0;
 
     return {
       principal,
