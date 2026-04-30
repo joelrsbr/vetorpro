@@ -1142,7 +1142,7 @@ export function FinancingCalculator() {
             </div>
 
             {/* Scheduled Reinforcements */}
-            <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4 text-primary" />
@@ -1156,6 +1156,9 @@ export function FinancingCalculator() {
                   onCheckedChange={setEnableReinforcements} />
                 
               </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Aportes pontuais em datas específicas — ideal para FGTS, 13º salário, bônus ou entrega de chaves. Pode ser usado em conjunto com a Amortização Extra Mensal.
+              </p>
               {enableReinforcements &&
               <div className="space-y-4 animate-slide-up">
                   {reinforcements.map((r, idx) => {
