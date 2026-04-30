@@ -589,6 +589,8 @@ export function FinancingCalculator() {
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
         client_name: clientName.trim(),
         property_description: propertyDescription.trim(),
+        client_phone: clientPhone.trim() || null,
+        client_email: clientEmail.trim() || null,
       };
 
       let error;
