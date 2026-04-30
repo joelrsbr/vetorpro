@@ -107,6 +107,8 @@ export function FinancingCalculator() {
     if (!state) return;
     if (state.clientName) setClientName(state.clientName);
     if (state.propertyDescription) setPropertyDescription(state.propertyDescription);
+    if (state.clientPhone) setClientPhone(state.clientPhone);
+    if (state.clientEmail) setClientEmail(state.clientEmail);
     if (state.propertyValue) setPropertyValue(state.propertyValue);
     if (state.downPayment) setDownPayment(state.downPayment);
     if (state.interestRate) setInterestRate(state.interestRate);
