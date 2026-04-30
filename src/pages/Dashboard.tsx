@@ -221,6 +221,8 @@ export default function Dashboard() {
         simulationId: sim.id,
         clientName: sim.client_name || "",
         propertyDescription: sim.property_description || "",
+        clientPhone: sim.client_phone || "",
+        clientEmail: sim.client_email || "",
         propertyValue: Math.round(sim.property_value * 100).toString(),
         downPayment: Math.round(sim.down_payment * 100).toString(),
         interestRate: Math.round(sim.interest_rate * 100).toString(),
