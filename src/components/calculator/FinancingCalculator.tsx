@@ -42,6 +42,7 @@ export interface ScheduleItem {
   correctedDebt: number;
   fees: number;
   hasReinforcement: boolean;
+  reinforcementAmount: number;
   date: Date;
 }
 
