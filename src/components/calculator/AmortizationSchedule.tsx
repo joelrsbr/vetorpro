@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { Fragment, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -83,36 +83,45 @@ export function AmortizationSchedule({ schedule, amortizationType, locked = fals
               </TableHeader>
               <TableBody>
                 {displayedItems.map((item) => (
-                  <TableRow 
-                    key={item.month} 
-                    className={item.hasReinforcement ? "bg-primary/5 font-semibold" : ""}
-                  >
-                    <TableCell className="font-medium capitalize">
-                      {format(item.date, "MMM/yyyy", { locale: ptBR })}
-                    </TableCell>
-                    <TableCell>{formatBRL(item.debt)}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {item.correction > 0 ? formatBRL(item.correction) : "-"}
-                    </TableCell>
-                    <TableCell>{formatBRL(item.correctedDebt)}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatBRL(item.interest)}
-                    </TableCell>
-                    <TableCell>
-                      {formatBRL(item.principal - item.extraPayment)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {item.fees > 0 ? formatBRL(item.fees) : "-"}
-                    </TableCell>
-                    <TableCell className="font-medium">{formatBRL(item.payment)}</TableCell>
-                    <TableCell className={item.extraPayment > 0 ? "bg-primary/8 text-primary font-medium" : ""}>
-                      {formatBRL(item.principal)}
-                      {item.hasReinforcement && (
-                        <span className="ml-1 text-xs text-primary">(+reforço)</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{formatBRL(item.balance)}</TableCell>
-                  </TableRow>
+                  <Fragment key={item.month}>
+                    <TableRow 
+                      key={item.month} 
+                      className={item.hasReinforcement ? "bg-primary/5 font-semibold" : ""}
+                    >
+                      <TableCell className="font-medium capitalize">
+                        {format(item.date, "MMM/yyyy", { locale: ptBR })}
+                      </TableCell>
+                      <TableCell>{formatBRL(item.debt)}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {item.correction > 0 ? formatBRL(item.correction) : "-"}
+                      </TableCell>
+                      <TableCell>{formatBRL(item.correctedDebt)}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatBRL(item.interest)}
+                      </TableCell>
+                      <TableCell>
+                        {formatBRL(item.principal - item.extraPayment)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {item.fees > 0 ? formatBRL(item.fees) : "-"}
+                      </TableCell>
+                      <TableCell className="font-medium">{formatBRL(item.payment)}</TableCell>
+                      <TableCell className={item.extraPayment > 0 ? "bg-primary/8 text-primary font-medium" : ""}>
+                        {formatBRL(item.principal)}
+                        {item.hasReinforcement && (
+                          <span className="ml-1 text-xs text-primary">(+reforço)</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">{formatBRL(item.balance)}</TableCell>
+                    </TableRow>
+                    {item.hasReinforcement && item.reinforcementAmount > 0 && (
+                      <TableRow key={`${item.month}-reinforcement`} className="bg-primary/10 border-l-4 border-l-primary">
+                        <TableCell colSpan={10} className="py-2 text-sm text-primary font-medium">
+                          🔵 Reforço Estratégico: {formatBRL(item.reinforcementAmount)} aplicado em {format(item.date, "MMMM/yyyy", { locale: ptBR })}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
                 ))}
               </TableBody>
               <TableFooter>

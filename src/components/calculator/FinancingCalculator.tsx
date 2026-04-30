@@ -42,6 +42,7 @@ export interface ScheduleItem {
   correctedDebt: number;
   fees: number;
   hasReinforcement: boolean;
+  reinforcementAmount: number;
   date: Date;
 }
 
@@ -106,6 +107,8 @@ export function FinancingCalculator() {
     if (!state) return;
     if (state.clientName) setClientName(state.clientName);
     if (state.propertyDescription) setPropertyDescription(state.propertyDescription);
+    if (state.clientPhone) setClientPhone(state.clientPhone);
+    if (state.clientEmail) setClientEmail(state.clientEmail);
     if (state.propertyValue) setPropertyValue(state.propertyValue);
     if (state.downPayment) setDownPayment(state.downPayment);
     if (state.interestRate) setInterestRate(state.interestRate);
@@ -450,6 +453,7 @@ export function FinancingCalculator() {
           correctedDebt,
           fees,
           hasReinforcement: reinforcementThisMonth > 0,
+          reinforcementAmount: reinforcementThisMonth,
           date: currentDate
         });
 
@@ -496,6 +500,7 @@ export function FinancingCalculator() {
           correctedDebt,
           fees,
           hasReinforcement: reinforcementThisMonth > 0,
+          reinforcementAmount: reinforcementThisMonth,
           date: currentDate
         });
 
@@ -507,9 +512,36 @@ export function FinancingCalculator() {
     const lastPayment = schedule[schedule.length - 1]?.payment || 0;
     const actualTermMonths = schedule.length;
     const monthsSaved = months - actualTermMonths;
-    const interestSaved = enableExtraAmortization || enableReinforcements ?
-    principal * monthlyRate * months - totalInterest :
-    0;
+    // Compute baseline total interest (no extra amortization, no reinforcements) for accurate savings
+    let baselineInterest = 0;
+    if (enableExtraAmortization || enableReinforcements) {
+      let bBal = principal;
+      if (amortizationType === "SAC") {
+        const monthlyPrincipal = principal / months;
+        for (let m = 1; m <= months && bBal > 0; m++) {
+          const corr = bBal * correctionRate;
+          bBal += corr;
+          const intr = bBal * monthlyRate;
+          baselineInterest += intr;
+          bBal = Math.max(0, bBal - monthlyPrincipal);
+        }
+      } else {
+        const fixedPay = monthlyRate === 0
+          ? principal / months
+          : principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        for (let m = 1; m <= months && bBal > 0; m++) {
+          const corr = bBal * correctionRate;
+          bBal += corr;
+          const intr = bBal * monthlyRate;
+          baselineInterest += intr;
+          const principalPart = Math.max(0, fixedPay - intr);
+          bBal = Math.max(0, bBal - principalPart);
+        }
+      }
+    }
+    const interestSaved = (enableExtraAmortization || enableReinforcements)
+      ? Math.max(0, baselineInterest - totalInterest)
+      : 0;
 
     return {
       principal,
@@ -584,6 +616,8 @@ export function FinancingCalculator() {
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
         client_name: clientName.trim(),
         property_description: propertyDescription.trim(),
+        client_phone: clientPhone.trim() || null,
+        client_email: clientEmail.trim() || null,
       };
 
       let error;
@@ -1088,7 +1122,7 @@ export function FinancingCalculator() {
             </div>
 
             {/* Extra Amortization */}
-            <div ref={extraAmortRef} className="border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div ref={extraAmortRef} className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Minus className="h-4 w-4 text-primary" />
@@ -1102,6 +1136,9 @@ export function FinancingCalculator() {
                   onCheckedChange={setEnableExtraAmortization} />
                 
               </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Valor fixo adicionado todo mês além da parcela regular — reduz o prazo ou o valor da parcela continuamente.
+              </p>
               {enableExtraAmortization &&
               <div className="space-y-4 animate-slide-up">
                   <div className="space-y-2">
@@ -1132,7 +1169,7 @@ export function FinancingCalculator() {
             </div>
 
             {/* Scheduled Reinforcements */}
-            <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4 text-primary" />
@@ -1146,6 +1183,9 @@ export function FinancingCalculator() {
                   onCheckedChange={setEnableReinforcements} />
                 
               </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Aportes pontuais em datas específicas — ideal para FGTS, 13º salário, bônus ou entrega de chaves. Pode ser usado em conjunto com a Amortização Extra Mensal.
+              </p>
               {enableReinforcements &&
               <div className="space-y-4 animate-slide-up">
                   {reinforcements.map((r, idx) => {
