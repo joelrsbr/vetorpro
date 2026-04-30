@@ -56,6 +56,8 @@ interface Simulation {
   created_at: string;
   client_name: string | null;
   property_description: string | null;
+  client_phone?: string | null;
+  client_email?: string | null;
 }
 
 
