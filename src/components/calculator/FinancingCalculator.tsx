@@ -1095,7 +1095,7 @@ export function FinancingCalculator() {
             </div>
 
             {/* Extra Amortization */}
-            <div ref={extraAmortRef} className="border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div ref={extraAmortRef} className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Minus className="h-4 w-4 text-primary" />
@@ -1109,6 +1109,9 @@ export function FinancingCalculator() {
                   onCheckedChange={setEnableExtraAmortization} />
                 
               </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Valor fixo adicionado todo mês além da parcela regular — reduz o prazo ou o valor da parcela continuamente.
+              </p>
               {enableExtraAmortization &&
               <div className="space-y-4 animate-slide-up">
                   <div className="space-y-2">
