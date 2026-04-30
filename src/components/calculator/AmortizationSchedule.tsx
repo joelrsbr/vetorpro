@@ -83,7 +83,7 @@ export function AmortizationSchedule({ schedule, amortizationType, locked = fals
               </TableHeader>
               <TableBody>
                 {displayedItems.map((item) => (
-                  <>
+                  <Fragment key={item.month}>
                     <TableRow 
                       key={item.month} 
                       className={item.hasReinforcement ? "bg-primary/5 font-semibold" : ""}
