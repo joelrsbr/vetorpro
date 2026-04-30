@@ -149,8 +149,10 @@ export default function Dashboard() {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) fetchData();
-  }, [user]);
+    if (user?.id) fetchData();
+    // Depender apenas do id evita refetch a cada TOKEN_REFRESHED (novo objeto user, mesmo id).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const fetchData = async () => {
     setLoadingData(true);
