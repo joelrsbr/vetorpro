@@ -121,7 +121,7 @@ export function AmortizationSchedule({ schedule, amortizationType, locked = fals
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </TableBody>
               <TableFooter>
