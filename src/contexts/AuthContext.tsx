@@ -183,6 +183,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Quando a aba volta de inativa, força refresh do token Supabase.
+  // Sem isso, o primeiro request após longa inatividade pode falhar com token expirado
+  // e derrubar componentes que não tratam o erro (sintoma: tela branca + CRM vazio).
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session) {
+            // Não-bloqueante; se falhar o usuário continua logado até a próxima ação.
+            supabase.auth.refreshSession().catch((err) => {
+              console.warn("[Auth] refreshSession após retorno da aba falhou:", err);
+            });
+          }
+        }).catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   const signUp = async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
       email,
