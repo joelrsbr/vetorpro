@@ -9,6 +9,7 @@ import { SessionProvider } from "@/contexts/SessionContext";
 import { BusinessProvider } from "@/contexts/BusinessContext";
 import { SimulationProvider } from "@/contexts/SimulationContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { ErrorBoundary } from "./components/system/ErrorBoundary";
 import LoginAndPlansPage from "./pages/LoginAndPlansPage";
 import Index from "./pages/Index";
 import Precos from "./pages/Precos";
