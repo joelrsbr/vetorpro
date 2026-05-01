@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu, Landmark, Settings2, LockIcon } from "lucide-react";
+import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu, Landmark, Settings2, LockIcon, Handshake, FileSignature } from "lucide-react";
 import { BANK_RATES } from "@/lib/bank-rates";
 import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
