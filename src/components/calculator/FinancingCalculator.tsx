@@ -1133,6 +1133,8 @@ export function FinancingCalculator() {
                 )}
               </div>
 
+              {rateMode !== "negotiation" && (
+              <>
               {/* Idade do Comprador e Valor m² Regional */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
                 <div className="space-y-2">
