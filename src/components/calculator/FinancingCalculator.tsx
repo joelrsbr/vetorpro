@@ -256,7 +256,7 @@ export function FinancingCalculator() {
   // Reset unlock state when calculation inputs change
   // Using useEffect to avoid side effects in render
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const _resetKey = `${propertyValue}-${downPayment}-${interestRate}-${termMonths}-${amortizationType}`;
+  const _resetKey = `${propertyValue}-${downPayment}-${interestRate}-${termMonths}-${amortizationType}-${rateMode}-${negotiationMonthlyPayment}-${negotiationTotalInterest}`;
   const [prevResetKey, setPrevResetKey] = useState(_resetKey);
   if (_resetKey !== prevResetKey) {
     setPrevResetKey(_resetKey);
