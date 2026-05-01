@@ -855,8 +855,8 @@ export function FinancingCalculator() {
                 <ToggleGroup
                   type="single"
                   value={rateMode}
-                  onValueChange={(v) => v && setRateMode(v as "standard" | "manual")}
-                  className="gap-2"
+                  onValueChange={(v) => v && setRateMode(v as "standard" | "manual" | "negotiation")}
+                  className="gap-2 flex-wrap"
                 >
                   <ToggleGroupItem
                     value="standard"
@@ -874,10 +874,87 @@ export function FinancingCalculator() {
                     <Settings2 className="h-4 w-4 mr-2" />
                     Modo Manual
                   </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="negotiation"
+                    aria-label="Negociação Direta"
+                    className="min-h-[44px] px-4 text-sm border border-border bg-transparent text-muted-foreground hover:bg-muted/50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground data-[state=on]:border-accent data-[state=on]:hover:bg-accent data-[state=on]:shadow-sm"
+                  >
+                    <Handshake className="h-4 w-4 mr-2" />
+                    Negociação Direta
+                  </ToggleGroupItem>
                 </ToggleGroup>
               </div>
 
-              {rateMode === "standard" && (
+              {rateMode === "negotiation" && (
+                <div className="rounded-md border-2 border-accent/50 bg-accent/10 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Handshake className="h-5 w-5 text-accent-foreground" />
+                    <Label className="font-semibold text-base">Financiamento entre Particulares (sem banco)</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Defina <strong>parcela mensal</strong> e <strong>juros totais combinados</strong> entre as partes.
+                    O sistema calcula o <strong>prazo</strong> e a <strong>taxa de juros equivalente</strong> para
+                    formalização em contrato particular. Sem TR, IPCA, seguros ou indexadores.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Parcela Mensal (R$)</Label>
+                      <Input
+                        value={formatCurrency(negotiationMonthlyPayment)}
+                        onChange={(e) => handleCurrencyInput(e.target.value, setNegotiationMonthlyPayment)}
+                        placeholder="2.500,00"
+                        className="text-sm"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Valor combinado a pagar todo mês.</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Juros Totais Estimados (R$)</Label>
+                      <Input
+                        value={formatCurrency(negotiationTotalInterest)}
+                        onChange={(e) => handleCurrencyInput(e.target.value, setNegotiationTotalInterest)}
+                        placeholder="8.000,00"
+                        className="text-sm"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Juros totais acordados entre as partes.</p>
+                    </div>
+                  </div>
+                  {negotiationCalc && (
+                    <div className="mt-3 rounded-lg border-2 border-accent bg-background p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <FileSignature className="h-5 w-5 text-accent-foreground" />
+                        <span className="font-bold text-sm">Para formalização em contrato</span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div>
+                          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Prazo</p>
+                          <p className="text-xl font-bold text-foreground">{negotiationCalc.termMonths} <span className="text-xs font-normal">meses</span></p>
+                        </div>
+                        <div className="bg-accent/20 rounded-md p-2">
+                          <p className="text-[11px] text-accent-foreground/80 uppercase tracking-wide">Taxa equivalente</p>
+                          <p className="text-xl font-bold text-accent-foreground">
+                            {(negotiationCalc.monthlyRate * 100).toFixed(4).replace(".", ",")}% <span className="text-xs font-normal">a.m.</span>
+                          </p>
+                        </div>
+                        <div className="bg-accent/20 rounded-md p-2">
+                          <p className="text-[11px] text-accent-foreground/80 uppercase tracking-wide">Taxa equivalente</p>
+                          <p className="text-xl font-bold text-accent-foreground">
+                            {negotiationCalc.annualRate.toFixed(2).replace(".", ",")}% <span className="text-xs font-normal">a.a.</span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total a pagar</p>
+                          <p className="text-xl font-bold text-foreground">
+                            {(negotiationCalc.totalToPay + parseCurrency(downPayment)).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground italic">
+                        Use a taxa equivalente acima como referência no contrato particular de compra e venda.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
                 <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <Landmark className="h-4 w-4 text-primary" />
