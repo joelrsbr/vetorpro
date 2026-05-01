@@ -835,7 +835,7 @@ export function FinancingCalculator() {
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits, editingSimulationId]);
+  }, [user, effectiveCalc, negotiationCalc, rateMode, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits, editingSimulationId]);
 
   return (
     <TooltipProvider>
