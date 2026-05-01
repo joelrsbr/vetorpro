@@ -1083,6 +1083,7 @@ export function FinancingCalculator() {
                     </PopoverContent>
                   </Popover>
                 </div>
+                {rateMode !== "negotiation" && (
                 <div className="space-y-2">
                   <Label htmlFor="termMonths">Prazo (meses)</Label>
                   <Input
@@ -1095,6 +1096,8 @@ export function FinancingCalculator() {
                     className="text-sm" />
                   
                 </div>
+                )}
+                {rateMode !== "negotiation" && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
                     <Label htmlFor="feesInsurance">Taxas/Seguros (R$)</Label>
@@ -1127,6 +1130,7 @@ export function FinancingCalculator() {
                     className={cn("text-sm", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")} />
                   
                 </div>
+                )}
               </div>
 
               {/* Idade do Comprador e Valor m² Regional */}
