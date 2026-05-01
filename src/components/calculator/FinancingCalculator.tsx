@@ -1311,6 +1311,8 @@ export function FinancingCalculator() {
                   )}
                 </div>
               </div>
+              </>
+              )}
             </div>
 
             {/* Max Affordable Payment */}
