@@ -744,7 +744,7 @@ export function FinancingCalculator() {
   const isUnlimited = (plan === "pro" || plan === "business") && isActive;
 
   const handleSaveSimulation = useCallback(async (): Promise<boolean> => {
-    if (!user || !calculations) return false;
+    if (!user || !effectiveCalc) return false;
 
     if (!clientName.trim() || !propertyDescription.trim()) {
       toast({
