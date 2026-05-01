@@ -1431,6 +1431,8 @@ export function FinancingCalculator() {
                 </div>
               }
             </div>
+            </>
+            )}
 
             {/* Scheduled Reinforcements */}
             <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-3 bg-muted/30">
