@@ -166,9 +166,13 @@ export function FinancingCalculator() {
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
 
-  // Rate Mode: "standard" auto-fills from BANK_RATES; "manual" allows free editing
-  const [rateMode, setRateMode] = useState<"standard" | "manual">("standard");
+  // Rate Mode: "standard" auto-fills from BANK_RATES; "manual" allows free editing; "negotiation" reverse-calc
+  const [rateMode, setRateMode] = useState<"standard" | "manual" | "negotiation">("standard");
   const [selectedBankId, setSelectedBankId] = useState<string>("caixa");
+
+  // Negotiation mode inputs
+  const [negotiationMonthlyPayment, setNegotiationMonthlyPayment] = useState<string>("250000"); // R$ 2.500,00
+  const [negotiationTotalInterest, setNegotiationTotalInterest] = useState<string>("800000"); // R$ 8.000,00
 
   // Apply selected bank values when in Standard mode
   useEffect(() => {
