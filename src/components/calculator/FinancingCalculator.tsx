@@ -1678,16 +1678,20 @@ export function FinancingCalculator() {
               <ExportActions
                 propertyValue={parseCurrency(propertyValue)}
                 downPayment={parseCurrency(downPayment)}
-                financedAmount={calculations.principal}
-                firstPayment={calculations.firstPayment}
-                totalInterest={calculations.totalInterest}
-                totalPaid={calculations.totalPaid}
-                interestRate={interestRateType === "annual"
-                  ? parseCurrency(interestRate)
-                  : (Math.pow(1 + parseCurrency(interestRate) / 100, 12) - 1) * 100}
-                termMonths={parseInt(termMonths) || 360}
+                financedAmount={effectiveCalc.principal}
+                firstPayment={effectiveCalc.firstPayment}
+                totalInterest={effectiveCalc.totalInterest}
+                totalPaid={effectiveCalc.totalPaid}
+                interestRate={
+                  rateMode === "negotiation" && negotiationCalc
+                    ? negotiationCalc.annualRate
+                    : interestRateType === "annual"
+                      ? parseCurrency(interestRate)
+                      : (Math.pow(1 + parseCurrency(interestRate) / 100, 12) - 1) * 100
+                }
+                termMonths={rateMode === "negotiation" && negotiationCalc ? negotiationCalc.termMonths : parseInt(termMonths) || 360}
                 amortizationType={amortizationType}
-                correctionIndex={correctionIndex}
+                correctionIndex={rateMode === "negotiation" ? "isento" : correctionIndex}
                 clientName={clientName}
                 propertyDescription={propertyDescription}
                 clientPhone={clientPhone}
@@ -1696,18 +1700,18 @@ export function FinancingCalculator() {
             )}
 
             <AmortizationSchedule
-            schedule={calculations.schedule}
+            schedule={effectiveCalc.schedule}
             amortizationType={amortizationType}
             locked={!simulationUnlocked} />
           
             {simulationUnlocked && (
               <ProposalGenerator
-              calculations={calculations}
+              calculations={effectiveCalc}
               propertyValue={parseCurrency(propertyValue)}
               downPayment={parseCurrency(downPayment)}
-              interestRate={parseCurrency(interestRate)}
-              interestRateType={interestRateType}
-              termMonths={parseInt(termMonths) || 360}
+              interestRate={rateMode === "negotiation" && negotiationCalc ? negotiationCalc.annualRate : parseCurrency(interestRate)}
+              interestRateType={rateMode === "negotiation" ? "annual" : interestRateType}
+              termMonths={rateMode === "negotiation" && negotiationCalc ? negotiationCalc.termMonths : parseInt(termMonths) || 360}
               amortizationType={amortizationType}
               clientName={clientName}
               propertyDescription={propertyDescription}
