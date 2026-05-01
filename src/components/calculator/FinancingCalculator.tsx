@@ -563,6 +563,166 @@ export function FinancingCalculator() {
   enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
   enableReinforcements, reinforcements, startDate, feesInsurance]);
 
+  // ============================================================
+  // NEGOTIATION DIRECT MODE — Reverse calculation
+  // Given: property, down, monthly payment, total interest combined,
+  // and reinforcements at specific dates,
+  // Calculate: term (months) and equivalent interest rate (% a.m. and % a.a.)
+  // ============================================================
+  const negotiationCalc = useMemo(() => {
+    if (rateMode !== "negotiation") return null;
+
+    const property = parseCurrency(propertyValue);
+    const down = parseCurrency(downPayment);
+    const principal = property - down;
+    const monthlyPayment = parseCurrency(negotiationMonthlyPayment);
+    const totalInterestAgreed = parseCurrency(negotiationTotalInterest);
+
+    if (principal <= 0 || monthlyPayment <= 0) return null;
+
+    // Build reinforcement cashflow map (month index relative to startDate, 1-based)
+    const reinforcementByMonth = new Map<number, number>();
+    let totalReinforcements = 0;
+    if (enableReinforcements) {
+      reinforcements.forEach(r => {
+        const rVal = (parseInt(r.value.replace(/\D/g, "")) || 0) / 100;
+        if (rVal <= 0 || !r.monthYear) return;
+        const [year, mon] = r.monthYear.split("-").map(Number);
+        const startMonth = startDate.getFullYear() * 12 + startDate.getMonth();
+        const targetMonth = year * 12 + (mon - 1);
+        const diff = targetMonth - startMonth + 1;
+        if (diff > 0) {
+          reinforcementByMonth.set(diff, (reinforcementByMonth.get(diff) || 0) + rVal);
+          totalReinforcements += rVal;
+        }
+      });
+    }
+
+    // Total to pay = principal + agreed interest
+    // Sum of monthly payments = total - reinforcements
+    const totalToPay = principal + totalInterestAgreed;
+    const totalFromMonthly = totalToPay - totalReinforcements;
+    if (totalFromMonthly <= 0) return null;
+
+    const termMonths = Math.max(1, Math.ceil(totalFromMonthly / monthlyPayment));
+
+    // Equivalent monthly interest rate i such that PV of cashflows == principal
+    // PV = sum_{m=1..N} payment_m / (1+i)^m
+    // payment_m = monthlyPayment + reinforcement(m); last payment may be smaller (residual)
+    const cashflows: number[] = [];
+    let remaining = totalFromMonthly;
+    for (let m = 1; m <= termMonths; m++) {
+      const reinf = reinforcementByMonth.get(m) || 0;
+      const pay = m === termMonths ? Math.max(0, remaining) : monthlyPayment;
+      remaining -= pay;
+      cashflows.push(pay + reinf);
+    }
+
+    const npv = (rate: number) => {
+      let sum = 0;
+      for (let m = 1; m <= cashflows.length; m++) {
+        sum += cashflows[m - 1] / Math.pow(1 + rate, m);
+      }
+      return sum - principal;
+    };
+
+    // Bisection: find i in [0, 1] (0% to 100% a.m.)
+    let lo = 0, hi = 1;
+    let monthlyRate = 0;
+    if (totalInterestAgreed > 0) {
+      const fLo = npv(lo); // > 0 (sum > principal)
+      const fHi = npv(hi); // < 0
+      if (fLo * fHi < 0) {
+        for (let it = 0; it < 80; it++) {
+          const mid = (lo + hi) / 2;
+          const fMid = npv(mid);
+          if (Math.abs(fMid) < 0.01) { monthlyRate = mid; break; }
+          if (fMid > 0) lo = mid; else hi = mid;
+          monthlyRate = (lo + hi) / 2;
+        }
+      } else {
+        monthlyRate = 0;
+      }
+    }
+
+    const annualRate = (Math.pow(1 + monthlyRate, 12) - 1) * 100;
+
+    // Build amortization schedule using the equivalent rate
+    const schedule: ScheduleItem[] = [];
+    let balance = principal;
+    let totalPaid = 0;
+    let totalInterestRun = 0;
+    for (let m = 1; m <= termMonths && balance > 0.01; m++) {
+      const currentDate = addMonths(startDate, m - 1);
+      const debt = balance;
+      const interest = balance * monthlyRate;
+      const reinf = reinforcementByMonth.get(m) || 0;
+      const scheduledPayment = m === termMonths ? Math.min(cashflows[m - 1] - reinf, balance + interest) : monthlyPayment;
+      let principalPart = scheduledPayment - interest;
+      let extra = reinf;
+      if (principalPart < 0) principalPart = 0;
+      let totalPrincipal = principalPart + extra;
+      if (totalPrincipal > balance) {
+        extra = Math.max(0, balance - principalPart);
+        totalPrincipal = principalPart + extra;
+      }
+      balance = Math.max(0, balance - totalPrincipal);
+      const payment = scheduledPayment + extra;
+      totalPaid += payment;
+      totalInterestRun += interest;
+      schedule.push({
+        month: m,
+        payment,
+        principal: totalPrincipal,
+        interest,
+        balance,
+        extraPayment: extra,
+        debt,
+        correction: 0,
+        correctedDebt: debt,
+        fees: 0,
+        hasReinforcement: reinf > 0,
+        reinforcementAmount: reinf,
+        date: currentDate,
+      });
+    }
+
+    return {
+      principal,
+      termMonths,
+      monthlyRate,
+      annualRate,
+      totalReinforcements,
+      totalToPay,
+      totalInterest: totalInterestAgreed,
+      monthlyPayment,
+      schedule,
+      firstPayment: schedule[0]?.payment || monthlyPayment,
+      lastPayment: schedule[schedule.length - 1]?.payment || monthlyPayment,
+      actualTermMonths: schedule.length,
+      monthsSaved: 0,
+      interestSaved: 0,
+      totalCorrection: 0,
+      totalPaidAll: totalPaid + totalReinforcements,
+    };
+  }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, enableReinforcements, reinforcements, startDate]);
+
+  // Effective calculations object — use negotiation in negotiation mode
+  const effectiveCalc = rateMode === "negotiation" && negotiationCalc
+    ? {
+        principal: negotiationCalc.principal,
+        firstPayment: negotiationCalc.firstPayment,
+        lastPayment: negotiationCalc.lastPayment,
+        totalPaid: negotiationCalc.totalPaidAll,
+        totalInterest: negotiationCalc.totalInterest,
+        totalCorrection: 0,
+        schedule: negotiationCalc.schedule,
+        actualTermMonths: negotiationCalc.actualTermMonths,
+        monthsSaved: 0,
+        interestSaved: 0,
+      }
+    : calculations;
+
   const financingData: FinancingData = {
     propertyValue: parseCurrency(propertyValue),
     downPayment: parseCurrency(downPayment),
