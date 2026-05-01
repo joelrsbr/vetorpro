@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu, Landmark, Settings2, LockIcon } from "lucide-react";
+import { Calculator, Plus, Minus, Wallet, Info, CalendarIcon, Shield, TrendingUp, Cpu, Landmark, Settings2, LockIcon, Handshake, FileSignature } from "lucide-react";
 import { BANK_RATES } from "@/lib/bank-rates";
 import { HP12CCalculator } from "./HP12CCalculator";
 import { CalculationResults } from "./CalculationResults";
@@ -166,9 +166,13 @@ export function FinancingCalculator() {
   const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), 1));
   const [feesInsurance, setFeesInsurance] = useState<string>("5000");
 
-  // Rate Mode: "standard" auto-fills from BANK_RATES; "manual" allows free editing
-  const [rateMode, setRateMode] = useState<"standard" | "manual">("standard");
+  // Rate Mode: "standard" auto-fills from BANK_RATES; "manual" allows free editing; "negotiation" reverse-calc
+  const [rateMode, setRateMode] = useState<"standard" | "manual" | "negotiation">("standard");
   const [selectedBankId, setSelectedBankId] = useState<string>("caixa");
+
+  // Negotiation mode inputs
+  const [negotiationMonthlyPayment, setNegotiationMonthlyPayment] = useState<string>("250000"); // R$ 2.500,00
+  const [negotiationTotalInterest, setNegotiationTotalInterest] = useState<string>("800000"); // R$ 8.000,00
 
   // Apply selected bank values when in Standard mode
   useEffect(() => {
@@ -252,7 +256,7 @@ export function FinancingCalculator() {
   // Reset unlock state when calculation inputs change
   // Using useEffect to avoid side effects in render
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const _resetKey = `${propertyValue}-${downPayment}-${interestRate}-${termMonths}-${amortizationType}`;
+  const _resetKey = `${propertyValue}-${downPayment}-${interestRate}-${termMonths}-${amortizationType}-${rateMode}-${negotiationMonthlyPayment}-${negotiationTotalInterest}`;
   const [prevResetKey, setPrevResetKey] = useState(_resetKey);
   if (_resetKey !== prevResetKey) {
     setPrevResetKey(_resetKey);
@@ -559,6 +563,166 @@ export function FinancingCalculator() {
   enableExtraAmortization, extraAmortizationValue, extraAmortizationType,
   enableReinforcements, reinforcements, startDate, feesInsurance]);
 
+  // ============================================================
+  // NEGOTIATION DIRECT MODE — Reverse calculation
+  // Given: property, down, monthly payment, total interest combined,
+  // and reinforcements at specific dates,
+  // Calculate: term (months) and equivalent interest rate (% a.m. and % a.a.)
+  // ============================================================
+  const negotiationCalc = useMemo(() => {
+    if (rateMode !== "negotiation") return null;
+
+    const property = parseCurrency(propertyValue);
+    const down = parseCurrency(downPayment);
+    const principal = property - down;
+    const monthlyPayment = parseCurrency(negotiationMonthlyPayment);
+    const totalInterestAgreed = parseCurrency(negotiationTotalInterest);
+
+    if (principal <= 0 || monthlyPayment <= 0) return null;
+
+    // Build reinforcement cashflow map (month index relative to startDate, 1-based)
+    const reinforcementByMonth = new Map<number, number>();
+    let totalReinforcements = 0;
+    if (enableReinforcements) {
+      reinforcements.forEach(r => {
+        const rVal = (parseInt(r.value.replace(/\D/g, "")) || 0) / 100;
+        if (rVal <= 0 || !r.monthYear) return;
+        const [year, mon] = r.monthYear.split("-").map(Number);
+        const startMonth = startDate.getFullYear() * 12 + startDate.getMonth();
+        const targetMonth = year * 12 + (mon - 1);
+        const diff = targetMonth - startMonth + 1;
+        if (diff > 0) {
+          reinforcementByMonth.set(diff, (reinforcementByMonth.get(diff) || 0) + rVal);
+          totalReinforcements += rVal;
+        }
+      });
+    }
+
+    // Total to pay = principal + agreed interest
+    // Sum of monthly payments = total - reinforcements
+    const totalToPay = principal + totalInterestAgreed;
+    const totalFromMonthly = totalToPay - totalReinforcements;
+    if (totalFromMonthly <= 0) return null;
+
+    const termMonths = Math.max(1, Math.ceil(totalFromMonthly / monthlyPayment));
+
+    // Equivalent monthly interest rate i such that PV of cashflows == principal
+    // PV = sum_{m=1..N} payment_m / (1+i)^m
+    // payment_m = monthlyPayment + reinforcement(m); last payment may be smaller (residual)
+    const cashflows: number[] = [];
+    let remaining = totalFromMonthly;
+    for (let m = 1; m <= termMonths; m++) {
+      const reinf = reinforcementByMonth.get(m) || 0;
+      const pay = m === termMonths ? Math.max(0, remaining) : monthlyPayment;
+      remaining -= pay;
+      cashflows.push(pay + reinf);
+    }
+
+    const npv = (rate: number) => {
+      let sum = 0;
+      for (let m = 1; m <= cashflows.length; m++) {
+        sum += cashflows[m - 1] / Math.pow(1 + rate, m);
+      }
+      return sum - principal;
+    };
+
+    // Bisection: find i in [0, 1] (0% to 100% a.m.)
+    let lo = 0, hi = 1;
+    let monthlyRate = 0;
+    if (totalInterestAgreed > 0) {
+      const fLo = npv(lo); // > 0 (sum > principal)
+      const fHi = npv(hi); // < 0
+      if (fLo * fHi < 0) {
+        for (let it = 0; it < 80; it++) {
+          const mid = (lo + hi) / 2;
+          const fMid = npv(mid);
+          if (Math.abs(fMid) < 0.01) { monthlyRate = mid; break; }
+          if (fMid > 0) lo = mid; else hi = mid;
+          monthlyRate = (lo + hi) / 2;
+        }
+      } else {
+        monthlyRate = 0;
+      }
+    }
+
+    const annualRate = (Math.pow(1 + monthlyRate, 12) - 1) * 100;
+
+    // Build amortization schedule using the equivalent rate
+    const schedule: ScheduleItem[] = [];
+    let balance = principal;
+    let totalPaid = 0;
+    let totalInterestRun = 0;
+    for (let m = 1; m <= termMonths && balance > 0.01; m++) {
+      const currentDate = addMonths(startDate, m - 1);
+      const debt = balance;
+      const interest = balance * monthlyRate;
+      const reinf = reinforcementByMonth.get(m) || 0;
+      const scheduledPayment = m === termMonths ? Math.min(cashflows[m - 1] - reinf, balance + interest) : monthlyPayment;
+      let principalPart = scheduledPayment - interest;
+      let extra = reinf;
+      if (principalPart < 0) principalPart = 0;
+      let totalPrincipal = principalPart + extra;
+      if (totalPrincipal > balance) {
+        extra = Math.max(0, balance - principalPart);
+        totalPrincipal = principalPart + extra;
+      }
+      balance = Math.max(0, balance - totalPrincipal);
+      const payment = scheduledPayment + extra;
+      totalPaid += payment;
+      totalInterestRun += interest;
+      schedule.push({
+        month: m,
+        payment,
+        principal: totalPrincipal,
+        interest,
+        balance,
+        extraPayment: extra,
+        debt,
+        correction: 0,
+        correctedDebt: debt,
+        fees: 0,
+        hasReinforcement: reinf > 0,
+        reinforcementAmount: reinf,
+        date: currentDate,
+      });
+    }
+
+    return {
+      principal,
+      termMonths,
+      monthlyRate,
+      annualRate,
+      totalReinforcements,
+      totalToPay,
+      totalInterest: totalInterestAgreed,
+      monthlyPayment,
+      schedule,
+      firstPayment: schedule[0]?.payment || monthlyPayment,
+      lastPayment: schedule[schedule.length - 1]?.payment || monthlyPayment,
+      actualTermMonths: schedule.length,
+      monthsSaved: 0,
+      interestSaved: 0,
+      totalCorrection: 0,
+      totalPaidAll: totalPaid + totalReinforcements,
+    };
+  }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, enableReinforcements, reinforcements, startDate]);
+
+  // Effective calculations object — use negotiation in negotiation mode
+  const effectiveCalc = rateMode === "negotiation" && negotiationCalc
+    ? {
+        principal: negotiationCalc.principal,
+        firstPayment: negotiationCalc.firstPayment,
+        lastPayment: negotiationCalc.lastPayment,
+        totalPaid: negotiationCalc.totalPaidAll,
+        totalInterest: negotiationCalc.totalInterest,
+        totalCorrection: 0,
+        schedule: negotiationCalc.schedule,
+        actualTermMonths: negotiationCalc.actualTermMonths,
+        monthsSaved: 0,
+        interestSaved: 0,
+      }
+    : calculations;
+
   const financingData: FinancingData = {
     propertyValue: parseCurrency(propertyValue),
     downPayment: parseCurrency(downPayment),
@@ -580,7 +744,7 @@ export function FinancingCalculator() {
   const isUnlimited = (plan === "pro" || plan === "business") && isActive;
 
   const handleSaveSimulation = useCallback(async (): Promise<boolean> => {
-    if (!user || !calculations) return false;
+    if (!user || !effectiveCalc) return false;
 
     if (!clientName.trim() || !propertyDescription.trim()) {
       toast({
@@ -602,20 +766,23 @@ export function FinancingCalculator() {
 
     setSavingSimulation(true);
     try {
+      const isNeg = rateMode === "negotiation" && !!negotiationCalc;
       const simulationData = {
         user_id: user.id,
         property_value: parseCurrency(propertyValue),
         down_payment: parseCurrency(downPayment),
-        interest_rate: parseCurrency(interestRate),
-        term_months: parseInt(termMonths) || 360,
+        interest_rate: isNeg ? negotiationCalc!.annualRate : parseCurrency(interestRate),
+        term_months: isNeg ? negotiationCalc!.termMonths : parseInt(termMonths) || 360,
         amortization_type: amortizationType.toLowerCase() as "sac" | "price",
-        monthly_payment: calculations.firstPayment,
-        total_paid: calculations.totalPaid,
-        total_interest: calculations.totalInterest,
+        monthly_payment: effectiveCalc.firstPayment,
+        total_paid: effectiveCalc.totalPaid,
+        total_interest: effectiveCalc.totalInterest,
         extra_amortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : null,
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
         client_name: clientName.trim(),
-        property_description: propertyDescription.trim(),
+        property_description: isNeg
+          ? `[Negociação Direta] ${propertyDescription.trim()}`
+          : propertyDescription.trim(),
         client_phone: clientPhone.trim() || null,
         client_email: clientEmail.trim() || null,
       };
@@ -668,7 +835,7 @@ export function FinancingCalculator() {
     } finally {
       setSavingSimulation(false);
     }
-  }, [user, calculations, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits, editingSimulationId]);
+  }, [user, effectiveCalc, negotiationCalc, rateMode, clientName, propertyDescription, propertyValue, downPayment, interestRate, termMonths, amortizationType, enableExtraAmortization, extraAmortizationValue, extraAmortizationType, isUnlimited, canSimulate, usageLimits, refreshUsageLimits, editingSimulationId]);
 
   return (
     <TooltipProvider>
@@ -691,8 +858,8 @@ export function FinancingCalculator() {
                 <ToggleGroup
                   type="single"
                   value={rateMode}
-                  onValueChange={(v) => v && setRateMode(v as "standard" | "manual")}
-                  className="gap-2"
+                  onValueChange={(v) => v && setRateMode(v as "standard" | "manual" | "negotiation")}
+                  className="gap-2 flex-wrap"
                 >
                   <ToggleGroupItem
                     value="standard"
@@ -710,8 +877,87 @@ export function FinancingCalculator() {
                     <Settings2 className="h-4 w-4 mr-2" />
                     Modo Manual
                   </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="negotiation"
+                    aria-label="Negociação Direta"
+                    className="min-h-[44px] px-4 text-sm border border-border bg-transparent text-muted-foreground hover:bg-muted/50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground data-[state=on]:border-accent data-[state=on]:hover:bg-accent data-[state=on]:shadow-sm"
+                  >
+                    <Handshake className="h-4 w-4 mr-2" />
+                    Negociação Direta
+                  </ToggleGroupItem>
                 </ToggleGroup>
               </div>
+
+              {rateMode === "negotiation" && (
+                <div className="rounded-md border-2 border-accent/50 bg-accent/10 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Handshake className="h-5 w-5 text-accent-foreground" />
+                    <Label className="font-semibold text-base">Financiamento entre Particulares (sem banco)</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Defina <strong>parcela mensal</strong> e <strong>juros totais combinados</strong> entre as partes.
+                    O sistema calcula o <strong>prazo</strong> e a <strong>taxa de juros equivalente</strong> para
+                    formalização em contrato particular. Sem TR, IPCA, seguros ou indexadores.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Parcela Mensal (R$)</Label>
+                      <Input
+                        value={formatCurrency(negotiationMonthlyPayment)}
+                        onChange={(e) => handleCurrencyInput(e.target.value, setNegotiationMonthlyPayment)}
+                        placeholder="2.500,00"
+                        className="text-sm"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Valor combinado a pagar todo mês.</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Juros Totais Estimados (R$)</Label>
+                      <Input
+                        value={formatCurrency(negotiationTotalInterest)}
+                        onChange={(e) => handleCurrencyInput(e.target.value, setNegotiationTotalInterest)}
+                        placeholder="8.000,00"
+                        className="text-sm"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Juros totais acordados entre as partes.</p>
+                    </div>
+                  </div>
+                  {negotiationCalc && (
+                    <div className="mt-3 rounded-lg border-2 border-accent bg-background p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <FileSignature className="h-5 w-5 text-accent-foreground" />
+                        <span className="font-bold text-sm">Para formalização em contrato</span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div>
+                          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Prazo</p>
+                          <p className="text-xl font-bold text-foreground">{negotiationCalc.termMonths} <span className="text-xs font-normal">meses</span></p>
+                        </div>
+                        <div className="bg-accent/20 rounded-md p-2">
+                          <p className="text-[11px] text-accent-foreground/80 uppercase tracking-wide">Taxa equivalente</p>
+                          <p className="text-xl font-bold text-accent-foreground">
+                            {(negotiationCalc.monthlyRate * 100).toFixed(4).replace(".", ",")}% <span className="text-xs font-normal">a.m.</span>
+                          </p>
+                        </div>
+                        <div className="bg-accent/20 rounded-md p-2">
+                          <p className="text-[11px] text-accent-foreground/80 uppercase tracking-wide">Taxa equivalente</p>
+                          <p className="text-xl font-bold text-accent-foreground">
+                            {negotiationCalc.annualRate.toFixed(2).replace(".", ",")}% <span className="text-xs font-normal">a.a.</span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total a pagar</p>
+                          <p className="text-xl font-bold text-foreground">
+                            {(negotiationCalc.totalToPay + parseCurrency(downPayment)).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground italic">
+                        Use a taxa equivalente acima como referência no contrato particular de compra e venda.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {rateMode === "standard" && (
                 <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2">
@@ -760,6 +1006,7 @@ export function FinancingCalculator() {
                     className="text-sm" />
                   
                 </div>
+                {rateMode !== "negotiation" && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
                     <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
@@ -811,6 +1058,7 @@ export function FinancingCalculator() {
                     </Select>
                   </div>
                 </div>
+                )}
                 <div className="space-y-2">
                   <Label>Data de Início (1ª Parcela)</Label>
                   <Popover>
@@ -838,6 +1086,7 @@ export function FinancingCalculator() {
                     </PopoverContent>
                   </Popover>
                 </div>
+                {rateMode !== "negotiation" && (
                 <div className="space-y-2">
                   <Label htmlFor="termMonths">Prazo (meses)</Label>
                   <Input
@@ -850,6 +1099,8 @@ export function FinancingCalculator() {
                     className="text-sm" />
                   
                 </div>
+                )}
+                {rateMode !== "negotiation" && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
                     <Label htmlFor="feesInsurance">Taxas/Seguros (R$)</Label>
@@ -882,8 +1133,11 @@ export function FinancingCalculator() {
                     className={cn("text-sm", rateMode === "standard" && "bg-muted/40 cursor-not-allowed")} />
                   
                 </div>
+                )}
               </div>
 
+              {rateMode !== "negotiation" && (
+              <>
               {/* Idade do Comprador e Valor m² Regional */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
                 <div className="space-y-2">
@@ -1060,8 +1314,12 @@ export function FinancingCalculator() {
                   )}
                 </div>
               </div>
+              </>
+              )}
             </div>
 
+            {rateMode !== "negotiation" && (
+            <>
             {/* Max Affordable Payment */}
             <div className="border rounded-lg p-4 space-y-4 bg-accent/30 border-accent">
               <div className="flex items-center justify-between">
@@ -1176,6 +1434,8 @@ export function FinancingCalculator() {
                 </div>
               }
             </div>
+            </>
+            )}
 
             {/* Scheduled Reinforcements */}
             <div ref={reinforcementRef} className="border rounded-lg p-4 space-y-3 bg-muted/30">
@@ -1289,10 +1549,10 @@ export function FinancingCalculator() {
         </Card>
 
         {/* Results */}
-        {calculations &&
+        {effectiveCalc &&
         <div className="space-y-8">
             <CalculationResults
-            calculations={calculations}
+            calculations={effectiveCalc}
             amortizationType={amortizationType} />
 
             {/* Client identification fields */}
@@ -1421,16 +1681,20 @@ export function FinancingCalculator() {
               <ExportActions
                 propertyValue={parseCurrency(propertyValue)}
                 downPayment={parseCurrency(downPayment)}
-                financedAmount={calculations.principal}
-                firstPayment={calculations.firstPayment}
-                totalInterest={calculations.totalInterest}
-                totalPaid={calculations.totalPaid}
-                interestRate={interestRateType === "annual"
-                  ? parseCurrency(interestRate)
-                  : (Math.pow(1 + parseCurrency(interestRate) / 100, 12) - 1) * 100}
-                termMonths={parseInt(termMonths) || 360}
+                financedAmount={effectiveCalc.principal}
+                firstPayment={effectiveCalc.firstPayment}
+                totalInterest={effectiveCalc.totalInterest}
+                totalPaid={effectiveCalc.totalPaid}
+                interestRate={
+                  rateMode === "negotiation" && negotiationCalc
+                    ? negotiationCalc.annualRate
+                    : interestRateType === "annual"
+                      ? parseCurrency(interestRate)
+                      : (Math.pow(1 + parseCurrency(interestRate) / 100, 12) - 1) * 100
+                }
+                termMonths={rateMode === "negotiation" && negotiationCalc ? negotiationCalc.termMonths : parseInt(termMonths) || 360}
                 amortizationType={amortizationType}
-                correctionIndex={correctionIndex}
+                correctionIndex={rateMode === "negotiation" ? "isento" : correctionIndex}
                 clientName={clientName}
                 propertyDescription={propertyDescription}
                 clientPhone={clientPhone}
@@ -1439,18 +1703,18 @@ export function FinancingCalculator() {
             )}
 
             <AmortizationSchedule
-            schedule={calculations.schedule}
+            schedule={effectiveCalc.schedule}
             amortizationType={amortizationType}
             locked={!simulationUnlocked} />
           
             {simulationUnlocked && (
               <ProposalGenerator
-              calculations={calculations}
+              calculations={effectiveCalc}
               propertyValue={parseCurrency(propertyValue)}
               downPayment={parseCurrency(downPayment)}
-              interestRate={parseCurrency(interestRate)}
-              interestRateType={interestRateType}
-              termMonths={parseInt(termMonths) || 360}
+              interestRate={rateMode === "negotiation" && negotiationCalc ? negotiationCalc.annualRate : parseCurrency(interestRate)}
+              interestRateType={rateMode === "negotiation" ? "annual" : interestRateType}
+              termMonths={rateMode === "negotiation" && negotiationCalc ? negotiationCalc.termMonths : parseInt(termMonths) || 360}
               amortizationType={amortizationType}
               clientName={clientName}
               propertyDescription={propertyDescription}
