@@ -648,11 +648,20 @@ export function FinancingCalculator() {
         description: `Simulação ${editingSimulationId ? "atualizada" : "salva"} no histórico. ${isUnlimited ? "" : `Restam ${(usageLimits?.simulationsRemaining ?? 1) - 1} créditos.`}`,
       });
       return true;
-    } catch (err) {
-      console.error("Error saving simulation:", err);
+    } catch (err: any) {
+      // Log full Supabase error for diagnostics (message, details, hint, code)
+      console.error("[Simulação] Erro ao salvar:", {
+        message: err?.message,
+        details: err?.details,
+        hint: err?.hint,
+        code: err?.code,
+        raw: err,
+      });
+      const detail =
+        err?.message || err?.details || err?.hint || "Erro desconhecido. Tente novamente em instantes.";
       toast({
         title: "Erro ao salvar",
-        description: "Não foi possível salvar a simulação.",
+        description: `Seus dados foram preservados. Detalhe: ${detail}`,
         variant: "destructive",
       });
       return false;
