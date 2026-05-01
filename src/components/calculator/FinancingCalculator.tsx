@@ -1003,6 +1003,7 @@ export function FinancingCalculator() {
                     className="text-sm" />
                   
                 </div>
+                {rateMode !== "negotiation" && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
                     <Label htmlFor="interestRate">Taxa de Juros (%)</Label>
@@ -1054,6 +1055,7 @@ export function FinancingCalculator() {
                     </Select>
                   </div>
                 </div>
+                )}
                 <div className="space-y-2">
                   <Label>Data de Início (1ª Parcela)</Label>
                   <Popover>
