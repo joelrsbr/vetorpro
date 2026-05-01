@@ -1546,10 +1546,10 @@ export function FinancingCalculator() {
         </Card>
 
         {/* Results */}
-        {calculations &&
+        {effectiveCalc &&
         <div className="space-y-8">
             <CalculationResults
-            calculations={calculations}
+            calculations={effectiveCalc}
             amortizationType={amortizationType} />
 
             {/* Client identification fields */}
