@@ -766,20 +766,23 @@ export function FinancingCalculator() {
 
     setSavingSimulation(true);
     try {
+      const isNeg = rateMode === "negotiation" && !!negotiationCalc;
       const simulationData = {
         user_id: user.id,
         property_value: parseCurrency(propertyValue),
         down_payment: parseCurrency(downPayment),
-        interest_rate: parseCurrency(interestRate),
-        term_months: parseInt(termMonths) || 360,
+        interest_rate: isNeg ? negotiationCalc!.annualRate : parseCurrency(interestRate),
+        term_months: isNeg ? negotiationCalc!.termMonths : parseInt(termMonths) || 360,
         amortization_type: amortizationType.toLowerCase() as "sac" | "price",
-        monthly_payment: calculations.firstPayment,
-        total_paid: calculations.totalPaid,
-        total_interest: calculations.totalInterest,
+        monthly_payment: effectiveCalc.firstPayment,
+        total_paid: effectiveCalc.totalPaid,
+        total_interest: effectiveCalc.totalInterest,
         extra_amortization: enableExtraAmortization ? parseCurrency(extraAmortizationValue) : null,
         extra_amortization_strategy: enableExtraAmortization ? (extraAmortizationType === "reduce-term" ? "reduce_term" : "reduce_payment") as "reduce_term" | "reduce_payment" : null,
         client_name: clientName.trim(),
-        property_description: propertyDescription.trim(),
+        property_description: isNeg
+          ? `[Negociação Direta] ${propertyDescription.trim()}`
+          : propertyDescription.trim(),
         client_phone: clientPhone.trim() || null,
         client_email: clientEmail.trim() || null,
       };
