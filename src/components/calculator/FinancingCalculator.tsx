@@ -1315,6 +1315,8 @@ export function FinancingCalculator() {
               )}
             </div>
 
+            {rateMode !== "negotiation" && (
+            <>
             {/* Max Affordable Payment */}
             <div className="border rounded-lg p-4 space-y-4 bg-accent/30 border-accent">
               <div className="flex items-center justify-between">
