@@ -720,8 +720,10 @@ export function FinancingCalculator() {
       interestSaved: 0,
       totalCorrection: 0,
       totalPaidAll: totalPaid + totalReinforcements,
+      flowDifference,
+      hasDesiredTerm: desiredTermParsed > 0,
     };
-  }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, enableReinforcements, reinforcements, startDate]);
+  }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, negotiationDesiredTerm, enableReinforcements, reinforcements, startDate]);
 
   // Effective calculations object — use negotiation in negotiation mode
   const effectiveCalc = rateMode === "negotiation" && negotiationCalc
