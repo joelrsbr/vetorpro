@@ -173,6 +173,7 @@ export function FinancingCalculator() {
   // Negotiation mode inputs
   const [negotiationMonthlyPayment, setNegotiationMonthlyPayment] = useState<string>("250000"); // R$ 2.500,00
   const [negotiationTotalInterest, setNegotiationTotalInterest] = useState<string>("800000"); // R$ 8.000,00
+  const [negotiationDesiredTerm, setNegotiationDesiredTerm] = useState<string>(""); // optional desired term in months
 
   // Apply selected bank values when in Standard mode
   useEffect(() => {
@@ -604,18 +605,33 @@ export function FinancingCalculator() {
     const totalFromMonthly = totalToPay - totalReinforcements;
     if (totalFromMonthly <= 0) return null;
 
-    const termMonths = Math.max(1, Math.ceil(totalFromMonthly / monthlyPayment));
+    const desiredTermParsed = parseInt(negotiationDesiredTerm) || 0;
+    const computedTerm = Math.max(1, Math.ceil(totalFromMonthly / monthlyPayment));
+    const termMonths = desiredTermParsed > 0 ? desiredTermParsed : computedTerm;
+
+    // Flow validation: parcelas + reforços vs saldo + juros
+    const totalFromInstallments = monthlyPayment * termMonths;
+    const flowTotal = totalFromInstallments + totalReinforcements;
+    const flowExpected = principal + totalInterestAgreed;
+    const flowDifference = flowTotal - flowExpected; // positivo = sobra, negativo = falta
 
     // Equivalent monthly interest rate i such that PV of cashflows == principal
     // PV = sum_{m=1..N} payment_m / (1+i)^m
-    // payment_m = monthlyPayment + reinforcement(m); last payment may be smaller (residual)
+    // payment_m = monthlyPayment + reinforcement(m); when desired term given, all installments == monthlyPayment
     const cashflows: number[] = [];
-    let remaining = totalFromMonthly;
-    for (let m = 1; m <= termMonths; m++) {
-      const reinf = reinforcementByMonth.get(m) || 0;
-      const pay = m === termMonths ? Math.max(0, remaining) : monthlyPayment;
-      remaining -= pay;
-      cashflows.push(pay + reinf);
+    if (desiredTermParsed > 0) {
+      for (let m = 1; m <= termMonths; m++) {
+        const reinf = reinforcementByMonth.get(m) || 0;
+        cashflows.push(monthlyPayment + reinf);
+      }
+    } else {
+      let remaining = totalFromMonthly;
+      for (let m = 1; m <= termMonths; m++) {
+        const reinf = reinforcementByMonth.get(m) || 0;
+        const pay = m === termMonths ? Math.max(0, remaining) : monthlyPayment;
+        remaining -= pay;
+        cashflows.push(pay + reinf);
+      }
     }
 
     const npv = (rate: number) => {
@@ -704,8 +720,10 @@ export function FinancingCalculator() {
       interestSaved: 0,
       totalCorrection: 0,
       totalPaidAll: totalPaid + totalReinforcements,
+      flowDifference,
+      hasDesiredTerm: desiredTermParsed > 0,
     };
-  }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, enableReinforcements, reinforcements, startDate]);
+  }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, negotiationDesiredTerm, enableReinforcements, reinforcements, startDate]);
 
   // Effective calculations object — use negotiation in negotiation mode
   const effectiveCalc = rateMode === "negotiation" && negotiationCalc
@@ -1496,7 +1514,7 @@ export function FinancingCalculator() {
                   <Handshake className="h-5 w-5 text-accent-foreground" />
                   <Label className="font-semibold text-base">Parâmetros da Negociação</Label>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-sm">Parcela Mensal (R$)</Label>
                     <Input
@@ -1517,7 +1535,33 @@ export function FinancingCalculator() {
                     />
                     <p className="text-[11px] text-muted-foreground">Juros totais acordados entre as partes.</p>
                   </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Prazo desejado (meses)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={negotiationDesiredTerm}
+                      onChange={(e) => setNegotiationDesiredTerm(e.target.value.replace(/\D/g, ""))}
+                      placeholder="Ex.: 18"
+                      className="text-sm"
+                    />
+                    <p className="text-[11px] text-muted-foreground">Opcional. Em branco, o sistema calcula.</p>
+                  </div>
                 </div>
+                {negotiationCalc && negotiationCalc.hasDesiredTerm && Math.abs(negotiationCalc.flowDifference) > 0.5 && (
+                  <div className={cn(
+                    "mt-1 rounded-md border px-3 py-2 text-xs",
+                    negotiationCalc.flowDifference > 0
+                      ? "border-amber-300 bg-amber-50 text-amber-900"
+                      : "border-rose-300 bg-rose-50 text-rose-900"
+                  )}>
+                    {negotiationCalc.flowDifference > 0 ? (
+                      <>O fluxo está <strong>excedendo</strong> em {negotiationCalc.flowDifference.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (parcelas + reforços maiores que saldo + juros).</>
+                    ) : (
+                      <>O fluxo está <strong>faltando</strong> {Math.abs(negotiationCalc.flowDifference).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} para fechar (saldo + juros maior que parcelas + reforços).</>
+                    )}
+                  </div>
+                )}
                 {negotiationCalc && (
                   <div className="mt-3 rounded-lg border-2 border-accent bg-background p-4 space-y-3">
                     <div className="flex items-center gap-2">
