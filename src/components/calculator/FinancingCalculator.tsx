@@ -1556,9 +1556,9 @@ export function FinancingCalculator() {
                       : "border-rose-300 bg-rose-50 text-rose-900"
                   )}>
                     {negotiationCalc.flowDifference > 0 ? (
-                      <>O fluxo está <strong>excedendo</strong> em {formatBRL(negotiationCalc.flowDifference)} (parcelas + reforços maiores que saldo + juros).</>
+                      <>O fluxo está <strong>excedendo</strong> em {negotiationCalc.flowDifference.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (parcelas + reforços maiores que saldo + juros).</>
                     ) : (
-                      <>O fluxo está <strong>faltando</strong> {formatBRL(Math.abs(negotiationCalc.flowDifference))} para fechar (saldo + juros maior que parcelas + reforços).</>
+                      <>O fluxo está <strong>faltando</strong> {Math.abs(negotiationCalc.flowDifference).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} para fechar (saldo + juros maior que parcelas + reforços).</>
                     )}
                   </div>
                 )}
