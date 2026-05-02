@@ -173,6 +173,7 @@ export function FinancingCalculator() {
   // Negotiation mode inputs
   const [negotiationMonthlyPayment, setNegotiationMonthlyPayment] = useState<string>("250000"); // R$ 2.500,00
   const [negotiationTotalInterest, setNegotiationTotalInterest] = useState<string>("800000"); // R$ 8.000,00
+  const [negotiationDesiredTerm, setNegotiationDesiredTerm] = useState<string>(""); // optional desired term in months
 
   // Apply selected bank values when in Standard mode
   useEffect(() => {
