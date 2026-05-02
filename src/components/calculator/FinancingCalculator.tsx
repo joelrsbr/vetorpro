@@ -605,18 +605,33 @@ export function FinancingCalculator() {
     const totalFromMonthly = totalToPay - totalReinforcements;
     if (totalFromMonthly <= 0) return null;
 
-    const termMonths = Math.max(1, Math.ceil(totalFromMonthly / monthlyPayment));
+    const desiredTermParsed = parseInt(negotiationDesiredTerm) || 0;
+    const computedTerm = Math.max(1, Math.ceil(totalFromMonthly / monthlyPayment));
+    const termMonths = desiredTermParsed > 0 ? desiredTermParsed : computedTerm;
+
+    // Flow validation: parcelas + reforços vs saldo + juros
+    const totalFromInstallments = monthlyPayment * termMonths;
+    const flowTotal = totalFromInstallments + totalReinforcements;
+    const flowExpected = principal + totalInterestAgreed;
+    const flowDifference = flowTotal - flowExpected; // positivo = sobra, negativo = falta
 
     // Equivalent monthly interest rate i such that PV of cashflows == principal
     // PV = sum_{m=1..N} payment_m / (1+i)^m
-    // payment_m = monthlyPayment + reinforcement(m); last payment may be smaller (residual)
+    // payment_m = monthlyPayment + reinforcement(m); when desired term given, all installments == monthlyPayment
     const cashflows: number[] = [];
-    let remaining = totalFromMonthly;
-    for (let m = 1; m <= termMonths; m++) {
-      const reinf = reinforcementByMonth.get(m) || 0;
-      const pay = m === termMonths ? Math.max(0, remaining) : monthlyPayment;
-      remaining -= pay;
-      cashflows.push(pay + reinf);
+    if (desiredTermParsed > 0) {
+      for (let m = 1; m <= termMonths; m++) {
+        const reinf = reinforcementByMonth.get(m) || 0;
+        cashflows.push(monthlyPayment + reinf);
+      }
+    } else {
+      let remaining = totalFromMonthly;
+      for (let m = 1; m <= termMonths; m++) {
+        const reinf = reinforcementByMonth.get(m) || 0;
+        const pay = m === termMonths ? Math.max(0, remaining) : monthlyPayment;
+        remaining -= pay;
+        cashflows.push(pay + reinf);
+      }
     }
 
     const npv = (rate: number) => {
