@@ -107,14 +107,26 @@ export function ExportActions(props: ExportActionsProps) {
     const consultant = profile?.full_name || "Corretor";
     const creci = profile?.creci ? `CRECI ${profile.creci}` : "";
     const phone = profile?.phone || "";
-    const sysLabel = props.amortizationType;
-    const lines = [
+    const sysLabel = props.isNegotiation ? "Negociação entre Particulares" : props.amortizationType;
+    const lines: string[] = [
       `📊 Simulação VetorPro — ${props.propertyDescription || "Imóvel"}`,
       `Valor financiado: ${formatBRL(props.financedAmount)} | Entrada: ${formatBRL(props.downPayment)}`,
-      `1ª Parcela: ${formatBRL(props.firstPayment)} | Sistema: ${sysLabel} | Prazo: ${props.termMonths} meses`,
-      `Taxa: ${props.interestRate.toFixed(2)}% a.a. | Total a pagar: ${formatBRL(props.totalPaid)}`,
-      [consultant, creci, phone].filter(Boolean).join(" | "),
+      props.isNegotiation
+        ? `Parcela: ${formatBRL(props.firstPayment)} | Modalidade: ${sysLabel} | Prazo: ${props.termMonths} meses`
+        : `1ª Parcela: ${formatBRL(props.firstPayment)} | Sistema: ${sysLabel} | Prazo: ${props.termMonths} meses`,
     ];
+    if (props.isNegotiation && props.reinforcements && props.reinforcements.length > 0) {
+      lines.push("Reforços estratégicos:");
+      props.reinforcements.forEach((r, i) => {
+        lines.push(`• Reforço ${i + 1}: ${formatBRL(r.value)} — ${r.date}`);
+      });
+    }
+    lines.push(
+      props.isNegotiation
+        ? `Taxa equivalente: ${props.interestRate.toFixed(2)}% a.a. | Total: ${formatBRL(props.totalPaid)}`
+        : `Taxa: ${props.interestRate.toFixed(2)}% a.a. | Total a pagar: ${formatBRL(props.totalPaid)}`
+    );
+    lines.push([consultant, creci, phone].filter(Boolean).join(" | "));
     try {
       await navigator.clipboard.writeText(lines.join("\n"));
       setCopied(true);
