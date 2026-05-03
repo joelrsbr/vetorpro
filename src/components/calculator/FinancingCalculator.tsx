@@ -735,7 +735,7 @@ export function FinancingCalculator() {
             principal: negotiationCalc.principal,
             firstPayment: negotiationCalc.firstPayment,
             lastPayment: negotiationCalc.lastPayment,
-            totalPaid: negotiationCalc.totalPaidAll,
+            totalPaid: negotiationCalc.principal + negotiationCalc.totalInterest,
             totalInterest: negotiationCalc.totalInterest,
             totalCorrection: 0,
             schedule: negotiationCalc.schedule,
