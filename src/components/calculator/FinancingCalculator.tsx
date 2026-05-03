@@ -1759,6 +1759,21 @@ export function FinancingCalculator() {
                 propertyDescription={propertyDescription}
                 clientPhone={clientPhone}
                 clientEmail={clientEmail}
+                isNegotiation={rateMode === "negotiation"}
+                reinforcements={
+                  rateMode === "negotiation" && enableReinforcements
+                    ? reinforcements
+                        .map((r) => {
+                          const v = parseCurrency(r.value);
+                          if (!r.monthYear || v <= 0) return null;
+                          const [year, mon] = r.monthYear.split("-").map(Number);
+                          const targetDate = new Date(year, mon - 1);
+                          const dateLabel = format(targetDate, "MMMM/yyyy", { locale: ptBR });
+                          return { label: "Reforço", value: v, date: dateLabel };
+                        })
+                        .filter((x): x is { label: string; value: number; date: string } => x !== null)
+                    : undefined
+                }
               />
             )}
 
