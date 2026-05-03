@@ -24,6 +24,9 @@ interface ExportActionsProps {
   propertyDescription: string;
   clientPhone?: string;
   clientEmail?: string;
+  // Negotiation mode (Negociação Direta)
+  isNegotiation?: boolean;
+  reinforcements?: { label: string; value: number; date: string }[]; // date as "mês/aaaa"
 }
 
 const formatBRL = (v: number) =>
