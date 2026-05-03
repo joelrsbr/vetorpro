@@ -15,9 +15,10 @@ interface CalculationsData {
 interface CalculationResultsProps {
   calculations: CalculationsData;
   amortizationType: "SAC" | "PRICE";
+  hideSavings?: boolean;
 }
 
-export function CalculationResults({ calculations, amortizationType }: CalculationResultsProps) {
+export function CalculationResults({ calculations, amortizationType, hideSavings = false }: CalculationResultsProps) {
   const formatBRL = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
