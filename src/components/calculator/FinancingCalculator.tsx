@@ -726,19 +726,24 @@ export function FinancingCalculator() {
   }, [rateMode, propertyValue, downPayment, negotiationMonthlyPayment, negotiationTotalInterest, negotiationDesiredTerm, enableReinforcements, reinforcements, startDate]);
 
   // Effective calculations object — use negotiation in negotiation mode
-  const effectiveCalc = rateMode === "negotiation" && negotiationCalc
-    ? {
-        principal: negotiationCalc.principal,
-        firstPayment: negotiationCalc.firstPayment,
-        lastPayment: negotiationCalc.lastPayment,
-        totalPaid: negotiationCalc.totalPaidAll,
-        totalInterest: negotiationCalc.totalInterest,
-        totalCorrection: 0,
-        schedule: negotiationCalc.schedule,
-        actualTermMonths: negotiationCalc.actualTermMonths,
-        monthsSaved: 0,
-        interestSaved: 0,
-      }
+  // CRITICAL: in negotiation mode NEVER fall back to bank-style `calculations`.
+  // If negotiationCalc is null (invalid inputs), effectiveCalc must also be null
+  // to avoid showing PRICE/SAC numbers in a non-bank flow.
+  const effectiveCalc = rateMode === "negotiation"
+    ? (negotiationCalc
+        ? {
+            principal: negotiationCalc.principal,
+            firstPayment: negotiationCalc.firstPayment,
+            lastPayment: negotiationCalc.lastPayment,
+            totalPaid: negotiationCalc.totalPaidAll,
+            totalInterest: negotiationCalc.totalInterest,
+            totalCorrection: 0,
+            schedule: negotiationCalc.schedule,
+            actualTermMonths: negotiationCalc.actualTermMonths,
+            monthsSaved: 0,
+            interestSaved: 0,
+          }
+        : null)
     : calculations;
 
   const financingData: FinancingData = {
@@ -1607,7 +1612,8 @@ export function FinancingCalculator() {
         <div className="space-y-8">
             <CalculationResults
             calculations={effectiveCalc}
-            amortizationType={amortizationType} />
+            amortizationType={amortizationType}
+            hideSavings={rateMode === "negotiation"} />
 
             {/* Client identification fields */}
             <Card className="shadow-card">

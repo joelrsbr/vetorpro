@@ -15,9 +15,10 @@ interface CalculationsData {
 interface CalculationResultsProps {
   calculations: CalculationsData;
   amortizationType: "SAC" | "PRICE";
+  hideSavings?: boolean;
 }
 
-export function CalculationResults({ calculations, amortizationType }: CalculationResultsProps) {
+export function CalculationResults({ calculations, amortizationType, hideSavings = false }: CalculationResultsProps) {
   const formatBRL = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -99,7 +100,7 @@ export function CalculationResults({ calculations, amortizationType }: Calculati
       </div>
 
       {/* Savings Summary */}
-      {(calculations.monthsSaved > 0 || calculations.interestSaved > 0) && (
+      {!hideSavings && (calculations.monthsSaved > 0 || calculations.interestSaved > 0) && (
         <Card className="shadow-card border-success/30 bg-success/5">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 mb-4">
