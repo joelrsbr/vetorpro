@@ -240,18 +240,30 @@ export function ExportActions(props: ExportActionsProps) {
       doc.setTextColor(40, 40, 40);
       doc.setFontSize(10);
 
-      const simRows: [string, string][] = [
-        ["Valor do imóvel", formatBRL(props.propertyValue)],
-        ["Entrada", formatBRL(props.downPayment)],
-        ["Valor financiado", formatBRL(props.financedAmount)],
-        ["Prazo", `${props.termMonths} meses`],
-        ["Sistema de amortização", props.amortizationType],
-        ["Taxa de juros", `${props.interestRate.toFixed(2)}% a.a.`],
-        ["Indexador", props.correctionIndex.toUpperCase()],
-        ["1ª Parcela", formatBRL(props.firstPayment)],
-        ["Total de juros", formatBRL(props.totalInterest)],
-        ["Total a pagar", formatBRL(props.totalPaid)],
-      ];
+      const simRows: [string, string][] = props.isNegotiation
+        ? [
+            ["Valor do imóvel", formatBRL(props.propertyValue)],
+            ["Entrada", formatBRL(props.downPayment)],
+            ["Saldo financiado", formatBRL(props.financedAmount)],
+            ["Prazo", `${props.termMonths} meses`],
+            ["Modalidade", "Negociação entre Particulares"],
+            ["Taxa equivalente", `${props.interestRate.toFixed(2)}% a.a.`],
+            ["Parcela mensal", formatBRL(props.firstPayment)],
+            ["Juros combinados", formatBRL(props.totalInterest)],
+            ["Total a pagar", formatBRL(props.totalPaid)],
+          ]
+        : [
+            ["Valor do imóvel", formatBRL(props.propertyValue)],
+            ["Entrada", formatBRL(props.downPayment)],
+            ["Valor financiado", formatBRL(props.financedAmount)],
+            ["Prazo", `${props.termMonths} meses`],
+            ["Sistema de amortização", props.amortizationType],
+            ["Taxa de juros", `${props.interestRate.toFixed(2)}% a.a.`],
+            ["Indexador", props.correctionIndex.toUpperCase()],
+            ["1ª Parcela", formatBRL(props.firstPayment)],
+            ["Total de juros", formatBRL(props.totalInterest)],
+            ["Total a pagar", formatBRL(props.totalPaid)],
+          ];
 
       // Two-column layout
       const colW = (pageW - margin * 2) / 2;
@@ -267,13 +279,35 @@ export function ExportActions(props: ExportActionsProps) {
       });
       y += Math.ceil(simRows.length / 2) * 6 + 4;
 
+      // Reinforcements section (Negociação Direta)
+      if (props.isNegotiation && props.reinforcements && props.reinforcements.length > 0) {
+        doc.setDrawColor(pr, pg, pb);
+        doc.line(margin, y, pageW - margin, y);
+        y += 6;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(pr, pg, pb);
+        doc.text("REFORÇOS ESTRATÉGICOS", margin, y);
+        y += 6;
+        doc.setTextColor(40, 40, 40);
+        doc.setFontSize(10);
+        props.reinforcements.forEach((r, i) => {
+          doc.setFont("helvetica", "bold");
+          doc.text(`Reforço ${i + 1}:`, margin, y);
+          doc.setFont("helvetica", "normal");
+          doc.text(`${formatBRL(r.value)} — ${r.date}`, margin + 28, y);
+          y += 5.5;
+        });
+        y += 2;
+      }
+
       // Highlight box for first payment
       doc.setFillColor(ar, ag, ab);
       doc.setTextColor(255, 255, 255);
       doc.roundedRect(margin, y, pageW - margin * 2, 16, 2, 2, "F");
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("PRIMEIRA PARCELA", margin + 5, y + 7);
+      doc.text(props.isNegotiation ? "PARCELA MENSAL" : "PRIMEIRA PARCELA", margin + 5, y + 7);
       doc.setFontSize(16);
       doc.text(formatBRL(props.firstPayment), pageW - margin - 5, y + 11, { align: "right" });
       y += 22;
@@ -282,10 +316,10 @@ export function ExportActions(props: ExportActionsProps) {
       doc.setTextColor(110, 110, 110);
       doc.setFont("helvetica", "italic");
       doc.setFontSize(8);
-      const disclaimer = doc.splitTextToSize(
-        "Esta simulação é meramente ilustrativa e não constitui oferta de crédito. Valores sujeitos a aprovação cadastral e condições do banco. Indexadores e taxas podem variar.",
-        pageW - margin * 2
-      );
+      const disclaimerText = props.isNegotiation
+        ? "Esta simulação representa um acordo de financiamento direto entre particulares, sem intermediário financeiro. Os valores, prazo e taxa equivalente foram livremente acordados entre as partes e servem como referência para formalização em contrato particular."
+        : "Esta simulação é meramente ilustrativa e não constitui oferta de crédito. Valores sujeitos a aprovação cadastral e condições do banco. Indexadores e taxas podem variar.";
+      const disclaimer = doc.splitTextToSize(disclaimerText, pageW - margin * 2);
       doc.text(disclaimer, margin, y);
 
       // Footer
