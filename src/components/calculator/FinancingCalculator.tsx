@@ -1612,7 +1612,8 @@ export function FinancingCalculator() {
         <div className="space-y-8">
             <CalculationResults
             calculations={effectiveCalc}
-            amortizationType={amortizationType} />
+            amortizationType={amortizationType}
+            hideSavings={rateMode === "negotiation"} />
 
             {/* Client identification fields */}
             <Card className="shadow-card">
