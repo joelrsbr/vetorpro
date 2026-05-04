@@ -541,30 +541,63 @@ export function NegotiationsPanel(props: Props) {
     );
   }
 
+  const searchBar = (
+    <div className="mb-2 relative">
+      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+      <Input
+        type="search"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Buscar por cliente, imóvel, valor ou tipo..."
+        className="h-9 pl-8 pr-8 text-xs"
+      />
+      {searchQuery && (
+        <button
+          type="button"
+          onClick={() => setSearchQuery("")}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          aria-label="Limpar busca"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+
   if (clientGroups.length === 0) {
     return (
-      <div className="text-center py-6">
-        <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">
-          {statusFilter
-            ? `Nenhuma negociação com status "${STATUS_LABELS[statusFilter]}".`
-            : "Nenhuma negociação registrada ainda."}
-        </p>
-        {statusFilter ? (
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => setStatusFilter(null)}>
-            Limpar filtro
-          </Button>
-        ) : (
-          <Button variant="hero" size="sm" className="mt-3" asChild>
-            <Link to="/calculadora">Iniciar primeira negociação</Link>
-          </Button>
-        )}
-      </div>
+      <>
+        {searchBar}
+        <div className="text-center py-6">
+          <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground">
+            {searchQuery
+              ? `Nenhum resultado para "${searchQuery}".`
+              : statusFilter
+                ? `Nenhuma negociação com status "${STATUS_LABELS[statusFilter]}".`
+                : "Nenhuma negociação registrada ainda."}
+          </p>
+          {searchQuery ? (
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setSearchQuery("")}>
+              Limpar busca
+            </Button>
+          ) : statusFilter ? (
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setStatusFilter(null)}>
+              Limpar filtro
+            </Button>
+          ) : (
+            <Button variant="hero" size="sm" className="mt-3" asChild>
+              <Link to="/calculadora">Iniciar primeira negociação</Link>
+            </Button>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
     <>
+      {searchBar}
       {statusFilter && (
         <div className="mb-2 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-xs">
           <span className="text-muted-foreground">Filtrando por:</span>
