@@ -386,6 +386,7 @@ export function NegotiationsPanel(props: Props) {
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<"client" | "first" | "last">("last");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
