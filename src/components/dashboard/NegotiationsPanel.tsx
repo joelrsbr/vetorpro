@@ -598,12 +598,12 @@ export function NegotiationsPanel(props: Props) {
                 p={g.primary}
                 formatDateShort={formatDateShort}
                 isPrimary
-                onView={onViewProposal}
-                onEdit={onEditProposal}
-                onDelete={onDeleteProposal}
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 onMessage={(p) => setMsgModal(p)}
                 onContactToday={(p) => setConfirmContact(p)}
-                onCopy={onCopyProposal}
+                onCopy={handleCopy}
                 onStatusBadgeClick={handleStatusBadgeClick}
                 activeStatusFilter={statusFilter}
               />
@@ -625,12 +625,12 @@ export function NegotiationsPanel(props: Props) {
                           p={p}
                           formatDateShort={formatDateShort}
                           isPrimary={false}
-                          onView={onViewProposal}
-                          onEdit={onEditProposal}
-                          onDelete={onDeleteProposal}
+                          onView={handleView}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
                           onMessage={(pp) => setMsgModal(pp)}
                           onContactToday={(pp) => setConfirmContact(pp)}
-                          onCopy={onCopyProposal}
+                          onCopy={handleCopy}
                           onStatusBadgeClick={handleStatusBadgeClick}
                           activeStatusFilter={statusFilter}
                         />
