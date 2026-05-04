@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
-  ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown,
+  ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown, Search, X,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { CRMProposal } from "./ProposalsCRM";
 import { supabase } from "@/integrations/supabase/client";
@@ -385,6 +386,7 @@ export function NegotiationsPanel(props: Props) {
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<"client" | "first" | "last">("last");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
@@ -465,9 +467,24 @@ export function NegotiationsPanel(props: Props) {
 
   /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
-    const filtered = statusFilter
+    const q = searchQuery.trim().toLowerCase();
+    const statusFiltered = statusFilter
       ? allEntries.filter(p => p.status === statusFilter)
       : allEntries;
+    const filtered = q
+      ? statusFiltered.filter(p => {
+          const sim = simulations.find(s => s.id === stripSimId(p.id)) ||
+            simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
+          const tipo = sim ? (sim.amortization_type || "") : "";
+          const haystack = [
+            p.client_name, p.property_description, p.proposal_text,
+            p.client_phone, p.client_email, tipo,
+            sim ? formatCurrency(sim.property_value) : "",
+            sim ? String(sim.property_value) : "",
+          ].filter(Boolean).join(" ").toLowerCase();
+          return haystack.includes(q);
+        })
+      : statusFiltered;
     const map = new Map<string, CRMProposal[]>();
     for (const p of filtered) {
       const key = (p.client_name || "Sem nome").trim() || "Sem nome";
@@ -501,7 +518,7 @@ export function NegotiationsPanel(props: Props) {
       return (a.oldestLast - b.oldestLast) * dir; // "last"
     };
     return groups.sort(compare);
-  }, [allEntries, statusFilter, sortKey, sortDir]);
+  }, [allEntries, statusFilter, sortKey, sortDir, searchQuery, simulations, formatCurrency]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
@@ -524,30 +541,63 @@ export function NegotiationsPanel(props: Props) {
     );
   }
 
+  const searchBar = (
+    <div className="mb-2 relative">
+      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+      <Input
+        type="search"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Buscar por cliente, imóvel, valor ou tipo..."
+        className="h-9 pl-8 pr-8 text-xs"
+      />
+      {searchQuery && (
+        <button
+          type="button"
+          onClick={() => setSearchQuery("")}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          aria-label="Limpar busca"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+
   if (clientGroups.length === 0) {
     return (
-      <div className="text-center py-6">
-        <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">
-          {statusFilter
-            ? `Nenhuma negociação com status "${STATUS_LABELS[statusFilter]}".`
-            : "Nenhuma negociação registrada ainda."}
-        </p>
-        {statusFilter ? (
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => setStatusFilter(null)}>
-            Limpar filtro
-          </Button>
-        ) : (
-          <Button variant="hero" size="sm" className="mt-3" asChild>
-            <Link to="/calculadora">Iniciar primeira negociação</Link>
-          </Button>
-        )}
-      </div>
+      <>
+        {searchBar}
+        <div className="text-center py-6">
+          <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground">
+            {searchQuery
+              ? `Nenhum resultado para "${searchQuery}".`
+              : statusFilter
+                ? `Nenhuma negociação com status "${STATUS_LABELS[statusFilter]}".`
+                : "Nenhuma negociação registrada ainda."}
+          </p>
+          {searchQuery ? (
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setSearchQuery("")}>
+              Limpar busca
+            </Button>
+          ) : statusFilter ? (
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setStatusFilter(null)}>
+              Limpar filtro
+            </Button>
+          ) : (
+            <Button variant="hero" size="sm" className="mt-3" asChild>
+              <Link to="/calculadora">Iniciar primeira negociação</Link>
+            </Button>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
     <>
+      {searchBar}
       {statusFilter && (
         <div className="mb-2 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-xs">
           <span className="text-muted-foreground">Filtrando por:</span>
