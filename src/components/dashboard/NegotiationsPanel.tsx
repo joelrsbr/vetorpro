@@ -474,7 +474,7 @@ export function NegotiationsPanel(props: Props) {
       return (a.oldestLast - b.oldestLast) * dir; // "last"
     };
     return groups.sort(compare);
-  }, [proposals, statusFilter, sortKey, sortDir]);
+  }, [allEntries, statusFilter, sortKey, sortDir]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
