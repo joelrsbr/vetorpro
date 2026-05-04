@@ -467,9 +467,24 @@ export function NegotiationsPanel(props: Props) {
 
   /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
-    const filtered = statusFilter
+    const q = searchQuery.trim().toLowerCase();
+    const statusFiltered = statusFilter
       ? allEntries.filter(p => p.status === statusFilter)
       : allEntries;
+    const filtered = q
+      ? statusFiltered.filter(p => {
+          const sim = simulations.find(s => s.id === stripSimId(p.id)) ||
+            simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
+          const tipo = sim ? (sim.amortization_type || "") : "";
+          const haystack = [
+            p.client_name, p.property_description, p.proposal_text,
+            p.client_phone, p.client_email, tipo,
+            sim ? formatCurrency(sim.property_value) : "",
+            sim ? String(sim.property_value) : "",
+          ].filter(Boolean).join(" ").toLowerCase();
+          return haystack.includes(q);
+        })
+      : statusFiltered;
     const map = new Map<string, CRMProposal[]>();
     for (const p of filtered) {
       const key = (p.client_name || "Sem nome").trim() || "Sem nome";
