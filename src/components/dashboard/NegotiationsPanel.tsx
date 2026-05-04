@@ -351,8 +351,35 @@ export function NegotiationsPanel(props: Props) {
   const {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
-    onCopyProposal,
+    onCopyProposal, onEditSimulation, onDeleteSimulation,
   } = props;
+
+  const isSimEntry = (id: string) => id.startsWith("sim:");
+  const stripSimId = (id: string) => id.replace(/^sim:/, "");
+
+  const handleEdit = (p: CRMProposal) => {
+    if (isSimEntry(p.id)) {
+      const sim = simulations.find(s => s.id === stripSimId(p.id));
+      if (sim) onEditSimulation(sim);
+      return;
+    }
+    onEditProposal(p);
+  };
+  const handleDelete = (id: string) => {
+    if (isSimEntry(id)) { onDeleteSimulation(stripSimId(id)); return; }
+    onDeleteProposal(id);
+  };
+  const handleView = (p: CRMProposal) => {
+    if (isSimEntry(p.id)) {
+      const sim = simulations.find(s => s.id === stripSimId(p.id));
+      if (sim) onEditSimulation(sim);
+      return;
+    }
+    onViewProposal(p);
+  };
+  const handleCopy = (text: string) => {
+    onCopyProposal(text);
+  };
   const { toast } = useToast();
   const [msgModal, setMsgModal] = useState<CRMProposal | null>(null);
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
