@@ -518,7 +518,7 @@ export function NegotiationsPanel(props: Props) {
       return (a.oldestLast - b.oldestLast) * dir; // "last"
     };
     return groups.sort(compare);
-  }, [allEntries, statusFilter, sortKey, sortDir]);
+  }, [allEntries, statusFilter, sortKey, sortDir, searchQuery, simulations, formatCurrency]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
