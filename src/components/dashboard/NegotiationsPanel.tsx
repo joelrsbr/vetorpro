@@ -403,11 +403,44 @@ export function NegotiationsPanel(props: Props) {
 
   const INACTIVE_STATUSES = new Set(["closed", "lost", "archived"]);
 
-  /* Group proposals by client; sort each client's proposals newest-first */
+  /* Synthesize virtual CRM entries from saved simulations that don't yet have an AI proposal,
+     so simulations from any mode (Padrão, Manual, Negociação Direta) appear in the CRM. */
+  const allEntries = useMemo<CRMProposal[]>(() => {
+    const proposalSimIds = new Set<string>();
+    const proposalKeys = new Set<string>();
+    for (const p of proposals) {
+      const anyP = p as any;
+      if (anyP.simulation_id) proposalSimIds.add(anyP.simulation_id);
+      proposalKeys.add(`${(p.client_name || "").trim().toLowerCase()}|${(p.property_description || "").trim().toLowerCase()}`);
+    }
+    const synthesized: CRMProposal[] = [];
+    for (const s of simulations) {
+      if (proposalSimIds.has(s.id)) continue;
+      const key = `${(s.client_name || "").trim().toLowerCase()}|${(s.property_description || "").trim().toLowerCase()}`;
+      if (proposalKeys.has(key)) continue;
+      const valueStr = formatCurrency(s.property_value);
+      synthesized.push({
+        id: `sim:${s.id}`,
+        client_name: s.client_name || "Sem nome",
+        property_description: s.property_description || "—",
+        proposal_text: `Simulação salva — Imóvel: ${valueStr}. Parcela: ${formatCurrency(s.monthly_payment)}.`,
+        interest_savings: null,
+        term_savings_months: null,
+        created_at: s.created_at,
+        status: "potential",
+        ultima_interacao: s.created_at,
+        client_phone: (s as any).client_phone ?? null,
+        client_email: (s as any).client_email ?? null,
+      });
+    }
+    return [...proposals, ...synthesized];
+  }, [proposals, simulations, formatCurrency]);
+
+  /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
     const filtered = statusFilter
-      ? proposals.filter(p => p.status === statusFilter)
-      : proposals;
+      ? allEntries.filter(p => p.status === statusFilter)
+      : allEntries;
     const map = new Map<string, CRMProposal[]>();
     for (const p of filtered) {
       const key = (p.client_name || "Sem nome").trim() || "Sem nome";
