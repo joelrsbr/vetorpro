@@ -351,8 +351,35 @@ export function NegotiationsPanel(props: Props) {
   const {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
-    onCopyProposal,
+    onCopyProposal, onEditSimulation, onDeleteSimulation,
   } = props;
+
+  const isSimEntry = (id: string) => id.startsWith("sim:");
+  const stripSimId = (id: string) => id.replace(/^sim:/, "");
+
+  const handleEdit = (p: CRMProposal) => {
+    if (isSimEntry(p.id)) {
+      const sim = simulations.find(s => s.id === stripSimId(p.id));
+      if (sim) onEditSimulation(sim);
+      return;
+    }
+    onEditProposal(p);
+  };
+  const handleDelete = (id: string) => {
+    if (isSimEntry(id)) { onDeleteSimulation(stripSimId(id)); return; }
+    onDeleteProposal(id);
+  };
+  const handleView = (p: CRMProposal) => {
+    if (isSimEntry(p.id)) {
+      const sim = simulations.find(s => s.id === stripSimId(p.id));
+      if (sim) onEditSimulation(sim);
+      return;
+    }
+    onViewProposal(p);
+  };
+  const handleCopy = (text: string) => {
+    onCopyProposal(text);
+  };
   const { toast } = useToast();
   const [msgModal, setMsgModal] = useState<CRMProposal | null>(null);
   const [confirmContact, setConfirmContact] = useState<CRMProposal | null>(null);
@@ -403,11 +430,44 @@ export function NegotiationsPanel(props: Props) {
 
   const INACTIVE_STATUSES = new Set(["closed", "lost", "archived"]);
 
-  /* Group proposals by client; sort each client's proposals newest-first */
+  /* Synthesize virtual CRM entries from saved simulations that don't yet have an AI proposal,
+     so simulations from any mode (Padrão, Manual, Negociação Direta) appear in the CRM. */
+  const allEntries = useMemo<CRMProposal[]>(() => {
+    const proposalSimIds = new Set<string>();
+    const proposalKeys = new Set<string>();
+    for (const p of proposals) {
+      const anyP = p as any;
+      if (anyP.simulation_id) proposalSimIds.add(anyP.simulation_id);
+      proposalKeys.add(`${(p.client_name || "").trim().toLowerCase()}|${(p.property_description || "").trim().toLowerCase()}`);
+    }
+    const synthesized: CRMProposal[] = [];
+    for (const s of simulations) {
+      if (proposalSimIds.has(s.id)) continue;
+      const key = `${(s.client_name || "").trim().toLowerCase()}|${(s.property_description || "").trim().toLowerCase()}`;
+      if (proposalKeys.has(key)) continue;
+      const valueStr = formatCurrency(s.property_value);
+      synthesized.push({
+        id: `sim:${s.id}`,
+        client_name: s.client_name || "Sem nome",
+        property_description: s.property_description || "—",
+        proposal_text: `Simulação salva — Imóvel: ${valueStr}. Parcela: ${formatCurrency(s.monthly_payment)}.`,
+        interest_savings: null,
+        term_savings_months: null,
+        created_at: s.created_at,
+        status: "potential",
+        ultima_interacao: s.created_at,
+        client_phone: (s as any).client_phone ?? null,
+        client_email: (s as any).client_email ?? null,
+      });
+    }
+    return [...proposals, ...synthesized];
+  }, [proposals, simulations, formatCurrency]);
+
+  /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
     const filtered = statusFilter
-      ? proposals.filter(p => p.status === statusFilter)
-      : proposals;
+      ? allEntries.filter(p => p.status === statusFilter)
+      : allEntries;
     const map = new Map<string, CRMProposal[]>();
     for (const p of filtered) {
       const key = (p.client_name || "Sem nome").trim() || "Sem nome";
@@ -441,7 +501,7 @@ export function NegotiationsPanel(props: Props) {
       return (a.oldestLast - b.oldestLast) * dir; // "last"
     };
     return groups.sort(compare);
-  }, [proposals, statusFilter, sortKey, sortDir]);
+  }, [allEntries, statusFilter, sortKey, sortDir]);
 
   const toggleClient = (client: string) => {
     setExpandedClients(prev => {
@@ -538,12 +598,12 @@ export function NegotiationsPanel(props: Props) {
                 p={g.primary}
                 formatDateShort={formatDateShort}
                 isPrimary
-                onView={onViewProposal}
-                onEdit={onEditProposal}
-                onDelete={onDeleteProposal}
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 onMessage={(p) => setMsgModal(p)}
                 onContactToday={(p) => setConfirmContact(p)}
-                onCopy={onCopyProposal}
+                onCopy={handleCopy}
                 onStatusBadgeClick={handleStatusBadgeClick}
                 activeStatusFilter={statusFilter}
               />
@@ -565,12 +625,12 @@ export function NegotiationsPanel(props: Props) {
                           p={p}
                           formatDateShort={formatDateShort}
                           isPrimary={false}
-                          onView={onViewProposal}
-                          onEdit={onEditProposal}
-                          onDelete={onDeleteProposal}
+                          onView={handleView}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
                           onMessage={(pp) => setMsgModal(pp)}
                           onContactToday={(pp) => setConfirmContact(pp)}
-                          onCopy={onCopyProposal}
+                          onCopy={handleCopy}
                           onStatusBadgeClick={handleStatusBadgeClick}
                           activeStatusFilter={statusFilter}
                         />
