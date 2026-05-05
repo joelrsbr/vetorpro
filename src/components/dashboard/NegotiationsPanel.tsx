@@ -14,9 +14,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
-  ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown, Search, X,
+  ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown, Search, X, Filter,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import { CRMProposal } from "./ProposalsCRM";
 import { supabase } from "@/integrations/supabase/client";
