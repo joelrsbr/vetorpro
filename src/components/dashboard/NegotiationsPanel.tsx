@@ -358,11 +358,22 @@ export function NegotiationsPanel(props: Props) {
   const {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
-    onCopyProposal, onEditSimulation, onDeleteSimulation,
+    onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus,
   } = props;
 
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
+
+  const handleChangeStatus = (id: string, status: string) => {
+    if (isSimEntry(id)) {
+      // Synthesized simulation entries are not yet a proposal — show a hint
+      // so the user knows they need to convert first by editing.
+      // We still optimistically update UI by reflecting status only locally is not possible
+      // because synthesized rows are recomputed; just skip silently.
+      return;
+    }
+    onUpdateStatus(id, status);
+  };
 
   const handleEdit = (p: CRMProposal) => {
     if (isSimEntry(p.id)) {
