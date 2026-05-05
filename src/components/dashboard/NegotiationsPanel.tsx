@@ -471,26 +471,25 @@ export function NegotiationsPanel(props: Props) {
     const statusFiltered = statusFilter
       ? allEntries.filter(p => p.status === statusFilter)
       : allEntries;
-    // Numeric query → match ONLY against the monetary value field.
-    // Treat the query as numeric when it contains digits and only currency-ish chars.
-    const isNumericQuery = /\d/.test(q) && /^[\d.,\s$r$]+$/i.test(q);
-    const queryDigits = q.replace(/\D/g, "");
     const filtered = q
       ? statusFiltered.filter(p => {
           const sim = simulations.find(s => s.id === stripSimId(p.id)) ||
             simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
 
-          if (isNumericQuery) {
-            if (!sim || !queryDigits) return false;
-            // Compare only against the integer reais portion of the property value
-            const valueDigits = String(Math.round(Number(sim.property_value) || 0));
-            return valueDigits.includes(queryDigits);
-          }
-
           const tipo = sim ? (sim.amortization_type || "") : "";
+          const valorNum = sim ? Number(sim.property_value) || 0 : 0;
+          const valorFmt = sim ? formatCurrency(valorNum) : "";
+          const valorDigits = sim ? String(Math.round(valorNum)) : "";
+          const created = p.created_at ? new Date(p.created_at) : null;
+          const interacao = p.ultima_interacao ? new Date(p.ultima_interacao) : null;
+          const fmtDate = (d: Date | null) =>
+            d ? `${d.toLocaleDateString("pt-BR")} ${d.toISOString().slice(0, 10)}` : "";
+
           const haystack = [
             p.client_name, p.property_description, p.proposal_text,
-            p.client_email, tipo,
+            p.client_email, p.client_phone, tipo,
+            valorFmt, valorDigits,
+            fmtDate(created), fmtDate(interacao),
           ].filter(Boolean).join(" ").toLowerCase();
           return haystack.includes(q);
         })
