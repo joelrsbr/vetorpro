@@ -302,11 +302,11 @@ function ProposalRow({
       <div className="sm:hidden space-y-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <CombinedFollowUpBadge
+            <StatusBadgeMenu
               status={p.status}
-              days={days}
-              onClick={onStatusBadgeClick}
+              days={getDaysSince(p.ultima_interacao, p.created_at)}
               isActive={activeStatusFilter === p.status}
+              onChange={(s) => onChangeStatus(p.id, s)}
             />
           </div>
           <p className="font-semibold text-sm mt-1 truncate">{p.client_name}</p>
