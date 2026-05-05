@@ -669,7 +669,7 @@ export function NegotiationsPanel(props: Props) {
                 onMessage={(p) => setMsgModal(p)}
                 onContactToday={(p) => setConfirmContact(p)}
                 onCopy={handleCopy}
-                onStatusBadgeClick={handleStatusBadgeClick}
+                onChangeStatus={handleChangeStatus}
                 activeStatusFilter={statusFilter}
               />
               {hasOthers && (
