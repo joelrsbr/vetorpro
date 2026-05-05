@@ -222,12 +222,14 @@ function ProposalRow({
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
         </div>
-        <CombinedFollowUpBadge
-          status={p.status}
-          days={days}
-          onClick={onStatusBadgeClick}
-          isActive={activeStatusFilter === p.status}
-        />
+        <div onClick={(e) => e.stopPropagation()}>
+          <StatusBadgeMenu
+            status={p.status}
+            days={getDaysSince(p.ultima_interacao, p.created_at)}
+            isActive={activeStatusFilter === p.status}
+            onChange={(s) => onChangeStatus(p.id, s)}
+          />
+        </div>
         <div className="flex items-center shrink-0">
           {p.client_phone && (
             <Tooltip>
