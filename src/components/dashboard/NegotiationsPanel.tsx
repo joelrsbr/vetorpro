@@ -66,82 +66,80 @@ function getDaysSince(dateStr: string | null | undefined, fallback: string): num
   return Math.floor((Date.now() - new Date(ref).getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function CombinedFollowUpBadge({
+const STATUS_OPTIONS: { value: string; label: string; emoji: string }[] = [
+  { value: "potential", label: "Potencial", emoji: "🟡" },
+  { value: "negotiating", label: "Negociando", emoji: "🔵" },
+  { value: "closed", label: "Fechado", emoji: "🟢" },
+  { value: "lost", label: "Perdido", emoji: "🔴" },
+  { value: "archived", label: "Arquivado", emoji: "⚪" },
+];
+
+function StatusBadgeMenu({
   status,
   days,
-  onClick,
   isActive,
+  onChange,
 }: {
   status: string;
   days: number;
-  onClick?: (status: string) => void;
   isActive?: boolean;
+  onChange: (status: string) => void;
 }) {
-  const clickable = !!onClick;
-  const baseInteractive = clickable
-    ? `cursor-pointer transition-all hover:scale-105 ${isActive ? "ring-2 ring-offset-1 ring-primary" : ""}`
-    : "";
+  const ringActive = isActive ? "ring-2 ring-offset-1 ring-primary" : "";
 
-  const handle = (e: React.MouseEvent) => {
-    if (!onClick) return;
-    e.stopPropagation();
-    onClick(status);
-  };
-
+  let cls = "bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600";
+  let label = `🔵 Negociando · ${days}d`;
   if (status === "closed") {
-    return (
-      <Badge
-        onClick={handle}
-        className={`text-[10px] px-1.5 py-0 bg-green-100 text-green-800 border-green-200 hover:bg-green-100 ${baseInteractive}`}
-      >
-        🟢 Fechado
-      </Badge>
-    );
-  }
-  if (status === "lost") {
-    return (
-      <Badge
-        onClick={handle}
-        className={`text-[10px] px-1.5 py-0 bg-red-100 text-red-800 border-red-200 hover:bg-red-100 ${baseInteractive}`}
-      >
-        🔴 Perdido
-      </Badge>
-    );
-  }
-  if (status === "archived") {
-    return (
-      <Badge
-        onClick={handle}
-        variant="secondary"
-        className={`text-[10px] px-1.5 py-0 opacity-70 ${baseInteractive}`}
-      >
-        ⚪ Arquivado
-      </Badge>
-    );
-  }
-  if (status === "potential") {
+    cls = "bg-green-100 text-green-800 border-green-200 hover:bg-green-100";
+    label = "🟢 Fechado";
+  } else if (status === "lost") {
+    cls = "bg-red-100 text-red-800 border-red-200 hover:bg-red-100";
+    label = "🔴 Perdido";
+  } else if (status === "archived") {
+    cls = "bg-muted text-muted-foreground border-border opacity-70 hover:bg-muted";
+    label = "⚪ Arquivado";
+  } else if (status === "potential") {
     const urgent = days > 7;
-    return (
-      <Badge
-        onClick={handle}
-        className={`text-[10px] px-1.5 py-0 bg-yellow-500 text-white border-yellow-500 hover:bg-yellow-500 ${baseInteractive} ${
-          urgent && !isActive ? "animate-pulse ring-2 ring-yellow-400" : ""
-        }`}
-      >
-        🟡 Potencial · {days}d
-      </Badge>
-    );
+    cls = `bg-yellow-500 text-white border-yellow-500 hover:bg-yellow-500 ${urgent && !isActive ? "animate-pulse ring-2 ring-yellow-400" : ""}`;
+    label = `🟡 Potencial · ${days}d`;
+  } else {
+    const urgent = days > 3;
+    cls = `bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600 ${urgent && !isActive ? "animate-pulse ring-2 ring-cyan-400" : ""}`;
   }
-  const urgent = days > 3;
+
   return (
-    <Badge
-      onClick={handle}
-      className={`text-[10px] px-1.5 py-0 bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-600 ${baseInteractive} ${
-        urgent && !isActive ? "animate-pulse ring-2 ring-cyan-400" : ""
-      }`}
-    >
-      🔵 Negociando · {days}d
-    </Badge>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          className="focus:outline-none"
+          title="Clique para alterar o status"
+        >
+          <Badge className={`text-[10px] px-1.5 py-0 cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 ${cls} ${ringActive}`}>
+            {label}
+            <ChevronDown className="h-2.5 w-2.5 opacity-80" />
+          </Badge>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuLabel className="text-[11px] text-muted-foreground">
+          Alterar status
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {STATUS_OPTIONS.map(opt => (
+          <DropdownMenuItem
+            key={opt.value}
+            onClick={(e) => { e.stopPropagation(); onChange(opt.value); }}
+            className="text-xs gap-2"
+          >
+            <span>{opt.emoji}</span>
+            <span>{opt.label}</span>
+            {opt.value === status && <CheckCircle2 className="h-3 w-3 ml-auto text-primary" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
