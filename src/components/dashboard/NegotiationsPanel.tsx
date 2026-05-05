@@ -471,16 +471,26 @@ export function NegotiationsPanel(props: Props) {
     const statusFiltered = statusFilter
       ? allEntries.filter(p => p.status === statusFilter)
       : allEntries;
+    // Numeric query → match ONLY against the monetary value field.
+    // Treat the query as numeric when it contains digits and only currency-ish chars.
+    const isNumericQuery = /\d/.test(q) && /^[\d.,\s$r$]+$/i.test(q);
+    const queryDigits = q.replace(/\D/g, "");
     const filtered = q
       ? statusFiltered.filter(p => {
           const sim = simulations.find(s => s.id === stripSimId(p.id)) ||
             simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
+
+          if (isNumericQuery) {
+            if (!sim || !queryDigits) return false;
+            // Compare only against the integer reais portion of the property value
+            const valueDigits = String(Math.round(Number(sim.property_value) || 0));
+            return valueDigits.includes(queryDigits);
+          }
+
           const tipo = sim ? (sim.amortization_type || "") : "";
           const haystack = [
             p.client_name, p.property_description, p.proposal_text,
-            p.client_phone, p.client_email, tipo,
-            sim ? formatCurrency(sim.property_value) : "",
-            sim ? String(sim.property_value) : "",
+            p.client_email, tipo,
           ].filter(Boolean).join(" ").toLowerCase();
           return haystack.includes(q);
         })
