@@ -383,12 +383,14 @@ export function NegotiationsPanel(props: Props) {
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
 
+  const [simStatusOverrides, setSimStatusOverrides] = useState<Record<string, string>>(() => readSimStatusOverrides());
+
   const handleChangeStatus = (id: string, status: string) => {
     if (isSimEntry(id)) {
-      // Synthesized simulation entries are not yet a proposal — show a hint
-      // so the user knows they need to convert first by editing.
-      // We still optimistically update UI by reflecting status only locally is not possible
-      // because synthesized rows are recomputed; just skip silently.
+      // Persist override locally so the synthesized entry reflects the new status/color.
+      const simId = stripSimId(id);
+      writeSimStatusOverride(simId, status);
+      setSimStatusOverrides(prev => ({ ...prev, [simId]: status }));
       return;
     }
     onUpdateStatus(id, status);
