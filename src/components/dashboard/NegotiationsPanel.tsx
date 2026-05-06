@@ -61,9 +61,28 @@ interface Props {
 }
 
 /* ─── helpers ─── */
-function getDaysSince(dateStr: string | null | undefined, fallback: string): number {
-  const ref = dateStr || fallback;
-  return Math.floor((Date.now() - new Date(ref).getTime()) / (1000 * 60 * 60 * 24));
+/**
+ * Days since first contact (proposta criada). Nunca usa ultima_interacao —
+ * a contagem representa o tempo total da negociação desde o 1º contato e
+ * é usada em relatórios futuros de tempo médio até fechamento.
+ */
+function getDaysSinceFirstContact(createdAt: string): number {
+  return Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
+}
+
+const SIM_STATUS_OVERRIDES_KEY = "vetorpro:sim-status-overrides";
+function readSimStatusOverrides(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(SIM_STATUS_OVERRIDES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+function writeSimStatusOverride(simId: string, status: string) {
+  try {
+    const map = readSimStatusOverrides();
+    map[simId] = status;
+    localStorage.setItem(SIM_STATUS_OVERRIDES_KEY, JSON.stringify(map));
+  } catch {}
 }
 
 const STATUS_OPTIONS: { value: string; label: string; emoji: string }[] = [
