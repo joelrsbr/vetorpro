@@ -501,7 +501,7 @@ export function NegotiationsPanel(props: Props) {
       });
     }
     return [...proposals, ...synthesized];
-  }, [proposals, simulations, formatCurrency]);
+  }, [proposals, simulations, formatCurrency, simStatusOverrides]);
 
   /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
