@@ -61,9 +61,28 @@ interface Props {
 }
 
 /* ─── helpers ─── */
-function getDaysSince(dateStr: string | null | undefined, fallback: string): number {
-  const ref = dateStr || fallback;
-  return Math.floor((Date.now() - new Date(ref).getTime()) / (1000 * 60 * 60 * 24));
+/**
+ * Days since first contact (proposta criada). Nunca usa ultima_interacao —
+ * a contagem representa o tempo total da negociação desde o 1º contato e
+ * é usada em relatórios futuros de tempo médio até fechamento.
+ */
+function getDaysSinceFirstContact(createdAt: string): number {
+  return Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
+}
+
+const SIM_STATUS_OVERRIDES_KEY = "vetorpro:sim-status-overrides";
+function readSimStatusOverrides(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(SIM_STATUS_OVERRIDES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+function writeSimStatusOverride(simId: string, status: string) {
+  try {
+    const map = readSimStatusOverrides();
+    map[simId] = status;
+    localStorage.setItem(SIM_STATUS_OVERRIDES_KEY, JSON.stringify(map));
+  } catch {}
 }
 
 const STATUS_OPTIONS: { value: string; label: string; emoji: string }[] = [
@@ -201,7 +220,7 @@ function ProposalRow({
   onChangeStatus: (id: string, status: string) => void;
   activeStatusFilter?: string | null;
 }) {
-  const days = getDaysSince(p.ultima_interacao, p.created_at);
+  const days = getDaysSinceFirstContact(p.created_at);
   return (
     <div
       className={`rounded-lg border p-3 sm:p-2 sm:px-3 ${
@@ -225,7 +244,7 @@ function ProposalRow({
         <div onClick={(e) => e.stopPropagation()}>
           <StatusBadgeMenu
             status={p.status}
-            days={getDaysSince(p.ultima_interacao, p.created_at)}
+            days={getDaysSinceFirstContact(p.created_at)}
             isActive={activeStatusFilter === p.status}
             onChange={(s) => onChangeStatus(p.id, s)}
           />
@@ -304,7 +323,7 @@ function ProposalRow({
           <div className="flex items-center gap-1.5 flex-wrap">
             <StatusBadgeMenu
               status={p.status}
-              days={getDaysSince(p.ultima_interacao, p.created_at)}
+              days={getDaysSinceFirstContact(p.created_at)}
               isActive={activeStatusFilter === p.status}
               onChange={(s) => onChangeStatus(p.id, s)}
             />
@@ -364,12 +383,14 @@ export function NegotiationsPanel(props: Props) {
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
 
+  const [simStatusOverrides, setSimStatusOverrides] = useState<Record<string, string>>(() => readSimStatusOverrides());
+
   const handleChangeStatus = (id: string, status: string) => {
     if (isSimEntry(id)) {
-      // Synthesized simulation entries are not yet a proposal — show a hint
-      // so the user knows they need to convert first by editing.
-      // We still optimistically update UI by reflecting status only locally is not possible
-      // because synthesized rows are recomputed; just skip silently.
+      // Persist override locally so the synthesized entry reflects the new status/color.
+      const simId = stripSimId(id);
+      writeSimStatusOverride(simId, status);
+      setSimStatusOverrides(prev => ({ ...prev, [simId]: status }));
       return;
     }
     onUpdateStatus(id, status);
@@ -473,14 +494,14 @@ export function NegotiationsPanel(props: Props) {
         interest_savings: null,
         term_savings_months: null,
         created_at: s.created_at,
-        status: "potential",
+        status: simStatusOverrides[s.id] || "potential",
         ultima_interacao: s.created_at,
         client_phone: (s as any).client_phone ?? null,
         client_email: (s as any).client_email ?? null,
       });
     }
     return [...proposals, ...synthesized];
-  }, [proposals, simulations, formatCurrency]);
+  }, [proposals, simulations, formatCurrency, simStatusOverrides]);
 
   /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
