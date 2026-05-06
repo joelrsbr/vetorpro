@@ -339,6 +339,7 @@ function ProposalRow({
               isActive={activeStatusFilter === p.status}
               onChange={(s) => onChangeStatus(p.id, s)}
             />
+            {stalledBadge}
           </div>
           <p className="font-semibold text-sm mt-1 truncate">{p.client_name}</p>
           <p className="text-[11px] text-muted-foreground truncate">
