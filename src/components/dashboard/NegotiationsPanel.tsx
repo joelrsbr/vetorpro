@@ -220,7 +220,7 @@ function ProposalRow({
   onChangeStatus: (id: string, status: string) => void;
   activeStatusFilter?: string | null;
 }) {
-  const days = getDaysSince(p.ultima_interacao, p.created_at);
+  const days = getDaysSinceFirstContact(p.created_at);
   return (
     <div
       className={`rounded-lg border p-3 sm:p-2 sm:px-3 ${
@@ -244,7 +244,7 @@ function ProposalRow({
         <div onClick={(e) => e.stopPropagation()}>
           <StatusBadgeMenu
             status={p.status}
-            days={getDaysSince(p.ultima_interacao, p.created_at)}
+            days={getDaysSinceFirstContact(p.created_at)}
             isActive={activeStatusFilter === p.status}
             onChange={(s) => onChangeStatus(p.id, s)}
           />
@@ -323,7 +323,7 @@ function ProposalRow({
           <div className="flex items-center gap-1.5 flex-wrap">
             <StatusBadgeMenu
               status={p.status}
-              days={getDaysSince(p.ultima_interacao, p.created_at)}
+              days={getDaysSinceFirstContact(p.created_at)}
               isActive={activeStatusFilter === p.status}
               onChange={(s) => onChangeStatus(p.id, s)}
             />
