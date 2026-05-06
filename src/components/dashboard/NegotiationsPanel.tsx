@@ -252,13 +252,14 @@ function ProposalRow({
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
         </div>
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1.5">
           <StatusBadgeMenu
             status={p.status}
             days={getDaysSinceFirstContact(p.created_at)}
             isActive={activeStatusFilter === p.status}
             onChange={(s) => onChangeStatus(p.id, s)}
           />
+          {stalledBadge}
         </div>
         <div className="flex items-center shrink-0">
           {p.client_phone && (
