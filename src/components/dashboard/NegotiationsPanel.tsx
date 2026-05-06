@@ -15,6 +15,7 @@ import {
 import {
   Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
   ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown, Search, X, Filter,
+  TrendingUp, Clock, Target, AlertTriangle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -221,6 +222,16 @@ function ProposalRow({
   activeStatusFilter?: string | null;
 }) {
   const days = getDaysSinceFirstContact(p.created_at);
+  const lastInteractionDays = Math.floor(
+    (Date.now() - new Date(p.ultima_interacao || p.created_at).getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const isStalled = p.status === "negotiating" && lastInteractionDays > 7;
+  const stalledBadge = isStalled ? (
+    <Badge className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 inline-flex items-center gap-1">
+      <AlertTriangle className="h-2.5 w-2.5" />
+      Atenção: Parado
+    </Badge>
+  ) : null;
   return (
     <div
       className={`rounded-lg border p-3 sm:p-2 sm:px-3 ${
@@ -241,13 +252,14 @@ function ProposalRow({
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
         </div>
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1.5">
           <StatusBadgeMenu
             status={p.status}
             days={getDaysSinceFirstContact(p.created_at)}
             isActive={activeStatusFilter === p.status}
             onChange={(s) => onChangeStatus(p.id, s)}
           />
+          {stalledBadge}
         </div>
         <div className="flex items-center shrink-0">
           {p.client_phone && (
@@ -327,6 +339,7 @@ function ProposalRow({
               isActive={activeStatusFilter === p.status}
               onChange={(s) => onChangeStatus(p.id, s)}
             />
+            {stalledBadge}
           </div>
           <p className="font-semibold text-sm mt-1 truncate">{p.client_name}</p>
           <p className="text-[11px] text-muted-foreground truncate">
@@ -580,6 +593,86 @@ export function NegotiationsPanel(props: Props) {
     return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
   };
 
+  const stats = useMemo(() => {
+    const getPropValue = (p: CRMProposal): number => {
+      const sim = simulations.find(s => s.id === stripSimId(p.id)) ||
+        simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
+      if (sim) return Number(sim.property_value) || 0;
+      const m = (p.proposal_text || "").match(/R\$\s?([\d.,]+)/);
+      if (!m) return 0;
+      return Number(m[1].replace(/\./g, "").replace(",", ".")) || 0;
+    };
+    let vgv = 0;
+    let closedCount = 0;
+    let cycleSum = 0;
+    let cycleN = 0;
+    let activeLeads = 0;
+    for (const p of allEntries) {
+      if (p.status === "potential" || p.status === "negotiating") {
+        vgv += getPropValue(p);
+        activeLeads++;
+      } else if (p.status === "closed") {
+        closedCount++;
+        activeLeads++;
+        const start = new Date(p.created_at).getTime();
+        const end = new Date(p.ultima_interacao || p.created_at).getTime();
+        const days = Math.max(0, Math.floor((end - start) / (1000 * 60 * 60 * 24)));
+        cycleSum += days;
+        cycleN++;
+      }
+    }
+    return {
+      vgv,
+      avgCycle: cycleN > 0 ? Math.round(cycleSum / cycleN) : null,
+      conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
+      hasData: allEntries.length > 0,
+    };
+  }, [allEntries, simulations]);
+
+  const miniDashboard = (
+    <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+      {!stats.hasData ? (
+        <div className="col-span-full rounded-lg border bg-white px-3 py-3 text-center text-xs text-muted-foreground">
+          Aguardando dados para análise
+        </div>
+      ) : (
+        <>
+          <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
+            <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
+              <TrendingUp className="h-4 w-4 text-[#0b3d7f]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">VGV em Negociação</p>
+              <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
+            <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
+              <Clock className="h-4 w-4 text-[#0b3d7f]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Ciclo Médio</p>
+              <p className="text-sm font-bold text-foreground mt-0.5">
+                {stats.avgCycle !== null ? `${stats.avgCycle} dias` : "—"}
+              </p>
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
+            <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
+              <Target className="h-4 w-4 text-[#0b3d7f]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Conversão</p>
+              <p className="text-sm font-bold text-foreground mt-0.5">
+                {stats.conversion !== null ? `${stats.conversion}%` : "—"}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
   if (loadingData) {
     return (
       <div className="flex justify-center py-6">
@@ -614,6 +707,7 @@ export function NegotiationsPanel(props: Props) {
   if (clientGroups.length === 0) {
     return (
       <>
+        {miniDashboard}
         {searchBar}
         <div className="text-center py-6">
           <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
@@ -644,6 +738,7 @@ export function NegotiationsPanel(props: Props) {
 
   return (
     <>
+      {miniDashboard}
       {searchBar}
       {statusFilter && (
         <div className="mb-2 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-xs">
