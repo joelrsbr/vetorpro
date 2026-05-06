@@ -222,6 +222,16 @@ function ProposalRow({
   activeStatusFilter?: string | null;
 }) {
   const days = getDaysSinceFirstContact(p.created_at);
+  const lastInteractionDays = Math.floor(
+    (Date.now() - new Date(p.ultima_interacao || p.created_at).getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const isStalled = p.status === "negotiating" && lastInteractionDays > 7;
+  const stalledBadge = isStalled ? (
+    <Badge className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 inline-flex items-center gap-1">
+      <AlertTriangle className="h-2.5 w-2.5" />
+      Atenção: Parado
+    </Badge>
+  ) : null;
   return (
     <div
       className={`rounded-lg border p-3 sm:p-2 sm:px-3 ${
