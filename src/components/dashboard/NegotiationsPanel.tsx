@@ -494,7 +494,7 @@ export function NegotiationsPanel(props: Props) {
         interest_savings: null,
         term_savings_months: null,
         created_at: s.created_at,
-        status: "potential",
+        status: simStatusOverrides[s.id] || "potential",
         ultima_interacao: s.created_at,
         client_phone: (s as any).client_phone ?? null,
         client_email: (s as any).client_email ?? null,
