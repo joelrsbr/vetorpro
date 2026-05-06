@@ -707,6 +707,7 @@ export function NegotiationsPanel(props: Props) {
   if (clientGroups.length === 0) {
     return (
       <>
+        {miniDashboard}
         {searchBar}
         <div className="text-center py-6">
           <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
@@ -737,6 +738,7 @@ export function NegotiationsPanel(props: Props) {
 
   return (
     <>
+      {miniDashboard}
       {searchBar}
       {statusFilter && (
         <div className="mb-2 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-xs">
