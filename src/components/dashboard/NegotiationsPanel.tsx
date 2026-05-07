@@ -649,7 +649,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>Soma de imóveis nos status potencial, negociando e fechado.</TooltipContent>
+                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Soma de imóveis nos status potencial, negociando e fechado.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
@@ -666,7 +666,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>Média de dias do 1º contato até o fechamento.</TooltipContent>
+                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Média de dias do 1º contato até o fechamento.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
@@ -685,7 +685,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>Percentual de fechados sobre o total de leads.</TooltipContent>
+                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Percentual de imóveis fechados sobre o total de leads ativos.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
