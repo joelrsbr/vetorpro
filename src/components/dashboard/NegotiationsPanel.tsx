@@ -608,8 +608,9 @@ export function NegotiationsPanel(props: Props) {
     let cycleN = 0;
     let activeLeads = 0;
     for (const p of allEntries) {
+      if (p.status === "lost" || p.status === "archived") continue;
+      vgv += getPropValue(p);
       if (p.status === "potential" || p.status === "negotiating") {
-        vgv += getPropValue(p);
         activeLeads++;
       } else if (p.status === "closed") {
         closedCount++;
