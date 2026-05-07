@@ -594,20 +594,31 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
+    const findSim = (p: CRMProposal) =>
+      simulations.find(s => s.id === stripSimId(p.id)) ||
+      simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
     const getPropValue = (p: CRMProposal): number => {
-      const sim = simulations.find(s => s.id === stripSimId(p.id)) ||
-        simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
-      if (sim) return Number(sim.property_value) || 0;
-      const m = (p.proposal_text || "").match(/R\$\s?([\d.,]+)/);
-      if (!m) return 0;
-      return Number(m[1].replace(/\./g, "").replace(",", ".")) || 0;
+      const sim = findSim(p);
+      return sim ? Number(sim.property_value) || 0 : 0;
     };
+    // Deduplicate entries that point to the same underlying simulation/property
+    const seen = new Set<string>();
+    const unique: CRMProposal[] = [];
+    for (const p of allEntries) {
+      const sim = findSim(p);
+      const key = sim
+        ? `sim:${sim.id}`
+        : `k:${(p.client_name || "").trim().toLowerCase()}|${(p.property_description || "").trim().toLowerCase()}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(p);
+    }
     let vgv = 0;
     let closedCount = 0;
     let cycleSum = 0;
     let cycleN = 0;
     let activeLeads = 0;
-    for (const p of allEntries) {
+    for (const p of unique) {
       if (p.status === "lost" || p.status === "archived") continue;
       vgv += getPropValue(p);
       if (p.status === "potential" || p.status === "negotiating") {
