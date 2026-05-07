@@ -15,7 +15,7 @@ import {
 import {
   Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
   ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown, Search, X, Filter,
-  TrendingUp, Clock, Target, AlertTriangle,
+  TrendingUp, Clock, Target, AlertTriangle, Info,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
