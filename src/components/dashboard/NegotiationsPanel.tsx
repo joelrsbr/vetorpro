@@ -15,7 +15,7 @@ import {
 import {
   Eye, Pencil, Trash2, Loader2, Phone, Mail, MessageSquare,
   ChevronDown, CheckCircle2, Copy, ArrowUp, ArrowDown, ArrowUpDown, Search, X, Filter,
-  TrendingUp, Clock, Target, AlertTriangle,
+  TrendingUp, Clock, Target, AlertTriangle, Info,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -643,7 +643,15 @@ export function NegotiationsPanel(props: Props) {
               <TrendingUp className="h-4 w-4 text-[#0b3d7f]" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">VGV em Negociação</p>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
+                VGV em Negociação
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>Soma de imóveis nos status Potencial, Negociando e Fechado.</TooltipContent>
+                </Tooltip>
+              </p>
               <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
             </div>
           </div>
@@ -652,7 +660,15 @@ export function NegotiationsPanel(props: Props) {
               <Clock className="h-4 w-4 text-[#0b3d7f]" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Ciclo Médio</p>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
+                Ciclo Médio
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>Média de dias do 1º contato até o fechamento.</TooltipContent>
+                </Tooltip>
+              </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
                 {stats.avgCycle !== null ? `${stats.avgCycle} dias` : "—"}
               </p>
@@ -663,7 +679,15 @@ export function NegotiationsPanel(props: Props) {
               <Target className="h-4 w-4 text-[#0b3d7f]" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Conversão</p>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
+                Conversão
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>% de Fechados sobre o total de leads.</TooltipContent>
+                </Tooltip>
+              </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
                 {stats.conversion !== null ? `${stats.conversion}%` : "—"}
               </p>
