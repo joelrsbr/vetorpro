@@ -685,7 +685,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>% de Fechados sobre o total de leads.</TooltipContent>
+                  <TooltipContent>Percentual de fechados sobre o total de leads.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
