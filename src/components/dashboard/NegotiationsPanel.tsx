@@ -594,42 +594,37 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    // Map proposal status by simulation id (via simulation_id or by client+description match)
-    const propStatusBySimId = new Map<string, { status: string; created_at: string; ultima_interacao?: string | null }>();
-    for (const p of proposals) {
-      const anyP = p as any;
-      const simId: string | undefined = anyP.simulation_id;
-      const match = simId
-        ? simulations.find(s => s.id === simId)
-        : simulations.find(s =>
-            (s.client_name || "").trim().toLowerCase() === (p.client_name || "").trim().toLowerCase() &&
-            (s.property_description || "").trim().toLowerCase() === (p.property_description || "").trim().toLowerCase()
-          );
-      if (match) {
-        propStatusBySimId.set(match.id, { status: p.status, created_at: p.created_at, ultima_interacao: p.ultima_interacao });
-      }
-    }
-
     let vgv = 0;
     let closedCount = 0;
     let cycleSum = 0;
     let cycleN = 0;
     let activeLeads = 0;
 
-    for (const s of simulations) {
-      const fromProp = propStatusBySimId.get(s.id);
-      const status = simStatusOverrides[s.id] || fromProp?.status || "potential";
+    // Itera apenas sobre as entradas visíveis no CRM (deduplicadas em allEntries)
+    for (const p of allEntries) {
+      const status = p.status;
       if (status === "lost" || status === "archived") continue;
 
-      // VGV: somar EXCLUSIVAMENTE o valor monetário do imóvel
-      vgv += Number(s.property_value) || 0;
+      // Localiza a simulação correspondente para obter o property_value monetário
+      const sim =
+        simulations.find(s => s.id === stripSimId(p.id)) ||
+        simulations.find(s =>
+          (s.client_name || "").trim().toLowerCase() === (p.client_name || "").trim().toLowerCase() &&
+          (s.property_description || "").trim().toLowerCase() === (p.property_description || "").trim().toLowerCase()
+        );
+
+      // VGV: soma EXCLUSIVAMENTE o campo numérico property_value
+      if (sim) {
+        const v = Number(sim.property_value);
+        if (Number.isFinite(v)) vgv += v;
+      }
 
       if (status === "closed") {
         closedCount++;
         activeLeads++;
-        const startStr = fromProp?.created_at || s.created_at;
-        const endStr = fromProp?.ultima_interacao || fromProp?.created_at || s.created_at;
-        const days = Math.max(0, Math.floor((new Date(endStr).getTime() - new Date(startStr).getTime()) / (1000 * 60 * 60 * 24)));
+        const startMs = new Date(p.created_at).getTime();
+        const endMs = new Date(p.ultima_interacao || p.created_at).getTime();
+        const days = Math.max(0, Math.floor((endMs - startMs) / (1000 * 60 * 60 * 24)));
         cycleSum += days;
         cycleN++;
       } else if (status === "potential" || status === "negotiating") {
@@ -643,7 +638,7 @@ export function NegotiationsPanel(props: Props) {
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
       hasData: allEntries.length > 0,
     };
-  }, [proposals, simulations, simStatusOverrides, allEntries.length]);
+  }, [allEntries, simulations]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
