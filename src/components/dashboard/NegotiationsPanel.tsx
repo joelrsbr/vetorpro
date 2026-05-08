@@ -594,31 +594,31 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    let vgv = 0;
+    // Status efetivo de cada simulação (override local OU status da proposta vinculada)
+    const statusBySimId = new Map<string, string>();
+    for (const p of proposals) {
+      const simId = (p as any).simulation_id as string | undefined;
+      if (simId) statusBySimId.set(simId, p.status);
+    }
+    const statusOf = (s: NegotiationsSimulation) =>
+      simStatusOverrides[s.id] || statusBySimId.get(s.id) || "potential";
+
+    // VGV: soma EXCLUSIVAMENTE property_value das simulações ativas (sem duplicar)
+    const vgv = simulations
+      .filter(s => {
+        const st = statusOf(s);
+        return st !== "lost" && st !== "archived";
+      })
+      .reduce((acc, curr) => acc + (Number(curr.property_value) || 0), 0);
+
+    // Ciclo médio (fechados) e conversão a partir de allEntries
     let closedCount = 0;
     let cycleSum = 0;
     let cycleN = 0;
     let activeLeads = 0;
-
-    // Itera apenas sobre as entradas visíveis no CRM (deduplicadas em allEntries)
     for (const p of allEntries) {
       const status = p.status;
       if (status === "lost" || status === "archived") continue;
-
-      // Localiza a simulação correspondente para obter o property_value monetário
-      const sim =
-        simulations.find(s => s.id === stripSimId(p.id)) ||
-        simulations.find(s =>
-          (s.client_name || "").trim().toLowerCase() === (p.client_name || "").trim().toLowerCase() &&
-          (s.property_description || "").trim().toLowerCase() === (p.property_description || "").trim().toLowerCase()
-        );
-
-      // VGV: soma EXCLUSIVAMENTE o campo numérico property_value
-      if (sim) {
-        const v = Number(sim.property_value);
-        if (Number.isFinite(v)) vgv += v;
-      }
-
       if (status === "closed") {
         closedCount++;
         activeLeads++;
@@ -636,9 +636,9 @@ export function NegotiationsPanel(props: Props) {
       vgv,
       avgCycle: cycleN > 0 ? Math.round(cycleSum / cycleN) : null,
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
-      hasData: allEntries.length > 0,
+      hasData: allEntries.length > 0 || simulations.length > 0,
     };
-  }, [allEntries, simulations]);
+  }, [allEntries, simulations, proposals, simStatusOverrides]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
