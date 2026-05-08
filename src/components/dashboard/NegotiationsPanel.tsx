@@ -594,52 +594,56 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    const findSim = (p: CRMProposal) =>
-      simulations.find(s => s.id === stripSimId(p.id)) ||
-      simulations.find(s => (s.client_name || "") === p.client_name && (s.property_description || "") === p.property_description);
-    const getPropValue = (p: CRMProposal): number => {
-      const sim = findSim(p);
-      return sim ? Number(sim.property_value) || 0 : 0;
-    };
-    // Deduplicate entries that point to the same underlying simulation/property
-    const seen = new Set<string>();
-    const unique: CRMProposal[] = [];
-    for (const p of allEntries) {
-      const sim = findSim(p);
-      const key = sim
-        ? `sim:${sim.id}`
-        : `k:${(p.client_name || "").trim().toLowerCase()}|${(p.property_description || "").trim().toLowerCase()}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      unique.push(p);
+    // Map proposal status by simulation id (via simulation_id or by client+description match)
+    const propStatusBySimId = new Map<string, { status: string; created_at: string; ultima_interacao?: string | null }>();
+    for (const p of proposals) {
+      const anyP = p as any;
+      const simId: string | undefined = anyP.simulation_id;
+      const match = simId
+        ? simulations.find(s => s.id === simId)
+        : simulations.find(s =>
+            (s.client_name || "").trim().toLowerCase() === (p.client_name || "").trim().toLowerCase() &&
+            (s.property_description || "").trim().toLowerCase() === (p.property_description || "").trim().toLowerCase()
+          );
+      if (match) {
+        propStatusBySimId.set(match.id, { status: p.status, created_at: p.created_at, ultima_interacao: p.ultima_interacao });
+      }
     }
+
     let vgv = 0;
     let closedCount = 0;
     let cycleSum = 0;
     let cycleN = 0;
     let activeLeads = 0;
-    for (const p of unique) {
-      if (p.status === "lost" || p.status === "archived") continue;
-      vgv += getPropValue(p);
-      if (p.status === "potential" || p.status === "negotiating") {
-        activeLeads++;
-      } else if (p.status === "closed") {
+
+    for (const s of simulations) {
+      const fromProp = propStatusBySimId.get(s.id);
+      const status = simStatusOverrides[s.id] || fromProp?.status || "potential";
+      if (status === "lost" || status === "archived") continue;
+
+      // VGV: somar EXCLUSIVAMENTE o valor monetário do imóvel
+      vgv += Number(s.property_value) || 0;
+
+      if (status === "closed") {
         closedCount++;
         activeLeads++;
-        const start = new Date(p.created_at).getTime();
-        const end = new Date(p.ultima_interacao || p.created_at).getTime();
-        const days = Math.max(0, Math.floor((end - start) / (1000 * 60 * 60 * 24)));
+        const startStr = fromProp?.created_at || s.created_at;
+        const endStr = fromProp?.ultima_interacao || fromProp?.created_at || s.created_at;
+        const days = Math.max(0, Math.floor((new Date(endStr).getTime() - new Date(startStr).getTime()) / (1000 * 60 * 60 * 24)));
         cycleSum += days;
         cycleN++;
+      } else if (status === "potential" || status === "negotiating") {
+        activeLeads++;
       }
     }
+
     return {
       vgv,
       avgCycle: cycleN > 0 ? Math.round(cycleSum / cycleN) : null,
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
       hasData: allEntries.length > 0,
     };
-  }, [allEntries, simulations]);
+  }, [proposals, simulations, simStatusOverrides, allEntries.length]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
