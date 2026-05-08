@@ -659,7 +659,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Soma de imóveis nos status potencial, negociando e fechado.</TooltipContent>
+                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Soma de imóveis nos status Potencial, Negociando e Fechado.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
