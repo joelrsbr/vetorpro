@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export interface NegotiationsSimulation {
   id: string;
+  status?: string | null;
   property_value: number;
   down_payment: number;
   interest_rate: number;
@@ -55,6 +56,7 @@ interface Props {
   onEditProposal: (p: CRMProposal) => void;
   onDeleteProposal: (id: string) => void;
   onUpdateStatus: (id: string, status: string) => void;
+  onUpdateSimulationStatus: (id: string, status: string) => void;
   onCopyProposal: (text: string) => void;
   onEditSimulation: (s: NegotiationsSimulation) => void;
   onDeleteSimulation: (id: string) => void;
@@ -72,19 +74,6 @@ function getDaysSinceFirstContact(createdAt: string): number {
 }
 
 const SIM_STATUS_OVERRIDES_KEY = "vetorpro:sim-status-overrides";
-function readSimStatusOverrides(): Record<string, string> {
-  try {
-    const raw = localStorage.getItem(SIM_STATUS_OVERRIDES_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-function writeSimStatusOverride(simId: string, status: string) {
-  try {
-    const map = readSimStatusOverrides();
-    map[simId] = status;
-    localStorage.setItem(SIM_STATUS_OVERRIDES_KEY, JSON.stringify(map));
-  } catch {}
-}
 
 const STATUS_OPTIONS: { value: string; label: string; emoji: string }[] = [
   { value: "potential", label: "Potencial", emoji: "🟡" },
