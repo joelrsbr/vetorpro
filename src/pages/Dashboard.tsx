@@ -218,7 +218,6 @@ export default function Dashboard() {
     setSimulations(prev => prev.map(s => s.id === simulationId ? data as Simulation : s));
     toast({ title: "Status atualizado" });
   }, [toast]);
-  };
 
   const handleDownloadPdf = (proposal: Proposal) => {
     if (plan === "basic" || !isActive) {
@@ -692,6 +691,7 @@ export default function Dashboard() {
                   onEditProposal={(p) => { setViewProposal(null); handleAdjustProposal(p); }}
                   onDeleteProposal={handleDeleteProposal}
                   onUpdateStatus={handleUpdateStatus}
+                  onUpdateSimulationStatus={handleUpdateSimulationStatus}
                   onCopyProposal={handleCopyProposal}
                   onEditSimulation={handleEditSimulation}
                   onDeleteSimulation={handleDeleteSimulation}
