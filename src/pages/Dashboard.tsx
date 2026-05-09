@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -45,6 +45,7 @@ type Proposal = CRMProposal;
 
 interface Simulation {
   id: string;
+  status?: string | null;
   property_value: number;
   down_payment: number;
   interest_rate: number;
@@ -154,13 +155,14 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!user?.id) return;
     setLoadingData(true);
     try {
       const [proposalsRes, simulationsRes, countsRes] = await Promise.all([
         supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(50),
         supabase.from("simulations").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.rpc("get_dashboard_counts", { p_user_id: user!.id }),
+        supabase.rpc("get_dashboard_counts", { p_user_id: user.id }),
       ]);
       // Só sobrescreve se a query retornou dados; em caso de erro mantém o estado anterior
       // (evita CRM "vazio" por falha momentânea de token/rede).
@@ -172,7 +174,7 @@ export default function Dashboard() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [user?.id]);
 
   const formatCurrency = (value: number) =>
     value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -188,11 +190,34 @@ export default function Dashboard() {
   };
 
   const handleUpdateStatus = async (proposalId: string, newStatus: string) => {
-    const { error } = await supabase.from("proposals").update({ status: newStatus } as any).eq("id", proposalId);
-    if (!error) {
-      setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status: newStatus } : p));
-      toast({ title: "Status atualizado" });
+    const { data, error } = await supabase
+      .from("proposals")
+      .update({ status: newStatus } as any)
+      .eq("id", proposalId)
+      .select("*")
+      .single();
+    if (error) {
+      toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
+      return;
     }
+    setProposals(prev => prev.map(p => p.id === proposalId ? data as Proposal : p));
+    toast({ title: "Status atualizado" });
+  };
+
+  const handleUpdateSimulationStatus = useCallback(async (simulationId: string, newStatus: string) => {
+    const { data, error } = await supabase
+      .from("simulations")
+      .update({ status: newStatus } as any)
+      .eq("id", simulationId)
+      .select("*")
+      .single();
+    if (error) {
+      toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
+      return;
+    }
+    setSimulations(prev => prev.map(s => s.id === simulationId ? data as Simulation : s));
+    toast({ title: "Status atualizado" });
+  }, [toast]);
   };
 
   const handleDownloadPdf = (proposal: Proposal) => {
