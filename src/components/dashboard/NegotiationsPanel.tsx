@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export interface NegotiationsSimulation {
   id: string;
+  status?: string | null;
   property_value: number;
   down_payment: number;
   interest_rate: number;
@@ -55,6 +56,7 @@ interface Props {
   onEditProposal: (p: CRMProposal) => void;
   onDeleteProposal: (id: string) => void;
   onUpdateStatus: (id: string, status: string) => void;
+  onUpdateSimulationStatus: (id: string, status: string) => void;
   onCopyProposal: (text: string) => void;
   onEditSimulation: (s: NegotiationsSimulation) => void;
   onDeleteSimulation: (id: string) => void;
@@ -72,18 +74,9 @@ function getDaysSinceFirstContact(createdAt: string): number {
 }
 
 const SIM_STATUS_OVERRIDES_KEY = "vetorpro:sim-status-overrides";
-function readSimStatusOverrides(): Record<string, string> {
-  try {
-    const raw = localStorage.getItem(SIM_STATUS_OVERRIDES_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-function writeSimStatusOverride(simId: string, status: string) {
-  try {
-    const map = readSimStatusOverrides();
-    map[simId] = status;
-    localStorage.setItem(SIM_STATUS_OVERRIDES_KEY, JSON.stringify(map));
-  } catch {}
+
+function getSimulationStatus(sim: NegotiationsSimulation): string {
+  return sim.status || "potential";
 }
 
 const STATUS_OPTIONS: { value: string; label: string; emoji: string }[] = [
@@ -292,7 +285,7 @@ function ProposalRow({
                 <MessageSquare className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Gerar Mensagem</TooltipContent>
+            <TooltipContent>Gerar mensagem</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -390,20 +383,31 @@ export function NegotiationsPanel(props: Props) {
   const {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
-    onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus,
+    onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus, onUpdateSimulationStatus,
   } = props;
 
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
 
-  const [simStatusOverrides, setSimStatusOverrides] = useState<Record<string, string>>(() => readSimStatusOverrides());
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SIM_STATUS_OVERRIDES_KEY);
+      if (!raw) return;
+      const legacyOverrides = JSON.parse(raw) as Record<string, string>;
+      Object.entries(legacyOverrides).forEach(([simId, status]) => {
+        if (["potential", "negotiating", "closed", "lost", "archived"].includes(status)) {
+          onUpdateSimulationStatus(simId, status);
+        }
+      });
+      localStorage.removeItem(SIM_STATUS_OVERRIDES_KEY);
+    } catch {
+      localStorage.removeItem(SIM_STATUS_OVERRIDES_KEY);
+    }
+  }, [onUpdateSimulationStatus]);
 
   const handleChangeStatus = (id: string, status: string) => {
     if (isSimEntry(id)) {
-      // Persist override locally so the synthesized entry reflects the new status/color.
-      const simId = stripSimId(id);
-      writeSimStatusOverride(simId, status);
-      setSimStatusOverrides(prev => ({ ...prev, [simId]: status }));
+      onUpdateSimulationStatus(stripSimId(id), status);
       return;
     }
     onUpdateStatus(id, status);
@@ -507,14 +511,14 @@ export function NegotiationsPanel(props: Props) {
         interest_savings: null,
         term_savings_months: null,
         created_at: s.created_at,
-        status: simStatusOverrides[s.id] || "potential",
+        status: getSimulationStatus(s),
         ultima_interacao: s.created_at,
         client_phone: (s as any).client_phone ?? null,
         client_email: (s as any).client_email ?? null,
       });
     }
     return [...proposals, ...synthesized];
-  }, [proposals, simulations, formatCurrency, simStatusOverrides]);
+  }, [proposals, simulations, formatCurrency]);
 
   /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
@@ -594,22 +598,35 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    // Status efetivo de cada simulação (override local OU status da proposta vinculada)
-    const statusBySimId = new Map<string, string>();
-    for (const p of proposals) {
-      const simId = (p as any).simulation_id as string | undefined;
-      if (simId) statusBySimId.set(simId, p.status);
-    }
-    const statusOf = (s: NegotiationsSimulation) =>
-      simStatusOverrides[s.id] || statusBySimId.get(s.id) || "potential";
+    const propertyValueForEntry = (entry: CRMProposal): number => {
+      const simId = isSimEntry(entry.id) ? stripSimId(entry.id) : (entry as any).simulation_id;
+      const sim = simulations.find(s => s.id === simId) ||
+        simulations.find(s =>
+          (s.client_name || "").trim().toLowerCase() === (entry.client_name || "").trim().toLowerCase() &&
+          (s.property_description || "").trim().toLowerCase() === (entry.property_description || "").trim().toLowerCase()
+        );
 
-    // VGV: soma EXCLUSIVAMENTE property_value das simulações ativas (sem duplicar)
-    const vgv = simulations
-      .filter(s => {
-        const st = statusOf(s);
-        return st !== "lost" && st !== "archived";
-      })
-      .reduce((acc, curr) => acc + (Number(curr.property_value) || 0), 0);
+      return Number(sim?.property_value) || 0;
+    };
+
+    const latestActiveByClient = new Map<string, { entry: CRMProposal; property_value: number }>();
+    for (const item of allEntries) {
+      if (item.status === "lost" || item.status === "archived") continue;
+      const clientKey = (item.client_name || "Sem nome").trim() || "Sem nome";
+      const current = latestActiveByClient.get(clientKey);
+      const currentTime = current ? new Date(current.entry.ultima_interacao || current.entry.created_at).getTime() : -Infinity;
+      const itemTime = new Date(item.ultima_interacao || item.created_at).getTime();
+
+      if (!current || itemTime > currentTime) {
+        latestActiveByClient.set(clientKey, {
+          entry: item,
+          property_value: propertyValueForEntry(item),
+        });
+      }
+    }
+
+    const vgv = Array.from(latestActiveByClient.values())
+      .reduce((acc, item) => acc + (Number(item.property_value) || 0), 0);
 
     // Ciclo médio (fechados) e conversão a partir de allEntries
     let closedCount = 0;
@@ -638,7 +655,7 @@ export function NegotiationsPanel(props: Props) {
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
       hasData: allEntries.length > 0 || simulations.length > 0,
     };
-  }, [allEntries, simulations, proposals, simStatusOverrides]);
+  }, [allEntries, simulations, proposals]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -659,7 +676,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Soma de imóveis nos status Potencial, Negociando e Fechado.</TooltipContent>
+                  <TooltipContent className="bg-foreground text-background border-foreground">Soma de imóveis nos status potencial, negociando e fechado.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
@@ -676,7 +693,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Média de dias do 1º contato até o fechamento.</TooltipContent>
+                  <TooltipContent className="bg-foreground text-background border-foreground">Média de dias do 1º contato até o fechamento.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
@@ -695,7 +712,7 @@ export function NegotiationsPanel(props: Props) {
                   <TooltipTrigger asChild>
                     <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-[#0b1f3d] text-white border-[#0b1f3d]">Percentual de imóveis fechados sobre o total de leads ativos.</TooltipContent>
+                  <TooltipContent className="bg-foreground text-background border-foreground">Percentual de imóveis fechados sobre o total de leads ativos.</TooltipContent>
                 </Tooltip>
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5">

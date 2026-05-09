@@ -265,6 +265,7 @@ export type Database = {
             | Database["public"]["Enums"]["reinforcement_frequency"]
             | null
           reinforcement_value: number | null
+          status: string
           term_months: number
           total_interest: number
           total_paid: number
@@ -290,6 +291,7 @@ export type Database = {
             | Database["public"]["Enums"]["reinforcement_frequency"]
             | null
           reinforcement_value?: number | null
+          status?: string
           term_months: number
           total_interest: number
           total_paid: number
@@ -315,6 +317,7 @@ export type Database = {
             | Database["public"]["Enums"]["reinforcement_frequency"]
             | null
           reinforcement_value?: number | null
+          status?: string
           term_months?: number
           total_interest?: number
           total_paid?: number
