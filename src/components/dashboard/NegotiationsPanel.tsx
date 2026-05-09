@@ -511,14 +511,14 @@ export function NegotiationsPanel(props: Props) {
         interest_savings: null,
         term_savings_months: null,
         created_at: s.created_at,
-        status: simStatusOverrides[s.id] || "potential",
+        status: getSimulationStatus(s),
         ultima_interacao: s.created_at,
         client_phone: (s as any).client_phone ?? null,
         client_email: (s as any).client_email ?? null,
       });
     }
     return [...proposals, ...synthesized];
-  }, [proposals, simulations, formatCurrency, simStatusOverrides]);
+  }, [proposals, simulations, formatCurrency]);
 
   /* Group entries by client; sort each client's entries newest-first */
   const clientGroups = useMemo(() => {
@@ -605,7 +605,7 @@ export function NegotiationsPanel(props: Props) {
       if (simId) statusBySimId.set(simId, p.status);
     }
     const statusOf = (s: NegotiationsSimulation) =>
-      simStatusOverrides[s.id] || statusBySimId.get(s.id) || "potential";
+      statusBySimId.get(s.id) || getSimulationStatus(s);
 
     // VGV: soma EXCLUSIVAMENTE property_value das simulações ativas (sem duplicar)
     const vgv = simulations
@@ -642,7 +642,7 @@ export function NegotiationsPanel(props: Props) {
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
       hasData: allEntries.length > 0 || simulations.length > 0,
     };
-  }, [allEntries, simulations, proposals, simStatusOverrides]);
+  }, [allEntries, simulations, proposals]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
