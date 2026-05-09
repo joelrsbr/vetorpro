@@ -75,6 +75,10 @@ function getDaysSinceFirstContact(createdAt: string): number {
 
 const SIM_STATUS_OVERRIDES_KEY = "vetorpro:sim-status-overrides";
 
+function getSimulationStatus(sim: NegotiationsSimulation): string {
+  return sim.status || "potential";
+}
+
 const STATUS_OPTIONS: { value: string; label: string; emoji: string }[] = [
   { value: "potential", label: "Potencial", emoji: "🟡" },
   { value: "negotiating", label: "Negociando", emoji: "🔵" },
@@ -379,20 +383,31 @@ export function NegotiationsPanel(props: Props) {
   const {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
-    onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus,
+    onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus, onUpdateSimulationStatus,
   } = props;
 
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
 
-  const [simStatusOverrides, setSimStatusOverrides] = useState<Record<string, string>>(() => readSimStatusOverrides());
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SIM_STATUS_OVERRIDES_KEY);
+      if (!raw) return;
+      const legacyOverrides = JSON.parse(raw) as Record<string, string>;
+      Object.entries(legacyOverrides).forEach(([simId, status]) => {
+        if (["potential", "negotiating", "closed", "lost", "archived"].includes(status)) {
+          onUpdateSimulationStatus(simId, status);
+        }
+      });
+      localStorage.removeItem(SIM_STATUS_OVERRIDES_KEY);
+    } catch {
+      localStorage.removeItem(SIM_STATUS_OVERRIDES_KEY);
+    }
+  }, [onUpdateSimulationStatus]);
 
   const handleChangeStatus = (id: string, status: string) => {
     if (isSimEntry(id)) {
-      // Persist override locally so the synthesized entry reflects the new status/color.
-      const simId = stripSimId(id);
-      writeSimStatusOverride(simId, status);
-      setSimStatusOverrides(prev => ({ ...prev, [simId]: status }));
+      onUpdateSimulationStatus(stripSimId(id), status);
       return;
     }
     onUpdateStatus(id, status);
