@@ -598,22 +598,35 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    // Status efetivo de cada simulação (override local OU status da proposta vinculada)
-    const statusBySimId = new Map<string, string>();
-    for (const p of proposals) {
-      const simId = (p as any).simulation_id as string | undefined;
-      if (simId) statusBySimId.set(simId, p.status);
-    }
-    const statusOf = (s: NegotiationsSimulation) =>
-      statusBySimId.get(s.id) || getSimulationStatus(s);
+    const propertyValueForEntry = (entry: CRMProposal): number => {
+      const simId = isSimEntry(entry.id) ? stripSimId(entry.id) : (entry as any).simulation_id;
+      const sim = simulations.find(s => s.id === simId) ||
+        simulations.find(s =>
+          (s.client_name || "").trim().toLowerCase() === (entry.client_name || "").trim().toLowerCase() &&
+          (s.property_description || "").trim().toLowerCase() === (entry.property_description || "").trim().toLowerCase()
+        );
 
-    // VGV: soma EXCLUSIVAMENTE property_value das simulações ativas (sem duplicar)
-    const vgv = simulations
-      .filter(s => {
-        const st = statusOf(s);
-        return st !== "lost" && st !== "archived";
-      })
-      .reduce((acc, curr) => acc + (Number(curr.property_value) || 0), 0);
+      return Number(sim?.property_value) || 0;
+    };
+
+    const latestActiveByClient = new Map<string, { entry: CRMProposal; property_value: number }>();
+    for (const item of allEntries) {
+      if (item.status === "lost" || item.status === "archived") continue;
+      const clientKey = (item.client_name || "Sem nome").trim() || "Sem nome";
+      const current = latestActiveByClient.get(clientKey);
+      const currentTime = current ? new Date(current.entry.ultima_interacao || current.entry.created_at).getTime() : -Infinity;
+      const itemTime = new Date(item.ultima_interacao || item.created_at).getTime();
+
+      if (!current || itemTime > currentTime) {
+        latestActiveByClient.set(clientKey, {
+          entry: item,
+          property_value: propertyValueForEntry(item),
+        });
+      }
+    }
+
+    const vgv = Array.from(latestActiveByClient.values())
+      .reduce((acc, item) => acc + (Number(item.property_value) || 0), 0);
 
     // Ciclo médio (fechados) e conversão a partir de allEntries
     let closedCount = 0;
