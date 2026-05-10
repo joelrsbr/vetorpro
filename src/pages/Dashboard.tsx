@@ -747,6 +747,7 @@ export default function Dashboard() {
                   onEditSimulation={handleEditSimulation}
                   onDeleteSimulation={handleDeleteSimulation}
                   onPaywall={() => setShowPaywall(true)}
+                  onTogglePrimary={handleTogglePrimary}
                 />
               </CardContent>
             </Card>
