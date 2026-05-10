@@ -59,6 +59,7 @@ interface Simulation {
   property_description: string | null;
   client_phone?: string | null;
   client_email?: string | null;
+  is_primary?: boolean | null;
 }
 
 
@@ -218,6 +219,56 @@ export default function Dashboard() {
     setSimulations(prev => prev.map(s => s.id === simulationId ? data as Simulation : s));
     toast({ title: "Status atualizado" });
   }, [toast]);
+
+  /**
+   * Marca uma simulação como "Proposta Principal" daquele cliente.
+   * Apenas UMA simulação por cliente pode estar ativa: as demais do mesmo
+   * cliente são desativadas automaticamente. Persiste no Supabase antes de
+   * atualizar o estado local para evitar regressão visual.
+   */
+  const handleTogglePrimary = useCallback(async (simulationId: string) => {
+    if (!user?.id) return;
+    const target = simulations.find(s => s.id === simulationId);
+    if (!target) return;
+    const willActivate = !target.is_primary;
+    const clientKey = (target.client_name || "").trim().toLowerCase();
+
+    // IDs do mesmo cliente que devem ser desativados
+    const siblingIds = simulations
+      .filter(s =>
+        s.id !== simulationId &&
+        (s.client_name || "").trim().toLowerCase() === clientKey &&
+        s.is_primary
+      )
+      .map(s => s.id);
+
+    try {
+      if (siblingIds.length > 0) {
+        const { error: clearErr } = await supabase
+          .from("simulations")
+          .update({ is_primary: false } as any)
+          .in("id", siblingIds);
+        if (clearErr) throw clearErr;
+      }
+      const { error } = await supabase
+        .from("simulations")
+        .update({ is_primary: willActivate } as any)
+        .eq("id", simulationId);
+      if (error) throw error;
+
+      setSimulations(prev => prev.map(s => {
+        if (s.id === simulationId) return { ...s, is_primary: willActivate };
+        if (siblingIds.includes(s.id)) return { ...s, is_primary: false };
+        return s;
+      }));
+    } catch (err: any) {
+      toast({
+        title: "Não foi possível atualizar a Proposta Principal",
+        description: err?.message ?? "Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  }, [simulations, user?.id, toast]);
 
   const handleDownloadPdf = (proposal: Proposal) => {
     if (plan === "basic" || !isActive) {
