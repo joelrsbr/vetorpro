@@ -646,35 +646,17 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    const propertyValueForEntry = (entry: CRMProposal): number => {
-      const simId = isSimEntry(entry.id) ? stripSimId(entry.id) : (entry as any).simulation_id;
-      const sim = simulations.find(s => s.id === simId) ||
-        simulations.find(s =>
-          (s.client_name || "").trim().toLowerCase() === (entry.client_name || "").trim().toLowerCase() &&
-          (s.property_description || "").trim().toLowerCase() === (entry.property_description || "").trim().toLowerCase()
-        );
-
-      return Number(sim?.property_value) || 0;
-    };
-
-    const latestActiveByClient = new Map<string, { entry: CRMProposal; property_value: number }>();
-    for (const item of allEntries) {
-      if (item.status === "lost" || item.status === "archived") continue;
-      const clientKey = (item.client_name || "Sem nome").trim() || "Sem nome";
-      const current = latestActiveByClient.get(clientKey);
-      const currentTime = current ? new Date(current.entry.ultima_interacao || current.entry.created_at).getTime() : -Infinity;
-      const itemTime = new Date(item.ultima_interacao || item.created_at).getTime();
-
-      if (!current || itemTime > currentTime) {
-        latestActiveByClient.set(clientKey, {
-          entry: item,
-          property_value: propertyValueForEntry(item),
-        });
-      }
-    }
-
-    const vgv = Array.from(latestActiveByClient.values())
-      .reduce((acc, item) => acc + (Number(item.property_value) || 0), 0);
+    /**
+     * VGV qualificado: SOMA EXCLUSIVAMENTE o property_value das simulações
+     * marcadas como "Proposta Principal" (is_primary = true), excluindo
+     * Perdido/Arquivado. Cliente sem proposta marcada contribui com ZERO.
+     */
+    const vgv = simulations.reduce((acc, sim) => {
+      if (!sim.is_primary) return acc;
+      const status = sim.status || "potential";
+      if (status === "lost" || status === "archived") return acc;
+      return acc + (Number(sim.property_value) || 0);
+    }, 0);
 
     // Ciclo médio (fechados) e conversão a partir de allEntries
     let closedCount = 0;
@@ -703,7 +685,7 @@ export function NegotiationsPanel(props: Props) {
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
       hasData: allEntries.length > 0 || simulations.length > 0,
     };
-  }, [allEntries, simulations, proposals]);
+  }, [allEntries, simulations]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
