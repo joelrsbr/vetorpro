@@ -258,6 +258,7 @@ export type Database = {
             | null
           id: string
           interest_rate: number
+          is_primary: boolean
           monthly_payment: number
           property_description: string | null
           property_value: number
@@ -284,6 +285,7 @@ export type Database = {
             | null
           id?: string
           interest_rate: number
+          is_primary?: boolean
           monthly_payment: number
           property_description?: string | null
           property_value: number
@@ -310,6 +312,7 @@ export type Database = {
             | null
           id?: string
           interest_rate?: number
+          is_primary?: boolean
           monthly_payment?: number
           property_description?: string | null
           property_value?: number

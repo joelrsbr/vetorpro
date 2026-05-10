@@ -26,10 +26,12 @@ import { Link } from "react-router-dom";
 import { CRMProposal } from "./ProposalsCRM";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { VIcon } from "./VIcon";
 
 export interface NegotiationsSimulation {
   id: string;
   status?: string | null;
+  is_primary?: boolean | null;
   property_value: number;
   down_payment: number;
   interest_rate: number;
@@ -61,6 +63,7 @@ interface Props {
   onEditSimulation: (s: NegotiationsSimulation) => void;
   onDeleteSimulation: (id: string) => void;
   onPaywall: () => void;
+  onTogglePrimary: (simulationId: string) => void | Promise<void>;
 }
 
 /* ─── helpers ─── */
@@ -191,6 +194,9 @@ function ProposalRow({
   p,
   formatDateShort,
   isPrimary,
+  isPrimarySimulation,
+  hasSimulation,
+  onTogglePrimary,
   onView,
   onEdit,
   onDelete,
@@ -204,6 +210,9 @@ function ProposalRow({
   p: CRMProposal;
   formatDateShort: (d: Date) => string;
   isPrimary: boolean;
+  isPrimarySimulation: boolean;
+  hasSimulation: boolean;
+  onTogglePrimary?: () => void;
   onView: (p: CRMProposal) => void;
   onEdit: (p: CRMProposal) => void;
   onDelete: (id: string) => void;
@@ -225,6 +234,25 @@ function ProposalRow({
       Atenção: Parado
     </Badge>
   ) : null;
+  const primaryButton = hasSimulation && onTogglePrimary ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onTogglePrimary(); }}
+          className="rounded-md p-1 transition-transform hover:scale-110 hover:bg-muted/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-pressed={isPrimarySimulation}
+          aria-label={isPrimarySimulation ? "Remover como Proposta Principal" : "Marcar como Proposta Principal"}
+        >
+          <VIcon active={isPrimarySimulation} size={24} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="bg-foreground text-background border-foreground">
+        {isPrimarySimulation ? "Proposta principal deste cliente" : "Marcar como proposta principal"}
+      </TooltipContent>
+    </Tooltip>
+  ) : null;
+
   return (
     <div
       className={`rounded-lg border p-3 sm:p-2 sm:px-3 ${
@@ -233,6 +261,7 @@ function ProposalRow({
     >
       {/* Desktop */}
       <div className="hidden sm:flex items-center gap-2">
+        {primaryButton}
         <div className="hidden md:flex flex-col items-start shrink-0 w-[72px]">
           <span className="text-[9px] uppercase tracking-wide text-muted-foreground/70 leading-none">1º contato</span>
           <span className="text-[11px] font-medium tabular-nums text-foreground/80 mt-0.5">
@@ -326,6 +355,7 @@ function ProposalRow({
       <div className="sm:hidden space-y-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
+            {primaryButton}
             <StatusBadgeMenu
               status={p.status}
               days={getDaysSinceFirstContact(p.created_at)}
@@ -384,7 +414,25 @@ export function NegotiationsPanel(props: Props) {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
     onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus, onUpdateSimulationStatus,
+    onTogglePrimary,
   } = props;
+
+  /** Resolve a CRM entry → underlying simulation (sim entry, simulation_id, or client+desc match). */
+  const findSimulationFor = (entry: CRMProposal): NegotiationsSimulation | undefined => {
+    const simId = entry.id.startsWith("sim:")
+      ? entry.id.replace(/^sim:/, "")
+      : (entry as any).simulation_id;
+    if (simId) {
+      const direct = simulations.find(s => s.id === simId);
+      if (direct) return direct;
+    }
+    const clientKey = (entry.client_name || "").trim().toLowerCase();
+    const descKey = (entry.property_description || "").trim().toLowerCase();
+    return simulations.find(s =>
+      (s.client_name || "").trim().toLowerCase() === clientKey &&
+      (s.property_description || "").trim().toLowerCase() === descKey
+    );
+  };
 
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
@@ -598,35 +646,17 @@ export function NegotiationsPanel(props: Props) {
   };
 
   const stats = useMemo(() => {
-    const propertyValueForEntry = (entry: CRMProposal): number => {
-      const simId = isSimEntry(entry.id) ? stripSimId(entry.id) : (entry as any).simulation_id;
-      const sim = simulations.find(s => s.id === simId) ||
-        simulations.find(s =>
-          (s.client_name || "").trim().toLowerCase() === (entry.client_name || "").trim().toLowerCase() &&
-          (s.property_description || "").trim().toLowerCase() === (entry.property_description || "").trim().toLowerCase()
-        );
-
-      return Number(sim?.property_value) || 0;
-    };
-
-    const latestActiveByClient = new Map<string, { entry: CRMProposal; property_value: number }>();
-    for (const item of allEntries) {
-      if (item.status === "lost" || item.status === "archived") continue;
-      const clientKey = (item.client_name || "Sem nome").trim() || "Sem nome";
-      const current = latestActiveByClient.get(clientKey);
-      const currentTime = current ? new Date(current.entry.ultima_interacao || current.entry.created_at).getTime() : -Infinity;
-      const itemTime = new Date(item.ultima_interacao || item.created_at).getTime();
-
-      if (!current || itemTime > currentTime) {
-        latestActiveByClient.set(clientKey, {
-          entry: item,
-          property_value: propertyValueForEntry(item),
-        });
-      }
-    }
-
-    const vgv = Array.from(latestActiveByClient.values())
-      .reduce((acc, item) => acc + (Number(item.property_value) || 0), 0);
+    /**
+     * VGV qualificado: SOMA EXCLUSIVAMENTE o property_value das simulações
+     * marcadas como "Proposta Principal" (is_primary = true), excluindo
+     * Perdido/Arquivado. Cliente sem proposta marcada contribui com ZERO.
+     */
+    const vgv = simulations.reduce((acc, sim) => {
+      if (!sim.is_primary) return acc;
+      const status = sim.status || "potential";
+      if (status === "lost" || status === "archived") return acc;
+      return acc + (Number(sim.property_value) || 0);
+    }, 0);
 
     // Ciclo médio (fechados) e conversão a partir de allEntries
     let closedCount = 0;
@@ -655,7 +685,7 @@ export function NegotiationsPanel(props: Props) {
       conversion: activeLeads > 0 ? Math.round((closedCount / activeLeads) * 100) : null,
       hasData: allEntries.length > 0 || simulations.length > 0,
     };
-  }, [allEntries, simulations, proposals]);
+  }, [allEntries, simulations]);
 
   const miniDashboard = (
     <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -665,23 +695,39 @@ export function NegotiationsPanel(props: Props) {
         </div>
       ) : (
         <>
-          <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
-            <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
-              <TrendingUp className="h-4 w-4 text-[#0b3d7f]" />
+          {stats.vgv > 0 ? (
+            <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
+              <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
+                <VIcon active={false} size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
+                  VGV em Negociação
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-foreground text-background border-foreground">Soma do valor das propostas marcadas como principal por cliente.</TooltipContent>
+                  </Tooltip>
+                </p>
+                <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
-                VGV em Negociação
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-foreground text-background border-foreground">Soma de imóveis nos status potencial, negociando e fechado.</TooltipContent>
-                </Tooltip>
-              </p>
-              <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
+          ) : (
+            <div className="rounded-lg border border-dashed bg-white px-3 py-2.5 flex items-center gap-2.5">
+              <div className="rounded-md bg-muted/50 p-1.5 shrink-0">
+                <VIcon active={false} size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">
+                  VGV em Negociação
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Marque uma proposta principal para qualificar o VGV
+                </p>
+              </div>
             </div>
-          </div>
+          )}
           <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
             <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
               <Clock className="h-4 w-4 text-[#0b3d7f]" />
@@ -838,19 +884,27 @@ export function NegotiationsPanel(props: Props) {
           const isExpanded = expandedClients.has(g.client);
           return (
             <div key={g.client} className="space-y-1.5">
-              <ProposalRow
-                p={g.primary}
-                formatDateShort={formatDateShort}
-                isPrimary
-                onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onMessage={(p) => setMsgModal(p)}
-                onContactToday={(p) => setConfirmContact(p)}
-                onCopy={handleCopy}
-                onChangeStatus={handleChangeStatus}
-                activeStatusFilter={statusFilter}
-              />
+              {(() => {
+                const sim = findSimulationFor(g.primary);
+                return (
+                  <ProposalRow
+                    p={g.primary}
+                    formatDateShort={formatDateShort}
+                    isPrimary
+                    hasSimulation={!!sim}
+                    isPrimarySimulation={!!sim?.is_primary}
+                    onTogglePrimary={sim ? () => onTogglePrimary(sim.id) : undefined}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onMessage={(p) => setMsgModal(p)}
+                    onContactToday={(p) => setConfirmContact(p)}
+                    onCopy={handleCopy}
+                    onChangeStatus={handleChangeStatus}
+                    activeStatusFilter={statusFilter}
+                  />
+                );
+              })()}
               {hasOthers && (
                 <Collapsible open={isExpanded} onOpenChange={() => toggleClient(g.client)}>
                   <CollapsibleTrigger asChild>
@@ -863,22 +917,28 @@ export function NegotiationsPanel(props: Props) {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="ml-4 mt-1.5 space-y-1.5 border-l-2 border-border/40 pl-2">
-                      {g.others.map((p) => (
-                        <ProposalRow
-                          key={p.id}
-                          p={p}
-                          formatDateShort={formatDateShort}
-                          isPrimary={false}
-                          onView={handleView}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onMessage={(pp) => setMsgModal(pp)}
-                          onContactToday={(pp) => setConfirmContact(pp)}
-                          onCopy={handleCopy}
-                          onChangeStatus={handleChangeStatus}
-                          activeStatusFilter={statusFilter}
-                        />
-                      ))}
+                      {g.others.map((p) => {
+                        const sim = findSimulationFor(p);
+                        return (
+                          <ProposalRow
+                            key={p.id}
+                            p={p}
+                            formatDateShort={formatDateShort}
+                            isPrimary={false}
+                            hasSimulation={!!sim}
+                            isPrimarySimulation={!!sim?.is_primary}
+                            onTogglePrimary={sim ? () => onTogglePrimary(sim.id) : undefined}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onMessage={(pp) => setMsgModal(pp)}
+                            onContactToday={(pp) => setConfirmContact(pp)}
+                            onCopy={handleCopy}
+                            onChangeStatus={handleChangeStatus}
+                            activeStatusFilter={statusFilter}
+                          />
+                        );
+                      })}
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
