@@ -234,6 +234,25 @@ function ProposalRow({
       Atenção: Parado
     </Badge>
   ) : null;
+  const primaryButton = hasSimulation && onTogglePrimary ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onTogglePrimary(); }}
+          className="rounded-md p-1 transition-transform hover:scale-110 hover:bg-muted/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-pressed={isPrimarySimulation}
+          aria-label={isPrimarySimulation ? "Remover como Proposta Principal" : "Marcar como Proposta Principal"}
+        >
+          <VIcon active={isPrimarySimulation} size={24} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="bg-foreground text-background border-foreground">
+        {isPrimarySimulation ? "Proposta principal deste cliente" : "Marcar como proposta principal"}
+      </TooltipContent>
+    </Tooltip>
+  ) : null;
+
   return (
     <div
       className={`rounded-lg border p-3 sm:p-2 sm:px-3 ${
@@ -242,6 +261,7 @@ function ProposalRow({
     >
       {/* Desktop */}
       <div className="hidden sm:flex items-center gap-2">
+        {primaryButton}
         <div className="hidden md:flex flex-col items-start shrink-0 w-[72px]">
           <span className="text-[9px] uppercase tracking-wide text-muted-foreground/70 leading-none">1º contato</span>
           <span className="text-[11px] font-medium tabular-nums text-foreground/80 mt-0.5">
