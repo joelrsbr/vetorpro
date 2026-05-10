@@ -194,6 +194,9 @@ function ProposalRow({
   p,
   formatDateShort,
   isPrimary,
+  isPrimarySimulation,
+  hasSimulation,
+  onTogglePrimary,
   onView,
   onEdit,
   onDelete,
@@ -207,6 +210,9 @@ function ProposalRow({
   p: CRMProposal;
   formatDateShort: (d: Date) => string;
   isPrimary: boolean;
+  isPrimarySimulation: boolean;
+  hasSimulation: boolean;
+  onTogglePrimary?: () => void;
   onView: (p: CRMProposal) => void;
   onEdit: (p: CRMProposal) => void;
   onDelete: (id: string) => void;
