@@ -1,0 +1,2 @@
+ALTER TABLE public.simulations ADD COLUMN IF NOT EXISTS is_primary boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS idx_simulations_user_primary ON public.simulations(user_id, is_primary) WHERE is_primary = true;
