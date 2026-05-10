@@ -355,6 +355,7 @@ function ProposalRow({
       <div className="sm:hidden space-y-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
+            {primaryButton}
             <StatusBadgeMenu
               status={p.status}
               days={getDaysSinceFirstContact(p.created_at)}
