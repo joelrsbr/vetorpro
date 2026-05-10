@@ -414,7 +414,25 @@ export function NegotiationsPanel(props: Props) {
     proposals, setProposals, simulations, loadingData,
     formatCurrency, onViewProposal, onEditProposal, onDeleteProposal,
     onCopyProposal, onEditSimulation, onDeleteSimulation, onUpdateStatus, onUpdateSimulationStatus,
+    onTogglePrimary,
   } = props;
+
+  /** Resolve a CRM entry → underlying simulation (sim entry, simulation_id, or client+desc match). */
+  const findSimulationFor = (entry: CRMProposal): NegotiationsSimulation | undefined => {
+    const simId = entry.id.startsWith("sim:")
+      ? entry.id.replace(/^sim:/, "")
+      : (entry as any).simulation_id;
+    if (simId) {
+      const direct = simulations.find(s => s.id === simId);
+      if (direct) return direct;
+    }
+    const clientKey = (entry.client_name || "").trim().toLowerCase();
+    const descKey = (entry.property_description || "").trim().toLowerCase();
+    return simulations.find(s =>
+      (s.client_name || "").trim().toLowerCase() === clientKey &&
+      (s.property_description || "").trim().toLowerCase() === descKey
+    );
+  };
 
   const isSimEntry = (id: string) => id.startsWith("sim:");
   const stripSimId = (id: string) => id.replace(/^sim:/, "");
