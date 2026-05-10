@@ -695,23 +695,39 @@ export function NegotiationsPanel(props: Props) {
         </div>
       ) : (
         <>
-          <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
-            <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
-              <TrendingUp className="h-4 w-4 text-[#0b3d7f]" />
+          {stats.vgv > 0 ? (
+            <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
+              <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
+                <VIcon active={false} size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
+                  VGV em Negociação
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-foreground text-background border-foreground">Soma do valor das propostas marcadas como principal por cliente.</TooltipContent>
+                  </Tooltip>
+                </p>
+                <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none flex items-center gap-1">
-                VGV em Negociação
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3 w-3 text-muted-foreground/70 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-foreground text-background border-foreground">Soma de imóveis nos status potencial, negociando e fechado.</TooltipContent>
-                </Tooltip>
-              </p>
-              <p className="text-sm font-bold text-foreground mt-0.5 truncate">{formatCurrency(stats.vgv)}</p>
+          ) : (
+            <div className="rounded-lg border border-dashed bg-white px-3 py-2.5 flex items-center gap-2.5">
+              <div className="rounded-md bg-muted/50 p-1.5 shrink-0">
+                <VIcon active={false} size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">
+                  VGV em Negociação
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Marque uma proposta principal para qualificar o VGV
+                </p>
+              </div>
             </div>
-          </div>
+          )}
           <div className="rounded-lg border bg-white px-3 py-2.5 flex items-center gap-2.5">
             <div className="rounded-md bg-[#0b3d7f]/10 p-1.5 shrink-0">
               <Clock className="h-4 w-4 text-[#0b3d7f]" />
