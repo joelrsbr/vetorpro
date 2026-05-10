@@ -884,19 +884,27 @@ export function NegotiationsPanel(props: Props) {
           const isExpanded = expandedClients.has(g.client);
           return (
             <div key={g.client} className="space-y-1.5">
-              <ProposalRow
-                p={g.primary}
-                formatDateShort={formatDateShort}
-                isPrimary
-                onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onMessage={(p) => setMsgModal(p)}
-                onContactToday={(p) => setConfirmContact(p)}
-                onCopy={handleCopy}
-                onChangeStatus={handleChangeStatus}
-                activeStatusFilter={statusFilter}
-              />
+              {(() => {
+                const sim = findSimulationFor(g.primary);
+                return (
+                  <ProposalRow
+                    p={g.primary}
+                    formatDateShort={formatDateShort}
+                    isPrimary
+                    hasSimulation={!!sim}
+                    isPrimarySimulation={!!sim?.is_primary}
+                    onTogglePrimary={sim ? () => onTogglePrimary(sim.id) : undefined}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onMessage={(p) => setMsgModal(p)}
+                    onContactToday={(p) => setConfirmContact(p)}
+                    onCopy={handleCopy}
+                    onChangeStatus={handleChangeStatus}
+                    activeStatusFilter={statusFilter}
+                  />
+                );
+              })()}
               {hasOthers && (
                 <Collapsible open={isExpanded} onOpenChange={() => toggleClient(g.client)}>
                   <CollapsibleTrigger asChild>
