@@ -917,22 +917,28 @@ export function NegotiationsPanel(props: Props) {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="ml-4 mt-1.5 space-y-1.5 border-l-2 border-border/40 pl-2">
-                      {g.others.map((p) => (
-                        <ProposalRow
-                          key={p.id}
-                          p={p}
-                          formatDateShort={formatDateShort}
-                          isPrimary={false}
-                          onView={handleView}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onMessage={(pp) => setMsgModal(pp)}
-                          onContactToday={(pp) => setConfirmContact(pp)}
-                          onCopy={handleCopy}
-                          onChangeStatus={handleChangeStatus}
-                          activeStatusFilter={statusFilter}
-                        />
-                      ))}
+                      {g.others.map((p) => {
+                        const sim = findSimulationFor(p);
+                        return (
+                          <ProposalRow
+                            key={p.id}
+                            p={p}
+                            formatDateShort={formatDateShort}
+                            isPrimary={false}
+                            hasSimulation={!!sim}
+                            isPrimarySimulation={!!sim?.is_primary}
+                            onTogglePrimary={sim ? () => onTogglePrimary(sim.id) : undefined}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onMessage={(pp) => setMsgModal(pp)}
+                            onContactToday={(pp) => setConfirmContact(pp)}
+                            onCopy={handleCopy}
+                            onChangeStatus={handleChangeStatus}
+                            activeStatusFilter={statusFilter}
+                          />
+                        );
+                      })}
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
