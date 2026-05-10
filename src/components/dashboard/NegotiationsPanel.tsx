@@ -26,10 +26,12 @@ import { Link } from "react-router-dom";
 import { CRMProposal } from "./ProposalsCRM";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { VIcon } from "./VIcon";
 
 export interface NegotiationsSimulation {
   id: string;
   status?: string | null;
+  is_primary?: boolean | null;
   property_value: number;
   down_payment: number;
   interest_rate: number;
@@ -61,6 +63,7 @@ interface Props {
   onEditSimulation: (s: NegotiationsSimulation) => void;
   onDeleteSimulation: (id: string) => void;
   onPaywall: () => void;
+  onTogglePrimary: (simulationId: string) => void | Promise<void>;
 }
 
 /* ─── helpers ─── */
