@@ -206,9 +206,14 @@ export default function Dashboard() {
   };
 
   const handleUpdateSimulationStatus = useCallback(async (simulationId: string, newStatus: string) => {
+    // Status Perdido/Arquivado desqualificam automaticamente do VGV (is_primary = false).
+    const blocksPrimary = newStatus === "lost" || newStatus === "archived";
+    const patch: Record<string, unknown> = { status: newStatus };
+    if (blocksPrimary) patch.is_primary = false;
+
     const { data, error } = await supabase
       .from("simulations")
-      .update({ status: newStatus } as any)
+      .update(patch as any)
       .eq("id", simulationId)
       .select("*")
       .single();
@@ -230,6 +235,15 @@ export default function Dashboard() {
     if (!user?.id) return;
     const target = simulations.find(s => s.id === simulationId);
     if (!target) return;
+    const targetStatus = (target as any).status || "potential";
+    if (targetStatus === "lost" || targetStatus === "archived") {
+      toast({
+        title: "Bloqueado por status",
+        description: "Propostas Perdidas ou Arquivadas não podem ser marcadas como principais.",
+        variant: "destructive",
+      });
+      return;
+    }
     const willActivate = !target.is_primary;
     const clientKey = (target.client_name || "").trim().toLowerCase();
 
