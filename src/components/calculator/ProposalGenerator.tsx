@@ -105,7 +105,7 @@ export function ProposalGenerator({
           salesArguments: isBusiness && salesArguments.trim() ? salesArguments.trim() : undefined,
           clientPhone: clientPhone?.trim() || undefined,
           clientEmail: clientEmail?.trim() || undefined,
-          consultantName: profile?.full_name || undefined,
+          consultantName: (profile as any)?.display_name || profile?.full_name || undefined,
           idempotencyKey,
         },
       });
