@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, User, Loader2, ArrowLeft } from "lucide-react";
-import vetorproLogo from "@/assets/vetorpro-logo-login.png";
+import vetorproLogo from "@/assets/vetorpro-logo.svg";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutUrl, getCheckoutPlanFromValue, getPendingCheckoutPlan } from "@/lib/checkout";
