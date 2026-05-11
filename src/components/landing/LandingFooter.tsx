@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Mail } from "lucide-react";
 import { useState } from "react";
 import { InstitutionalModal } from "@/components/layout/InstitutionalModal";
 
@@ -13,12 +12,6 @@ export function LandingFooter() {
           O VetorPro é uma plataforma profissional exclusiva. Não há versão gratuita. Planos corporativos acima de 5 usuários sob consulta. As simulações são baseadas em parâmetros técnicos para facilitar as negociações imobiliárias. Sempre consulte as condições oficiais da sua instituição financeira.
         </p>
         <div className="mx-auto h-px w-12 bg-border/40" />
-        <div className="flex items-center justify-center gap-2 text-[11px] opacity-70">
-          <Mail className="h-3 w-3 shrink-0" />
-          <a href="mailto:suporte@vetorpro.com.br" className="transition-opacity hover:opacity-100">
-            suporte@vetorpro.com.br
-          </a>
-        </div>
         <div className="flex items-center justify-center gap-4 text-[10px] opacity-70">
           <Link to="/termos-de-uso" className="transition-opacity hover:opacity-100">
             Termos de Uso
@@ -32,7 +25,8 @@ export function LandingFooter() {
           © 2026 VetorPro – Operado por{" "}
           <button
             onClick={() => setShowInstitutional(true)}
-            className="underline underline-offset-2 transition-opacity hover:opacity-100"
+            className="cursor-pointer bg-transparent p-0 no-underline"
+            style={{ color: "inherit", fontWeight: "inherit" }}
           >
             J-RSBR (I.S.)
           </button>
