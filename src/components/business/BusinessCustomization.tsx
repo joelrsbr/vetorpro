@@ -198,14 +198,35 @@ export function BusinessCustomization() {
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="companyName">Nome da Empresa/Time</Label>
+              <Label htmlFor="companyName">Empresa / imobiliária</Label>
               <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Imobiliária Premium" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="consultantName">Nome do Consultor</Label>
-              <Input id="consultantName" value={consultantName} onChange={(e) => setConsultantName(e.target.value)} placeholder="Ex: João Silva" />
+              <Label htmlFor="displayName">Nome do consultor</Label>
+              <Input
+                id="displayName"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder={accountHolder ? `Ex: ${accountHolder.split(" ")[0]} Silva` : "Ex: João Silva"}
+              />
+              <p className="text-xs text-muted-foreground">
+                Como você aparecerá nos relatórios e simulações. Se deixado em branco, usaremos seu nome de cadastro.
+              </p>
             </div>
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2">
+              <Label htmlFor="accountHolder">Titular da conta (dados fiscais)</Label>
+              <Input
+                id="accountHolder"
+                value={accountHolder}
+                readOnly
+                disabled
+                className="bg-muted/50 cursor-not-allowed"
+              />
+              <p className="text-xs text-muted-foreground">
+                Para alterar o titular da conta, entre em contato com o suporte.
+              </p>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="creci">CRECI</Label>
               <Input id="creci" value={creci} onChange={(e) => setCreci(e.target.value)} placeholder="Ex: CRECI 12345-F" />
             </div>
