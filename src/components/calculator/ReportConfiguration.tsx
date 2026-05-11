@@ -123,7 +123,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
   const p = (profile || {}) as any;
   const logoUrl: string | null = p.logo_url || null;
   const companyName: string = p.company || "";
-  const consultantName: string = p.full_name || "";
+  const consultantName: string = (p.display_name || p.full_name || "");
   const creci: string = p.creci || "";
 
   const socialItems = isBusiness
