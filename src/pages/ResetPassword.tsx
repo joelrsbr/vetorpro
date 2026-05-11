@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Lock, Loader2, Info } from "lucide-react";
-import vetorproLogo from "@/assets/vetorpro-logo-login.png";
+import vetorproLogo from "@/assets/vetorpro-logo.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
