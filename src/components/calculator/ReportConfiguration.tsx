@@ -49,7 +49,7 @@ export function ReportConfiguration({ onConfigChange }: ReportConfigurationProps
     const fromProfile = {
       logoUrl: isBasic ? null : (p.logo_url || null),
       companyName: p.company || "",
-      consultantName: isBasic ? basicName : (p.full_name || ""),
+      consultantName: isBasic ? basicName : (p.display_name || p.full_name || ""),
       creci: isBasic ? basicCreci : (p.creci || ""),
       socials: isBusiness
         ? {
