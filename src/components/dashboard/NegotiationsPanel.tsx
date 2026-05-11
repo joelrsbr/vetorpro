@@ -299,7 +299,10 @@ function ProposalRow({
           </span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-xs truncate">{p.client_name}</p>
+          <p className="font-semibold text-xs truncate flex items-center gap-1.5">
+            <span className="truncate">{p.client_name}</span>
+            {qualifiedBadge}
+          </p>
           <p className="text-[10px] text-muted-foreground truncate">
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
