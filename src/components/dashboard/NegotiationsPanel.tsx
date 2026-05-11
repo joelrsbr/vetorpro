@@ -196,6 +196,7 @@ function ProposalRow({
   isPrimary,
   isPrimarySimulation,
   hasSimulation,
+  clientHasPrimary,
   onTogglePrimary,
   onView,
   onEdit,
@@ -212,6 +213,7 @@ function ProposalRow({
   isPrimary: boolean;
   isPrimarySimulation: boolean;
   hasSimulation: boolean;
+  clientHasPrimary: boolean;
   onTogglePrimary?: () => void;
   onView: (p: CRMProposal) => void;
   onEdit: (p: CRMProposal) => void;
@@ -228,29 +230,57 @@ function ProposalRow({
     (Date.now() - new Date(p.ultima_interacao || p.created_at).getTime()) / (1000 * 60 * 60 * 24)
   );
   const isStalled = p.status === "negotiating" && lastInteractionDays > 7;
+  const isLockedStatus = p.status === "lost" || p.status === "archived";
   const stalledBadge = isStalled ? (
     <Badge className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 inline-flex items-center gap-1">
       <AlertTriangle className="h-2.5 w-2.5" />
       Atenção: Parado
     </Badge>
   ) : null;
-  const primaryButton = hasSimulation && onTogglePrimary ? (
+
+  // Selo mini "Lead Qualificado" — apenas no cabeçalho (linha primária) quando o cliente
+  // tem alguma simulação marcada como principal. Visual: V colorido 12px, não interativo.
+  const qualifiedBadge = isPrimary && clientHasPrimary ? (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onTogglePrimary(); }}
-          className="rounded-md p-1 transition-transform hover:scale-110 hover:bg-muted/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          aria-pressed={isPrimarySimulation}
-          aria-label={isPrimarySimulation ? "Remover como Proposta Principal" : "Marcar como Proposta Principal"}
-        >
-          <VIcon active={isPrimarySimulation} size={24} />
-        </button>
+        <span className="inline-flex items-center" aria-label="Lead qualificado">
+          <VIcon active size={12} />
+        </span>
       </TooltipTrigger>
       <TooltipContent className="bg-foreground text-background border-foreground">
-        {isPrimarySimulation ? "Proposta principal deste cliente" : "Marcar como proposta principal"}
+        Lead qualificado — proposta principal definida
       </TooltipContent>
     </Tooltip>
+  ) : null;
+
+  // Botão V (Proposta Principal) por linha. Bloqueado em Perdido/Arquivado.
+  const primaryButton = hasSimulation ? (
+    isLockedStatus ? (
+      <span
+        className="rounded-md p-1 cursor-not-allowed select-none"
+        aria-label="Bloqueado: status Perdido ou Arquivado"
+        title="Bloqueado: status Perdido ou Arquivado"
+      >
+        <VIcon active={false} size={24} disabled />
+      </span>
+    ) : onTogglePrimary ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onTogglePrimary(); }}
+            className="rounded-md p-1 transition-transform hover:scale-110 hover:bg-muted/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-pressed={isPrimarySimulation}
+            aria-label={isPrimarySimulation ? "Remover como Proposta Principal" : "Marcar como Proposta Principal"}
+          >
+            <VIcon active={isPrimarySimulation} size={24} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent className="bg-foreground text-background border-foreground">
+          {isPrimarySimulation ? "Proposta principal deste cliente" : "Marcar como proposta principal"}
+        </TooltipContent>
+      </Tooltip>
+    ) : null
   ) : null;
 
   return (
