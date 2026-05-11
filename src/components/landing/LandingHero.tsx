@@ -1,6 +1,6 @@
 import { TrendingUp, ArrowRight, Handshake, ShieldCheck, BowArrow } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import vetorproIcon from "@/assets/vetorpro-icon.png";
+import vetorproIcon from "@/assets/vetorpro-logo.svg";
 
 export function LandingHero() {
   const pillars = [
