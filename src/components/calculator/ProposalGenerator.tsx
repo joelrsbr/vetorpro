@@ -105,7 +105,7 @@ export function ProposalGenerator({
           salesArguments: isBusiness && salesArguments.trim() ? salesArguments.trim() : undefined,
           clientPhone: clientPhone?.trim() || undefined,
           clientEmail: clientEmail?.trim() || undefined,
-          consultantName: profile?.full_name || undefined,
+          consultantName: (profile as any)?.display_name || profile?.full_name || undefined,
           idempotencyKey,
         },
       });
@@ -169,7 +169,7 @@ export function ProposalGenerator({
     const isPro = isActive && plan === "pro";
     const isBasicPlan = !isBusiness && !isPro;
     // ALWAYS prefer the live profile value to avoid stale config snapshots
-    const rawConsultant = (profile?.full_name || reportConfig.consultantName || "").trim();
+    const rawConsultant = ((profile as any)?.display_name || profile?.full_name || reportConfig.consultantName || "").trim();
     // Defensive: never let known placeholder leak into the PDF
     const consultantName = /joel\s*teste/i.test(rawConsultant) ? "" : rawConsultant;
     const grayscale = isBasicPlan;

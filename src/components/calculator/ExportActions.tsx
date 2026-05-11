@@ -104,7 +104,7 @@ export function ExportActions(props: ExportActionsProps) {
   };
 
   const handleCopyWhatsApp = async () => {
-    const consultant = profile?.full_name || "Corretor";
+    const consultant = (profile as any)?.display_name || profile?.full_name || "Corretor";
     const creci = profile?.creci ? `CRECI ${profile.creci}` : "";
     const phone = profile?.phone || "";
     const sysLabel = props.isNegotiation ? "Negociação entre Particulares" : props.amortizationType;
@@ -176,7 +176,7 @@ export function ExportActions(props: ExportActionsProps) {
         }
       }
 
-      const consultant = profile?.full_name || brand?.consultantName || "Corretor";
+      const consultant = (profile as any)?.display_name || profile?.full_name || brand?.consultantName || "Corretor";
       const company = profile?.company || brand?.companyName || "";
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");

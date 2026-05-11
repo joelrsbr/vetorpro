@@ -82,7 +82,8 @@ export function BusinessCustomization() {
 
   // Profile-backed fields (single source of truth for the PDF)
   const [companyName, setCompanyName] = useState("");
-  const [consultantName, setConsultantName] = useState("");
+  const [displayName, setDisplayName] = useState(""); // Nome do Consultor (editável)
+  const [accountHolder, setAccountHolder] = useState(""); // Titular da Conta (read-only)
   const [creci, setCreci] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
@@ -95,7 +96,8 @@ export function BusinessCustomization() {
     if (!profile) return;
     const p = profile as any;
     setCompanyName(p.company || "");
-    setConsultantName(p.full_name || "");
+    setDisplayName(p.display_name || "");
+    setAccountHolder(p.full_name || "");
     setCreci(p.creci || "");
     setWhatsapp(p.whatsapp || "");
     setInstagram(p.instagram || "");
@@ -153,14 +155,15 @@ export function BusinessCustomization() {
     try {
       await supabase.from("profiles").update({
         company: companyName,
-        full_name: consultantName,
+        display_name: displayName.trim() || null,
         creci,
         whatsapp,
         instagram,
         linkedin,
         twitter,
       } as any).eq("user_id", user.id);
-      updateSettings({ companyName, consultantName });
+      const effectiveConsultant = displayName.trim() || accountHolder;
+      updateSettings({ companyName, consultantName: effectiveConsultant });
       await refreshProfile();
       toast({ title: "Salvo!", description: "Seus dados foram atualizados e estarão no próximo PDF." });
     } catch (err) {
@@ -195,14 +198,35 @@ export function BusinessCustomization() {
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="companyName">Nome da Empresa/Time</Label>
+              <Label htmlFor="companyName">Empresa / imobiliária</Label>
               <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Imobiliária Premium" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="consultantName">Nome do Consultor</Label>
-              <Input id="consultantName" value={consultantName} onChange={(e) => setConsultantName(e.target.value)} placeholder="Ex: João Silva" />
+              <Label htmlFor="displayName">Nome do consultor</Label>
+              <Input
+                id="displayName"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder={accountHolder ? `Ex: ${accountHolder.split(" ")[0]} Silva` : "Ex: João Silva"}
+              />
+              <p className="text-xs text-muted-foreground">
+                Como você aparecerá nos relatórios e simulações. Se deixado em branco, usaremos seu nome de cadastro.
+              </p>
             </div>
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2">
+              <Label htmlFor="accountHolder">Titular da conta (dados fiscais)</Label>
+              <Input
+                id="accountHolder"
+                value={accountHolder}
+                readOnly
+                disabled
+                className="bg-muted/50 cursor-not-allowed"
+              />
+              <p className="text-xs text-muted-foreground">
+                Para alterar o titular da conta, entre em contato com o suporte.
+              </p>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="creci">CRECI</Label>
               <Input id="creci" value={creci} onChange={(e) => setCreci(e.target.value)} placeholder="Ex: CRECI 12345-F" />
             </div>
@@ -371,7 +395,7 @@ export function BusinessCustomization() {
             )}
             <div>
               <p className="font-semibold" style={{ color: `hsl(${settings.primaryColor})` }}>{companyName || "Sua Empresa"}</p>
-              {consultantName && <p className="text-sm text-muted-foreground">Consultor: {consultantName}</p>}
+              {(displayName || accountHolder) && <p className="text-sm text-muted-foreground">Consultor: {displayName || accountHolder}</p>}
               {creci && <p className="text-xs text-muted-foreground">{creci}</p>}
             </div>
           </div>
