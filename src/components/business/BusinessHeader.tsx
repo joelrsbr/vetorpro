@@ -38,18 +38,17 @@ export function BusinessHeader() {
         </div>
         
         <div className="flex items-center gap-3 text-sm">
-          {settings.consultantName && (
+          {settings.consultantName ? (
             <div className="flex items-center gap-1 text-muted-foreground">
               <User className="h-3.5 w-3.5" />
               <span>{settings.consultantName}</span>
             </div>
-          )}
-          {profile?.full_name && !settings.consultantName && (
+          ) : ((profile as any)?.display_name || profile?.full_name) ? (
             <div className="flex items-center gap-1 text-muted-foreground">
               <User className="h-3.5 w-3.5" />
-              <span>{profile.full_name}</span>
+              <span>{(profile as any)?.display_name || profile?.full_name}</span>
             </div>
-          )}
+          ) : null}
           <Badge variant="outline" className="text-xs">
             <Building2 className="h-3 w-3 mr-1" />
             Business
