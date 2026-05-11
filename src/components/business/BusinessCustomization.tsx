@@ -207,7 +207,7 @@ export function BusinessCustomization() {
                 id="displayName"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder={accountHolder ? `Ex: ${accountHolder.split(" ")[0]} Silva` : "Ex: João Silva"}
+                placeholder={accountHolder || "Seu nome de exibição"}
               />
               <p className="text-xs text-muted-foreground">
                 Como você aparecerá nos relatórios e simulações. Se deixado em branco, usaremos seu nome de cadastro.
