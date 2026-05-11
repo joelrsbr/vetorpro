@@ -206,9 +206,14 @@ export default function Dashboard() {
   };
 
   const handleUpdateSimulationStatus = useCallback(async (simulationId: string, newStatus: string) => {
+    // Status Perdido/Arquivado desqualificam automaticamente do VGV (is_primary = false).
+    const blocksPrimary = newStatus === "lost" || newStatus === "archived";
+    const patch: Record<string, unknown> = { status: newStatus };
+    if (blocksPrimary) patch.is_primary = false;
+
     const { data, error } = await supabase
       .from("simulations")
-      .update({ status: newStatus } as any)
+      .update(patch as any)
       .eq("id", simulationId)
       .select("*")
       .single();
