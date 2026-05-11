@@ -106,6 +106,37 @@ export function BusinessCustomization() {
     if (p.logo_url) setLogoPreview(p.logo_url);
   }, [profile]);
 
+  // Sincroniza o "Titular da Conta" (profile.full_name) com os metadados oficiais
+  // do provedor de autenticação (Google/Supabase Auth). Se o nome no perfil estiver
+  // desatualizado ou contiver placeholders de teste, é sobrescrito pelo nome real
+  // vindo de user_metadata. Roda uma vez por sessão por usuário.
+  useEffect(() => {
+    if (!user || !profile) return;
+    const meta = (user.user_metadata || {}) as Record<string, any>;
+    const authName: string =
+      (meta.full_name as string) ||
+      (meta.name as string) ||
+      ((meta.given_name || meta.family_name)
+        ? `${meta.given_name || ""} ${meta.family_name || ""}`.trim()
+        : "");
+    if (!authName) return;
+    const currentFullName = ((profile as any).full_name || "").trim();
+    if (currentFullName === authName.trim()) return;
+    (async () => {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ full_name: authName } as any)
+          .eq("user_id", user.id);
+        setAccountHolder(authName);
+        await refreshProfile();
+      } catch (err) {
+        console.error("[BusinessCustomization] Falha ao sincronizar titular da conta:", err);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, profile?.id]);
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
