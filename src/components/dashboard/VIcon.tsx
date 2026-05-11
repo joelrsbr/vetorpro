@@ -16,7 +16,8 @@ interface VIconProps {
  * - Active: full-color brand SVG.
  * Both states render in the same square box to avoid layout jumps.
  */
-export function VIcon({ active = false, size = 24, className }: VIconProps) {
+export function VIcon({ active = false, size = 24, className, disabled = false }: VIconProps) {
+  const opacity = disabled ? 0.2 : active ? 1 : 0.3;
   return (
     <span
       className={cn("inline-flex items-center justify-center shrink-0", className)}
@@ -24,7 +25,7 @@ export function VIcon({ active = false, size = 24, className }: VIconProps) {
       aria-hidden="true"
     >
       <img
-        src={active ? vColor : vWhite}
+        src={disabled || !active ? vWhite : vColor}
         alt=""
         width={size}
         height={size}
@@ -32,9 +33,8 @@ export function VIcon({ active = false, size = 24, className }: VIconProps) {
           width: size,
           height: size,
           objectFit: "contain",
-          opacity: active ? 1 : 0.3,
-          // Make the white SVG visibly cinza-suave on light backgrounds when inactive
-          filter: active ? undefined : "invert(60%)",
+          opacity,
+          filter: disabled || !active ? "invert(60%)" : undefined,
           transition: "opacity 150ms ease, transform 150ms ease",
         }}
       />
