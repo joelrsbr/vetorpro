@@ -82,7 +82,8 @@ export function BusinessCustomization() {
 
   // Profile-backed fields (single source of truth for the PDF)
   const [companyName, setCompanyName] = useState("");
-  const [consultantName, setConsultantName] = useState("");
+  const [displayName, setDisplayName] = useState(""); // Nome do Consultor (editável)
+  const [accountHolder, setAccountHolder] = useState(""); // Titular da Conta (read-only)
   const [creci, setCreci] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
