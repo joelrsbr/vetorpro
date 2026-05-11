@@ -96,7 +96,8 @@ export function BusinessCustomization() {
     if (!profile) return;
     const p = profile as any;
     setCompanyName(p.company || "");
-    setConsultantName(p.full_name || "");
+    setDisplayName(p.display_name || "");
+    setAccountHolder(p.full_name || "");
     setCreci(p.creci || "");
     setWhatsapp(p.whatsapp || "");
     setInstagram(p.instagram || "");
