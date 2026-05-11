@@ -397,7 +397,10 @@ function ProposalRow({
             />
             {stalledBadge}
           </div>
-          <p className="font-semibold text-sm mt-1 truncate">{p.client_name}</p>
+          <p className="font-semibold text-sm mt-1 truncate flex items-center gap-1.5">
+            <span className="truncate">{p.client_name}</span>
+            {qualifiedBadge}
+          </p>
           <p className="text-[11px] text-muted-foreground truncate">
             {p.property_description} · {extractPropertyValue(p.proposal_text)}
           </p>
