@@ -918,6 +918,11 @@ export function NegotiationsPanel(props: Props) {
         {clientGroups.map((g) => {
           const hasOthers = g.others.length > 0;
           const isExpanded = expandedClients.has(g.client);
+          // "Lead qualificado": cliente possui ao menos uma simulação marcada como principal.
+          const clientHasPrimary = [g.primary, ...g.others].some(entry => {
+            const s = findSimulationFor(entry);
+            return !!s?.is_primary;
+          });
           return (
             <div key={g.client} className="space-y-1.5">
               {(() => {
@@ -929,6 +934,7 @@ export function NegotiationsPanel(props: Props) {
                     isPrimary
                     hasSimulation={!!sim}
                     isPrimarySimulation={!!sim?.is_primary}
+                    clientHasPrimary={clientHasPrimary}
                     onTogglePrimary={sim ? () => onTogglePrimary(sim.id) : undefined}
                     onView={handleView}
                     onEdit={handleEdit}
