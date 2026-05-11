@@ -969,6 +969,7 @@ export function NegotiationsPanel(props: Props) {
                             isPrimary={false}
                             hasSimulation={!!sim}
                             isPrimarySimulation={!!sim?.is_primary}
+                            clientHasPrimary={clientHasPrimary}
                             onTogglePrimary={sim ? () => onTogglePrimary(sim.id) : undefined}
                             onView={handleView}
                             onEdit={handleEdit}
