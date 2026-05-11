@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { User, LogOut, CreditCard, Settings, LayoutDashboard } from "lucide-react";
-import vetorproLogoHorizontal from "@/assets/vetorpro-logo-horizontal.png";
+import vetorproLogoHorizontal from "@/assets/vetorpro-logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 

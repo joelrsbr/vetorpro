@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn, LayoutDashboard } from "lucide-react";
-import vetorproLogo from "@/assets/vetorpro-logo.png";
+import vetorproLogo from "@/assets/vetorpro-logo.svg";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";

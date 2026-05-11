@@ -1,7 +1,7 @@
 import { HelpCircle, MessageCircle, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import vetorproLogo from "@/assets/vetorpro-logo.png";
+import vetorproLogo from "@/assets/vetorpro-logo.svg";
 import { useSubscription, getPlanLabel } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
