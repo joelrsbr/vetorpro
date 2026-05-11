@@ -196,7 +196,7 @@ const Login = () => {
               <span className="text-success">Pro</span>
             </CardTitle>
             <CardDescription className="text-base">
-              Acesse o simulador profissional de financiamentos
+              Amplie sua jornada profissional agora!
             </CardDescription>
           </CardHeader>
           
