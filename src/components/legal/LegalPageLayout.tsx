@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import vetorproLogo from "@/assets/vetorpro-logo.png";
+import vetorproLogo from "@/assets/vetorpro-logo.svg";
 import { Button } from "@/components/ui/button";
 
 interface LegalPageLayoutProps {
