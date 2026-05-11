@@ -192,8 +192,8 @@ Deno.serve(async (req) => {
     const finalCTA = `Estou à disposição para conversarmos com calma sobre os próximos passos. Este relatório foi preparado exclusivamente para você.`;
 
     const consultantSignature = consultantName
-      ? `Assinatura: o documento será assinado por ${consultantName}. NUNCA invente outro nome (jamais use "Joel TESTE" ou nomes fictícios). Se precisar referir-se ao corretor pelo nome, use exatamente "${consultantName}".`
-      : `Não invente nome de consultor. NUNCA use "Joel TESTE" ou nomes fictícios. Refira-se ao autor apenas como "o consultor responsável" quando necessário.`;
+      ? `Assinatura: o documento será assinado por ${consultantName}. Se precisar referir-se ao corretor pelo nome, use EXATAMENTE "${consultantName}" — não invente, abrevie ou substitua por outro nome.`
+      : `Refira-se ao autor apenas como "o consultor responsável". Não invente nem atribua nome próprio ao consultor.`;
 
     const sharedRules = `
 - NÃO use markdown, negrito, itálico ou asteriscos (*)
