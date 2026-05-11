@@ -196,7 +196,7 @@ const Login = () => {
               <span className="text-success">Pro</span>
             </CardTitle>
             <CardDescription className="text-base">
-              Amplie sua jornada profissional agora!
+              Acesse sua central de inteligência e domine suas negociações.
             </CardDescription>
           </CardHeader>
           
