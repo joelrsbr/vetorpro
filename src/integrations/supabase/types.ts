@@ -122,6 +122,7 @@ export type Database = {
           cpf_cnpj: string | null
           created_at: string
           creci: string | null
+          display_name: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -145,6 +146,7 @@ export type Database = {
           cpf_cnpj?: string | null
           created_at?: string
           creci?: string | null
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
@@ -168,6 +170,7 @@ export type Database = {
           cpf_cnpj?: string | null
           created_at?: string
           creci?: string | null
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
