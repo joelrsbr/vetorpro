@@ -245,7 +245,9 @@ export function ProposalGenerator({
     // Replace any AI-leaked placeholder names by the real consultant
     let cleanedProposal = proposalText;
     if (consultantName) {
+      // Remove quaisquer nomes-placeholder vazados da IA, substituindo pelo nome real
       cleanedProposal = cleanedProposal.replace(/Joel\s+TESTE/gi, consultantName);
+      cleanedProposal = cleanedProposal.replace(/Joel\s+Farias/gi, consultantName);
     }
 
     // Header (cover or first page)
