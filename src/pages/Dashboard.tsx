@@ -235,6 +235,15 @@ export default function Dashboard() {
     if (!user?.id) return;
     const target = simulations.find(s => s.id === simulationId);
     if (!target) return;
+    const targetStatus = (target as any).status || "potential";
+    if (targetStatus === "lost" || targetStatus === "archived") {
+      toast({
+        title: "Bloqueado por status",
+        description: "Propostas Perdidas ou Arquivadas não podem ser marcadas como principais.",
+        variant: "destructive",
+      });
+      return;
+    }
     const willActivate = !target.is_primary;
     const clientKey = (target.client_name || "").trim().toLowerCase();
 
