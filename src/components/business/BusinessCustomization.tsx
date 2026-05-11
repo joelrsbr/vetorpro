@@ -395,7 +395,7 @@ export function BusinessCustomization() {
             )}
             <div>
               <p className="font-semibold" style={{ color: `hsl(${settings.primaryColor})` }}>{companyName || "Sua Empresa"}</p>
-              {consultantName && <p className="text-sm text-muted-foreground">Consultor: {consultantName}</p>}
+              {(displayName || accountHolder) && <p className="text-sm text-muted-foreground">Consultor: {displayName || accountHolder}</p>}
               {creci && <p className="text-xs text-muted-foreground">{creci}</p>}
             </div>
           </div>
