@@ -155,14 +155,15 @@ export function BusinessCustomization() {
     try {
       await supabase.from("profiles").update({
         company: companyName,
-        full_name: consultantName,
+        display_name: displayName.trim() || null,
         creci,
         whatsapp,
         instagram,
         linkedin,
         twitter,
       } as any).eq("user_id", user.id);
-      updateSettings({ companyName, consultantName });
+      const effectiveConsultant = displayName.trim() || accountHolder;
+      updateSettings({ companyName, consultantName: effectiveConsultant });
       await refreshProfile();
       toast({ title: "Salvo!", description: "Seus dados foram atualizados e estarão no próximo PDF." });
     } catch (err) {
