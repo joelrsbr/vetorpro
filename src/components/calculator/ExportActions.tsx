@@ -176,7 +176,7 @@ export function ExportActions(props: ExportActionsProps) {
         }
       }
 
-      const consultant = profile?.full_name || brand?.consultantName || "Corretor";
+      const consultant = (profile as any)?.display_name || profile?.full_name || brand?.consultantName || "Corretor";
       const company = profile?.company || brand?.companyName || "";
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
