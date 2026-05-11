@@ -6,6 +6,8 @@ interface VIconProps {
   active?: boolean;
   size?: number;
   className?: string;
+  /** Bloqueado por status (Perdido/Arquivado): cinza fixo @ 20%, sem interação. */
+  disabled?: boolean;
 }
 
 /**
