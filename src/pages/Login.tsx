@@ -72,32 +72,6 @@ const Login = () => {
     void triggerCheckout();
   }, [authLoading, checkoutPlan, toast, user]);
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    setLoadingMethod("google");
-    try {
-      const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
-      if (error) {
-        toast({
-          title: "Erro ao entrar com Google",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: "Erro ao entrar com Google",
-        description: err.message || "Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-      setLoadingMethod(null);
-    }
-  };
-
   const redirectByPlan = async () => {
     const { data } = await supabase.rpc("get_user_subscription", {
       p_user_id: (await supabase.auth.getUser()).data.user!.id,
