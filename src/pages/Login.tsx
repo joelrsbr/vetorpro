@@ -219,146 +219,145 @@ const Login = () => {
                 </form>
               </div>
             ) : (
-              <>
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="login">Entrar</TabsTrigger>
-                    <TabsTrigger value="register">Criar Conta</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="login">
-                    <form onSubmit={handleLogin} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email-login">E-mail</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="email-login" 
-                            type="email" 
-                            placeholder="seu@email.com"
-                            className="pl-10"
-                            value={loginEmail}
-                            onChange={(e) => setLoginEmail(e.target.value)}
-                            required
-                          />
-                        </div>
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="login">Entrar</TabsTrigger>
+                  <TabsTrigger value="register">Criar Conta</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="login">
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email-login">E-mail</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="email-login" 
+                          type="email" 
+                          placeholder="seu@email.com"
+                          className="pl-10"
+                          value={loginEmail}
+                          onChange={(e) => setLoginEmail(e.target.value)}
+                          required
+                        />
                       </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="password-login">Senha</Label>
-                          <button
-                            type="button"
-                            onClick={() => setShowForgotPassword(true)}
-                            className="text-xs text-primary hover:underline"
-                          >
-                            Esqueceu a senha?
-                          </button>
-                        </div>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="password-login" 
-                            type="password" 
-                            placeholder="••••••••"
-                            className="pl-10"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            required
-                          />
-                        </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password-login">Senha</Label>
+                        <button
+                          type="button"
+                          onClick={() => setShowForgotPassword(true)}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Esqueceu a senha?
+                        </button>
                       </div>
-                      
-                      <Button 
-                        type="submit" 
-                        variant="hero" 
-                        className="w-full" 
-                        size="lg"
-                        disabled={isLoading}
-                      >
-                        {isLoading && loadingMethod === "email" ? (
-                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Entrando...</>
-                        ) : (
-                          "Entrar"
-                        )}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                  
-                  <TabsContent value="register">
-                    <form onSubmit={handleRegister} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Nome Completo</Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="name" 
-                            type="text" 
-                            placeholder="Seu nome"
-                            className="pl-10"
-                            value={registerName}
-                            onChange={(e) => setRegisterName(e.target.value)}
-                            required
-                          />
-                        </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="password-login" 
+                          type="password" 
+                          placeholder="••••••••"
+                          className="pl-10"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          required
+                        />
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="email-register">E-mail</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="email-register" 
-                            type="email" 
-                            placeholder="seu@email.com"
-                            className="pl-10"
-                            value={registerEmail}
-                            onChange={(e) => setRegisterEmail(e.target.value)}
-                            required
-                          />
-                        </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      variant="hero" 
+                      className="w-full" 
+                      size="lg"
+                      disabled={isLoading}
+                    >
+                      {isLoading && loadingMethod === "email" ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Entrando...</>
+                      ) : (
+                        "Entrar"
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+                
+                <TabsContent value="register">
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nome Completo</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="name" 
+                          type="text" 
+                          placeholder="Seu nome"
+                          className="pl-10"
+                          value={registerName}
+                          onChange={(e) => setRegisterName(e.target.value)}
+                          required
+                        />
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="password-register">Senha</Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="password-register" 
-                            type="password" 
-                            placeholder="Mínimo 8 caracteres"
-                            className="pl-10"
-                            value={registerPassword}
-                            onChange={(e) => setRegisterPassword(e.target.value)}
-                            required
-                            minLength={8}
-                          />
-                        </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email-register">E-mail</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="email-register" 
+                          type="email" 
+                          placeholder="seu@email.com"
+                          className="pl-10"
+                          value={registerEmail}
+                          onChange={(e) => setRegisterEmail(e.target.value)}
+                          required
+                        />
                       </div>
-                      
-                      <Button 
-                        type="submit" 
-                        variant="hero" 
-                        className="w-full" 
-                        size="lg"
-                        disabled={isLoading}
-                      >
-                        {isLoading && loadingMethod === "register" ? (
-                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Criando conta...</>
-                        ) : (
-                          "Criar minha Conta"
-                        )}
-                      </Button>
-                      
-                      <p className="text-xs text-muted-foreground text-center">
-                        Ao criar uma conta, você concorda com nossos{" "}
-                        <a href="/termos-de-uso" className="text-primary hover:underline">Termos de Uso</a>
-                        {" "}e{" "}
-                        <a href="/politica-de-privacidade" className="text-primary hover:underline">Política de Privacidade</a>.
-                      </p>
-                    </form>
-                  </TabsContent>
-                </Tabs>
-              </>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="password-register">Senha</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="password-register" 
+                          type="password" 
+                          placeholder="Mínimo 8 caracteres"
+                          className="pl-10"
+                          value={registerPassword}
+                          onChange={(e) => setRegisterPassword(e.target.value)}
+                          required
+                          minLength={8}
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      variant="hero" 
+                      className="w-full" 
+                      size="lg"
+                      disabled={isLoading}
+                    >
+                      {isLoading && loadingMethod === "register" ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Criando conta...</>
+                      ) : (
+                        "Criar minha Conta"
+                      )}
+                    </Button>
+                    
+                    <p className="text-xs text-muted-foreground text-center">
+                      Ao criar uma conta, você concorda com nossos{" "}
+                      <a href="/termos-de-uso" className="text-primary hover:underline">Termos de Uso</a>
+                      {" "}e{" "}
+                      <a href="/politica-de-privacidade" className="text-primary hover:underline">Política de Privacidade</a>.
+                    </p>
+                  </form>
+                </TabsContent>
+              </Tabs>
             )}
           </CardContent>
         </Card>
