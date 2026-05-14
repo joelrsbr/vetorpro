@@ -30,7 +30,7 @@ interface AuthContextType {
   profile: Profile | null;
   usageLimits: UsageLimits | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null; alreadyExists?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -204,18 +204,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const redirectUrl = `${window.location.origin}/login`;
+    console.log("[Auth] signUp →", { email, redirectUrl });
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          full_name: fullName,
-        },
+        emailRedirectTo: redirectUrl,
+        data: { full_name: fullName },
       },
     });
 
+    console.log("[Auth] signUp response:", { data, error });
+
     if (error) {
+      console.error("[Auth] signUp error:", error);
       toast({
         title: "Erro ao criar conta",
         description: error.message,
@@ -224,12 +228,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error };
     }
 
+    // Supabase returns 200 with empty `identities` when the email already exists
+    // (anti-enumeration). Detect that and surface a real message instead of a
+    // false-positive "check your email" toast.
+    const identities = data?.user?.identities;
+    const alreadyExists = Array.isArray(identities) && identities.length === 0;
+
+    if (alreadyExists) {
+      console.warn("[Auth] signUp: email já cadastrado (identities vazio)");
+      toast({
+        title: "E-mail já cadastrado",
+        description: "Já existe uma conta com este e-mail. Faça login ou recupere sua senha.",
+        variant: "destructive",
+      });
+      return { error: null, alreadyExists: true };
+    }
+
     toast({
       title: "Conta criada com sucesso!",
-      description: "Você já pode fazer login.",
+      description: "Enviamos um link de confirmação para seu e-mail.",
     });
 
-    return { error: null };
+    return { error: null, alreadyExists: false };
   };
 
   const signIn = async (email: string, password: string) => {

@@ -98,24 +98,20 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setLoadingMethod("register");
-    
-    const { error } = await signUp(registerEmail, registerPassword, registerName);
-    
-    if (!error) {
-      // Try to sign in - if email confirmation is required, this will fail gracefully
-      const { error: signInError } = await signIn(registerEmail, registerPassword);
 
-      if (signInError) {
-        // Email confirmation is likely required
-        toast({
-          title: "Conta criada! Verifique seu e-mail",
-          description: "Enviamos um link de confirmação para " + registerEmail + ". Confirme seu e-mail antes de fazer login.",
-        });
-      } else if (!checkoutPlan) {
-        await redirectByPlan();
-      }
+    console.log("[Login] handleRegister →", { email: registerEmail });
+    const { error, alreadyExists } = await signUp(registerEmail, registerPassword, registerName);
+    console.log("[Login] signUp result:", { error, alreadyExists });
+
+    if (!error && !alreadyExists) {
+      // Email confirmation is required — do NOT attempt auto signIn (would fail with
+      // "Invalid login credentials" on unconfirmed users and show misleading errors).
+      toast({
+        title: "Conta criada! Verifique seu e-mail",
+        description: "Enviamos um link de confirmação para " + registerEmail + ". Confirme antes de fazer login.",
+      });
     }
-    
+
     setIsLoading(false);
     setLoadingMethod(null);
   };
@@ -133,11 +129,17 @@ const Login = () => {
     setIsLoading(true);
     setLoadingMethod("forgot");
 
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
+    const redirectTo = `${window.location.origin}/reset-password`;
+    console.log("[Login] resetPasswordForEmail →", { email: forgotEmail, redirectTo });
+
+    const { data, error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo,
     });
 
+    console.log("[Login] resetPasswordForEmail response:", { data, error });
+
     if (error) {
+      console.error("[Login] resetPasswordForEmail error:", error);
       toast({
         title: "Erro ao enviar e-mail",
         description: error.message,
@@ -146,7 +148,7 @@ const Login = () => {
     } else {
       toast({
         title: "E-mail enviado!",
-        description: "Verifique sua caixa de entrada para redefinir a senha.",
+        description: "Se este e-mail estiver cadastrado, você receberá o link de recuperação em instantes.",
       });
       setShowForgotPassword(false);
       setForgotEmail("");
