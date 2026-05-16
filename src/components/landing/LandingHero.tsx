@@ -6,18 +6,18 @@ export function LandingHero() {
   const pillars = [
   {
     icon: Handshake,
-    title: "Potencialização de Negócios",
-    description: "Use o fator relacionamento para potencializar suas negociações. Identifique o melhor cenário para o seu cliente e forneça o argumento certo para buscar condições exclusivas."
+    title: "Propostas que fecham negócios",
+    description: "Gere argumentos com IA, gráficos e sua marca em segundos."
   },
   {
     icon: ShieldCheck,
-    title: "Confiança Estratégica",
-    description: "Antecipe custos extras e taxas bancárias ocultas. Gere confiança estratégica ao eliminar surpresas no fechamento e proteja sua reputação diante de investidores."
+    title: "Segurança antes do contrato",
+    description: "Antecipe taxas, seguros e custos reais de cada banco ao cliente."
   },
   {
     icon: BowArrow,
-    title: "Inteligência Evolutiva",
-    description: "Um sistema vivo que evolui diariamente. Unimos a velocidade da IA com a ética e a curadoria humana da VetorPro para que você esteja sempre atualizado com o mercado."
+    title: "Dados do mercado financeiro",
+    description: "SELIC, IPCA, INCC e câmbio atualizados em tempo real."
   }];
 
 
