@@ -15,9 +15,9 @@ const plans = [
   {
     key: "basic" as PlanKey,
     name: "Basic",
-    price: "R$69,90",
+    price: "R$49,90",
     period: "/mês",
-    description: "Uso Essencial — Simulações e Propostas com IA.",
+    description: "Para corretores que querem crescer em simulação profissional.",
     features: [
       "Até 50 Simulações (SAC/PRICE) por mês",
       "Até 20 Propostas com IA por mês",
@@ -39,7 +39,7 @@ const plans = [
     name: "Professional",
     price: "R$139,90",
     period: "/mês",
-    description: "Uso Extensivo — Para corretores que operam em volume.",
+    description: "Para corretores que operam em volume e querem propostas profissionais que fecham negócios.",
     features: [
       "Tudo do Basic",
       "Até 300 Simulações por mês",
@@ -58,9 +58,9 @@ const plans = [
   {
     key: "business" as PlanKey,
     name: "Business",
-    price: "R$269,90",
+    price: "R$299,90",
     period: "/mês",
-    description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
+    description: "Para consultores de elite que precisam de diferencial competitivo real.",
     features: [
       "Inclui todos os recursos do Plano Professional",
       "Até 2.000 Simulações por mês",
