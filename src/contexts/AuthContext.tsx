@@ -203,6 +203,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
+  const translateAuthError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("rate limit")) return "Limite de envio atingido. Aguarde alguns instantes e tente novamente.";
+    if (m.includes("invalid login credentials") || m.includes("invalid credentials")) return "E-mail ou senha incorretos.";
+    if (m.includes("user already registered") || m.includes("already registered")) return "Este e-mail já está cadastrado. Faça login ou recupere sua senha.";
+    if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.";
+    if (m.includes("password should be") || m.includes("password is too short") || m.includes("weak password")) return "Senha muito fraca. Use ao menos 6 caracteres com letras e números.";
+    if (m.includes("invalid email")) return "E-mail inválido. Verifique e tente novamente.";
+    if (m.includes("user not found")) return "Usuário não encontrado. Verifique o e-mail informado.";
+    if (m.includes("token has expired") || m.includes("expired")) return "Link expirado. Solicite um novo e-mail e tente novamente.";
+    if (m.includes("network") || m.includes("failed to fetch")) return "Falha de conexão. Verifique sua internet e tente novamente.";
+    if (m.includes("same password")) return "A nova senha deve ser diferente da atual.";
+    if (m.includes("signup") && m.includes("disabled")) return "Cadastros temporariamente desativados. Tente novamente mais tarde.";
+    return "Não foi possível concluir a operação. Tente novamente em instantes.";
+  };
+
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/login`;
     console.log("[Auth] signUp →", { email, redirectUrl });
