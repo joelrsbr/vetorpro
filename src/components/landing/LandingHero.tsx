@@ -38,22 +38,22 @@ export function LandingHero() {
             </div>
 
             <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
-              A plataforma de Inteligência Imobiliária que acelera sua jornada do básico à Consultoria de Elite.
+              Clareza e Autoridade para Fechar Mais Negócios
             </p>
 
             <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
-              Evoluímos a cada dia para transformar dados complexos em clareza estratégica. Conquiste a confiança de clientes e acelere seu sucesso com a IA, Ética e a Curadoria Humana da VetorPro.
+              O VetorPro transforma dados complexos do mercado imobiliário em propostas profissionais, argumentos sólidos e apresentações que geram confiança no cliente — do cálculo à entrega com sua marca.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button variant="hero" size="lg" asChild>
-                <a href="#planos">
-                  Assinar Agora
+                <a href="#beneficios">
+                  Ver como funciona
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </a>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a href="#beneficios">Conhecer Recursos</a>
+                <a href="#planos">Assinar Agora</a>
               </Button>
             </div>
           </div>
