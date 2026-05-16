@@ -137,6 +137,15 @@ export function PricingSection() {
           </p>
         </div>
 
+        <div className="mx-auto max-w-3xl mb-8 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-center">
+          <p className="text-xs md:text-sm text-foreground">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Lançamento</span>
+            <span className="text-muted-foreground"> — Use o cupom </span>
+            <span className="font-bold font-mono tracking-wider text-emerald-700 dark:text-emerald-400">VETORPRO30</span>
+            <span className="text-muted-foreground"> e ganhe 30% de desconto nos primeiros 3 meses.</span>
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
           {plans.map((plan) => {
             const isCurrent = isCurrentPlan(plan.key);
