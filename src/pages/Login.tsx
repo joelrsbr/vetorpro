@@ -142,7 +142,7 @@ const Login = () => {
       console.error("[Login] resetPasswordForEmail error:", error);
       toast({
         title: "Erro ao enviar e-mail",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
     } else {
