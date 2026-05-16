@@ -107,12 +107,21 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
   return (
     <section id="planos" className="pt-10 pb-16 md:pt-16 md:pb-24 bg-muted/30 scroll-mt-20">
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in-up">
+        <div className="text-center mb-8 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Escolha o plano ideal para você
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Planos pensados para cada etapa do seu negócio imobiliário.
+          </p>
+        </div>
+
+        <div className="mx-auto max-w-3xl mb-8 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-center">
+          <p className="text-xs md:text-sm text-foreground">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Lançamento</span>
+            <span className="text-muted-foreground"> — Use o cupom </span>
+            <span className="font-bold font-mono tracking-wider text-emerald-700 dark:text-emerald-400">VETORPRO30</span>
+            <span className="text-muted-foreground"> e ganhe 30% de desconto nos primeiros 3 meses.</span>
           </p>
         </div>
 
