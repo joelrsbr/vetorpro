@@ -49,7 +49,7 @@ export function LandingBenefits() {
             Tudo que um corretor de alto padrão precisa
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Do cálculo técnico à apresentação profissional — com IA, ética e curadoria de mercado.
+            Do cálculo técnico à apresentação profissional — com IA, ética e curadoria humana.
           </p>
         </div>
         
