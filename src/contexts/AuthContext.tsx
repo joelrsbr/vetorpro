@@ -238,7 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("[Auth] signUp error:", error);
       toast({
         title: "Erro ao criar conta",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
       return { error };
