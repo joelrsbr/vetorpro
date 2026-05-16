@@ -27,21 +27,19 @@ export function LandingHero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Copy */}
           <div className="space-y-6 animate-fade-in-up">
-            <div>
-            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight flex items-center gap-3">
-                <img src={vetorproIcon} alt="VetorPro" className="h-12 w-12 md:h-14 md:w-14" />
-                <span>
-                  <span className="text-primary">Vetor</span>
-                  <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
-                </span>
-              </h1>
+            <div className="flex items-center gap-3">
+              <img src={vetorproIcon} alt="VetorPro" className="h-10 w-10 md:h-12 md:w-12" />
+              <span className="text-2xl md:text-3xl font-bold tracking-tight">
+                <span className="text-primary">Vetor</span>
+                <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+              </span>
             </div>
 
-            <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
+            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight text-foreground leading-tight">
               Clareza e Autoridade para Fechar Mais Negócios
-            </p>
+            </h1>
 
-            <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
               O VetorPro transforma dados complexos do mercado imobiliário em propostas profissionais, argumentos sólidos e apresentações que geram confiança no cliente — do cálculo à entrega com sua marca.
             </p>
 
