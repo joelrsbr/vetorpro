@@ -218,7 +218,16 @@ export function PricingSection() {
           })}
         </div>
 
-        <div className="text-center mt-8 text-sm text-muted-foreground">
+        <div className="mt-12 max-w-2xl mx-auto">
+          <div className="p-5 rounded-lg bg-muted/50 border text-center">
+            <p className="text-sm font-medium text-foreground">
+              O VetorPro é uma plataforma profissional exclusiva.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Cupons de lançamento disponíveis por tempo limitado.</p>
+          </div>
+        </div>
+
+        <div className="text-center mt-6 text-sm text-muted-foreground">
           <p>✓ Cancele a qualquer momento · ✓ Sem taxas ocultas · ✓ Garantia de 7 dias</p>
         </div>
       </div>
