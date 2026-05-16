@@ -17,12 +17,12 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirme seu e-mail no VetorPro',
-  invite: 'Você foi convidado para o VetorPro',
-  magiclink: 'Seu link de acesso ao VetorPro',
+  signup: 'Confirme seu e-mail — VetorPro',
+  invite: 'Você foi convidado — VetorPro',
+  magiclink: 'Seu link de acesso — VetorPro',
   recovery: 'Redefinição de senha — VetorPro',
-  email_change: 'Confirme a alteração do seu e-mail no VetorPro',
-  reauthentication: 'Seu código de verificação do VetorPro',
+  email_change: 'Confirme seu novo e-mail — VetorPro',
+  reauthentication: 'Seu código de verificação — VetorPro',
 }
 
 // Template mapping
@@ -258,7 +258,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       run_id,
       message_id: messageId,
       to: payload.data.email,
-      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      from: `VetorPro <suporte@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
       subject: EMAIL_SUBJECTS[emailType] || 'Notification',
       html,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { translateAuthError } from "@/lib/auth-errors";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -142,7 +143,7 @@ const Login = () => {
       console.error("[Login] resetPasswordForEmail error:", error);
       toast({
         title: "Erro ao enviar e-mail",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
     } else {

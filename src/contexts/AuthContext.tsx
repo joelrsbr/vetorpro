@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { translateAuthError } from "@/lib/auth-errors";
 
 interface Profile {
   id: string;
@@ -203,6 +204,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
+  // Mensagens de erro traduzidas em src/lib/auth-errors.ts
+
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/login`;
     console.log("[Auth] signUp →", { email, redirectUrl });
@@ -222,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("[Auth] signUp error:", error);
       toast({
         title: "Erro ao criar conta",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
       return { error };
@@ -261,7 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       toast({
         title: "Erro ao entrar",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
       return { error };
