@@ -2,41 +2,41 @@ import {
   Calculator, 
   TableProperties, 
   BarChart3, 
-  TrendingUp, 
-  FileText, 
-  ShieldCheck 
+  Landmark, 
+  Sparkles, 
+  FileText 
 } from "lucide-react";
 
 const benefits = [
   {
     icon: Calculator,
     title: "Simulação SAC & PRICE",
-    description: "Cálculos estruturados nos modelos oficiais, com suporte a reforços programados.",
+    description: "Simule cenários reais com indexadores oficiais e mostre ao cliente o impacto de cada escolha ao longo do tempo.",
   },
   {
     icon: TableProperties,
     title: "Tabela de Amortização",
-    description: "Acompanhamento mensal de saldo devedor, juros e parcelas de forma organizada.",
+    description: "Apresente mês a mês a evolução do saldo devedor. Transparência que gera confiança e elimina surpresas.",
   },
   {
     icon: BarChart3,
     title: "Calculadora HP12C",
-    description: "Funções financeiras integradas para facilitar o dia a dia do profissional.",
+    description: "A ferramenta do mercado financeiro na palma da mão. Cálculos precisos, respostas rápidas.",
   },
   {
-    icon: TrendingUp,
-    title: "Dados Estruturados",
-    description: "Conexão direta com fontes oficiais para atualização de Selic, IPCA e TR, garantindo a fidelidade técnica das simulações.",
+    icon: Landmark,
+    title: "Sondagem Multibancos",
+    description: "Compare taxas, CET, MIP e DFI dos principais bancos. Antecipe custos reais e proteja sua reputação pós-contrato.",
+  },
+  {
+    icon: Sparkles,
+    title: "Propostas com IA",
+    description: "Gere propostas personalizadas com tom profissional, argumentos estratégicos e identidade visual da sua marca.",
   },
   {
     icon: FileText,
-    title: "Relatórios Profissionais",
-    description: "Documentos em PDF com identidade visual para apresentação ao cliente.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Ambiente Seguro",
-    description: "Dados protegidos com infraestrutura confiável e de nível profissional.",
+    title: "Relatórios com sua Marca",
+    description: "PDFs profissionais com seu logo, CRECI e contato. Sua consultoria no papel, do jeito certo.",
   },
 ];
 
@@ -46,13 +46,10 @@ export function LandingBenefits() {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Sobre a Plataforma
+            Tudo que um corretor de alto padrão precisa
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            O VetorPro nasceu para transformar a complexidade do mercado imobiliário em clareza estratégica. Somos uma plataforma dedicada à Simulação Estruturada de Cenários, permitindo que você visualize o impacto real de indexadores, cotações globais e reforços financeiros ao longo do tempo.
-          </p>
-          <p className="mt-4 text-xs tracking-wide text-muted-foreground/80 uppercase">
-            Aprimoramento Contínuo: Uma infraestrutura em evolução diária para manter você à frente do mercado.
+            Do cálculo técnico à apresentação profissional — com IA, ética e curadoria de mercado.
           </p>
         </div>
         

@@ -6,18 +6,18 @@ export function LandingHero() {
   const pillars = [
   {
     icon: Handshake,
-    title: "Potencialização de Negócios",
-    description: "Use o fator relacionamento para potencializar suas negociações. Identifique o melhor cenário para o seu cliente e forneça o argumento certo para buscar condições exclusivas."
+    title: "Propostas que fecham negócios",
+    description: "Gere argumentos com IA, gráficos e sua marca em segundos."
   },
   {
     icon: ShieldCheck,
-    title: "Confiança Estratégica",
-    description: "Antecipe custos extras e taxas bancárias ocultas. Gere confiança estratégica ao eliminar surpresas no fechamento e proteja sua reputação diante de investidores."
+    title: "Segurança antes do contrato",
+    description: "Antecipe taxas, seguros e custos reais de cada banco ao cliente."
   },
   {
     icon: BowArrow,
-    title: "Inteligência Evolutiva",
-    description: "Um sistema vivo que evolui diariamente. Unimos a velocidade da IA com a ética e a curadoria humana da VetorPro para que você esteja sempre atualizado com o mercado."
+    title: "Dados do mercado financeiro",
+    description: "SELIC, IPCA, INCC e câmbio atualizados em tempo real."
   }];
 
 
@@ -27,33 +27,31 @@ export function LandingHero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Copy */}
           <div className="space-y-6 animate-fade-in-up">
-            <div>
-            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight flex items-center gap-3">
-                <img src={vetorproIcon} alt="VetorPro" className="h-12 w-12 md:h-14 md:w-14" />
-                <span>
-                  <span className="text-primary">Vetor</span>
-                  <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
-                </span>
-              </h1>
+            <div className="flex items-center gap-3">
+              <img src={vetorproIcon} alt="VetorPro" className="h-10 w-10 md:h-12 md:w-12" />
+              <span className="text-2xl md:text-3xl font-bold tracking-tight">
+                <span className="text-primary">Vetor</span>
+                <span style={{ color: "hsl(152 68% 38%)" }}>Pro</span>
+              </span>
             </div>
 
-            <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed max-w-lg">
-              A plataforma de Inteligência Imobiliária que acelera sua jornada do básico à Consultoria de Elite.
-            </p>
+            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight text-foreground leading-tight">
+              Clareza e Autoridade para Fechar Mais Negócios
+            </h1>
 
-            <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed max-w-lg">
-              Evoluímos a cada dia para transformar dados complexos em clareza estratégica. Conquiste a confiança de clientes e acelere seu sucesso com a IA, Ética e a Curadoria Humana da VetorPro.
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
+              O VetorPro transforma dados complexos do mercado imobiliário em propostas profissionais, argumentos sólidos e apresentações que geram confiança no cliente — do cálculo à entrega com sua marca.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button variant="hero" size="lg" asChild>
-                <a href="#planos">
-                  Assinar Agora
+                <a href="#beneficios">
+                  Ver como funciona
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </a>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a href="#beneficios">Conhecer Recursos</a>
+                <a href="#planos">Assinar Agora</a>
               </Button>
             </div>
           </div>

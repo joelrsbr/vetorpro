@@ -18,9 +18,9 @@ const plans = [
 {
   id: "basic" as PlanType,
   name: "Basic",
-  price: "R$ 69,90",
+  price: "R$ 49,90",
   period: "/mês",
-  description: "Uso Essencial — Simulações e Propostas com IA.",
+  description: "Para corretores que querem crescer em simulação profissional.",
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
@@ -38,7 +38,7 @@ const plans = [
   name: "Professional",
   price: "R$ 139,90",
   period: "/mês",
-  description: "Uso Extensivo — Para corretores que operam em volume.",
+  description: "Para corretores que operam em volume e querem propostas profissionais que fecham negócios.",
   icon: Rocket,
   buttonVariant: "default" as const,
   features: [
@@ -52,9 +52,9 @@ const plans = [
 {
   id: "business" as PlanType,
   name: "Business",
-  price: "R$ 269,90",
+  price: "R$ 299,90",
   period: "/mês",
-  description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
+  description: "Para consultores de elite que precisam de diferencial competitivo real.",
   icon: Building2,
   buttonVariant: "hero" as const,
   highlight: true,
@@ -107,12 +107,21 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
   return (
     <section id="planos" className="pt-10 pb-16 md:pt-16 md:pb-24 bg-muted/30 scroll-mt-20">
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in-up">
+        <div className="text-center mb-8 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Escolha o plano ideal para você
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Planos pensados para cada etapa do seu negócio imobiliário.
+          </p>
+        </div>
+
+        <div className="mx-auto max-w-3xl mb-8 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-center">
+          <p className="text-xs md:text-sm text-foreground">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Lançamento</span>
+            <span className="text-muted-foreground"> — Use o cupom </span>
+            <span className="font-bold font-mono tracking-wider text-emerald-700 dark:text-emerald-400">VETORPRO30</span>
+            <span className="text-muted-foreground"> e ganhe 30% de desconto nos primeiros 3 meses.</span>
           </p>
         </div>
 
@@ -204,7 +213,7 @@ export function LandingPlans({ onSelectPlan, selectedPlan }: LandingPlansProps) 
             <p className="text-sm font-medium text-foreground">
               O VetorPro é uma plataforma profissional exclusiva.
             </p>
-            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Planos corporativos sob consulta.</p>
+            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Cupons de lançamento disponíveis por tempo limitado.</p>
           </div>
         </div>
       </div>

@@ -15,9 +15,9 @@ const plans = [
   {
     key: "basic" as PlanKey,
     name: "Basic",
-    price: "R$69,90",
+    price: "R$49,90",
     period: "/mês",
-    description: "Uso Essencial — Simulações e Propostas com IA.",
+    description: "Para corretores que querem crescer em simulação profissional.",
     features: [
       "Até 50 Simulações (SAC/PRICE) por mês",
       "Até 20 Propostas com IA por mês",
@@ -39,7 +39,7 @@ const plans = [
     name: "Professional",
     price: "R$139,90",
     period: "/mês",
-    description: "Uso Extensivo — Para corretores que operam em volume.",
+    description: "Para corretores que operam em volume e querem propostas profissionais que fecham negócios.",
     features: [
       "Tudo do Basic",
       "Até 300 Simulações por mês",
@@ -58,9 +58,9 @@ const plans = [
   {
     key: "business" as PlanKey,
     name: "Business",
-    price: "R$269,90",
+    price: "R$299,90",
     period: "/mês",
-    description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
+    description: "Para consultores de elite que precisam de diferencial competitivo real.",
     features: [
       "Inclui todos os recursos do Plano Professional",
       "Até 2.000 Simulações por mês",
@@ -137,6 +137,15 @@ export function PricingSection() {
           </p>
         </div>
 
+        <div className="mx-auto max-w-3xl mb-8 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-center">
+          <p className="text-xs md:text-sm text-foreground">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Lançamento</span>
+            <span className="text-muted-foreground"> — Use o cupom </span>
+            <span className="font-bold font-mono tracking-wider text-emerald-700 dark:text-emerald-400">VETORPRO30</span>
+            <span className="text-muted-foreground"> e ganhe 30% de desconto nos primeiros 3 meses.</span>
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
           {plans.map((plan) => {
             const isCurrent = isCurrentPlan(plan.key);
@@ -209,7 +218,16 @@ export function PricingSection() {
           })}
         </div>
 
-        <div className="text-center mt-8 text-sm text-muted-foreground">
+        <div className="mt-12 max-w-2xl mx-auto">
+          <div className="p-5 rounded-lg bg-muted/50 border text-center">
+            <p className="text-sm font-medium text-foreground">
+              O VetorPro é uma plataforma profissional exclusiva.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Não há versão gratuita. Cupons de lançamento disponíveis por tempo limitado.</p>
+          </div>
+        </div>
+
+        <div className="text-center mt-6 text-sm text-muted-foreground">
           <p>✓ Cancele a qualquer momento · ✓ Sem taxas ocultas · ✓ Garantia de 7 dias</p>
         </div>
       </div>
