@@ -277,7 +277,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       toast({
         title: "Erro ao entrar",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
       return { error };
