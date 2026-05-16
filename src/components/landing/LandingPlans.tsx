@@ -18,9 +18,9 @@ const plans = [
 {
   id: "basic" as PlanType,
   name: "Basic",
-  price: "R$ 69,90",
+  price: "R$ 49,90",
   period: "/mês",
-  description: "Uso Essencial — Simulações e Propostas com IA.",
+  description: "Para corretores que querem crescer em simulação profissional.",
   icon: Crown,
   buttonVariant: "outline" as const,
   features: [
@@ -38,7 +38,7 @@ const plans = [
   name: "Professional",
   price: "R$ 139,90",
   period: "/mês",
-  description: "Uso Extensivo — Para corretores que operam em volume.",
+  description: "Para corretores que operam em volume e querem propostas profissionais que fecham negócios.",
   icon: Rocket,
   buttonVariant: "default" as const,
   features: [
@@ -52,9 +52,9 @@ const plans = [
 {
   id: "business" as PlanType,
   name: "Business",
-  price: "R$ 269,90",
+  price: "R$ 299,90",
   period: "/mês",
-  description: "Alta Performance — Para Profissionais de Elite e Consultorias de Alto Padrão",
+  description: "Para consultores de elite que precisam de diferencial competitivo real.",
   icon: Building2,
   buttonVariant: "hero" as const,
   highlight: true,
