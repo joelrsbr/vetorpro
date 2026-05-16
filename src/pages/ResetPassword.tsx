@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { translateAuthError } from "@/lib/auth-errors";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
