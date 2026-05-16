@@ -88,7 +88,7 @@ const ResetPassword = () => {
     if (error) {
       toast({
         title: "Erro ao redefinir senha",
-        description: error.message,
+        description: translateAuthError(error.message),
         variant: "destructive",
       });
     } else {
