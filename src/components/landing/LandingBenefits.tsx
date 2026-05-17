@@ -10,31 +10,37 @@ import {
 const benefits = [
   {
     icon: Calculator,
+    number: "01",
     title: "Simula o financiamento",
     description: "Conheça seu cliente de verdade. Apresente a negociação certa na hora certa.",
   },
   {
     icon: TableProperties,
+    number: "02",
     title: "Compara os bancos",
     description: "Você sempre à frente. Uma simulação, até 10 bancos comparados em segundos.",
   },
   {
     icon: BarChart3,
+    number: "03",
     title: "Gera a proposta com IA",
     description: "IA treinada para ajudar você a indicar a melhor opção — com argumentos sólidos.",
   },
   {
     icon: Landmark,
+    number: "04",
     title: "Personaliza com sua marca",
     description: "Você no controle da sua identidade. Sua autoridade, do seu jeito.",
   },
   {
     icon: Sparkles,
+    number: "05",
     title: "Apresenta ao cliente",
     description: "Autoridade não se vende. Se conquista — com clareza e dados reais.",
   },
   {
     icon: FileText,
+    number: "06",
     title: "Acompanha o fechamento",
     description: "Você controla o fluxo. Cada negociação no lugar certo, até o sim.",
   },
@@ -63,6 +69,9 @@ export function LandingBenefits() {
               <div className="h-10 w-10 rounded-md bg-primary/8 flex items-center justify-center mb-3">
                 <benefit.icon className="h-5 w-5 text-primary" />
               </div>
+              <span className="text-xs font-medium text-muted-foreground/70 mb-0.5 block">
+                {benefit.number}
+              </span>
               <h3 className="text-sm font-semibold text-foreground mb-1">
                 {benefit.title}
               </h3>
