@@ -66,12 +66,14 @@ export function LandingBenefits() {
               className="group p-5 rounded-lg bg-card border hover:border-primary/30 transition-colors"
               style={{ animationDelay: `${idx * 80}ms` }}
             >
-              <div className="h-10 w-10 rounded-md bg-primary/8 flex items-center justify-center mb-3">
-                <benefit.icon className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-10 w-10 rounded-md bg-primary/8 flex items-center justify-center shrink-0">
+                  <benefit.icon className="h-5 w-5 text-primary" />
+                </div>
+                <span className="text-lg font-medium text-primary leading-none">
+                  {benefit.number}
+                </span>
               </div>
-              <span className="text-xs font-medium text-muted-foreground/70 mb-0.5 block">
-                {benefit.number}
-              </span>
               <h3 className="text-sm font-semibold text-foreground mb-1">
                 {benefit.title}
               </h3>
