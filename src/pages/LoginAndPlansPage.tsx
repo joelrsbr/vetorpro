@@ -49,6 +49,9 @@ export default function LoginAndPlansPage() {
       {/* Hero Section */}
       <LandingHero />
 
+      {/* Institutional Strip */}
+      <LandingInstitutionalStrip />
+
       {/* Benefits Section */}
       <LandingBenefits />
 
