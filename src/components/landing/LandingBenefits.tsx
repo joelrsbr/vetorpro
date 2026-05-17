@@ -46,10 +46,10 @@ export function LandingBenefits() {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Tudo que um corretor de alto padrão precisa
+            Como o VetorPro trabalha para você
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Do cálculo técnico à apresentação profissional — com IA, ética e curadoria humana.
+            Do primeiro cálculo ao fechamento — cada etapa com inteligência e sua marca.
           </p>
         </div>
         
