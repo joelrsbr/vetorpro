@@ -77,8 +77,8 @@ export function LandingHero() {
 
           {/* Right — Trust Pillars */}
           <div className="animate-fade-in-up-delay">
-            <div className="rounded-xl border bg-background p-6 space-y-5 shadow-sm">
-              <div className="flex items-center gap-2 border-b pb-4">
+            <div className="rounded-xl border bg-background p-5 space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 border-b pb-3">
                 <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
@@ -88,11 +88,11 @@ export function LandingHero() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {pillars.map((p) =>
                 <div key={p.title} className="flex gap-3 items-start">
-                    <div className="h-9 w-9 rounded-md bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
-                      <p.icon className="h-4 w-4 text-primary" />
+                    <div className="h-8 w-8 rounded-md bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
+                      <p.icon className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{p.title}</p>
