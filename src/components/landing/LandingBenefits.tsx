@@ -10,33 +10,33 @@ import {
 const benefits = [
   {
     icon: Calculator,
-    title: "Simulação SAC & PRICE",
-    description: "Simule cenários reais com indexadores oficiais e mostre ao cliente o impacto de cada escolha ao longo do tempo.",
+    title: "Simula o financiamento",
+    description: "Conheça seu cliente de verdade. Apresente a negociação certa na hora certa.",
   },
   {
     icon: TableProperties,
-    title: "Tabela de Amortização",
-    description: "Apresente mês a mês a evolução do saldo devedor. Transparência que gera confiança e elimina surpresas.",
+    title: "Compara os bancos",
+    description: "Você sempre à frente. Uma simulação, até 10 bancos comparados em segundos.",
   },
   {
     icon: BarChart3,
-    title: "Calculadora HP12C",
-    description: "A ferramenta do mercado financeiro na palma da mão. Cálculos precisos, respostas rápidas.",
+    title: "Gera a proposta com IA",
+    description: "IA treinada para ajudar você a indicar a melhor opção — com argumentos sólidos.",
   },
   {
     icon: Landmark,
-    title: "Sondagem Multibancos",
-    description: "Compare taxas, CET, MIP e DFI dos principais bancos. Antecipe custos reais e proteja sua reputação pós-contrato.",
+    title: "Personaliza com sua marca",
+    description: "Você no controle da sua identidade. Sua autoridade, do seu jeito.",
   },
   {
     icon: Sparkles,
-    title: "Propostas com IA",
-    description: "Gere propostas personalizadas com tom profissional, argumentos estratégicos e identidade visual da sua marca.",
+    title: "Apresenta ao cliente",
+    description: "Autoridade não se vende. Se conquista — com clareza e dados reais.",
   },
   {
     icon: FileText,
-    title: "Relatórios com sua Marca",
-    description: "PDFs profissionais com seu logo, CRECI e contato. Sua consultoria no papel, do jeito certo.",
+    title: "Acompanha o fechamento",
+    description: "Você controla o fluxo. Cada negociação no lugar certo, até o sim.",
   },
 ];
 
@@ -46,10 +46,10 @@ export function LandingBenefits() {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Tudo que um corretor de alto padrão precisa
+            Como o VetorPro trabalha para você
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Do cálculo técnico à apresentação profissional — com IA, ética e curadoria humana.
+            Do primeiro cálculo ao fechamento — cada etapa com inteligência e sua marca.
           </p>
         </div>
         
