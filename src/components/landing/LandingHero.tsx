@@ -56,13 +56,13 @@ export function LandingHero() {
             </h1>
 
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
-              O VetorPro transforma dados complexos do mercado imobiliário em propostas profissionais, argumentos sólidos e apresentações que geram confiança no cliente — do cálculo à entrega com sua marca.
+              O mercado acumula propostas. O VetorPro separa intenção real de ruído — e transforma isso em autoridade financeira para fechar mais negócios.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button variant="hero" size="lg" asChild>
                 <a href="#beneficios">
-                  Ver como funciona
+                  Entender meu potencial de fechamento
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </a>
               </Button>
@@ -70,6 +70,9 @@ export function LandingHero() {
                 <a href="#planos">Assinar Agora</a>
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground/70">
+              Veja como o VetorPro transforma suas simulações em propostas que fecham.
+            </p>
           </div>
 
           {/* Right — Trust Pillars */}
