@@ -10,33 +10,33 @@ import {
 const benefits = [
   {
     icon: Calculator,
-    title: "Simulação SAC & PRICE",
-    description: "Simule cenários reais com indexadores oficiais e mostre ao cliente o impacto de cada escolha ao longo do tempo.",
+    title: "Simula o financiamento",
+    description: "Conheça seu cliente de verdade. Apresente a negociação certa na hora certa.",
   },
   {
     icon: TableProperties,
-    title: "Tabela de Amortização",
-    description: "Apresente mês a mês a evolução do saldo devedor. Transparência que gera confiança e elimina surpresas.",
+    title: "Compara os bancos",
+    description: "Você sempre à frente. Uma simulação, até 10 bancos comparados em segundos.",
   },
   {
     icon: BarChart3,
-    title: "Calculadora HP12C",
-    description: "A ferramenta do mercado financeiro na palma da mão. Cálculos precisos, respostas rápidas.",
+    title: "Gera a proposta com IA",
+    description: "IA treinada para ajudar você a indicar a melhor opção — com argumentos sólidos.",
   },
   {
     icon: Landmark,
-    title: "Sondagem Multibancos",
-    description: "Compare taxas, CET, MIP e DFI dos principais bancos. Antecipe custos reais e proteja sua reputação pós-contrato.",
+    title: "Personaliza com sua marca",
+    description: "Você no controle da sua identidade. Sua autoridade, do seu jeito.",
   },
   {
     icon: Sparkles,
-    title: "Propostas com IA",
-    description: "Gere propostas personalizadas com tom profissional, argumentos estratégicos e identidade visual da sua marca.",
+    title: "Apresenta ao cliente",
+    description: "Autoridade não se vende. Se conquista — com clareza e dados reais.",
   },
   {
     icon: FileText,
-    title: "Relatórios com sua Marca",
-    description: "PDFs profissionais com seu logo, CRECI e contato. Sua consultoria no papel, do jeito certo.",
+    title: "Acompanha o fechamento",
+    description: "Você controla o fluxo. Cada negociação no lugar certo, até o sim.",
   },
 ];
 
