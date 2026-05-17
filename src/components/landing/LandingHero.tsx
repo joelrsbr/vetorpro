@@ -62,7 +62,7 @@ export function LandingHero() {
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button variant="hero" size="lg" asChild>
                 <a href="#beneficios">
-                  Entender meu potencial de fechamento
+                  Começar minha análise estratégica
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </a>
               </Button>

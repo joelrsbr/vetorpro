@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
+import { LandingInstitutionalStrip } from "@/components/landing/LandingInstitutionalStrip";
 import { LandingBenefits } from "@/components/landing/LandingBenefits";
 import { LandingPlans } from "@/components/landing/LandingPlans";
 import { LandingFooter } from "@/components/landing/LandingFooter";
@@ -47,6 +48,9 @@ export default function LoginAndPlansPage() {
 
       {/* Hero Section */}
       <LandingHero />
+
+      {/* Institutional Strip */}
+      <LandingInstitutionalStrip />
 
       {/* Benefits Section */}
       <LandingBenefits />
