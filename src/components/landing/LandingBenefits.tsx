@@ -69,6 +69,9 @@ export function LandingBenefits() {
               <div className="h-10 w-10 rounded-md bg-primary/8 flex items-center justify-center mb-3">
                 <benefit.icon className="h-5 w-5 text-primary" />
               </div>
+              <span className="text-xs font-medium text-muted-foreground/70 mb-0.5 block">
+                {benefit.number}
+              </span>
               <h3 className="text-sm font-semibold text-foreground mb-1">
                 {benefit.title}
               </h3>
