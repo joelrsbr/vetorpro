@@ -23,7 +23,7 @@ const benefits = [
   {
     icon: BarChart3,
     number: "03",
-    title: "Gera a proposta com IA",
+    title: "Transforma simulações em propostas estratégicas.",
     description: "IA treinada para ajudar você a indicar a melhor opção — com argumentos sólidos.",
   },
   {
