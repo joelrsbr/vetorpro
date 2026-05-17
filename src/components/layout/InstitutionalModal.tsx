@@ -18,7 +18,7 @@ export function InstitutionalModal({ open, onOpenChange }: InstitutionalModalPro
         <DialogHeader className="text-center sm:text-center space-y-4">
           <DialogTitle className="text-lg font-semibold tracking-tight text-center">J-RSBR</DialogTitle>
           <p className="text-sm italic text-muted-foreground">
-            Empresa Inova Simples (I.S.)<br />100% Brasileira
+            Empresa Inova Simples (I.S.)<br />
           </p>
         </DialogHeader>
 
@@ -31,8 +31,8 @@ export function InstitutionalModal({ open, onOpenChange }: InstitutionalModalPro
             </div>
             <div className="flex items-center justify-center gap-2">
               <Mail className="h-3.5 w-3.5 shrink-0" />
-              <a href="mailto:contato@J-RSBR.com.br" className="hover:text-primary transition-colors">
-                contato@J-RSBR.com.br
+              <a href="mailto:contato@j-rsbr.com.br" className="hover:text-primary transition-colors">
+                contato@j-rsbr.com.br
               </a>
             </div>
           </div>
