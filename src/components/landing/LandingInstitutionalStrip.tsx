@@ -6,7 +6,7 @@ export function LandingInstitutionalStrip() {
           CRMs contam propostas. O VetorPro qualifica intenção.
         </p>
         <p className="text-sm md:text-base font-normal text-slate-300 tracking-wide">
-          Porque só intenção real fecha negócio.
+          Negociações reais exigem dados reais.
         </p>
       </div>
     </section>
