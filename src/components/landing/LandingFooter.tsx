@@ -21,8 +21,11 @@ export function LandingFooter() {
             Privacidade
           </Link>
         </div>
+        <p className="text-[10px] opacity-40 tracking-wide">
+          O sistema propõe. Você decide.
+        </p>
         <p className="text-[10px] opacity-50">
-          © 2026 VetorPro – Operado por{" "}
+          © 2026 VetorPro – Operado by{" '}
           <button
             onClick={() => setShowInstitutional(true)}
             className="cursor-pointer bg-transparent p-0 no-underline"
