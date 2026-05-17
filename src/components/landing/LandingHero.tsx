@@ -1,24 +1,40 @@
-import { TrendingUp, ArrowRight, Handshake, ShieldCheck, BowArrow } from "lucide-react";
+import { TrendingUp, ArrowRight, Handshake, ShieldCheck, Brain, Landmark, Sparkles, Award, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import vetorproIcon from "@/assets/vetorpro-logo.svg";
 
 export function LandingHero() {
   const pillars = [
-  {
-    icon: Handshake,
-    title: "Propostas que fecham negócios",
-    description: "Gere argumentos com IA, gráficos e sua marca em segundos."
-  },
-  {
-    icon: ShieldCheck,
-    title: "Segurança antes do contrato",
-    description: "Antecipe taxas, seguros e custos reais de cada banco ao cliente."
-  },
-  {
-    icon: BowArrow,
-    title: "Dados do mercado financeiro",
-    description: "SELIC, IPCA, INCC e câmbio atualizados em tempo real."
-  }];
+    {
+      icon: Brain,
+      title: "Inteligência Financeira",
+      description: "Dados bancários, amortização e cenários em tempo real."
+    },
+    {
+      icon: ShieldCheck,
+      title: "Segurança antes do contrato",
+      description: "Antecipe taxas, seguros e custos reais de cada banco ao cliente."
+    },
+    {
+      icon: Landmark,
+      title: "Comparativo Multibancos",
+      description: "Uma simulação. Dez bancos comparados. Você escolhe a melhor opção ao lado do seu cliente — e fortalece sua autoridade."
+    },
+    {
+      icon: Sparkles,
+      title: "Propostas que fecham negócios",
+      description: "Gere argumentos com IA, gráficos e sua marca em segundos."
+    },
+    {
+      icon: Award,
+      title: "Sua Marca em Evidência",
+      description: "O VetorPro entra como ferramenta. Você é quem aparece."
+    },
+    {
+      icon: Users,
+      title: "Controle Total das Suas Vendas",
+      description: "Acompanhe cada cliente do primeiro contato ao fechamento. Sem perder nada, sem improvisar."
+    }
+  ];
 
 
   return (
