@@ -1,24 +1,40 @@
-import { TrendingUp, ArrowRight, Handshake, ShieldCheck, BowArrow } from "lucide-react";
+import { TrendingUp, ArrowRight, Handshake, ShieldCheck, Brain, Landmark, Sparkles, Award, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import vetorproIcon from "@/assets/vetorpro-logo.svg";
 
 export function LandingHero() {
   const pillars = [
-  {
-    icon: Handshake,
-    title: "Propostas que fecham negócios",
-    description: "Gere argumentos com IA, gráficos e sua marca em segundos."
-  },
-  {
-    icon: ShieldCheck,
-    title: "Segurança antes do contrato",
-    description: "Antecipe taxas, seguros e custos reais de cada banco ao cliente."
-  },
-  {
-    icon: BowArrow,
-    title: "Dados do mercado financeiro",
-    description: "SELIC, IPCA, INCC e câmbio atualizados em tempo real."
-  }];
+    {
+      icon: Brain,
+      title: "Inteligência Financeira",
+      description: "Dados bancários, amortização e cenários em tempo real."
+    },
+    {
+      icon: ShieldCheck,
+      title: "Segurança antes do contrato",
+      description: "Antecipe taxas, seguros e custos reais de cada banco ao cliente."
+    },
+    {
+      icon: Landmark,
+      title: "Comparativo Multibancos",
+      description: "Uma simulação. Dez bancos comparados. Você escolhe a melhor opção ao lado do seu cliente — e fortalece sua autoridade."
+    },
+    {
+      icon: Sparkles,
+      title: "Propostas que fecham negócios",
+      description: "Gere argumentos com IA, gráficos e sua marca em segundos."
+    },
+    {
+      icon: Award,
+      title: "Sua Marca em Evidência",
+      description: "O VetorPro entra como ferramenta. Você é quem aparece."
+    },
+    {
+      icon: Users,
+      title: "Controle Total das Suas Vendas",
+      description: "Acompanhe cada cliente do primeiro contato ao fechamento. Sem perder nada, sem improvisar."
+    }
+  ];
 
 
   return (
@@ -40,13 +56,13 @@ export function LandingHero() {
             </h1>
 
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
-              O VetorPro transforma dados complexos do mercado imobiliário em propostas profissionais, argumentos sólidos e apresentações que geram confiança no cliente — do cálculo à entrega com sua marca.
+              O mercado acumula propostas. O VetorPro separa intenção real de ruído — e transforma isso em autoridade financeira para fechar mais negócios.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button variant="hero" size="lg" asChild>
                 <a href="#beneficios">
-                  Ver como funciona
+                  Entender meu potencial de fechamento
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </a>
               </Button>
@@ -54,12 +70,15 @@ export function LandingHero() {
                 <a href="#planos">Assinar Agora</a>
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground/70">
+              Veja como o VetorPro transforma suas simulações em propostas que fecham.
+            </p>
           </div>
 
           {/* Right — Trust Pillars */}
           <div className="animate-fade-in-up-delay">
-            <div className="rounded-xl border bg-background p-6 space-y-5 shadow-sm">
-              <div className="flex items-center gap-2 border-b pb-4">
+            <div className="rounded-xl border bg-background p-5 space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 border-b pb-3">
                 <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
@@ -69,11 +88,11 @@ export function LandingHero() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {pillars.map((p) =>
                 <div key={p.title} className="flex gap-3 items-start">
-                    <div className="h-9 w-9 rounded-md bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
-                      <p.icon className="h-4 w-4 text-primary" />
+                    <div className="h-8 w-8 rounded-md bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
+                      <p.icon className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{p.title}</p>
